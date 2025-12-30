@@ -356,7 +356,7 @@ try {
 
 GlContextUPtr SdlWindow::do_make_gl_context()
 try {
-	return make_sdl_gl_context(logger_, *sdl_window_);
+	return make_gl_context_sdl(logger_, *sdl_window_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 WindowSize SdlWindow::do_gl_get_drawable_size()

@@ -4,19 +4,19 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// OpenGL context (SDL)
+
 #ifndef BSTONE_SYS_GL_CONTEXT_SDL_INCLUDED
 #define BSTONE_SYS_GL_CONTEXT_SDL_INCLUDED
 
-#include "SDL3/SDL_video.h"
 #include "bstone_sys_logger.h"
 #include "bstone_sys_gl_context.h"
+#include "SDL3/SDL_video.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-GlContextUPtr make_sdl_gl_context(Logger& logger, SDL_Window& sdl_window);
+GlContextUPtr make_gl_context_sdl(Logger& logger, SDL_Window& sdl_window);
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_GL_CONTEXT_SDL_INCLUDED

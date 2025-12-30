@@ -4,153 +4,117 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// OpenGL context (SDL)
+
+#include "bstone_exception.h"
+#include "bstone_scope_exit.h"
+#include "bstone_sys_gl_context_sdl.h"
+#include <format>
 #include <string>
 #include <type_traits>
-#include "bstone_configurations.h"
-#include "bstone_exception.h"
-#include "bstone_generic_pool_resource.h"
-#include "bstone_sys_detail_sdl.h"
-#include "bstone_sys_exception_sdl.h"
-#include "bstone_sys_gl_context_sdl.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 namespace {
 
-struct SdlGlContextDeleter
-{
-	void operator()(SDL_GLContext sdl_gl_context) const noexcept
-	{
-		SDL_GL_DestroyContext(sdl_gl_context);
-	}
-};
-
-using SdlGlContextUPtr = std::unique_ptr<std::remove_pointer_t<SDL_GLContext>, SdlGlContextDeleter>;
-
-// ==========================================================================
-
-class SdlGlContext final : public GlContext
+class GlContextSdl final : public GlContext
 {
 public:
-	SdlGlContext(Logger& logger, SDL_Window& sdl_window);
-	SdlGlContext(const SdlGlContext&) = delete;
-	SdlGlContext& operator=(const SdlGlContext&) = delete;
-	~SdlGlContext() override;
-
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
+	GlContextSdl(SDL_Window& sdl_window);
+	GlContextSdl(const GlContextSdl&) = delete;
+	GlContextSdl& operator=(const GlContextSdl&) = delete;
+	~GlContextSdl() override;
 
 private:
-	Logger& logger_;
-	SdlGlContextUPtr sdl_context_{};
-	GlContextAttributes attributes_{};
+	SDL_GLContext sdl_gl_context_;
+	GlContextAttributes gl_context_attributes_;
 
-private:
 	const GlContextAttributes& do_get_attributes() const noexcept override;
 
-private:
-	static MemoryResource& get_memory_resource();
-
-	static GlContextProfile map_profile(int sdl_context_profile);
-	static int get_attrib(SDL_GLAttr gl_attrib);
-	static bool get_attrib_bool(SDL_GLAttr gl_attrib);
+	static const char* get_gl_attribute_name(SDL_GLAttr sdl_gl_attr);
+	static GlContextProfile map_profile(SDL_GLProfile sdl_context_profile);
+	static int get_gl_attribute(SDL_GLAttr sdl_gl_attr);
+	static bool get_attrib_bool(SDL_GLAttr sdl_gl_attr);
 };
 
-// ==========================================================================
+// --------------------------------------
 
-SdlGlContext::SdlGlContext(Logger& logger, SDL_Window& sdl_window)
-try
-	:
-	logger_{logger}
+GlContextSdl::GlContextSdl(SDL_Window& sdl_window)
 {
-	auto message = std::string{};
-	message.reserve(4096);
-
-	message.clear();
-	message += "<<< Create SDL OpenGL context.";
-	detail::sdl_log_eol(message);
-	message += "Input parameters:";
-	detail::sdl_log_eol(message);
-	message += "  Window ptr: ";
-	detail::sdl_log_xint_hex(reinterpret_cast<std::uintptr_t>(&sdl_window), message);
-	logger_.log_information(message.c_str());
-
-	auto sdl_context = SdlGlContextUPtr{sdl_ensure_result(SDL_GL_CreateContext(&sdl_window))};
-
-	attributes_.is_accelerated = get_attrib_bool(SDL_GL_ACCELERATED_VISUAL);
-	attributes_.profile = map_profile(get_attrib(SDL_GL_CONTEXT_PROFILE_MASK));
-	attributes_.major_version = get_attrib(SDL_GL_CONTEXT_MAJOR_VERSION);
-	attributes_.minor_version = get_attrib(SDL_GL_CONTEXT_MINOR_VERSION);
-	attributes_.multisample_buffer_count = get_attrib(SDL_GL_MULTISAMPLEBUFFERS);
-	attributes_.multisample_sample_count = get_attrib(SDL_GL_MULTISAMPLESAMPLES);
-	attributes_.red_bit_count = get_attrib(SDL_GL_RED_SIZE);
-	attributes_.green_bit_count = get_attrib(SDL_GL_GREEN_SIZE);
-	attributes_.blue_bit_count = get_attrib(SDL_GL_BLUE_SIZE);
-	attributes_.alpha_bit_count = get_attrib(SDL_GL_ALPHA_SIZE);
-	attributes_.depth_bit_count = get_attrib(SDL_GL_DEPTH_SIZE);
-
-	sdl_context_.swap(sdl_context);
-
-	message.clear();
-	message += "Ptr: ";
-	detail::sdl_log_xint_hex(reinterpret_cast<std::uintptr_t>(sdl_context_.get()), message);
-	detail::sdl_log_eol(message);
-	message += "Effective attributes:";
-	detail::sdl_log_eol(message);
-	detail::sdl_log_gl_attributes(attributes_, message);
-	message += ">>> SDL OpenGL context created.";
-	logger_.log_information(message.c_str());
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-SdlGlContext::~SdlGlContext()
-{
-	auto message = std::string{};
-	message.reserve(128);
-
-	message.clear();
-	message += "Destroy SDL OpenGL context (ptr: ";
-	detail::sdl_log_xint_hex(reinterpret_cast<std::uintptr_t>(sdl_context_.get()), message);
-	message += ')';
-	logger_.log_information(message.c_str());
-}
-
-void* SdlGlContext::operator new(std::size_t size)
-try {
-	return get_memory_resource().allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void SdlGlContext::operator delete(void* ptr)
-{
-	get_memory_resource().deallocate(ptr);
-}
-
-const GlContextAttributes& SdlGlContext::do_get_attributes() const noexcept
-{
-	return attributes_;
-}
-
-MemoryResource& SdlGlContext::get_memory_resource()
-{
-	struct Initializer
-	{
-		Initializer(GenericPoolResource& generic_memory_pool)
+	SDL_GLContext sdl_gl_context = SDL_GL_CreateContext(&sdl_window);
+	const auto scope_exit = make_scope_exit(
+		[&sdl_gl_context]()
 		{
-			generic_memory_pool.reserve(
-				static_cast<std::intptr_t>(sizeof(SdlGlContext)),
-				sys_max_gl_contexts,
-				get_default_memory_resource());
-		}
-	};
-
-	static GenericPoolResource generic_memory_pool{};
-	static const Initializer initializer{generic_memory_pool};
-
-	return generic_memory_pool;
+			if (sdl_gl_context != nullptr)
+			{
+				SDL_GL_DestroyContext(sdl_gl_context);
+			}
+		});
+	gl_context_attributes_.is_accelerated = get_attrib_bool(SDL_GL_ACCELERATED_VISUAL);
+	gl_context_attributes_.profile = map_profile(get_gl_attribute(SDL_GL_CONTEXT_PROFILE_MASK));
+	gl_context_attributes_.major_version = get_gl_attribute(SDL_GL_CONTEXT_MAJOR_VERSION);
+	gl_context_attributes_.minor_version = get_gl_attribute(SDL_GL_CONTEXT_MINOR_VERSION);
+	gl_context_attributes_.multisample_buffer_count = get_gl_attribute(SDL_GL_MULTISAMPLEBUFFERS);
+	gl_context_attributes_.multisample_sample_count = get_gl_attribute(SDL_GL_MULTISAMPLESAMPLES);
+	gl_context_attributes_.red_bit_count = get_gl_attribute(SDL_GL_RED_SIZE);
+	gl_context_attributes_.green_bit_count = get_gl_attribute(SDL_GL_GREEN_SIZE);
+	gl_context_attributes_.blue_bit_count = get_gl_attribute(SDL_GL_BLUE_SIZE);
+	gl_context_attributes_.alpha_bit_count = get_gl_attribute(SDL_GL_ALPHA_SIZE);
+	gl_context_attributes_.depth_bit_count = get_gl_attribute(SDL_GL_DEPTH_SIZE);
+	sdl_gl_context_ = sdl_gl_context;
+	sdl_gl_context = nullptr;
 }
 
-GlContextProfile SdlGlContext::map_profile(int sdl_context_profile)
-try {
+GlContextSdl::~GlContextSdl()
+{
+	SDL_GL_DestroyContext(sdl_gl_context_);
+}
+
+const GlContextAttributes& GlContextSdl::do_get_attributes() const noexcept
+{
+	return gl_context_attributes_;
+}
+
+const char* GlContextSdl::get_gl_attribute_name(SDL_GLAttr sdl_gl_attr)
+{
+#define BSTONE_MACRO(x) case x: return #x
+	switch (sdl_gl_attr)
+	{
+		BSTONE_MACRO(SDL_GL_RED_SIZE);
+		BSTONE_MACRO(SDL_GL_GREEN_SIZE);
+		BSTONE_MACRO(SDL_GL_BLUE_SIZE);
+		BSTONE_MACRO(SDL_GL_ALPHA_SIZE);
+		BSTONE_MACRO(SDL_GL_BUFFER_SIZE);
+		BSTONE_MACRO(SDL_GL_DOUBLEBUFFER);
+		BSTONE_MACRO(SDL_GL_DEPTH_SIZE);
+		BSTONE_MACRO(SDL_GL_STENCIL_SIZE);
+		BSTONE_MACRO(SDL_GL_ACCUM_RED_SIZE);
+		BSTONE_MACRO(SDL_GL_ACCUM_GREEN_SIZE);
+		BSTONE_MACRO(SDL_GL_ACCUM_BLUE_SIZE);
+		BSTONE_MACRO(SDL_GL_ACCUM_ALPHA_SIZE);
+		BSTONE_MACRO(SDL_GL_STEREO);
+		BSTONE_MACRO(SDL_GL_MULTISAMPLEBUFFERS);
+		BSTONE_MACRO(SDL_GL_MULTISAMPLESAMPLES);
+		BSTONE_MACRO(SDL_GL_ACCELERATED_VISUAL);
+		BSTONE_MACRO(SDL_GL_RETAINED_BACKING);
+		BSTONE_MACRO(SDL_GL_CONTEXT_MAJOR_VERSION);
+		BSTONE_MACRO(SDL_GL_CONTEXT_MINOR_VERSION);
+		BSTONE_MACRO(SDL_GL_CONTEXT_FLAGS);
+		BSTONE_MACRO(SDL_GL_CONTEXT_PROFILE_MASK);
+		BSTONE_MACRO(SDL_GL_SHARE_WITH_CURRENT_CONTEXT);
+		BSTONE_MACRO(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE);
+		BSTONE_MACRO(SDL_GL_CONTEXT_RELEASE_BEHAVIOR);
+		BSTONE_MACRO(SDL_GL_CONTEXT_RESET_NOTIFICATION);
+		BSTONE_MACRO(SDL_GL_CONTEXT_NO_ERROR);
+		BSTONE_MACRO(SDL_GL_FLOATBUFFERS);
+		BSTONE_MACRO(SDL_GL_EGL_PLATFORM);
+		default: return nullptr;
+	}
+#undef BSTONE_MACRO
+}
+
+GlContextProfile GlContextSdl::map_profile(SDL_GLProfile sdl_context_profile)
+{
 	switch (sdl_context_profile)
 	{
 		case SDL_GL_CONTEXT_PROFILE_COMPATIBILITY: return GlContextProfile::compatibility;
@@ -158,33 +122,37 @@ try {
 		case SDL_GL_CONTEXT_PROFILE_ES: return GlContextProfile::es;
 		default: BSTONE_THROW_STATIC_SOURCE("Unknown SDL context profile.");
 	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
-int SdlGlContext::get_attrib(SDL_GLAttr gl_attrib)
-try {
-	auto gl_value = 0;
-	sdl_ensure_result(SDL_GL_GetAttribute(gl_attrib, &gl_value));
-	return gl_value;
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-bool SdlGlContext::get_attrib_bool(SDL_GLAttr gl_attrib)
-try {
-	switch (get_attrib(gl_attrib))
+int GlContextSdl::get_gl_attribute(SDL_GLAttr sdl_gl_attr)
+{
+	int value;
+	if (!SDL_GL_GetAttribute(sdl_gl_attr, &value))
 	{
-		case 0: return false;
-		case 1: return true;
-		default: BSTONE_THROW_STATIC_SOURCE("Invalid boolean value.");
+		const char* const attribute_name = get_gl_attribute_name(sdl_gl_attr);
+		const std::string message = std::format(
+			"[{}] {} (attr={} {})",
+			"SDL_GL_GetAttribute",
+			SDL_GetError(),
+			attribute_name != nullptr ? attribute_name : "???",
+			static_cast<std::underlying_type_t<decltype(sdl_gl_attr)>>(sdl_gl_attr));
+		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	return value;
+}
+
+bool GlContextSdl::get_attrib_bool(SDL_GLAttr sdl_gl_attr)
+{
+	return get_gl_attribute(sdl_gl_attr) != 0;
+}
 
 } // namespace
 
-// ==========================================================================
+// ======================================
 
-GlContextUPtr make_sdl_gl_context(Logger& logger, SDL_Window& sdl_window)
+GlContextUPtr make_gl_context_sdl([[maybe_unused]] Logger& logger, SDL_Window& sdl_window)
 {
-	return std::make_unique<SdlGlContext>(logger, sdl_window);
+	return std::make_unique<GlContextSdl>(sdl_window);
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
