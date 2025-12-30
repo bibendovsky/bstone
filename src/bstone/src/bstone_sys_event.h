@@ -27,7 +27,7 @@ enum class EventType
 struct CommonEvent
 {
 	EventType type;
-	unsigned int timestamp;
+	unsigned long long timestamp;
 };
 
 struct KeyboardEvent : CommonEvent
