@@ -97,7 +97,7 @@ try
 
 	mouse_mgr_ = make_sdl_mouse_mgr(logger);
 	window_mgr_ = make_sdl_window_mgr(logger);
-	gl_current_context_ = make_sdl_gl_current_context(logger_);
+	gl_current_context_ = make_gl_current_context_sdl(logger_);
 	sdl_subsystem_.swap(sdl_subsystem);
 	is_initialized_ = true;
 
