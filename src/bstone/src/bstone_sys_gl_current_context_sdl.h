@@ -12,12 +12,10 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_gl_current_context.h"
 #include "bstone_sys_logger.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-GlCurrentContextUPtr make_sdl_gl_current_context(Logger& logger);
+GlCurrentContextUPtr make_gl_current_context_sdl(Logger& logger);
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_GL_CURRENT_CONTEXT_SDL_INCLUDED

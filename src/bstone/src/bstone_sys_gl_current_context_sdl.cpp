@@ -6,81 +6,51 @@ SPDX-License-Identifier: MIT
 
 // OpenGL current context (SDL).
 
-#include "SDL3/SDL_video.h"
-
 #include "bstone_exception.h"
-#include "bstone_single_pool_resource.h"
-#include "bstone_sys_exception_sdl.h"
 #include "bstone_sys_gl_current_context_sdl.h"
 #include "bstone_sys_gl_symbol_resolver_sdl.h"
+#include <format>
+#include <string>
+#include "SDL3/SDL_video.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-class SdlGlCurrentContext final : public GlCurrentContext
+namespace {
+
+class GlCurrentContextSdl final : public GlCurrentContext
 {
 public:
-	SdlGlCurrentContext(Logger& logger);
-	~SdlGlCurrentContext() override;
-
-	static void* operator new(std::size_t size);
-	static void operator delete(void* ptr) noexcept;
+	GlCurrentContextSdl() = default;
+	GlCurrentContextSdl(const GlCurrentContextSdl&) = delete;
+	GlCurrentContextSdl& operator=(const GlCurrentContextSdl&) = delete;
+	~GlCurrentContextSdl() override = default;
 
 private:
-	Logger& logger_;
 	SdlGlSymbolResolver gl_symbol_resolver_{};
-
-	static SinglePoolResource<SdlGlCurrentContext> memoryResource_;
 
 private:
 	bool do_has_extension(const char* extension_name) const noexcept override;
-
 	SwapIntervalType do_get_swap_interval() const noexcept override;
 	void do_set_swap_interval(SwapIntervalType swap_interval_type) override;
-
 	const GlSymbolResolver& do_get_symbol_resolver() const noexcept override;
 
-private:
 	static int map(SwapIntervalType swap_interval_type);
 };
 
-// --------------------------------------------------------------------------
+// --------------------------------------
 
-SinglePoolResource<SdlGlCurrentContext> SdlGlCurrentContext::memoryResource_{};
-
-SdlGlCurrentContext::SdlGlCurrentContext(Logger& logger)
-	:
-	logger_{logger}
-{
-	logger_.log_information("Start up OpenGL current context.");
-}
-
-SdlGlCurrentContext::~SdlGlCurrentContext()
-{
-	logger_.log_information("Shut down OpenGL current context.");
-}
-
-void* SdlGlCurrentContext::operator new(std::size_t size)
-{
-	return memoryResource_.allocate(static_cast<std::intptr_t>(size));
-}
-
-void SdlGlCurrentContext::operator delete(void* ptr) noexcept
-{
-	memoryResource_.deallocate(ptr);
-}
-
-bool SdlGlCurrentContext::do_has_extension(const char* extension_name) const noexcept
+bool GlCurrentContextSdl::do_has_extension(const char* extension_name) const noexcept
 {
 	return SDL_GL_ExtensionSupported(extension_name);
 }
 
-SwapIntervalType SdlGlCurrentContext::do_get_swap_interval() const noexcept
+SwapIntervalType GlCurrentContextSdl::do_get_swap_interval() const noexcept
 {
 	int sdl_swap_interval;
 	if (!SDL_GL_GetSwapInterval(&sdl_swap_interval))
 	{
-		sdl_swap_interval = 0;
+		const std::string message = std::format("[{}] {}", "SDL_GL_GetSwapInterval", SDL_GetError());
+		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 	}
 	switch (sdl_swap_interval)
 	{
@@ -90,32 +60,39 @@ SwapIntervalType SdlGlCurrentContext::do_get_swap_interval() const noexcept
 	}
 }
 
-void SdlGlCurrentContext::do_set_swap_interval(SwapIntervalType swap_interval_type)
+void GlCurrentContextSdl::do_set_swap_interval(SwapIntervalType swap_interval_type)
 {
-	const auto sdl_swap_interval = map(swap_interval_type);
-	sdl_ensure_result(SDL_GL_SetSwapInterval(sdl_swap_interval));
+	const int sdl_swap_interval = map(swap_interval_type);
+	if (!SDL_GL_SetSwapInterval(sdl_swap_interval))
+	{
+		const std::string message = std::format("[{}] {}", "SDL_GL_SetSwapInterval", SDL_GetError());
+		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+	}
 }
 
-const GlSymbolResolver& SdlGlCurrentContext::do_get_symbol_resolver() const noexcept
+const GlSymbolResolver& GlCurrentContextSdl::do_get_symbol_resolver() const noexcept
 {
 	return gl_symbol_resolver_;
 }
 
-int SdlGlCurrentContext::map(SwapIntervalType swap_interval_type)
+int GlCurrentContextSdl::map(SwapIntervalType swap_interval_type)
 {
 	switch (swap_interval_type)
 	{
 		case SwapIntervalType::none: return 0;
 		case SwapIntervalType::standard: return 1;
 		case SwapIntervalType::adaptive: return -1;
-		default: BSTONE_THROW_STATIC_SOURCE("Unknown 3D renderer swap interval type.");
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown swap interval type.");
 	}
 }
 
-GlCurrentContextUPtr make_sdl_gl_current_context(Logger& logger)
+} // namespace
+
+// ======================================
+
+GlCurrentContextUPtr make_gl_current_context_sdl([[maybe_unused]] Logger& logger)
 {
-	return std::make_unique<SdlGlCurrentContext>(logger);
+	return std::make_unique<GlCurrentContextSdl>();
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
