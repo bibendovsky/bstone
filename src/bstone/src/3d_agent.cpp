@@ -4570,7 +4570,7 @@ std::uint8_t ShowRatio(
 		{
 			if (!(loop % 2))
 			{
-				sd_play_player_item_sound(STATS1SND);
+				sd_play_ui_sound(STATS1SND);
 			}
 			VW_WaitVBL(1);
 			VW_UpdateScreen();
@@ -4579,7 +4579,7 @@ std::uint8_t ShowRatio(
 
 	if (!show_stats_quick && numbars)
 	{
-		sd_play_player_item_sound(STATS2SND);
+		sd_play_ui_sound(STATS2SND);
 
 		while (sd_is_playing_any_ui_sound() && LastScan == ScanCode::sc_none)
 		{
