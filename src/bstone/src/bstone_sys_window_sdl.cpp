@@ -374,7 +374,7 @@ try {
 
 RendererUPtr SdlWindow::do_make_renderer(const RendererInitParam& param)
 try {
-	return make_sdl_renderer(logger_, *sdl_window_, param);
+	return make_renderer_sdl(logger_, *sdl_window_, param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 MemoryResource& SdlWindow::get_memory_resource()
