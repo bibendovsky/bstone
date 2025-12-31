@@ -4,15 +4,17 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#include "SDL3/SDL_render.h"
-#include "bstone_configurations.h"
-#include "bstone_exception.h"
-#include "bstone_generic_pool_resource.h"
-#include "bstone_sys_exception_sdl.h"
-#include "bstone_sys_texture_lock_sdl.h"
+// Texture lock (SDL)
 
-namespace bstone {
-namespace sys {
+#include "bstone_sys_texture_lock_sdl.h"
+#include "bstone_assert.h"
+#include "bstone_exception.h"
+#include <format>
+#include <memory>
+#include <string>
+#include "SDL3/SDL_render.h"
+
+namespace bstone::sys {
 
 namespace {
 
@@ -24,98 +26,126 @@ static_assert(
 		offsetof(SDL_Rect, h) == offsetof(Rectangle, height),
 	"Unsupported Rectangle type.");
 
-// ==========================================================================
+// ======================================
 
-class SdlTextureLock final : public TextureLock
+class TextureLockSdl final : public TextureLock
 {
 public:
-	SdlTextureLock(SDL_Texture& sdl_texture, const Rectangle* rect);
-	SdlTextureLock(const SdlTextureLock& rhs) = delete;
-	SdlTextureLock& operator=(const SdlTextureLock& rhs) = delete;
-	~SdlTextureLock() override;
+	TextureLockSdl(SDL_Texture& sdl_texture, const Rectangle* rect);
+	TextureLockSdl(const TextureLockSdl& rhs) = delete;
+	TextureLockSdl& operator=(const TextureLockSdl& rhs) = delete;
+	~TextureLockSdl() override;
 
 	void* operator new(std::size_t size);
 	void operator delete(void* ptr);
 
 private:
+	class Storage;
+
 	SDL_Texture& sdl_texture_;
 	void* pixels_{};
 	int pitch_{};
 
-private:
 	void* do_get_pixels() const noexcept override;
 	int do_get_pitch() const noexcept override;
-
-private:
-	static MemoryResource& get_memory_resource();
 };
 
-// ==========================================================================
+// ======================================
 
-SdlTextureLock::SdlTextureLock(SDL_Texture& sdl_texture, const Rectangle* rect)
-try
+class TextureLockSdl::Storage
+{
+public:
+	Storage() {};
+	void* allocate(std::size_t size);
+	void deallocate(void* pointer);
+	static Storage& get_singleton();
+private:
+	constexpr static std::size_t storage_size = sizeof(TextureLockSdl);
+	bool is_allocated_{};
+	std::byte storage_[storage_size];
+};
+
+// ======================================
+
+TextureLockSdl::TextureLockSdl(SDL_Texture& sdl_texture, const Rectangle* rect)
 	:
 	sdl_texture_{sdl_texture}
 {
-	sdl_ensure_result(SDL_LockTexture(
+	if (!SDL_LockTexture(
 		&sdl_texture,
 		reinterpret_cast<const SDL_Rect*>(rect),
 		&pixels_,
-		&pitch_));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+		&pitch_))
+	{
+		const std::string message = std::format("[{}] {}", "SDL_LockTexture", SDL_GetError());
+		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+	}
+}
 
-SdlTextureLock::~SdlTextureLock()
+TextureLockSdl::~TextureLockSdl()
 {
 	SDL_UnlockTexture(&sdl_texture_);
 }
 
-void* SdlTextureLock::operator new(std::size_t size)
-try {
-	return get_memory_resource().allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void SdlTextureLock::operator delete(void* ptr)
+void* TextureLockSdl::operator new(std::size_t size)
 {
-	get_memory_resource().deallocate(ptr);
+	return Storage::get_singleton().allocate(size);
 }
 
-void* SdlTextureLock::do_get_pixels() const noexcept
+void TextureLockSdl::operator delete(void* ptr)
+{
+	Storage::get_singleton().deallocate(ptr);
+}
+
+void* TextureLockSdl::do_get_pixels() const noexcept
 {
 	return pixels_;
 }
 
-int SdlTextureLock::do_get_pitch() const noexcept
+int TextureLockSdl::do_get_pitch() const noexcept
 {
 	return pitch_;
 }
 
-MemoryResource& SdlTextureLock::get_memory_resource()
+// ======================================
+
+void* TextureLockSdl::Storage::allocate(std::size_t size)
 {
-	struct Initializer
+	BSTONE_ASSERT(size == storage_size);
+	if (is_allocated_)
 	{
-		Initializer(GenericPoolResource& generic_memory_pool)
-		{
-			generic_memory_pool.reserve(
-				static_cast<std::intptr_t>(sizeof(SdlTextureLock)),
-				sys_max_texture_locks,
-				get_default_memory_resource());
-		}
-	};
+		BSTONE_THROW_STATIC_SOURCE("[TextureLockSdl] Already allocated.");
+	}
+	is_allocated_ = true;
+	return storage_;
+}
 
-	static GenericPoolResource generic_memory_pool{};
-	static Initializer initializer{generic_memory_pool};
+void TextureLockSdl::Storage::deallocate(void* pointer)
+{
+	if (pointer != nullptr)
+	{
+		BSTONE_ASSERT(pointer == storage_);
+		is_allocated_ = false;
+	}
+}
 
-	return generic_memory_pool;
+TextureLockSdl::Storage& TextureLockSdl::Storage::get_singleton()
+{
+	constinit static std::unique_ptr<Storage> storage{};
+	if (storage == nullptr)
+	{
+		storage = std::make_unique<Storage>();
+	}
+	return *storage;
 }
 
 } // namespace
 
-// ==========================================================================
+// ======================================
 
-TextureLockUPtr make_sdl_texture_lock(SDL_Texture& sdl_texture, const Rectangle* rect)
+TextureLockUPtr make_texture_lock_sdl(SDL_Texture& sdl_texture, const Rectangle* rect)
 {
-	return std::make_unique<SdlTextureLock>(sdl_texture, rect);
+	return std::make_unique<TextureLockSdl>(sdl_texture, rect);
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
