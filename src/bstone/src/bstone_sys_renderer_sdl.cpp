@@ -224,7 +224,7 @@ void RendererSdl::do_read_pixels(const Rectangle* rect, PixelFormat pixel_format
 
 TextureUPtr RendererSdl::do_make_texture(const TextureInitParam& param)
 {
-	return make_sdl_texture(logger_, *sdl_renderer_, param);
+	return make_texture_sdl(logger_, *sdl_renderer_, param);
 }
 
 [[noreturn]] void RendererSdl::fail_sdl_func(const char* func_name)
