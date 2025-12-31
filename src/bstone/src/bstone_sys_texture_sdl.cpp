@@ -143,7 +143,7 @@ try {
 
 TextureLockUPtr SdlTexture::do_make_lock(const Rectangle* rect)
 try {
-	return make_sdl_texture_lock(*sdl_texture_, rect);
+	return make_texture_lock_sdl(*sdl_texture_, rect);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 MemoryResource& SdlTexture::get_memory_resource()
