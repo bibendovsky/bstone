@@ -4,36 +4,30 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#include <cassert>
-#include <iterator>
-#include <string>
-#include <string_view>
-#include "SDL3/SDL.h"
-#include "bstone_char_conv.h"
+// System manager (SDL)
+
 #include "bstone_exception.h"
-#include "bstone_single_pool_resource.h"
+#include "bstone_string_builder.h"
 #include "bstone_sys_logger.h"
 #include "bstone_sys_audio_mgr_sdl.h"
 #include "bstone_sys_event_mgr_sdl.h"
-#include "bstone_sys_exception_sdl.h"
 #include "bstone_sys_video_mgr_sdl.h"
 #include "bstone_sys_system_mgr.h"
+#include <string>
+#include <string_view>
+#include "SDL3/SDL.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 namespace {
 
-class SdlSystemMgr final : public SystemMgr
+class SystemMgrSdl final : public SystemMgr
 {
 public:
-	SdlSystemMgr(Logger& logger);
-	SdlSystemMgr(const SdlSystemMgr&) = delete;
-	SdlSystemMgr& operator=(const SdlSystemMgr&) = delete;
-	~SdlSystemMgr() override;
-
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
+	explicit SystemMgrSdl(Logger& logger);
+	SystemMgrSdl(const SystemMgrSdl&) = delete;
+	SystemMgrSdl& operator=(const SystemMgrSdl&) = delete;
+	~SystemMgrSdl() override;
 
 private:
 	Logger& logger_;
@@ -41,150 +35,109 @@ private:
 	EventMgrUPtr event_mgr_{};
 	VideoMgrUPtr video_mgr_{};
 
-private:
 	Logger& do_get_logger() override;
 	AudioMgr& do_get_audio_mgr() override;
 	EventMgr& do_get_event_mgr() override;
 	VideoMgr& do_get_video_mgr() override;
 
-private:
-	static MemoryResource& get_memory_resource();
-
-	void log_version(int sdl_version, std::string_view version_name);
-	void log_compiled_version();
-	void log_linked_version();
-	void log_versions();
-	void log_info() noexcept;
+	void log_version(int sdl_version, std::string_view version_name, StringBuilder& formatter);
+	void log_compiled_version(StringBuilder& formatter);
+	void log_linked_version(StringBuilder& formatter);
+	void log_versions(StringBuilder& formatter);
+	void log_info();
 };
 
-// ==========================================================================
+// --------------------------------------
 
-SdlSystemMgr::SdlSystemMgr(Logger& logger)
-try
+SystemMgrSdl::SystemMgrSdl(Logger& logger)
 	:
 	logger_{logger}
 {
-	logger_.log_information("<<< Start up SDL system manager.");
-
-	log_versions();
-	sdl_ensure_result(SDL_Init(0));
-	sdl_ensure_result(SDL_SetHint(SDL_HINT_VIDEO_SYNC_WINDOW_OPERATIONS, "1"));
-
+	logger_.log_information("Starting SDL system manager.");
+	log_info();
+	if (!SDL_SetHint(SDL_HINT_VIDEO_SYNC_WINDOW_OPERATIONS, "1"))
+	{
+		BSTONE_THROW_STATIC_SOURCE("SDL_SetHint(SDL_HINT_VIDEO_SYNC_WINDOW_OPERATIONS)");
+	}
 	audio_mgr_ = make_audio_mgr_sdl(logger_);
 	event_mgr_ = make_event_mgr_sdl(logger_);
 	video_mgr_ = make_sdl_video_mgr(logger_);
+	logger_.log_information("SDL system manager has started.");
+}
 
-	logger_.log_information(">>> SDL system manager started up.");
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-SdlSystemMgr::~SdlSystemMgr()
+SystemMgrSdl::~SystemMgrSdl()
 {
 	logger_.log_information("Shut down SDL system manager.");
-
 	video_mgr_ = nullptr;
 	event_mgr_ = nullptr;
 	audio_mgr_ = nullptr;
-
 	SDL_Quit();
 }
 
-void* SdlSystemMgr::operator new(std::size_t size)
-try {
-	return get_memory_resource().allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void SdlSystemMgr::operator delete(void* ptr)
-{
-	get_memory_resource().deallocate(ptr);
-}
-
-Logger& SdlSystemMgr::do_get_logger()
+Logger& SystemMgrSdl::do_get_logger()
 {
 	return logger_;
 }
 
-AudioMgr& SdlSystemMgr::do_get_audio_mgr()
+AudioMgr& SystemMgrSdl::do_get_audio_mgr()
 {
 	return *audio_mgr_;
 }
 
-EventMgr& SdlSystemMgr::do_get_event_mgr()
+EventMgr& SystemMgrSdl::do_get_event_mgr()
 {
 	return *event_mgr_;
 }
 
-VideoMgr& SdlSystemMgr::do_get_video_mgr()
+VideoMgr& SystemMgrSdl::do_get_video_mgr()
 {
 	return *video_mgr_;
 }
 
-MemoryResource& SdlSystemMgr::get_memory_resource()
+void SystemMgrSdl::log_version(int sdl_version, std::string_view version_name, StringBuilder& formatter)
 {
-	static SinglePoolResource<SdlSystemMgr> memory_pool{};
-
-	return memory_pool;
+	formatter.reset_indent();
+	formatter.add_line(
+		"{} version: {}.{}.{}",
+		version_name,
+		SDL_VERSIONNUM_MAJOR(sdl_version),
+		SDL_VERSIONNUM_MINOR(sdl_version),
+		SDL_VERSIONNUM_MICRO(sdl_version));
 }
 
-void SdlSystemMgr::log_version(int sdl_version, std::string_view version_name)
-{
-	char major_chars[3];
-	const auto major_size =
-		to_chars(SDL_VERSIONNUM_MAJOR(sdl_version), std::begin(major_chars), std::end(major_chars)) - major_chars;
-
-	char minor_chars[3];
-	const auto minor_size =
-		to_chars(SDL_VERSIONNUM_MINOR(sdl_version), std::begin(minor_chars), std::end(minor_chars)) - minor_chars;
-
-	char patch_chars[3];
-	const auto patch_size =
-		to_chars(SDL_VERSIONNUM_MICRO(sdl_version), std::begin(patch_chars), std::end(patch_chars)) - patch_chars;
-
-	auto version_string = std::string{};
-	version_string.reserve(32);
-	version_string.append(version_name.data(), version_name.size());
-	version_string += " version: ";
-	version_string.append(major_chars, static_cast<std::size_t>(major_size));
-	version_string += '.';
-	version_string.append(minor_chars, static_cast<std::size_t>(minor_size));
-	version_string += '.';
-	version_string.append(patch_chars, static_cast<std::size_t>(patch_size));
-
-	logger_.log_information(version_string.c_str());
-}
-
-void SdlSystemMgr::log_compiled_version()
+void SystemMgrSdl::log_compiled_version(StringBuilder& formatter)
 {
 	constexpr int sdl_version = SDL_VERSION;
-	log_version(sdl_version, "Compiled");
+	log_version(sdl_version, "Compiled", formatter);
 }
 
-void SdlSystemMgr::log_linked_version()
+void SystemMgrSdl::log_linked_version(StringBuilder& formatter)
 {
 	const int sdl_version = SDL_GetVersion();
-	log_version(sdl_version, "Linked");
+	log_version(sdl_version, "Linked", formatter);
 }
 
-void SdlSystemMgr::log_versions()
+void SystemMgrSdl::log_versions(StringBuilder& formatter)
 {
-	log_compiled_version();
-	log_linked_version();
+	log_compiled_version(formatter);
+	log_linked_version(formatter);
 }
 
-void SdlSystemMgr::log_info() noexcept
-try
+void SystemMgrSdl::log_info()
 {
-	log_versions();
+	StringBuilder formatter{};
+	formatter.reserve(256);
+	log_versions(formatter);
+	logger_.log_information(formatter.get_string().c_str());
 }
-catch (...) {}
 
 } // namespace
 
-// ==========================================================================
+// ======================================
 
 SystemMgrUPtr make_system_mgr(Logger& logger)
-try {
-	return std::make_unique<SdlSystemMgr>(logger);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+{
+	return std::make_unique<SystemMgrSdl>(logger);
+}
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
