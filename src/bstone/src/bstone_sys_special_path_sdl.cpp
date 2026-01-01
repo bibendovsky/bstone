@@ -4,31 +4,17 @@ Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-#include <algorithm>
-#include <memory>
+// Special path primitives (SDL)
 
-#include "SDL3/SDL_filesystem.h"
-#include "SDL3/SDL_stdinc.h"
-
-#include "bstone_char_traits.h"
-#include "bstone_exception.h"
-#include "bstone_sys_exception_sdl.h"
 #include "bstone_sys_special_path.h"
+#include "bstone_exception.h"
+#include "bstone_scope_exit.h"
+#include <algorithm>
+#include <format>
+#include <string>
+#include "SDL3/SDL_filesystem.h"
 
-namespace bstone {
-namespace sys {
-
-namespace {
-
-struct SdlPrefPathDeleter
-{
-	void operator()(void* ptr) const noexcept
-	{
-		SDL_free(ptr);
-	}
-};
-
-} // namespace
+namespace bstone::sys {
 
 std::intptr_t SpecialPath::get_user_specific_data_path(
 	const char* organization_name,
@@ -36,18 +22,24 @@ std::intptr_t SpecialPath::get_user_specific_data_path(
 	char* buffer,
 	std::intptr_t buffer_size)
 {
-	using SdlPrefPathUPtr = std::unique_ptr<char[], SdlPrefPathDeleter>;
-	const auto sdl_path = SdlPrefPathUPtr{sdl_ensure_result(SDL_GetPrefPath(organization_name, application_name))};
-	const auto path_size = char_traits::get_size(sdl_path.get());
-
+	char* const sdl_path = SDL_GetPrefPath(organization_name, application_name);
+	if (sdl_path == nullptr)
+	{
+		const std::string message = std::format("[{}] {}", "SDL_GetPrefPath", SDL_GetError());
+		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+	}
+	const auto scope_exit = make_scope_exit(
+		[sdl_path]()
+		{
+			SDL_free(sdl_path);
+		});
+	const std::intptr_t path_size = static_cast<std::intptr_t>(std::string::traits_type::length(sdl_path));
 	if (path_size >= buffer_size)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Buffer too small.");
 	}
-
-	std::copy_n(sdl_path.get(), path_size + 1, buffer);
+	std::copy_n(sdl_path, path_size + 1, buffer);
 	return path_size;
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
