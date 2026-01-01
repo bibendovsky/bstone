@@ -747,8 +747,6 @@ set(BSTONE_BSTONE_SYS_SDL_SOURCES
 	src/bstone_sys_audio_mgr_sdl.h
 	src/bstone_sys_event_mgr_sdl.cpp
 	src/bstone_sys_event_mgr_sdl.h
-	src/bstone_sys_exception_sdl.cpp
-	src/bstone_sys_exception_sdl.h
 	src/bstone_sys_gl_context_sdl.cpp
 	src/bstone_sys_gl_context_sdl.h
 	src/bstone_sys_gl_current_context_sdl.cpp
