@@ -4,18 +4,18 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// Video manager (SDL)
+
 #ifndef BSTONE_SYS_VIDEO_MGR_SDL_INCLUDED
 #define BSTONE_SYS_VIDEO_MGR_SDL_INCLUDED
 
 #include "bstone_sys_logger.h"
 #include "bstone_sys_video_mgr.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-VideoMgrUPtr make_sdl_video_mgr(Logger& logger);
+VideoMgrUPtr make_video_mgr_sdl(Logger& logger);
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_VIDEO_MGR_SDL_INCLUDED

@@ -61,7 +61,7 @@ SystemMgrSdl::SystemMgrSdl(Logger& logger)
 	}
 	audio_mgr_ = make_audio_mgr_sdl(logger_);
 	event_mgr_ = make_event_mgr_sdl(logger_);
-	video_mgr_ = make_sdl_video_mgr(logger_);
+	video_mgr_ = make_video_mgr_sdl(logger_);
 	logger_.log_information("SDL system manager has started.");
 }
 
