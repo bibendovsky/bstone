@@ -4,20 +4,15 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// FIXME Move to the configuration?
+// System limits (SDL)
 
 #ifndef BSTONE_SYS_LIMITS_SDL_INCLUDED
 #define BSTONE_SYS_LIMITS_SDL_INCLUDED
 
-namespace bstone {
-namespace sys {
-namespace limits {
+namespace bstone::sys::limits {
 
-constexpr auto max_textures = 2;
 constexpr auto max_display_modes = 256;
 
-} // namespace limits
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys::limits
 
 #endif // BSTONE_SYS_LIMITS_SDL_INCLUDED
