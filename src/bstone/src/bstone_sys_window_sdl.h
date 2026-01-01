@@ -4,6 +4,8 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// Window (SDL)
+
 #ifndef BSTONE_SYS_WINDOW_SDL_INCLUDED
 #define BSTONE_SYS_WINDOW_SDL_INCLUDED
 
@@ -11,31 +13,29 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_window.h"
 #include "bstone_sys_window_rounded_corner_mgr.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-class SdlWindowInternal : public Window
+class WindowSdlInternal : public Window
 {
 public:
-	SdlWindowInternal();
-	~SdlWindowInternal() override;
+	WindowSdlInternal() {}
+	~WindowSdlInternal() override {}
 
-	void* get_native_handle() const noexcept;
+	void* get_native_handle() const;
 	void* get_sdl_window() const;
 
 private:
-	virtual void* do_get_native_handle() const noexcept = 0;
+	virtual void* do_get_native_handle() const = 0;
 	virtual void* do_get_sdl_window() const = 0;
 };
 
 // ==========================================================================
 
-WindowUPtr make_sdl_window(
+WindowUPtr make_window_sdl(
 	Logger& logger,
 	WindowRoundedCornerMgr& rounded_corner_mgr,
 	const WindowInitParam& param);
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_WINDOW_SDL_INCLUDED
