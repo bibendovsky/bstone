@@ -45,7 +45,7 @@ WindowMgrSdl::~WindowMgrSdl()
 
 WindowUPtr WindowMgrSdl::do_make_window(const WindowInitParam& param)
 {
-	return make_sdl_window(logger_, *rounded_corner_mgr_, param);
+	return make_window_sdl(logger_, *rounded_corner_mgr_, param);
 }
 
 } // namespace
