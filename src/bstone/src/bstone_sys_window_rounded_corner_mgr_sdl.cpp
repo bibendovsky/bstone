@@ -106,7 +106,7 @@ void WindowRoundedCornerMgrSdl::do_set_round_corner_type(
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unknown window rounded corner type.");
 	}
-	void* const native_handle = static_cast<SdlWindowInternal&>(window).get_native_handle();
+	void* const native_handle = static_cast<WindowSdlInternal&>(window).get_native_handle();
 	const HWND win32_native_handle = static_cast<HWND>(native_handle);
 	const HRESULT hresult = DwmSetWindowAttribute_(
 		win32_native_handle,
