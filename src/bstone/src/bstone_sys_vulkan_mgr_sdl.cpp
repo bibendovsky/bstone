@@ -109,7 +109,7 @@ VkSurfaceKHR VulkanMgrSdl::do_create_surface(Window& window, VkInstance vk_insta
 
 SDL_Window* VulkanMgrSdl::get_sdl_window(Window& window)
 {
-	return static_cast<SDL_Window*>(static_cast<SdlWindowInternal&>(window).get_sdl_window());
+	return static_cast<SDL_Window*>(static_cast<WindowSdlInternal&>(window).get_sdl_window());
 }
 
 [[noreturn]] void VulkanMgrSdl::vulkan_not_available()
