@@ -149,7 +149,7 @@ VulkanMgr& VideoMgrSdl::do_get_vulkan_mgr()
 {
 	if (vulkan_mgr_ == nullptr)
 	{
-		vulkan_mgr_ = make_sdl_vulkan_mgr(logger_);
+		vulkan_mgr_ = make_vulkan_mgr_sdl(logger_);
 	}
 	return *vulkan_mgr_;
 }

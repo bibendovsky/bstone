@@ -4,7 +4,7 @@ Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Vulkan manager (SDL).
+// Vulkan manager (SDL)
 
 #ifndef BSTONE_SYS_VULKAN_MGR_SDL_INCLUDED
 #define BSTONE_SYS_VULKAN_MGR_SDL_INCLUDED
@@ -12,14 +12,10 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_logger.h"
 #include "bstone_sys_vulkan_mgr.h"
 
-// ==========================================================================
+namespace bstone::sys {
 
-namespace bstone {
-namespace sys {
+VulkanMgrUPtr make_vulkan_mgr_sdl(Logger& logger);
 
-VulkanMgrUPtr make_sdl_vulkan_mgr(Logger& logger);
-
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_VULKAN_MGR_SDL_INCLUDED
