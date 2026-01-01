@@ -4,21 +4,13 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// Video manager (SDL)
+
 #include "bstone_sys_video_mgr_sdl.h"
-
-#include <algorithm>
-#include <iterator>
-
-#include "SDL3/SDL.h"
-
-#include "bstone_assert.h"
-#include "bstone_char_conv.h"
 #include "bstone_exception.h"
-#include "bstone_single_pool_resource.h"
-
+#include "bstone_scope_exit.h"
+#include "bstone_string_builder.h"
 #include "bstone_sys_logger.h"
-#include "bstone_sys_detail_sdl.h"
-#include "bstone_sys_exception_sdl.h"
 #include "bstone_sys_gl_current_context_sdl.h"
 #include "bstone_sys_limits_sdl.h"
 #include "bstone_sys_video_mgr_null.h"
@@ -26,314 +18,315 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_vulkan_mgr_sdl.h"
 #include "bstone_sys_window_mgr_sdl.h"
 #include "bstone_sys_sdl_subsystem.h"
+#include <algorithm>
+#include <exception>
+#include <format>
+#include <string>
+#include "SDL3/SDL_video.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 namespace {
 
-class SdlVideoMgr final : public VideoMgr
+class VideoMgrSdl final : public VideoMgr
 {
 public:
-	SdlVideoMgr(Logger& logger);
-	SdlVideoMgr(const SdlVideoMgr&) = delete;
-	SdlVideoMgr& operator=(const SdlVideoMgr&) = delete;
-	~SdlVideoMgr() override;
-
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
+	explicit VideoMgrSdl(Logger& logger);
+	VideoMgrSdl(const VideoMgrSdl&) = delete;
+	VideoMgrSdl& operator=(const VideoMgrSdl&) = delete;
+	~VideoMgrSdl() override;
 
 private:
 	using DisplayModeCache = DisplayMode[limits::max_display_modes];
 
-private:
 	Logger& logger_;
 	SdlSubsystem sdl_subsystem_{};
-	bool is_initialized_{};
 	MouseMgrUPtr mouse_mgr_{};
 	WindowMgrUPtr window_mgr_{};
 	DisplayModeCache display_mode_cache_{};
 	GlCurrentContextUPtr gl_current_context_{};
 	VulkanMgrUPtr vulkan_mgr_{};
 
-private:
 	bool do_is_initialized() const noexcept override;
-
 	Logger& do_get_logger() override;
-
 	DisplayMode do_get_current_display_mode() override;
 	std::span<const DisplayMode> do_get_display_modes() override;
-
 	GlCurrentContext& do_get_gl_current_context() override;
 	VulkanMgr& do_get_vulkan_mgr() override;
 	MouseMgr& do_get_mouse_mgr() override;
 	WindowMgr& do_get_window_mgr() override;
 
-private:
-	static MemoryResource& get_memory_resource();
-
-	static void log_int(int value, std::string& message);
-	static void log_rect(const SDL_Rect& rect, std::string& message);
-
-	void log_drivers(std::string& message);
-	static void log_display_mode(const SDL_DisplayMode& mode, std::string& message);
-	void log_displays(std::string& message);
-	void log_info() noexcept;
-
-	static DisplayMode map_display_mode(const SDL_DisplayMode& sdl_display_mode) noexcept;
+	[[noreturn]] void fail_sdl_func(const char* sdl_func_name);
+	static void log_sdl_error(StringBuilder& formatter);
+	static void log_drivers(StringBuilder& formatter);
+	static void log_display_bounds(SDL_DisplayID sdl_display_id, StringBuilder& formatter);
+	static void log_display_fullscreen_modes(SDL_DisplayID sdl_display_id, StringBuilder& formatter);
+	static void log_displays(StringBuilder& formatter);
+	void log_info();
+	static DisplayMode map_display_mode(const SDL_DisplayMode& sdl_display_mode);
 };
 
-// ==========================================================================
+// --------------------------------------
 
-SdlVideoMgr::SdlVideoMgr(Logger& logger)
-try
+VideoMgrSdl::VideoMgrSdl(Logger& logger)
 	:
 	logger_{logger}
 {
-	logger_.log_information("<<< Start up SDL video manager.");
-
-	auto sdl_subsystem = SdlSubsystem{SDL_INIT_VIDEO};
+	logger_.log_information("Starting SDL video manager.");
+	SdlSubsystem sdl_subsystem{SDL_INIT_VIDEO};
 	log_info();
-
 	mouse_mgr_ = make_mouse_mgr_sdl(logger);
 	window_mgr_ = make_sdl_window_mgr(logger);
-	gl_current_context_ = make_gl_current_context_sdl(logger_);
 	sdl_subsystem_.swap(sdl_subsystem);
-	is_initialized_ = true;
+	logger_.log_information("SDL video manager has started.");
+}
 
-	logger_.log_information(">>> SDL video manager started up.");
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-SdlVideoMgr::~SdlVideoMgr()
+VideoMgrSdl::~VideoMgrSdl()
 {
 	logger_.log_information("Shut down SDL video manager.");
-
 	gl_current_context_ = nullptr;
 	vulkan_mgr_ = nullptr;
 	window_mgr_ = nullptr;
 	mouse_mgr_ = nullptr;
 }
 
-void* SdlVideoMgr::operator new(std::size_t size)
-try {
-	return get_memory_resource().allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void SdlVideoMgr::operator delete(void* ptr)
+bool VideoMgrSdl::do_is_initialized() const noexcept
 {
-	get_memory_resource().deallocate(ptr);
+	return true;
 }
 
-bool SdlVideoMgr::do_is_initialized() const noexcept
-{
-	return is_initialized_;
-}
-
-Logger& SdlVideoMgr::do_get_logger()
+Logger& VideoMgrSdl::do_get_logger()
 {
 	return logger_;
 }
 
-DisplayMode SdlVideoMgr::do_get_current_display_mode()
-try {
-	BSTONE_ASSERT(is_initialized_);
-	const SDL_DisplayMode* sdl_display_mode = sdl_ensure_result(SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay()));
+DisplayMode VideoMgrSdl::do_get_current_display_mode()
+{
+	const SDL_DisplayID sdl_display_id = SDL_GetPrimaryDisplay();
+	if (sdl_display_id == 0)
+	{
+		fail_sdl_func("SDL_GetPrimaryDisplay");
+	}
+	const SDL_DisplayMode* sdl_display_mode = SDL_GetCurrentDisplayMode(sdl_display_id);
+	if (sdl_display_mode == nullptr)
+	{
+		fail_sdl_func("SDL_GetCurrentDisplayMode");
+	}
 	return map_display_mode(*sdl_display_mode);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
-std::span<const DisplayMode> SdlVideoMgr::do_get_display_modes()
-try {
-	BSTONE_ASSERT(is_initialized_);
+std::span<const DisplayMode> VideoMgrSdl::do_get_display_modes()
+{
 	int sdl_mode_count;
-	SDL_DisplayMode** const sdl_display_modes =
-		sdl_ensure_result(SDL_GetFullscreenDisplayModes(SDL_GetPrimaryDisplay(), &sdl_mode_count));
+	SDL_DisplayMode** const sdl_display_mode_ptrs = SDL_GetFullscreenDisplayModes(SDL_GetPrimaryDisplay(), &sdl_mode_count);
+	if (sdl_display_mode_ptrs == nullptr)
+	{
+		fail_sdl_func("SDL_GetFullscreenDisplayModes");
+	}
+	const auto scope_exit = make_scope_exit(
+		[sdl_display_mode_ptrs]()
+		{
+			SDL_free(sdl_display_mode_ptrs);
+		});
 	const int mode_count = std::min(sdl_mode_count, limits::max_display_modes);
 	for (int i_mode = 0; i_mode < mode_count; ++i_mode)
 	{
-		display_mode_cache_[i_mode] = map_display_mode(*(sdl_display_modes[i_mode]));
+		display_mode_cache_[i_mode] = map_display_mode(*(sdl_display_mode_ptrs[i_mode]));
 	}
-	SDL_free(sdl_display_modes);
 	return std::span<const DisplayMode>{display_mode_cache_, static_cast<std::size_t>(mode_count)};
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
-GlCurrentContext& SdlVideoMgr::do_get_gl_current_context()
+GlCurrentContext& VideoMgrSdl::do_get_gl_current_context()
 {
-	BSTONE_ASSERT(is_initialized_);
-
+	if (gl_current_context_ == nullptr)
+	{
+		gl_current_context_ = make_gl_current_context_sdl(logger_);
+	}
 	return *gl_current_context_;
 }
 
-VulkanMgr& SdlVideoMgr::do_get_vulkan_mgr()
+VulkanMgr& VideoMgrSdl::do_get_vulkan_mgr()
 {
-	BSTONE_ASSERT(is_initialized_);
-
 	if (vulkan_mgr_ == nullptr)
 	{
 		vulkan_mgr_ = make_sdl_vulkan_mgr(logger_);
 	}
-
 	return *vulkan_mgr_;
 }
 
-MouseMgr& SdlVideoMgr::do_get_mouse_mgr()
+MouseMgr& VideoMgrSdl::do_get_mouse_mgr()
 {
-	BSTONE_ASSERT(is_initialized_);
-
 	return *mouse_mgr_;
 }
 
-WindowMgr& SdlVideoMgr::do_get_window_mgr()
+WindowMgr& VideoMgrSdl::do_get_window_mgr()
 {
-	BSTONE_ASSERT(is_initialized_);
-
 	return *window_mgr_;
 }
 
-MemoryResource& SdlVideoMgr::get_memory_resource()
+[[noreturn]] void VideoMgrSdl::fail_sdl_func(const char* sdl_func_name)
 {
-	static SinglePoolResource<SdlVideoMgr> memory_pool{};
-
-	return memory_pool;
+	const std::string message = std::format("[{}] {}", sdl_func_name, SDL_GetError());
+	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 }
 
-void SdlVideoMgr::log_int(int value, std::string& message)
+void VideoMgrSdl::log_sdl_error(StringBuilder& formatter)
 {
-	char chars[11];
-	const auto digit_count = to_chars(value, std::begin(chars), std::end(chars)) - chars;
-	message.append(chars, static_cast<std::size_t>(digit_count));
+	formatter.add("ERROR: {}", SDL_GetError());
 }
 
-void SdlVideoMgr::log_rect(const SDL_Rect& rect, std::string& message)
-{
-	message += "(x: ";
-	log_int(rect.x, message);
-	message += "; y: ";
-	log_int(rect.y, message);
-	message += "; w: ";
-	log_int(rect.w, message);
-	message += "; h: ";
-	log_int(rect.h, message);
-	message += ')';
-}
-
-void SdlVideoMgr::log_drivers(std::string& message)
+void VideoMgrSdl::log_drivers(StringBuilder& formatter)
 {
 	//
-	const auto current_driver = SDL_GetCurrentVideoDriver();
-
-	message += "Current driver: \"";
-	message += (current_driver != nullptr ? current_driver : "???");
-	message += '"';
-	detail::sdl_log_eol(message);
-
-	//
-	const auto driver_count = SDL_GetNumVideoDrivers();
-
-	if (driver_count == 0)
+	const char* const current_driver_name = SDL_GetCurrentVideoDriver();
+	formatter.reset_indent();
+	formatter.add("Current driver: ");
+	if (current_driver_name != nullptr)
 	{
-		message = "No built-in drivers.";
-		detail::sdl_log_eol(message);
-		return;
+		formatter.add(current_driver_name);
 	}
-
-	message = "Built-in drivers:";
-	detail::sdl_log_eol(message);
-
-	for (auto i = decltype(driver_count){}; i < driver_count; ++i)
+	else
 	{
-		const auto sdl_driver_name = SDL_GetVideoDriver(i);
-
-		message += "  \"";
-		message += (sdl_driver_name != nullptr ? sdl_driver_name : "???");
-		message += '"';
-		detail::sdl_log_eol(message);
+		log_sdl_error(formatter);
+	}
+	formatter.add_line();
+	//
+	formatter.reset_indent();
+	formatter.add_line("Built-in drivers:");
+	formatter.increase_indent();
+	const int driver_count = SDL_GetNumVideoDrivers();
+	for (int i_driver = 0; i_driver < driver_count; ++i_driver)
+	{
+		const char* const sdl_driver_name = SDL_GetVideoDriver(i_driver);
+		formatter.add_indented_line(sdl_driver_name != nullptr ? sdl_driver_name : "???");
 	}
 }
 
-void SdlVideoMgr::log_display_mode(const SDL_DisplayMode& mode, std::string& message)
+void VideoMgrSdl::log_display_bounds(SDL_DisplayID sdl_display_id, StringBuilder& formatter)
 {
-	log_int(mode.w, message);
-	message += 'x';
-	log_int(mode.h, message);
-	message += ' ';
-	log_int(mode.refresh_rate, message);
-	message += " Hz";
+	formatter.add_indented("Bounds: ");
+	SDL_Rect sdl_rect;
+	if (SDL_GetDisplayBounds(sdl_display_id, &sdl_rect))
+	{
+		formatter.add("({}, {}, {}, {})", sdl_rect.x, sdl_rect.y, sdl_rect.w, sdl_rect.h);
+	}
+	else
+	{
+		log_sdl_error(formatter);
+	}
+	formatter.add_line();
 }
 
-void SdlVideoMgr::log_displays(std::string& message)
+void VideoMgrSdl::log_display_fullscreen_modes(SDL_DisplayID sdl_display_id, StringBuilder& formatter)
 {
-	message += "Displays:";
-	detail::sdl_log_eol(message);
+	formatter.add_indented_line("Fullscreen modes:");
+	formatter.increase_indent();
+	int mode_count;
+	if (SDL_DisplayMode** const sdl_display_mode_ptrs = SDL_GetFullscreenDisplayModes(sdl_display_id, &mode_count);
+		sdl_display_mode_ptrs != nullptr)
+	{
+		const auto scope_exit = make_scope_exit(
+			[sdl_display_mode_ptrs]()
+			{
+				SDL_free(sdl_display_mode_ptrs);
+			});
+		for (int i_mode = 0; i_mode < mode_count; ++i_mode)
+		{
+			const SDL_DisplayMode& sdl_display_mode = *(sdl_display_mode_ptrs[i_mode]);
+			formatter.add_indented("{}. ", i_mode + 1);
+			if (sdl_display_mode.pixel_density != 1.0F)
+			{
+				formatter.add("{:.2f}x", sdl_display_mode.pixel_density);
+			}
+			formatter.add("{}x{}", sdl_display_mode.w, sdl_display_mode.h);
+			formatter.add(" {:.2f}", sdl_display_mode.refresh_rate);
+			if (sdl_display_mode.refresh_rate_denominator != 1)
+			{
+				formatter.add(" ({}/{})", sdl_display_mode.refresh_rate_numerator, sdl_display_mode.refresh_rate_denominator);
+			}
+			formatter.add(" Hz");
+			formatter.add_line();
+		}
+	}
+	else
+	{
+		formatter.add_indent();
+		log_sdl_error(formatter);
+		formatter.add_line();
+	}
+	formatter.decrease_indent();
+}
+
+void VideoMgrSdl::log_displays(StringBuilder& formatter)
+{
+	formatter.reset_indent();
+	formatter.add_line("Displays:");
+	formatter.increase_indent();
 	int display_count;
 	SDL_DisplayID* const sdl_display_ids = SDL_GetDisplays(&display_count);
 	if (sdl_display_ids != nullptr)
 	{
+		const auto scope_exit = make_scope_exit(
+			[sdl_display_ids]()
+			{
+				SDL_free(sdl_display_ids);
+			});
 		for (int i_display = 0; i_display < display_count; ++i_display)
 		{
 			const SDL_DisplayID sdl_display_id = sdl_display_ids[i_display];
-			message += "  ";
-			detail::sdl_log_xint(i_display + 1, message);
-			message += '.';
-			detail::sdl_log_eol(message);
+			const char* const sdl_name = SDL_GetDisplayName(sdl_display_id);
+			formatter.add_indented("{}. ", i_display + 1);
+			if (sdl_name != nullptr)
 			{
-				const char* const sdl_name = SDL_GetDisplayName(sdl_display_id);
-				message += "    Name: ";
-				if (sdl_name != nullptr)
-				{
-					message += sdl_name;
-				}
-				else
-				{
-					message += SDL_GetError();
-				}
-				detail::sdl_log_eol(message);
+				formatter.add(sdl_name);
 			}
+			else
+			{
+				log_sdl_error(formatter);
+			}
+			formatter.add_line();
+			formatter.increase_indent();
+			log_display_bounds(sdl_display_id, formatter);
+			log_display_fullscreen_modes(sdl_display_id, formatter);
 		}
-		SDL_free(sdl_display_ids);
 	}
 	else
 	{
-		message += "  [ERROR] ";
-		message += SDL_GetError();
+		log_sdl_error(formatter);
 	}
-	logger_.log_information(message.c_str());
 }
 
-void SdlVideoMgr::log_info() noexcept
-try
+void VideoMgrSdl::log_info()
 {
-	auto message = std::string{};
-	message.reserve(4096);
-
-	log_drivers(message);
-	log_displays(message);
-
-	logger_.log_information(message.c_str());
+	StringBuilder formatter{};
+	formatter.reserve(1024);
+	log_drivers(formatter);
+	log_displays(formatter);
+	logger_.log_information(formatter.get_string().c_str());
 }
-catch (...) {}
 
-DisplayMode SdlVideoMgr::map_display_mode(const SDL_DisplayMode& sdl_display_mode) noexcept
+DisplayMode VideoMgrSdl::map_display_mode(const SDL_DisplayMode& sdl_display_mode)
 {
-	auto display_mode = DisplayMode{};
-	display_mode.width = sdl_display_mode.w;
-	display_mode.height = sdl_display_mode.h;
-	display_mode.refresh_rate = sdl_display_mode.refresh_rate;
-	return display_mode;
+	return DisplayMode{
+		.width = sdl_display_mode.w,
+		.height = sdl_display_mode.h,
+		.refresh_rate = static_cast<int>(sdl_display_mode.refresh_rate),
+	};
 }
 
 } // namespace
 
-// ==========================================================================
+// ======================================
 
-VideoMgrUPtr make_sdl_video_mgr(Logger& logger)
+VideoMgrUPtr make_video_mgr_sdl(Logger& logger)
 try
 {
-	return std::make_unique<SdlVideoMgr>(logger);
+	return std::make_unique<VideoMgrSdl>(logger);
 }
-catch (...)
+catch (const std::exception& exception)
 {
+	logger.log_error(exception.what());
 	return make_null_video_mgr(logger);
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
