@@ -4,23 +4,17 @@ Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Vulkan manager (SDL).
+// Vulkan manager (SDL)
 
 #include "bstone_sys_vulkan_mgr_sdl.h"
-#include <stddef.h>
-#include <stdint.h>
-#include <string.h>
-#include <algorithm>
+#include "bstone_exception.h"
+#include "bstone_sys_window_sdl.h"
+#include <format>
 #include <string>
 #include "vulkan/vulkan.h"
 #include "SDL3/SDL_vulkan.h"
-#include "bstone_single_pool_resource.h"
-#include "bstone_sys_window_sdl.h"
 
-// ==========================================================================
-
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 namespace {
 
@@ -30,58 +24,37 @@ public:
 	explicit VulkanMgrSdl(Logger& logger);
 	~VulkanMgrSdl() override;
 
-	void* operator new(size_t size);
-	void operator delete(void* ptr);
-
-private:
-	using MemoryPool = SinglePoolResource<VulkanMgrSdl>;
-
-private:
-	static MemoryPool memory_pool_;
-
 private:
 	Logger& logger_;
 	bool is_vulkan_available_{};
 
-private:
 	bool do_is_vulkan_available() const override;
 	VulkanMgrSymbolFunc do_get_instance_proc_addr() const override;
 	std::span<const char* const> do_get_required_extensions(Window& window) override;
 	VkSurfaceKHR do_create_surface(Window& window, VkInstance vk_instance) override;
 
-private:
-	static int align16(int value);
+	[[noreturn]] static void fail_sdl_func(const char* sdl_func_name);
 	static SDL_Window* get_sdl_window(Window& window);
-
-private:
 	[[noreturn]] static void vulkan_not_available();
-
-private:
 	bool impl_is_vulkan_available() const;
 	void ensure_is_vulkan_available() const;
 };
 
-// --------------------------------------------------------------------------
-
-VulkanMgrSdl::MemoryPool VulkanMgrSdl::memory_pool_{};
-
-// --------------------------------------------------------------------------
+// --------------------------------------
 
 VulkanMgrSdl::VulkanMgrSdl(Logger& logger)
 	:
 	logger_{logger}
 {
-	logger_.log_information("Start up SDL Vulkan manager.");
+	logger_.log_information("Starting SDL Vulkan manager.");
 	if (!SDL_Vulkan_LoadLibrary(nullptr))
 	{
-		std::string message{};
-		message.reserve(512);
-		message += "Failed to load the Vulkan loader library. ";
-		message += SDL_GetError();
+		const std::string message = std::format("[{}] {}", "SDL_Vulkan_LoadLibrary", SDL_GetError());
 		logger_.log_information(message.c_str());
 		return;
 	}
 	is_vulkan_available_ = true;
+	logger_.log_information("SDL Vulkan manager has started.");
 }
 
 VulkanMgrSdl::~VulkanMgrSdl()
@@ -91,16 +64,6 @@ VulkanMgrSdl::~VulkanMgrSdl()
 	{
 		SDL_Vulkan_UnloadLibrary();
 	}
-}
-
-void* VulkanMgrSdl::operator new(size_t size)
-{
-	return memory_pool_.allocate(static_cast<intptr_t>(size));
-}
-
-void VulkanMgrSdl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
 }
 
 bool VulkanMgrSdl::do_is_vulkan_available() const
@@ -131,22 +94,17 @@ VkSurfaceKHR VulkanMgrSdl::do_create_surface(Window& window, VkInstance vk_insta
 	ensure_is_vulkan_available();
 	SDL_Window* const sdl_window = get_sdl_window(window);
 	VkSurfaceKHR vk_surface_khr;
-
 	if (!SDL_Vulkan_CreateSurface(sdl_window, vk_instance, nullptr, &vk_surface_khr))
 	{
-		std::string message{};
-		message.reserve(512);
-		message += "Failed to create Vulkan window surface. ";
-		message += SDL_GetError();
-		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+		fail_sdl_func("SDL_Vulkan_CreateSurface");
 	}
-
 	return vk_surface_khr;
 }
 
-int VulkanMgrSdl::align16(int value)
+[[noreturn]] void VulkanMgrSdl::fail_sdl_func(const char* sdl_func_name)
 {
-	return (value + 15) & (~15);
+	const std::string message = std::format("[{}] {}", sdl_func_name, SDL_GetError());
+	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 }
 
 SDL_Window* VulkanMgrSdl::get_sdl_window(Window& window)
@@ -174,12 +132,11 @@ void VulkanMgrSdl::ensure_is_vulkan_available() const
 
 } // namespace
 
-// ==========================================================================
+// ======================================
 
-VulkanMgrUPtr make_sdl_vulkan_mgr(Logger& logger)
+VulkanMgrUPtr make_vulkan_mgr_sdl(Logger& logger)
 {
 	return std::make_unique<VulkanMgrSdl>(logger);
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
