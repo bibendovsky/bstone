@@ -745,8 +745,6 @@ source_group("bstone/sys" FILES ${BSTONE_BSTONE_SYS_SOURCES})
 set(BSTONE_BSTONE_SYS_SDL_SOURCES
 	src/bstone_sys_audio_mgr_sdl.cpp
 	src/bstone_sys_audio_mgr_sdl.h
-	src/bstone_sys_detail_sdl.cpp
-	src/bstone_sys_detail_sdl.h
 	src/bstone_sys_event_mgr_sdl.cpp
 	src/bstone_sys_event_mgr_sdl.h
 	src/bstone_sys_exception_sdl.cpp
