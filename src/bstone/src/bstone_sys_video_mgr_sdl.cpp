@@ -76,7 +76,7 @@ VideoMgrSdl::VideoMgrSdl(Logger& logger)
 	SdlSubsystem sdl_subsystem{SDL_INIT_VIDEO};
 	log_info();
 	mouse_mgr_ = make_mouse_mgr_sdl(logger);
-	window_mgr_ = make_sdl_window_mgr(logger);
+	window_mgr_ = make_window_mgr_sdl(logger);
 	sdl_subsystem_.swap(sdl_subsystem);
 	logger_.log_information("SDL video manager has started.");
 }
