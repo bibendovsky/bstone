@@ -9999,7 +9999,7 @@ int main(
 		bstone::Logger& logger_;
 
 	private:
-		void do_log(bstone::sys::LogLevel level, const char* message) noexcept override
+		void do_log(bstone::sys::LogLevel level, const char* message) override
 		{
 			BSTONE_ASSERT(level == bstone::sys::LogLevel::information);
 			static_cast<void>(level);
