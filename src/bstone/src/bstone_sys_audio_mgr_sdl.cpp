@@ -32,7 +32,7 @@ private:
 	Logger& logger_;
 	SdlSubsystem sdl_subsystem_{};
 
-	bool do_is_initialized() const noexcept override;
+	bool do_is_initialized() const override;
 	PollingAudioDeviceUPtr do_make_polling_audio_device(const PollingAudioDeviceOpenParam& param) override;
 
 	static void log_drivers(StringBuilder& formatter);
@@ -58,7 +58,7 @@ AudioMgrSdl::~AudioMgrSdl()
 	logger_.log_information("Shut down SDL audio manager.");
 }
 
-bool AudioMgrSdl::do_is_initialized() const noexcept
+bool AudioMgrSdl::do_is_initialized() const
 {
 	return true;
 }
