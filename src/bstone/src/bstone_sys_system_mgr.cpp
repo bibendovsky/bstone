@@ -4,16 +4,11 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// System manager.
+// System manager
 
 #include "bstone_sys_system_mgr.h"
 
-namespace bstone {
-namespace sys {
-
-SystemMgr::SystemMgr() = default;
-
-SystemMgr::~SystemMgr() = default;
+namespace bstone::sys {
 
 Logger& SystemMgr::get_logger()
 {
@@ -35,5 +30,4 @@ VideoMgr& SystemMgr::get_video_mgr()
 	return do_get_video_mgr();
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
