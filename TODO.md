@@ -13,3 +13,4 @@
 - Rename `R3rR2TextureUpdateParam::mipmap_level` to `mip_level`.
 - HDR support.
 - Pass sys::Color by the value.
+- Use floating-point type for refresh rate.
