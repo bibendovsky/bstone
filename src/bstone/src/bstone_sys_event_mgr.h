@@ -4,39 +4,34 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Event manager.
+// Event manager
 
 #ifndef BSTONE_SYS_EVENT_MGR_INCLUDED
 #define BSTONE_SYS_EVENT_MGR_INCLUDED
 
+#include "bstone_sys_event.h"
 #include <memory>
 
-#include "bstone_sys_event.h"
-
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 class EventMgr
 {
 public:
-	EventMgr();
-	virtual ~EventMgr();
+	EventMgr() = default;
+	virtual ~EventMgr() = default;
 
-	bool is_initialized() const noexcept;
-
+	bool is_initialized() const;
 	bool poll_event(Event& e);
 
 private:
-	virtual bool do_is_initialized() const noexcept = 0;
-
+	virtual bool do_is_initialized() const = 0;
 	virtual bool do_poll_event(Event& e) = 0;
 };
 
-// ==========================================================================
+// ======================================
 
 using EventMgrUPtr = std::unique_ptr<EventMgr>;
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_EVENT_MGR_INCLUDED

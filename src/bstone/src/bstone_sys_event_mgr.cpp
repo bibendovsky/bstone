@@ -4,18 +4,13 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Event manager.
+// Event manager
 
 #include "bstone_sys_event_mgr.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-EventMgr::EventMgr() = default;
-
-EventMgr::~EventMgr() = default;
-
-bool EventMgr::is_initialized() const noexcept
+bool EventMgr::is_initialized() const
 {
 	return do_is_initialized();
 }
@@ -25,5 +20,4 @@ bool EventMgr::poll_event(Event& e)
 	return do_poll_event(e);
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
