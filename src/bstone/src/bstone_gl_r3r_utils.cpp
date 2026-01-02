@@ -28,7 +28,7 @@ void GlR3rUtils::create_window_and_context(
 	sys::GlContextUPtr& gl_context)
 try {
 	window = R3rUtils::create_window(param, window_mgr);
-	gl_context = window->make_gl_context();
+	gl_context = window->gl_make_context();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int GlR3rUtils::clamp_anisotropy_degree(int anisotropy_value, const R3rDeviceFeatures& device_features)
