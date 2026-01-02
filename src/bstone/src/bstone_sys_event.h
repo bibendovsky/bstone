@@ -4,14 +4,15 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// Event
+
 #ifndef BSTONE_SYS_EVENT_INCLUDED
 #define BSTONE_SYS_EVENT_INCLUDED
 
 #include "bstone_sys_keyboard_key.h"
 #include "bstone_sys_mouse.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 enum class EventType
 {
@@ -89,7 +90,6 @@ union Event
 	WindowEvent window;
 };
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_EVENT_INCLUDED
