@@ -2295,7 +2295,7 @@ void VkR3rImpl::frame_state_reset()
 
 void VkR3rImpl::submit_clear_command(const R3rClearCmd& r3r_cmd)
 {
-	const sys::Color& src_color = r3r_cmd.clear.color;
+	const sys::Color src_color = r3r_cmd.clear.color;
 	constexpr std::uint32_t total_attachments = 2;
 	using ClearAttachments = std::array<VkClearAttachment, total_attachments>;
 	using ClearRects = std::array<VkClearRect, total_attachments>;
