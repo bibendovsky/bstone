@@ -4,6 +4,6 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// A rectangle with the origin at the upper-left.
+// Rectangle with the origin at the upper-left
 
 #include "bstone_sys_rectangle.h"
