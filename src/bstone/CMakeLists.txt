@@ -689,6 +689,7 @@ set(BSTONE_BSTONE_SYS_SOURCES
 	src/bstone_sys_event_mgr_null.h
 	src/bstone_sys_gl_context.cpp
 	src/bstone_sys_gl_context.h
+	src/bstone_sys_gl_context_attributes.cpp
 	src/bstone_sys_gl_context_attributes.h
 	src/bstone_sys_gl_context_profile.cpp
 	src/bstone_sys_gl_context_profile.h
