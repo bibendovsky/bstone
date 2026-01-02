@@ -4,13 +4,12 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// OpenGL context profile.
+// OpenGL context profile
 
 #ifndef BSTONE_SYS_GL_CONTEXT_PROFILE_INCLUDED
 #define BSTONE_SYS_GL_CONTEXT_PROFILE_INCLUDED
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 enum class GlContextProfile
 {
@@ -20,7 +19,6 @@ enum class GlContextProfile
 	es,
 };
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_GL_CONTEXT_PROFILE_INCLUDED
