@@ -4,24 +4,21 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// A rectangle with the origin at the upper-left.
+// Rectangle with the origin at the upper-left
 
 #ifndef BSTONE_RECTANGLE_INCLUDED
 #define BSTONE_RECTANGLE_INCLUDED
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 struct Rectangle
 {
 	int x;
 	int y;
-
 	int width;
 	int height;
 };
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_RECTANGLE_INCLUDED
