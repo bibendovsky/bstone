@@ -44,10 +44,9 @@ private:
 	int audio_cache_size_{};
 	int audio_cache_offset_{};
 
-	int do_get_rate() const noexcept override;
-	int do_get_channel_count() const noexcept override;
-	int do_get_frame_count() const noexcept override;
-
+	int do_get_rate() const override;
+	int do_get_channel_count() const override;
+	int do_get_frame_count() const override;
 	void do_pause(bool is_pause) override;
 
 	static void SDLCALL callback_proxy(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount);
@@ -113,17 +112,17 @@ PollingAudioDeviceSdl::~PollingAudioDeviceSdl()
 	SDL_DestroyAudioStream(sdl_audio_stream_);
 }
 
-int PollingAudioDeviceSdl::do_get_rate() const noexcept
+int PollingAudioDeviceSdl::do_get_rate() const
 {
 	return rate_;
 }
 
-int PollingAudioDeviceSdl::do_get_channel_count() const noexcept
+int PollingAudioDeviceSdl::do_get_channel_count() const
 {
 	return channel_count_;
 }
 
-int PollingAudioDeviceSdl::do_get_frame_count() const noexcept
+int PollingAudioDeviceSdl::do_get_frame_count() const
 {
 	return frame_count_;
 }
