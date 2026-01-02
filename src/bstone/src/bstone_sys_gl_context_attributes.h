@@ -4,15 +4,14 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// OpenGL context attributes.
+// OpenGL context attributes
 
 #ifndef BSTONE_SYS_GL_CONTEXT_ATTRIBUTES_INCLUDED
 #define BSTONE_SYS_GL_CONTEXT_ATTRIBUTES_INCLUDED
 
 #include "bstone_sys_gl_context_profile.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 struct GlContextAttributes
 {
@@ -29,7 +28,6 @@ struct GlContextAttributes
 	int depth_bit_count;
 };
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_GL_CONTEXT_ATTRIBUTES_INCLUDED
