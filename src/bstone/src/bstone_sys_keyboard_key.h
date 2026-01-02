@@ -4,13 +4,12 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Keyboard keys.
+// Keyboard keys
 
 #ifndef BSTONE_SYS_KEYBOARD_KEY_INCLUDED
 #define BSTONE_SYS_KEYBOARD_KEY_INCLUDED
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 enum class KeyboardKey
 {
@@ -139,7 +138,6 @@ enum class KeyboardKey
 	tab,
 };
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_KEYBOARD_KEY_INCLUDED
