@@ -4,21 +4,20 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Mouse manager.
+// Mouse manager
 
 #ifndef BSTONE_SYS_MOUSE_MGR_INCLUDED
 #define BSTONE_SYS_MOUSE_MGR_INCLUDED
 
 #include <memory>
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 class MouseMgr
 {
 public:
-	MouseMgr();
-	virtual ~MouseMgr();
+	MouseMgr() = default;
+	virtual ~MouseMgr() = default;
 
 	void set_relative_mode(bool is_relative);
 
@@ -26,12 +25,11 @@ private:
 	virtual void do_set_relative_mode(bool is_relative) = 0;
 };
 
-// ==========================================================================
+// ======================================
 
 using MouseMgrUPtr = std::unique_ptr<MouseMgr>;
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_MOUSE_MGR_INCLUDED
 

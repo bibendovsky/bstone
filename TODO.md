@@ -14,3 +14,4 @@
 - HDR support.
 - Pass sys::Color by the value.
 - Use floating-point type for refresh rate.
+- Move "mouse relative mode" code to window.
