@@ -9,34 +9,29 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_SYS_AUDIO_MGR_INCLUDED
 #define BSTONE_SYS_AUDIO_MGR_INCLUDED
 
+#include "bstone_sys_polling_audio_device.h"
 #include <memory>
 
-#include "bstone_sys_polling_audio_device.h"
-
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 class AudioMgr
 {
 public:
-	AudioMgr();
-	virtual ~AudioMgr();
+	AudioMgr() = default;
+	virtual ~AudioMgr() = default;
 
-	bool is_initialized() const noexcept;
-
+	bool is_initialized() const;
 	PollingAudioDeviceUPtr make_polling_audio_device(const PollingAudioDeviceOpenParam& param);
 
 private:
-	virtual bool do_is_initialized() const noexcept = 0;
-
+	virtual bool do_is_initialized() const = 0;
 	virtual PollingAudioDeviceUPtr do_make_polling_audio_device(const PollingAudioDeviceOpenParam& param) = 0;
 };
 
-// ==========================================================================
+// ======================================
 
 using AudioMgrUPtr = std::unique_ptr<AudioMgr>;
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_AUDIO_MGR_INCLUDED

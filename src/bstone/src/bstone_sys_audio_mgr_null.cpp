@@ -28,7 +28,7 @@ private:
 	Logger& logger_;
 
 private:
-	bool do_is_initialized() const noexcept override;
+	bool do_is_initialized() const override;
 	PollingAudioDeviceUPtr do_make_polling_audio_device(const PollingAudioDeviceOpenParam& param) override;
 
 private:
@@ -64,7 +64,7 @@ void NullAudioMgr::operator delete(void* ptr) noexcept
 	null_audio_mgr_pool.deallocate(ptr);
 }
 
-bool NullAudioMgr::do_is_initialized() const noexcept
+bool NullAudioMgr::do_is_initialized() const
 {
 	return false;
 }

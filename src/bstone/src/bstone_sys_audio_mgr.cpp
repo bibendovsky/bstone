@@ -8,14 +8,9 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_sys_audio_mgr.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-AudioMgr::AudioMgr() = default;
-
-AudioMgr::~AudioMgr() = default;
-
-bool AudioMgr::is_initialized() const noexcept
+bool AudioMgr::is_initialized() const
 {
 	return do_is_initialized();
 }
@@ -25,5 +20,4 @@ PollingAudioDeviceUPtr AudioMgr::make_polling_audio_device(const PollingAudioDev
 	return do_make_polling_audio_device(param);
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
