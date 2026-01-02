@@ -4,7 +4,7 @@ Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Vulkan manager.
+// Vulkan manager
 
 #ifndef BSTONE_SYS_VULKAN_MGR_INCLUDED
 #define BSTONE_SYS_VULKAN_MGR_INCLUDED
@@ -14,16 +14,15 @@ SPDX-License-Identifier: MIT
 #include <span>
 #include "vulkan/vulkan.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 using VulkanMgrSymbolFunc = void (*)();
 
 class VulkanMgr
 {
 public:
-	VulkanMgr() {};
-	virtual ~VulkanMgr() {};
+	VulkanMgr() = default;
+	virtual ~VulkanMgr() = default;
 
 	bool is_vulkan_available() const;
 	VulkanMgrSymbolFunc get_instance_proc_addr();
@@ -37,11 +36,10 @@ private:
 	virtual VkSurfaceKHR do_create_surface(Window& window, VkInstance vk_instance) = 0;
 };
 
-// ==========================================================================
+// ======================================
 
 using VulkanMgrUPtr = std::unique_ptr<VulkanMgr>;
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_VULKAN_MGR_INCLUDED
