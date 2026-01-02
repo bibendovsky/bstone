@@ -4,26 +4,24 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// System manager.
+// System manager
 
 #ifndef BSTONE_SYS_SYSTEM_MGR_INCLUDED
 #define BSTONE_SYS_SYSTEM_MGR_INCLUDED
-
-#include <memory>
 
 #include "bstone_sys_audio_mgr.h"
 #include "bstone_sys_event_mgr.h"
 #include "bstone_sys_logger.h"
 #include "bstone_sys_video_mgr.h"
+#include <memory>
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 class SystemMgr
 {
 public:
-	SystemMgr();
-	virtual ~SystemMgr();
+	SystemMgr() = default;
+	virtual ~SystemMgr() = default;
 
 	Logger& get_logger();
 	AudioMgr& get_audio_mgr();
@@ -37,13 +35,12 @@ private:
 	virtual VideoMgr& do_get_video_mgr() = 0;
 };
 
-// ==========================================================================
+// ======================================
 
 using SystemMgrUPtr = std::unique_ptr<SystemMgr>;
 
 SystemMgrUPtr make_system_mgr(Logger& logger);
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_SYSTEM_MGR_INCLUDED
