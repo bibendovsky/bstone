@@ -4,18 +4,13 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Video manager.
+// Video manager
 
 #include "bstone_sys_video_mgr.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-VideoMgr::VideoMgr() = default;
-
-VideoMgr::~VideoMgr() = default;
-
-bool VideoMgr::is_initialized() const noexcept
+bool VideoMgr::is_initialized() const
 {
 	return do_is_initialized();
 }
@@ -55,5 +50,4 @@ WindowMgr& VideoMgr::get_window_mgr()
 	return do_get_window_mgr();
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
