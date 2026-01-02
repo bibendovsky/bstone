@@ -4,6 +4,6 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Message box.
+// Message box
 
 #include "bstone_sys_message_box.h"
