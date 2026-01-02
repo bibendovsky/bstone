@@ -4,6 +4,6 @@ Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Renderer's swap interval type.
+// Renderer's swap interval type
 
 #include "bstone_sys_swap_interval_type.h"
