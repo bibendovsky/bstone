@@ -4,7 +4,7 @@ Copyright (c) 2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Audio manager stub.
+// Audio manager (NULL)
 
 #include "bstone_sys_audio_mgr_null.h"
 #include "bstone_exception.h"
@@ -14,11 +14,11 @@ namespace bstone::sys {
 
 namespace {
 
-class NullAudioMgr final : public AudioMgr
+class AudioMgrNull final : public AudioMgr
 {
 public:
-	NullAudioMgr(Logger& logger) noexcept;
-	~NullAudioMgr() override;
+	AudioMgrNull(Logger& logger) noexcept;
+	~AudioMgrNull() override;
 
 private:
 	Logger& logger_;
@@ -31,29 +31,29 @@ private:
 
 // --------------------------------------
 
-NullAudioMgr::NullAudioMgr(Logger& logger) noexcept
+AudioMgrNull::AudioMgrNull(Logger& logger) noexcept
 	:
 	logger_{logger}
 {
 	logger_.log_information("Start audio manager stub.");
 }
 
-NullAudioMgr::~NullAudioMgr()
+AudioMgrNull::~AudioMgrNull()
 {
 	logger_.log_information("Shut down audio manager stub.");
 }
 
-bool NullAudioMgr::do_is_initialized() const
+bool AudioMgrNull::do_is_initialized() const
 {
 	return false;
 }
 
-PollingAudioDeviceUPtr AudioMgrNull::do_make_polling_audio_device([[maybe_unused]] const PollingAudioDeviceOpenParam& param)
+PollingAudioDeviceUPtr AudioMgrNull::do_make_polling_audio_device(const PollingAudioDeviceOpenParam&)
 {
 	not_initialized();
 }
 
-[[noreturn]] void NullAudioMgr::not_initialized()
+[[noreturn]] void AudioMgrNull::not_initialized()
 {
 	BSTONE_THROW_STATIC_SOURCE("Not initialized.");
 }
@@ -62,9 +62,9 @@ PollingAudioDeviceUPtr AudioMgrNull::do_make_polling_audio_device([[maybe_unused
 
 // ======================================
 
-AudioMgrUPtr make_null_audio_mgr(Logger& logger)
+AudioMgrUPtr make_audio_mgr_null(Logger& logger)
 {
-	return std::make_unique<NullAudioMgr>(logger);
+	return std::make_unique<AudioMgrNull>(logger);
 }
 
 } // namespace bstone::sys
