@@ -29,22 +29,22 @@ private:
 	GlSymbolResolverSdl gl_symbol_resolver_{};
 
 private:
-	bool do_has_extension(const char* extension_name) const noexcept override;
-	SwapIntervalType do_get_swap_interval() const noexcept override;
+	bool do_has_extension(const char* extension_name) const override;
+	SwapIntervalType do_get_swap_interval() const override;
 	void do_set_swap_interval(SwapIntervalType swap_interval_type) override;
-	const GlSymbolResolver& do_get_symbol_resolver() const noexcept override;
+	const GlSymbolResolver& do_get_symbol_resolver() const override;
 
 	static int map(SwapIntervalType swap_interval_type);
 };
 
 // --------------------------------------
 
-bool GlCurrentContextSdl::do_has_extension(const char* extension_name) const noexcept
+bool GlCurrentContextSdl::do_has_extension(const char* extension_name) const
 {
 	return SDL_GL_ExtensionSupported(extension_name);
 }
 
-SwapIntervalType GlCurrentContextSdl::do_get_swap_interval() const noexcept
+SwapIntervalType GlCurrentContextSdl::do_get_swap_interval() const
 {
 	int sdl_swap_interval;
 	if (!SDL_GL_GetSwapInterval(&sdl_swap_interval))
@@ -70,7 +70,7 @@ void GlCurrentContextSdl::do_set_swap_interval(SwapIntervalType swap_interval_ty
 	}
 }
 
-const GlSymbolResolver& GlCurrentContextSdl::do_get_symbol_resolver() const noexcept
+const GlSymbolResolver& GlCurrentContextSdl::do_get_symbol_resolver() const
 {
 	return gl_symbol_resolver_;
 }
