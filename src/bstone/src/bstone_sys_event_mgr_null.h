@@ -4,18 +4,18 @@ Copyright (c) 2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
+// Event manager (NULL)
+
 #ifndef BSTONE_SYS_EVENT_MGR_NULL_INCLUDED
 #define BSTONE_SYS_EVENT_MGR_NULL_INCLUDED
 
 #include "bstone_sys_event_mgr.h"
 #include "bstone_sys_logger.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-EventMgrUPtr make_null_event_mgr(Logger& logger);
+EventMgrUPtr make_event_mgr_null(Logger& logger);
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_EVENT_MGR_NULL_INCLUDED
