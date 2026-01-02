@@ -4,21 +4,20 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Audio device feedding via callback.
+// Audio device feeding via callback
 
 #ifndef BSTONE_SYS_POLLING_AUDIO_DEVICE_INCLUDED
 #define BSTONE_SYS_POLLING_AUDIO_DEVICE_INCLUDED
 
 #include <memory>
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 class PollingAudioDeviceCallback
 {
 public:
-	PollingAudioDeviceCallback();
-	virtual ~PollingAudioDeviceCallback();
+	PollingAudioDeviceCallback() = default;
+	virtual ~PollingAudioDeviceCallback() = default;
 
 	void invoke(float* samples, int sample_count);
 
@@ -26,29 +25,27 @@ private:
 	virtual void do_invoke(float* samples, int sample_count) = 0;
 };
 
-// ==========================================================================
+// ======================================
 
 class PollingAudioDevice
 {
 public:
-	PollingAudioDevice();
-	virtual ~PollingAudioDevice();
+	PollingAudioDevice() = default;
+	virtual ~PollingAudioDevice() = default;
 
-	int get_rate() const noexcept;
-	int get_channel_count() const noexcept;
-	int get_frame_count() const noexcept;
-
+	int get_rate() const;
+	int get_channel_count() const;
+	int get_frame_count() const;
 	void pause(bool is_pause);
 
 private:
-	virtual int do_get_rate() const noexcept = 0;
-	virtual int do_get_channel_count() const noexcept = 0;
-	virtual int do_get_frame_count() const noexcept = 0;
-
+	virtual int do_get_rate() const = 0;
+	virtual int do_get_channel_count() const = 0;
+	virtual int do_get_frame_count() const = 0;
 	virtual void do_pause(bool is_pause) = 0;
 };
 
-// ==========================================================================
+// ======================================
 
 struct PollingAudioDeviceOpenParam
 {
@@ -60,7 +57,6 @@ struct PollingAudioDeviceOpenParam
 
 using PollingAudioDeviceUPtr = std::unique_ptr<PollingAudioDevice>;
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_POLLING_AUDIO_DEVICE_INCLUDED
