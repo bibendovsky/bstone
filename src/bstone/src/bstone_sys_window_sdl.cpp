@@ -65,7 +65,7 @@ private:
 	void do_set_rounded_corner_type(WindowRoundedCornerType value) override;
 	WindowFullscreenType do_get_fullscreen_mode() override;
 	void do_set_fullscreen_mode(WindowFullscreenType fullscreen_mode) override;
-	GlContextUPtr do_make_gl_context() override;
+	GlContextUPtr do_gl_make_context() override;
 	WindowSize do_gl_get_drawable_size() override;
 	void do_gl_swap_buffers() override;
 	RendererUPtr do_make_renderer(const RendererInitParam& param) override;
@@ -352,7 +352,7 @@ void WindowSdl::do_set_fullscreen_mode(WindowFullscreenType fullscreen_mode)
 	}
 }
 
-GlContextUPtr WindowSdl::do_make_gl_context()
+GlContextUPtr WindowSdl::do_gl_make_context()
 {
 	return make_gl_context_sdl(logger_, *sdl_window_);
 }
