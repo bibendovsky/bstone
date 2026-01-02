@@ -4,21 +4,15 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// OpenGL context.
+// OpenGL context
 
 #include "bstone_sys_gl_context.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-GlContext::GlContext() = default;
-
-GlContext::~GlContext() = default;
-
-const GlContextAttributes& GlContext::get_attributes() const noexcept
+const GlContextAttributes& GlContext::get_attributes() const
 {
 	return do_get_attributes();
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
