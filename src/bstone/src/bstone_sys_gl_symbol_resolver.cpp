@@ -4,21 +4,15 @@ Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// OpenGL symbol resolver.
+// OpenGL symbol resolver
 
 #include "bstone_sys_gl_symbol_resolver.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-GlSymbolResolver::GlSymbolResolver() = default;
-
-GlSymbolResolver::~GlSymbolResolver() = default;
-
-GlSymbolResolverSymbolFunc GlSymbolResolver::find_symbol(const char* symbol_name) const noexcept
+GlSymbolResolverSymbolFunc GlSymbolResolver::find_symbol(const char* symbol_name) const
 {
 	return do_find_symbol(symbol_name);
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
