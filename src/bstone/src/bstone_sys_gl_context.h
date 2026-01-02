@@ -4,35 +4,32 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// OpenGL context.
+// OpenGL context
 
 #ifndef BSTONE_SYS_GL_CONTEXT_INCLUDED
 #define BSTONE_SYS_GL_CONTEXT_INCLUDED
 
+#include "bstone_sys_gl_context_attributes.h"
 #include <memory>
 
-#include "bstone_sys_gl_context_attributes.h"
-
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 class GlContext
 {
 public:
-	GlContext();
-	virtual ~GlContext();
+	GlContext() = default;
+	virtual ~GlContext() = default;
 
-	const GlContextAttributes& get_attributes() const noexcept;
+	const GlContextAttributes& get_attributes() const;
 
 private:
-	virtual const GlContextAttributes& do_get_attributes() const noexcept = 0;
+	virtual const GlContextAttributes& do_get_attributes() const = 0;
 };
 
-// ==========================================================================
+// ======================================
 
 using GlContextUPtr = std::unique_ptr<GlContext>;
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_GL_CONTEXT_INCLUDED

@@ -29,7 +29,7 @@ private:
 	SDL_GLContext sdl_gl_context_;
 	GlContextAttributes gl_context_attributes_;
 
-	const GlContextAttributes& do_get_attributes() const noexcept override;
+	const GlContextAttributes& do_get_attributes() const override;
 
 	static const char* get_gl_attribute_name(SDL_GLAttr sdl_gl_attr);
 	static GlContextProfile map_profile(SDL_GLProfile sdl_context_profile);
@@ -70,7 +70,7 @@ GlContextSdl::~GlContextSdl()
 	SDL_GL_DestroyContext(sdl_gl_context_);
 }
 
-const GlContextAttributes& GlContextSdl::do_get_attributes() const noexcept
+const GlContextAttributes& GlContextSdl::do_get_attributes() const
 {
 	return gl_context_attributes_;
 }
