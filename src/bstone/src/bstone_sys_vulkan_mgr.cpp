@@ -4,12 +4,11 @@ Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Vulkan manager.
+// Vulkan manager
 
 #include "bstone_sys_vulkan_mgr.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 bool VulkanMgr::is_vulkan_available() const
 {
@@ -31,5 +30,4 @@ VkSurfaceKHR VulkanMgr::create_surface(Window& window, VkInstance vk_instance)
 	return do_create_surface(window, vk_instance);
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
