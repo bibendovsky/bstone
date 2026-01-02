@@ -31,7 +31,7 @@ private:
 	Logger& logger_;
 	SdlSubsystem sdl_subsystem_{};
 
-	bool do_is_initialized() const noexcept override;
+	bool do_is_initialized() const override;
 	bool do_poll_event(Event& e) override;
 
 	static void log_sdl_error(StringBuilder& formatter);
@@ -70,7 +70,7 @@ EventMgrSdl::~EventMgrSdl()
 	logger_.log_information("Shut down SDL event manager.");
 }
 
-bool EventMgrSdl::do_is_initialized() const noexcept
+bool EventMgrSdl::do_is_initialized() const
 {
 	return true;
 }
