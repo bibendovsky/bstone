@@ -4,13 +4,12 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Logger.
+// Logger
 
 #ifndef BSTONE_SYS_LOGGER_INCLUDED
 #define BSTONE_SYS_LOGGER_INCLUDED
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 enum class LogLevel
 {
@@ -20,28 +19,27 @@ enum class LogLevel
 	error,
 };
 
-// ==========================================================================
+// ======================================
 
 class Logger
 {
 public:
-	Logger();
-	virtual ~Logger();
+	Logger() = default;
+	virtual ~Logger() = default;
 
-	void log_information() noexcept;
-	void log_information(const char* message) noexcept;
+	void log_information();
+	void log_information(const char* message);
 
-	void log_warning() noexcept;
-	void log_warning(const char* message) noexcept;
+	void log_warning();
+	void log_warning(const char* message);
 
-	void log_error() noexcept;
-	void log_error(const char* message) noexcept;
+	void log_error();
+	void log_error(const char* message);
 
 private:
-	virtual void do_log(LogLevel level, const char* message) noexcept = 0;
+	virtual void do_log(LogLevel level, const char* message) = 0;
 };
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_LOGGER_INCLUDED
