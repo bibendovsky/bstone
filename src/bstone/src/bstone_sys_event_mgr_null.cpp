@@ -30,7 +30,7 @@ private:
 	Logger& logger_;
 
 private:
-	bool do_is_initialized() const noexcept override;
+	bool do_is_initialized() const override;
 
 	bool do_poll_event(Event& e) override;
 
@@ -67,7 +67,7 @@ void NullEventMgr::operator delete(void* ptr) noexcept
 	null_event_mgr_pool.deallocate(ptr);
 }
 
-bool NullEventMgr::do_is_initialized() const noexcept
+bool NullEventMgr::do_is_initialized() const
 {
 	return false;
 }
