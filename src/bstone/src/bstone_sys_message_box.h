@@ -4,7 +4,7 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Message box.
+// Message box
 
 #ifndef BSTONE_SYS_MESSAGE_BOX_INCLUDED
 #define BSTONE_SYS_MESSAGE_BOX_INCLUDED
@@ -12,8 +12,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_enum_flags.h"
 #include <span>
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 enum class MessageBoxType
 {
@@ -23,7 +22,7 @@ enum class MessageBoxType
 	warning,
 };
 
-// ==========================================================================
+// ======================================
 
 enum class MessageBoxButtonFlags : unsigned int
 {
@@ -34,7 +33,7 @@ enum class MessageBoxButtonFlags : unsigned int
 
 BSTONE_ENABLE_ENUM_CLASS_BITWISE_OPS_FOR(MessageBoxButtonFlags)
 
-// ==========================================================================
+// ======================================
 
 struct MessageBoxButton
 {
@@ -43,7 +42,7 @@ struct MessageBoxButton
 	const char* text;
 };
 
-// ==========================================================================
+// ======================================
 
 struct MessageBoxInitParam
 {
@@ -53,17 +52,14 @@ struct MessageBoxInitParam
 	std::span<const MessageBoxButton> buttons;
 };
 
-// ==========================================================================
+// ======================================
 
 struct MessageBox
 {
 	static void show_simple(const char* title, const char* message, MessageBoxType type);
-
 	static int show(const MessageBoxInitParam& param);
 };
 
+} // namespace bstone::sys
 
-} // namespace sys
-} // namespace bstone
-
-#endif // !BSTONE_SYS_MESSAGE_BOX_INCLUDED
+#endif // BSTONE_SYS_MESSAGE_BOX_INCLUDED
