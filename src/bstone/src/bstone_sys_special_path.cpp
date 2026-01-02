@@ -4,6 +4,6 @@ Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Special path primitives.
+// Special path primitives
 
 #include "bstone_sys_special_path.h"

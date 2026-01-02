@@ -4,15 +4,12 @@ Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Special path primitives.
+// Special path primitives
 
 #ifndef BSTONE_SYS_SPECIAL_PATH_INCLUDED
 #define BSTONE_SYS_SPECIAL_PATH_INCLUDED
 
-#include <cstdint>
-
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 struct SpecialPath
 {
@@ -28,14 +25,13 @@ struct SpecialPath
 	Returns:
 	  Path length without null symbol.
 	*/
-	static std::intptr_t get_user_specific_data_path(
+	static int get_user_specific_data_path(
 		const char* organization_name,
 		const char* application_name,
 		char* buffer,
-		std::intptr_t buffer_size);
+		int buffer_size);
 };
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_SPECIAL_PATH_INCLUDED
