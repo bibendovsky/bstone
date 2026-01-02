@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone::sys {
 
-GlSymbolResolverSymbolFunc GlSymbolResolverSdl::do_find_symbol(const char* symbol_name) const noexcept
+GlSymbolResolverSymbolFunc GlSymbolResolverSdl::do_find_symbol(const char* symbol_name) const
 {
 	return reinterpret_cast<GlSymbolResolverSymbolFunc>(SDL_GL_GetProcAddress(symbol_name));
 }
