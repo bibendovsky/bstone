@@ -47,7 +47,7 @@ private:
 	GlCurrentContextUPtr gl_current_context_{};
 	VulkanMgrUPtr vulkan_mgr_{};
 
-	bool do_is_initialized() const noexcept override;
+	bool do_is_initialized() const override;
 	Logger& do_get_logger() override;
 	DisplayMode do_get_current_display_mode() override;
 	std::span<const DisplayMode> do_get_display_modes() override;
@@ -90,7 +90,7 @@ VideoMgrSdl::~VideoMgrSdl()
 	mouse_mgr_ = nullptr;
 }
 
-bool VideoMgrSdl::do_is_initialized() const noexcept
+bool VideoMgrSdl::do_is_initialized() const
 {
 	return true;
 }

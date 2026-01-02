@@ -29,7 +29,7 @@ private:
 	Logger& logger_;
 
 private:
-	bool do_is_initialized() const noexcept override;
+	bool do_is_initialized() const override;
 
 	Logger& do_get_logger() override;
 
@@ -74,7 +74,7 @@ void NullVideoMgr::operator delete(void* ptr) noexcept
 	null_video_mgr_pool.deallocate(ptr);
 }
 
-bool NullVideoMgr::do_is_initialized() const noexcept
+bool NullVideoMgr::do_is_initialized() const
 {
 	return false;
 }

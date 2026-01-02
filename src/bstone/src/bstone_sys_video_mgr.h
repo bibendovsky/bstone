@@ -4,13 +4,10 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Video manager.
+// Video manager
 
 #ifndef BSTONE_SYS_VIDEO_MGR_INCLUDED
 #define BSTONE_SYS_VIDEO_MGR_INCLUDED
-
-#include <memory>
-#include <span>
 
 #include "bstone_sys_display_mode.h"
 #include "bstone_sys_gl_current_context.h"
@@ -18,24 +15,22 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_mouse_mgr.h"
 #include "bstone_sys_vulkan_mgr.h"
 #include "bstone_sys_window_mgr.h"
+#include <memory>
+#include <span>
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 class VideoMgr
 {
 public:
-	VideoMgr();
-	virtual ~VideoMgr();
+	VideoMgr() = default;
+	virtual ~VideoMgr() = default;
 
-	bool is_initialized() const noexcept;
-
+	bool is_initialized() const;
 	Logger& get_logger();
-
 	DisplayMode get_current_display_mode();
-
 	// Notes:
-	//   - The returned data valid until next invocation.
+	//   - The returned data valid until the next invocation.
 	std::span<const DisplayMode> get_display_modes();
 	GlCurrentContext& get_gl_current_context();
 	VulkanMgr& get_vulkan_mgr();
@@ -43,23 +38,20 @@ public:
 	WindowMgr& get_window_mgr();
 
 private:
-	virtual bool do_is_initialized() const noexcept = 0;
-
+	virtual bool do_is_initialized() const = 0;
 	virtual Logger& do_get_logger() = 0;
 	virtual DisplayMode do_get_current_display_mode() = 0;
 	virtual std::span<const DisplayMode> do_get_display_modes() = 0;
-
 	virtual GlCurrentContext& do_get_gl_current_context() = 0;
 	virtual VulkanMgr& do_get_vulkan_mgr() = 0;
 	virtual MouseMgr& do_get_mouse_mgr() = 0;
 	virtual WindowMgr& do_get_window_mgr() = 0;
 };
 
-// ==========================================================================
+// ======================================
 
 using VideoMgrUPtr = std::unique_ptr<VideoMgr>;
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_VIDEO_MGR_INCLUDED
