@@ -4,16 +4,11 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// 2D renderer.
+// 2D renderer
 
 #include "bstone_sys_renderer.h"
 
-namespace bstone {
-namespace sys {
-
-Renderer::Renderer() = default;
-
-Renderer::~Renderer() = default;
+namespace bstone::sys {
 
 const char* Renderer::get_name() const
 {
@@ -55,5 +50,4 @@ TextureUPtr Renderer::make_texture(const TextureInitParam& param)
 	return do_make_texture(param);
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
