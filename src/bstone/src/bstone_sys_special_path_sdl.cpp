@@ -9,6 +9,8 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_special_path.h"
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"
+#include <cstddef>
+#include <climits>
 #include <algorithm>
 #include <format>
 #include <string>
@@ -16,11 +18,11 @@ SPDX-License-Identifier: MIT
 
 namespace bstone::sys {
 
-std::intptr_t SpecialPath::get_user_specific_data_path(
+int SpecialPath::get_user_specific_data_path(
 	const char* organization_name,
 	const char* application_name,
 	char* buffer,
-	std::intptr_t buffer_size)
+	int buffer_size)
 {
 	char* const sdl_path = SDL_GetPrefPath(organization_name, application_name);
 	if (sdl_path == nullptr)
@@ -33,13 +35,13 @@ std::intptr_t SpecialPath::get_user_specific_data_path(
 		{
 			SDL_free(sdl_path);
 		});
-	const std::intptr_t path_size = static_cast<std::intptr_t>(std::string::traits_type::length(sdl_path));
-	if (path_size >= buffer_size)
+	const std::size_t path_size = std::string::traits_type::length(sdl_path);
+	if (path_size >= static_cast<std::size_t>(buffer_size))
 	{
 		BSTONE_THROW_STATIC_SOURCE("Buffer too small.");
 	}
 	std::copy_n(sdl_path, path_size + 1, buffer);
-	return path_size;
+	return static_cast<int>(path_size);
 }
 
 } // namespace bstone::sys
