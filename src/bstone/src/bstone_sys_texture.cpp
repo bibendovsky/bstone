@@ -4,16 +4,11 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Renderer's texture.
+// Renderer's texture
 
 #include "bstone_sys_texture.h"
 
-namespace bstone {
-namespace sys {
-
-Texture::Texture() = default;
-
-Texture::~Texture() = default;
+namespace bstone::sys {
 
 void Texture::set_blend_mode(TextureBlendMode mode)
 {
@@ -30,5 +25,4 @@ TextureLockUPtr Texture::make_lock()
 	return do_make_lock(nullptr);
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
