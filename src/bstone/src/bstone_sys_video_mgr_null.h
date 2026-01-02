@@ -4,18 +4,18 @@ Copyright (c) 2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
+// Video manager (NULL)
+
 #ifndef BSTONE_SYS_VIDEO_MGR_NULL_INCLUDED
 #define BSTONE_SYS_VIDEO_MGR_NULL_INCLUDED
 
 #include "bstone_sys_logger.h"
 #include "bstone_sys_video_mgr.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-VideoMgrUPtr make_null_video_mgr(Logger& logger);
+VideoMgrUPtr make_video_mgr_null(Logger& logger);
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_VIDEO_MGR_NULL_INCLUDED
