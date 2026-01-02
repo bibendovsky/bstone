@@ -4,16 +4,11 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// A window.
+// Window
 
 #include "bstone_sys_window.h"
 
-namespace bstone {
-namespace sys {
-
-Window::Window() = default;
-
-Window::~Window() = default;
+namespace bstone::sys {
 
 const char* Window::get_title()
 {
@@ -37,7 +32,8 @@ void Window::set_position(WindowPosition position)
 
 void Window::center()
 {
-	do_set_position(WindowPosition{WindowOffset::make_centered(), WindowOffset::make_centered()});
+	constinit static const WindowOffset centered_offset = WindowOffset::make_centered();
+	do_set_position(WindowPosition{centered_offset, centered_offset});
 }
 
 WindowSize Window::get_size()
@@ -80,9 +76,9 @@ void Window::set_fullscreen_mode(WindowFullscreenType fullscreen_mode)
 	do_set_fullscreen_mode(fullscreen_mode);
 }
 
-GlContextUPtr Window::make_gl_context()
+GlContextUPtr Window::gl_make_context()
 {
-	return do_make_gl_context();
+	return do_gl_make_context();
 }
 
 WindowSize Window::gl_get_drawable_size()
@@ -100,5 +96,4 @@ RendererUPtr Window::make_renderer(const RendererInitParam& param)
 	return do_make_renderer(param);
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys

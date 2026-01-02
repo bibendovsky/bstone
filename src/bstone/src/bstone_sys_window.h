@@ -4,31 +4,27 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// A window.
+// Window
 
 #ifndef BSTONE_SYS_WINDOW_INCLUDED
 #define BSTONE_SYS_WINDOW_INCLUDED
-
-#include <climits>
-
-#include <memory>
 
 #include "bstone_exception.h"
 #include "bstone_sys_display_mode.h"
 #include "bstone_sys_gl_context.h"
 #include "bstone_sys_renderer.h"
+#include <memory>
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 using WindowId = unsigned int;
 
-// ==========================================================================
+// ======================================
 
-constexpr auto window_min_position = -65'535;
-constexpr auto window_max_position = +65'535;
+constexpr int window_min_position = -65'535;
+constexpr int window_max_position = +65'535;
 
-// ==========================================================================
+// ======================================
 
 enum class WindowFullscreenType
 {
@@ -37,16 +33,12 @@ enum class WindowFullscreenType
 	fake,
 };
 
-// ==========================================================================
-
 enum class WindowRendererType
 {
 	none,
 	open_gl,
 	vulkan,
 };
-
-// ==========================================================================
 
 enum class WindowOffsetType
 {
@@ -55,14 +47,14 @@ enum class WindowOffsetType
 	centered,
 };
 
-// ==========================================================================
+// ======================================
 
 class WindowOffset
 {
 public:
 	WindowOffset() = default;
 
-	constexpr explicit WindowOffset(int value) noexcept
+	constexpr explicit WindowOffset(int value)
 		:
 		type_{WindowOffsetType::custom},
 		value_{value}
@@ -76,27 +68,27 @@ public:
 			case WindowOffsetType::centered:
 				type_ = type;
 				break;
-
-			default: BSTONE_THROW_STATIC_SOURCE("Unknown type.");
+			default:
+				BSTONE_THROW_STATIC_SOURCE("Unknown type.");
 		}
 	}
 
-	constexpr WindowOffsetType get_type() const noexcept
+	constexpr WindowOffsetType get_type() const
 	{
 		return type_;
 	}
 
-	constexpr int get() const noexcept
+	constexpr int get() const
 	{
 		return value_;
 	}
 
-	static constexpr WindowOffset make_centered() noexcept
+	static constexpr WindowOffset make_centered()
 	{
 		return WindowOffset{WindowOffsetType::centered};
 	}
 
-	static constexpr WindowOffset make_undefined() noexcept
+	static constexpr WindowOffset make_undefined()
 	{
 		return WindowOffset{WindowOffsetType::undefined};
 	}
@@ -106,7 +98,7 @@ private:
 	int value_{};
 };
 
-// ==========================================================================
+// ======================================
 
 struct WindowPosition
 {
@@ -114,15 +106,11 @@ struct WindowPosition
 	WindowOffset y;
 };
 
-// ==========================================================================
-
 struct WindowSize
 {
 	int width;
 	int height;
 };
-
-// ==========================================================================
 
 enum class WindowRoundedCornerType
 {
@@ -131,8 +119,6 @@ enum class WindowRoundedCornerType
 	round,
 	round_small,
 };
-
-// ==========================================================================
 
 struct WindowInitParam
 {
@@ -147,74 +133,55 @@ struct WindowInitParam
 	const GlContextAttributes* gl_attributes;
 };
 
-// ==========================================================================
+// ======================================
 
 class Window
 {
 public:
-	Window();
-	virtual ~Window();
+	Window() = default;
+	virtual ~Window() = default;
 
 	const char* get_title();
 	void set_title(const char* title);
-
 	WindowPosition get_position();
 	void set_position(WindowPosition position);
 	void center();
-
 	WindowSize get_size();
 	void set_size(WindowSize size);
-
 	DisplayMode get_display_mode();
 	void set_display_mode(const DisplayMode& display_mode);
-
 	void show(bool is_visible);
-
 	void set_rounded_corner_type(WindowRoundedCornerType value);
-
 	WindowFullscreenType get_fullscreen_mode();
 	void set_fullscreen_mode(WindowFullscreenType fullscreen_mode);
-
-	GlContextUPtr make_gl_context();
-
+	GlContextUPtr gl_make_context();
 	WindowSize gl_get_drawable_size();
 	void gl_swap_buffers();
-
 	RendererUPtr make_renderer(const RendererInitParam& param);
 
 private:
 	virtual const char* do_get_title() = 0;
 	virtual void do_set_title(const char* title) = 0;
-
 	virtual WindowPosition do_get_position() = 0;
 	virtual void do_set_position(WindowPosition position) = 0;
-
 	virtual WindowSize do_get_size() = 0;
 	virtual void do_set_size(WindowSize size) = 0;
-
 	virtual DisplayMode do_get_display_mode() = 0;
 	virtual void do_set_display_mode(const DisplayMode& display_mode) = 0;
-
 	virtual void do_show(bool is_visible) = 0;
-
 	virtual void do_set_rounded_corner_type(WindowRoundedCornerType value) = 0;
-
 	virtual WindowFullscreenType do_get_fullscreen_mode() = 0;
 	virtual void do_set_fullscreen_mode(WindowFullscreenType fullscreen_mode) = 0;
-
-	virtual GlContextUPtr do_make_gl_context() = 0;
-
+	virtual GlContextUPtr do_gl_make_context() = 0;
 	virtual WindowSize do_gl_get_drawable_size() = 0;
 	virtual void do_gl_swap_buffers() = 0;
-
 	virtual RendererUPtr do_make_renderer(const RendererInitParam& param) = 0;
 };
 
-// ==========================================================================
+// ======================================
 
 using WindowUPtr = std::unique_ptr<Window>;
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_WINDOW_INCLUDED
