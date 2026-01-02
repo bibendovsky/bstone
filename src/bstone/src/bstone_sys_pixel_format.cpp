@@ -4,6 +4,6 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Pixel format.
+// Pixel format
 
 #include "bstone_sys_pixel_format.h"
