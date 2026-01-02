@@ -4,14 +4,13 @@ Copyright (c) 2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-#include "bstone_sys_audio_mgr_null.h"
+// Audio manager stub.
 
+#include "bstone_sys_audio_mgr_null.h"
 #include "bstone_exception.h"
-#include "bstone_single_pool_resource.h"
 #include "bstone_sys_logger.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 namespace {
 
@@ -21,47 +20,27 @@ public:
 	NullAudioMgr(Logger& logger) noexcept;
 	~NullAudioMgr() override;
 
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr) noexcept;
-
 private:
 	Logger& logger_;
 
-private:
 	bool do_is_initialized() const override;
 	PollingAudioDeviceUPtr do_make_polling_audio_device(const PollingAudioDeviceOpenParam& param) override;
 
-private:
 	[[noreturn]] static void not_initialized();
 };
 
-// ==========================================================================
-
-using NullAudioMgrPool = SinglePoolResource<NullAudioMgr>;
-NullAudioMgrPool null_audio_mgr_pool{};
-
-// ==========================================================================
+// --------------------------------------
 
 NullAudioMgr::NullAudioMgr(Logger& logger) noexcept
 	:
 	logger_{logger}
 {
-	logger_.log_information("Start up NULL audio manager.");
+	logger_.log_information("Start audio manager stub.");
 }
 
 NullAudioMgr::~NullAudioMgr()
 {
-	logger_.log_information("Shut down NULL audio manager.");
-}
-
-void* NullAudioMgr::operator new(std::size_t size)
-try {
-	return null_audio_mgr_pool.allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void NullAudioMgr::operator delete(void* ptr) noexcept
-{
-	null_audio_mgr_pool.deallocate(ptr);
+	logger_.log_information("Shut down audio manager stub.");
 }
 
 bool NullAudioMgr::do_is_initialized() const
@@ -69,7 +48,7 @@ bool NullAudioMgr::do_is_initialized() const
 	return false;
 }
 
-PollingAudioDeviceUPtr NullAudioMgr::do_make_polling_audio_device(const PollingAudioDeviceOpenParam&)
+PollingAudioDeviceUPtr AudioMgrNull::do_make_polling_audio_device([[maybe_unused]] const PollingAudioDeviceOpenParam& param)
 {
 	not_initialized();
 }
@@ -81,12 +60,11 @@ PollingAudioDeviceUPtr NullAudioMgr::do_make_polling_audio_device(const PollingA
 
 } // namespace
 
-// ==========================================================================
+// ======================================
 
 AudioMgrUPtr make_null_audio_mgr(Logger& logger)
-try {
+{
 	return std::make_unique<NullAudioMgr>(logger);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
