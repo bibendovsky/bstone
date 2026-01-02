@@ -71,7 +71,7 @@ public:
 	virtual GlR3rShaderStage* get_shader_stage() const noexcept = 0;
 	virtual void set_shader_stage(GlR3rShaderStage* shader_stage) noexcept = 0;
 
-	virtual void clear(const sys::Color& color) = 0;
+	virtual void clear(sys::Color color) = 0;
 
 	virtual void set_viewport(const R3rViewport& viewport) = 0;
 
