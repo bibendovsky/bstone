@@ -4,52 +4,40 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Logger.
+// Logger
 
 #include "bstone_sys_logger.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-namespace {
-
-constexpr const char* const empty_string = "";
-
-} // namespace
-
-Logger::Logger() = default;
-
-Logger::~Logger() = default;
-
-void Logger::log_information() noexcept
+void Logger::log_information()
 {
-	log_information(empty_string);
+	log_information("");
 }
 
-void Logger::log_information(const char* message) noexcept
+void Logger::log_information(const char* message)
 {
 	do_log(LogLevel::information, message);
 }
 
-void Logger::log_warning() noexcept
+void Logger::log_warning()
 {
-	log_warning(empty_string);
+	log_warning("");
 }
 
-void Logger::log_warning(const char* message) noexcept
+void Logger::log_warning(const char* message)
 {
 	do_log(LogLevel::warning, message);
 }
 
-void Logger::log_error() noexcept
+void Logger::log_error()
 {
-	log_error(empty_string);
+	log_error("");
 }
 
-void Logger::log_error(const char* message) noexcept
+void Logger::log_error(const char* message)
 {
 	do_log(LogLevel::error, message);
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
