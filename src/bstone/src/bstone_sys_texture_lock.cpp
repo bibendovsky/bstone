@@ -4,24 +4,20 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// Texture lock
+
 #include "bstone_sys_texture_lock.h"
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
-TextureLock::TextureLock() = default;
-
-TextureLock::~TextureLock() = default;
-
-void* TextureLock::get_pixels() const noexcept
+void* TextureLock::get_pixels() const
 {
 	return do_get_pixels();
 }
 
-int TextureLock::get_pitch() const noexcept
+int TextureLock::get_pitch() const
 {
 	return do_get_pitch();
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
