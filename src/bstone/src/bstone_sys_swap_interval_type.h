@@ -4,13 +4,12 @@ Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Renderer's swap interval type.
+// Renderer's swap interval type
 
 #ifndef BSTONE_SYS_R3R_SWAP_INTERVAL_TYPE_INCLUDED
 #define BSTONE_SYS_R3R_SWAP_INTERVAL_TYPE_INCLUDED
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 enum class SwapIntervalType
 {
@@ -19,7 +18,6 @@ enum class SwapIntervalType
 	adaptive,
 };
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_R3R_SWAP_INTERVAL_TYPE_INCLUDED
