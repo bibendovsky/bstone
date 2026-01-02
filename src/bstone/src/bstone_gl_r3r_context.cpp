@@ -70,7 +70,7 @@ public:
 	GlR3rShaderStage* get_shader_stage() const noexcept override;
 	void set_shader_stage(GlR3rShaderStage* shader_stage) noexcept override;
 
-	void clear(const sys::Color& color) override;
+	void clear(sys::Color color) override;
 
 	void set_viewport(const R3rViewport& viewport) override;
 
@@ -294,7 +294,7 @@ void GlR3rContextImpl::set_shader_stage(GlR3rShaderStage* shader_stage) noexcept
 	shader_stage_ = shader_stage;
 }
 
-void GlR3rContextImpl::clear(const sys::Color& color)
+void GlR3rContextImpl::clear(sys::Color color)
 {
 	if (clear_color_ != color)
 	{
