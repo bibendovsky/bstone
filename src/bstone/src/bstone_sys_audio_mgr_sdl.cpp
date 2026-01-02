@@ -163,7 +163,7 @@ try
 catch (const std::exception& exception)
 {
 	logger.log_error(exception.what());
-	return make_null_audio_mgr(logger);
+	return make_audio_mgr_null(logger);
 }
 
 } // namespace bstone::sys

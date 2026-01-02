@@ -4,6 +4,6 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// RGBA color, 8-bit per component.
+// Color types.
 
 #include "bstone_sys_color.h"

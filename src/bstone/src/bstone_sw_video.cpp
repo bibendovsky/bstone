@@ -182,7 +182,12 @@ SwVideoPool sw_video_pool{};
 
 // ==========================================================================
 
-constexpr sys::Color SwVideo::opaque_black = sys::Color{0, 0, 0, 0xFF};
+constexpr sys::Color SwVideo::opaque_black = sys::Color{
+	.r = 0,
+	.g = 0,
+	.b = 0,
+	.a = 0xFF,
+};
 
 SwVideo::SwVideo(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr)
 try

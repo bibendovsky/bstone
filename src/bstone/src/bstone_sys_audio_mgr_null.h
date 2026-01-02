@@ -4,7 +4,7 @@ Copyright (c) 2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Audio manager stub.
+// Audio manager (NULL)
 
 #ifndef BSTONE_SYS_AUDIO_MGR_NULL_INCLUDED
 #define BSTONE_SYS_AUDIO_MGR_NULL_INCLUDED
@@ -14,7 +14,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone::sys {
 
-AudioMgrUPtr make_null_audio_mgr(Logger& logger);
+AudioMgrUPtr make_audio_mgr_null(Logger& logger);
 
 } // namespace bstone::sys
 
