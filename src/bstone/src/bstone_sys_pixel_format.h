@@ -4,13 +4,12 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Pixel format.
+// Pixel format
 
 #ifndef BSTONE_SYS_PIXEL_FORMAT_INCLUDED
 #define BSTONE_SYS_PIXEL_FORMAT_INCLUDED
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 enum class PixelFormat
 {
@@ -19,7 +18,6 @@ enum class PixelFormat
 	r8g8b8,
 };
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_PIXEL_FORMAT_INCLUDED
