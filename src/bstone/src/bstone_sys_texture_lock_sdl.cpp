@@ -46,8 +46,8 @@ private:
 	void* pixels_{};
 	int pitch_{};
 
-	void* do_get_pixels() const noexcept override;
-	int do_get_pitch() const noexcept override;
+	void* do_get_pixels() const override;
+	int do_get_pitch() const override;
 };
 
 // ======================================
@@ -97,12 +97,12 @@ void TextureLockSdl::operator delete(void* ptr)
 	Storage::get_singleton().deallocate(ptr);
 }
 
-void* TextureLockSdl::do_get_pixels() const noexcept
+void* TextureLockSdl::do_get_pixels() const
 {
 	return pixels_;
 }
 
-int TextureLockSdl::do_get_pitch() const noexcept
+int TextureLockSdl::do_get_pitch() const
 {
 	return pitch_;
 }
