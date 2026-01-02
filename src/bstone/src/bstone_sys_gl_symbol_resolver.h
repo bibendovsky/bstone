@@ -4,40 +4,38 @@ Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// OpenGL symbol resolver.
+// OpenGL symbol resolver
 
 #ifndef BSTONE_SYS_GL_SYMBOL_RESOLVER_INCLUDED
 #define BSTONE_SYS_GL_SYMBOL_RESOLVER_INCLUDED
 
-namespace bstone {
-namespace sys {
+namespace bstone::sys {
 
 using GlSymbolResolverSymbolFunc = void (*)();
 
 class GlSymbolResolver
 {
 public:
-	GlSymbolResolver();
-	virtual ~GlSymbolResolver();
+	GlSymbolResolver() = default;
+	virtual ~GlSymbolResolver() = default;
 
-	GlSymbolResolverSymbolFunc find_symbol(const char* symbol_name) const noexcept;
+	GlSymbolResolverSymbolFunc find_symbol(const char* symbol_name) const;
 
 	template<typename T>
-	T find_symbol(const char* symbol_name) const noexcept;
+	T find_symbol(const char* symbol_name) const;
 
 private:
-	virtual GlSymbolResolverSymbolFunc do_find_symbol(const char* symbol_name) const noexcept = 0;
+	virtual GlSymbolResolverSymbolFunc do_find_symbol(const char* symbol_name) const = 0;
 };
 
-// --------------------------------------------------------------------------
+// --------------------------------------
 
 template<typename T>
-T GlSymbolResolver::find_symbol(const char* symbol_name) const noexcept
+T GlSymbolResolver::find_symbol(const char* symbol_name) const
 {
 	return reinterpret_cast<T>(find_symbol(symbol_name));
 }
 
-} // namespace sys
-} // namespace bstone
+} // namespace bstone::sys
 
 #endif // BSTONE_SYS_GL_SYMBOL_RESOLVER_INCLUDED

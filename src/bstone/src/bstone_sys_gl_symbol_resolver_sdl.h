@@ -22,7 +22,7 @@ public:
 	~GlSymbolResolverSdl() override = default;
 
 private:
-	GlSymbolResolverSymbolFunc do_find_symbol(const char* symbol_name) const noexcept override;
+	GlSymbolResolverSymbolFunc do_find_symbol(const char* symbol_name) const override;
 };
 
 } // namespace bstone::sys
