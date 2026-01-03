@@ -1297,8 +1297,8 @@ try {
 
 	constexpr int duration_tolerance_pct = 25;
 
-	const auto refresh_rate = std::max(vid_display_mode_.refresh_rate, 1);
-	const int expected_duration_ms = (1000 * draw_count) / refresh_rate;
+	const auto refresh_rate = std::max(vid_display_mode_.refresh_rate, 1.0F);
+	const int expected_duration_ms = static_cast<int>((1000 * draw_count) / refresh_rate);
 
 	const int min_expected_duration_ms =
 		((100 - duration_tolerance_pct) * expected_duration_ms) / 100;
