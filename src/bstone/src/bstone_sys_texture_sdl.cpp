@@ -32,7 +32,7 @@ private:
 	SDL_Texture* sdl_texture_{};
 
 	void do_set_blend_mode(TextureBlendMode mode) override;
-	void do_copy(const Rect* texture_rect, const Rect* target_rect) override;
+	void do_copy(const FRect* texture_rect, const FRect* target_rect) override;
 	TextureLockUPtr do_make_lock(const Rect* rect) override;
 
 	[[noreturn]] static void fail_sdl_func(const char* func_name);
@@ -90,45 +90,13 @@ void TextureSdl::do_set_blend_mode(TextureBlendMode blend_mode)
 	}
 }
 
-void TextureSdl::do_copy(const Rect* texture_rect, const Rect* target_rect)
+void TextureSdl::do_copy(const FRect* texture_rect, const FRect* target_rect)
 {
-	SDL_FRect sdl_texture_rect;
-	const SDL_FRect* sdl_texture_rect_ptr;
-	if (texture_rect != nullptr)
-	{
-		sdl_texture_rect = SDL_FRect{
-			.x = static_cast<float>(texture_rect->x),
-			.y = static_cast<float>(texture_rect->y),
-			.w = static_cast<float>(texture_rect->width),
-			.h = static_cast<float>(texture_rect->height),
-		};
-		sdl_texture_rect_ptr = &sdl_texture_rect;
-	}
-	else
-	{
-		sdl_texture_rect_ptr = nullptr;
-	}
-	SDL_FRect sdl_target_rect;
-	const SDL_FRect* sdl_target_rect_ptr;
-	if (target_rect != nullptr)
-	{
-		sdl_target_rect = SDL_FRect{
-			.x = static_cast<float>(target_rect->x),
-			.y = static_cast<float>(target_rect->y),
-			.w = static_cast<float>(target_rect->width),
-			.h = static_cast<float>(target_rect->height),
-		};
-		sdl_target_rect_ptr = &sdl_target_rect;
-	}
-	else
-	{
-		sdl_target_rect_ptr = nullptr;
-	}
 	if (!SDL_RenderTexture(
 		&sdl_renderer_,
 		sdl_texture_,
-		sdl_texture_rect_ptr,
-		sdl_target_rect_ptr))
+		reinterpret_cast<const SDL_FRect*>(texture_rect),
+		reinterpret_cast<const SDL_FRect*>(target_rect)))
 	{
 		fail_sdl_func("SDL_RenderTexture");
 	}

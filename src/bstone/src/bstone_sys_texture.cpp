@@ -15,7 +15,7 @@ void Texture::set_blend_mode(TextureBlendMode mode)
 	do_set_blend_mode(mode);
 }
 
-void Texture::copy(const Rect* texture_rectangle, const Rect* target_rectangle)
+void Texture::copy(const FRect* texture_rectangle, const FRect* target_rectangle)
 {
 	return do_copy(texture_rectangle, target_rectangle);
 }

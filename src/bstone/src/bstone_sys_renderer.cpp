@@ -30,7 +30,7 @@ void Renderer::set_draw_color(Color color)
 	do_set_draw_color(color);
 }
 
-void Renderer::fill(std::span<const Rect> rectangles)
+void Renderer::fill(std::span<const FRect> rectangles)
 {
 	do_fill(rectangles);
 }
