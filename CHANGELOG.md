@@ -6,7 +6,7 @@
 - [CMake] Raise minimum version to 3.24.
 - [CMake] Raise minimum C++ standard to 20.
 - [CMake] Renamed BSTONE_INTERNAL_SDL2 to BSTONE_SDL_BUNDLED.
-- [SDL] Raise minimum version to v3.2.
+- [SDL] Raise minimum version to v3.4.
 
 ### Removed
 - [CMake] Variable SDL2W_SDL2_DIR.
