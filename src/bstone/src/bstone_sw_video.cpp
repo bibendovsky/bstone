@@ -119,10 +119,10 @@ private:
 	void initialize_video();
 	void copy_texture_to_rendering_target(
 		sys::Texture& texture,
-		const sys::Rectangle* src_rect,
-		const sys::Rectangle* dst_rect);
+		const sys::Rect* src_rect,
+		const sys::Rect* dst_rect);
 	void enable_texture_blending(sys::Texture& texture, bool is_enable);
-	void fill_rects(std::span<const sys::Rectangle> rects);
+	void fill_rects(std::span<const sys::Rect> rects);
 	void initialize_vga_buffer();
 	void create_window();
 	void initialize_renderer();
@@ -147,21 +147,21 @@ private:
 	VgaBuffer sw_vga_buffer_{};
 	VgaPalette vga_palette_{};
 	SdlPalette palette_{};
-	sys::Rectangle ui_src_rect_{};
-	sys::Rectangle ui_4x3_dst_rect_{};
-	sys::Rectangle ui_wide_dst_rect_{};
-	sys::Rectangle ui_top_src_rect_{};
-	sys::Rectangle ui_4x3_top_dst_rect_{};
-	sys::Rectangle ui_wide_top_dst_rect_{};
-	sys::Rectangle ui_middle_src_rect_{};
-	sys::Rectangle ui_4x3_middle_dst_rect_{};
-	sys::Rectangle ui_wide_middle_dst_rect_{};
-	sys::Rectangle ui_bottom_src_rect_{};
-	sys::Rectangle ui_4x3_bottom_dst_rect_{};
-	sys::Rectangle ui_wide_bottom_dst_rect_{};
-	std::array<sys::Rectangle, 2> filler_ui_rects_{};
-	std::array<sys::Rectangle, 4> filler_hud_rects_{};
-	sys::Rectangle screen_dst_rect_{};
+	sys::Rect ui_src_rect_{};
+	sys::Rect ui_4x3_dst_rect_{};
+	sys::Rect ui_wide_dst_rect_{};
+	sys::Rect ui_top_src_rect_{};
+	sys::Rect ui_4x3_top_dst_rect_{};
+	sys::Rect ui_wide_top_dst_rect_{};
+	sys::Rect ui_middle_src_rect_{};
+	sys::Rect ui_4x3_middle_dst_rect_{};
+	sys::Rect ui_wide_middle_dst_rect_{};
+	sys::Rect ui_bottom_src_rect_{};
+	sys::Rect ui_4x3_bottom_dst_rect_{};
+	sys::Rect ui_wide_bottom_dst_rect_{};
+	std::array<sys::Rect, 2> filler_ui_rects_{};
+	std::array<sys::Rect, 4> filler_hud_rects_{};
+	sys::Rect screen_dst_rect_{};
 	sys::Color filler_color_{};
 
 
@@ -713,8 +713,8 @@ try {
 
 void SwVideo::copy_texture_to_rendering_target(
 	sys::Texture& texture,
-	const sys::Rectangle* src_rect,
-	const sys::Rectangle* dst_rect)
+	const sys::Rect* src_rect,
+	const sys::Rect* dst_rect)
 try {
 	texture.copy(src_rect, dst_rect);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -724,7 +724,7 @@ try {
 	texture.set_blend_mode(is_enable ? sys::TextureBlendMode::blend : sys::TextureBlendMode::none);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void SwVideo::fill_rects(std::span<const sys::Rectangle> rects)
+void SwVideo::fill_rects(std::span<const sys::Rect> rects)
 try {
 	renderer_->fill(rects);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -819,7 +819,7 @@ void SwVideo::calculate_dimensions()
 
 	// UI whole rect
 	//
-	ui_src_rect_ = sys::Rectangle
+	ui_src_rect_ = sys::Rect
 	{
 		0,
 		0,
@@ -827,7 +827,7 @@ void SwVideo::calculate_dimensions()
 		vga_ref_height,
 	};
 
-	ui_4x3_dst_rect_ = sys::Rectangle
+	ui_4x3_dst_rect_ = sys::Rect
 	{
 		vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width,
 		vid_layout_.window_viewport_top_height,
@@ -837,7 +837,7 @@ void SwVideo::calculate_dimensions()
 
 	// UI stretched rect
 	//
-	ui_wide_dst_rect_ = sys::Rectangle
+	ui_wide_dst_rect_ = sys::Rect
 	{
 		vid_layout_.window_viewport_left_width,
 		vid_layout_.window_viewport_top_height,
@@ -847,7 +847,7 @@ void SwVideo::calculate_dimensions()
 
 	// UI top rect
 	//
-	ui_top_src_rect_ = sys::Rectangle
+	ui_top_src_rect_ = sys::Rect
 	{
 		0,
 		0,
@@ -855,7 +855,7 @@ void SwVideo::calculate_dimensions()
 		ref_top_bar_height,
 	};
 
-	ui_4x3_top_dst_rect_ = sys::Rectangle
+	ui_4x3_top_dst_rect_ = sys::Rect
 	{
 		vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width,
 		vid_layout_.window_viewport_top_height,
@@ -863,7 +863,7 @@ void SwVideo::calculate_dimensions()
 		vid_layout_.screen_top_filler_height,
 	};
 
-	ui_wide_top_dst_rect_ = sys::Rectangle
+	ui_wide_top_dst_rect_ = sys::Rect
 	{
 		vid_layout_.window_viewport_left_width,
 		vid_layout_.window_viewport_top_height,
@@ -873,7 +873,7 @@ void SwVideo::calculate_dimensions()
 
 	// UI middle rect (stretched to full width)
 	//
-	ui_middle_src_rect_ = sys::Rectangle
+	ui_middle_src_rect_ = sys::Rect
 	{
 		0,
 		ref_view_top_y,
@@ -881,7 +881,7 @@ void SwVideo::calculate_dimensions()
 		ref_view_height,
 	};
 
-	ui_4x3_middle_dst_rect_ = sys::Rectangle
+	ui_4x3_middle_dst_rect_ = sys::Rect
 	{
 		vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width,
 		vid_layout_.window_viewport_top_height + vid_layout_.screen_top_filler_height,
@@ -889,7 +889,7 @@ void SwVideo::calculate_dimensions()
 		vid_layout_.screen_height - vid_layout_.screen_top_filler_height - vid_layout_.screen_bottom_filler_height,
 	};
 
-	ui_wide_middle_dst_rect_ = sys::Rectangle
+	ui_wide_middle_dst_rect_ = sys::Rect
 	{
 		vid_layout_.window_viewport_left_width,
 		vid_layout_.window_viewport_top_height + vid_layout_.screen_top_filler_height,
@@ -899,7 +899,7 @@ void SwVideo::calculate_dimensions()
 
 	// UI bottom rect
 	//
-	ui_bottom_src_rect_ = sys::Rectangle
+	ui_bottom_src_rect_ = sys::Rect
 	{
 		0,
 		ref_view_bottom_y + 1,
@@ -907,7 +907,7 @@ void SwVideo::calculate_dimensions()
 		ref_bottom_bar_height,
 	};
 
-	ui_4x3_bottom_dst_rect_ = sys::Rectangle
+	ui_4x3_bottom_dst_rect_ = sys::Rect
 	{
 		vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width,
 		vid_layout_.window_viewport_top_height + vid_layout_.screen_height - vid_layout_.screen_bottom_filler_height,
@@ -915,7 +915,7 @@ void SwVideo::calculate_dimensions()
 		vid_layout_.screen_bottom_filler_height,
 	};
 
-	ui_wide_bottom_dst_rect_ = sys::Rectangle
+	ui_wide_bottom_dst_rect_ = sys::Rect
 	{
 		vid_layout_.window_viewport_left_width,
 		vid_layout_.window_viewport_top_height + vid_layout_.screen_height - vid_layout_.screen_bottom_filler_height,
@@ -924,7 +924,7 @@ void SwVideo::calculate_dimensions()
 	};
 
 	// UI left bar
-	filler_ui_rects_[0] = sys::Rectangle
+	filler_ui_rects_[0] = sys::Rect
 	{
 		vid_layout_.window_viewport_left_width,
 		vid_layout_.window_viewport_top_height,
@@ -933,7 +933,7 @@ void SwVideo::calculate_dimensions()
 	};
 
 	// UI right bar
-	filler_ui_rects_[1] = sys::Rectangle
+	filler_ui_rects_[1] = sys::Rect
 	{
 		vid_layout_.window_viewport_left_width + vid_layout_.screen_width - vid_layout_.screen_left_filler_width,
 		vid_layout_.window_viewport_top_height,
@@ -942,7 +942,7 @@ void SwVideo::calculate_dimensions()
 	};
 
 	// HUD upper left rect
-	filler_hud_rects_[0] = sys::Rectangle
+	filler_hud_rects_[0] = sys::Rect
 	{
 		vid_layout_.window_viewport_left_width,
 		vid_layout_.window_viewport_top_height,
@@ -951,7 +951,7 @@ void SwVideo::calculate_dimensions()
 	};
 
 	// HUD upper right rect
-	filler_hud_rects_[1] = sys::Rectangle
+	filler_hud_rects_[1] = sys::Rect
 	{
 		vid_layout_.window_viewport_left_width + vid_layout_.screen_width - vid_layout_.screen_right_filler_width,
 		vid_layout_.window_viewport_top_height,
@@ -960,7 +960,7 @@ void SwVideo::calculate_dimensions()
 	};
 
 	// HUD lower left rect
-	filler_hud_rects_[2] = sys::Rectangle
+	filler_hud_rects_[2] = sys::Rect
 	{
 		vid_layout_.window_viewport_left_width,
 		vid_layout_.window_viewport_top_height + vid_layout_.screen_height - vid_layout_.screen_bottom_filler_height,
@@ -969,7 +969,7 @@ void SwVideo::calculate_dimensions()
 	};
 
 	// HUD lower right rect
-	filler_hud_rects_[3] = sys::Rectangle
+	filler_hud_rects_[3] = sys::Rect
 	{
 		vid_layout_.window_viewport_left_width + vid_layout_.screen_width - vid_layout_.screen_right_filler_width,
 		vid_layout_.window_viewport_top_height + vid_layout_.screen_height - vid_layout_.screen_bottom_filler_height,
@@ -990,7 +990,7 @@ void SwVideo::calculate_dimensions()
 	const auto screen_width = (vid_cfg_is_widescreen() ? vid_layout_.screen_width : vid_layout_.screen_width_4x3);
 	const auto screen_height = vid_layout_.screen_height;
 
-	screen_dst_rect_ = sys::Rectangle
+	screen_dst_rect_ = sys::Rect
 	{
 		screen_left,
 		screen_top,

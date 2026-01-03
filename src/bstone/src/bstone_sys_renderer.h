@@ -25,9 +25,9 @@ struct RendererInitParam
 
 // ======================================
 
-struct RendererViewport : public Rectangle
+struct RendererViewport : public Rect
 {
-	using Rectangle::Rectangle;
+	using Rect::Rect;
 };
 
 // ======================================
@@ -42,7 +42,7 @@ public:
 	void set_viewport();
 	void clear();
 	void set_draw_color(Color color);
-	void fill(std::span<const Rectangle> rectangles);
+	void fill(std::span<const Rect> rectangles);
 	void present();
 	void read_pixels(PixelFormat pixel_format, void* pixels, int pitch);
 	TextureUPtr make_texture(const TextureInitParam& param);
@@ -52,10 +52,10 @@ private:
 	virtual void do_set_viewport(const RendererViewport* viewport) = 0;
 	virtual void do_clear() = 0;
 	virtual void do_set_draw_color(Color color) = 0;
-	virtual void do_fill(std::span<const Rectangle> rects) = 0;
+	virtual void do_fill(std::span<const Rect> rects) = 0;
 	virtual void do_present() = 0;
 	virtual void do_read_pixels(
-		const Rectangle* rectangle,
+		const Rect* rectangle,
 		PixelFormat pixel_format,
 		void* pixels,
 		int pitch) = 0;
