@@ -2,6 +2,7 @@
 # SDL changelog
 
 ### Removed
+- Directory *examples*.
 - Directory *test*.
 
 ### Changed
