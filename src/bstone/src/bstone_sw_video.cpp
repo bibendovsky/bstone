@@ -119,10 +119,10 @@ private:
 	void initialize_video();
 	void copy_texture_to_rendering_target(
 		sys::Texture& texture,
-		const sys::Rect* src_rect,
-		const sys::Rect* dst_rect);
+		const sys::FRect* src_rect,
+		const sys::FRect* dst_rect);
 	void enable_texture_blending(sys::Texture& texture, bool is_enable);
-	void fill_rects(std::span<const sys::Rect> rects);
+	void fill_rects(std::span<const sys::FRect> rects);
 	void initialize_vga_buffer();
 	void create_window();
 	void initialize_renderer();
@@ -147,21 +147,21 @@ private:
 	VgaBuffer sw_vga_buffer_{};
 	VgaPalette vga_palette_{};
 	SdlPalette palette_{};
-	sys::Rect ui_src_rect_{};
-	sys::Rect ui_4x3_dst_rect_{};
-	sys::Rect ui_wide_dst_rect_{};
-	sys::Rect ui_top_src_rect_{};
-	sys::Rect ui_4x3_top_dst_rect_{};
-	sys::Rect ui_wide_top_dst_rect_{};
-	sys::Rect ui_middle_src_rect_{};
-	sys::Rect ui_4x3_middle_dst_rect_{};
-	sys::Rect ui_wide_middle_dst_rect_{};
-	sys::Rect ui_bottom_src_rect_{};
-	sys::Rect ui_4x3_bottom_dst_rect_{};
-	sys::Rect ui_wide_bottom_dst_rect_{};
-	std::array<sys::Rect, 2> filler_ui_rects_{};
-	std::array<sys::Rect, 4> filler_hud_rects_{};
-	sys::Rect screen_dst_rect_{};
+	sys::FRect ui_src_rect_{};
+	sys::FRect ui_4x3_dst_rect_{};
+	sys::FRect ui_wide_dst_rect_{};
+	sys::FRect ui_top_src_rect_{};
+	sys::FRect ui_4x3_top_dst_rect_{};
+	sys::FRect ui_wide_top_dst_rect_{};
+	sys::FRect ui_middle_src_rect_{};
+	sys::FRect ui_4x3_middle_dst_rect_{};
+	sys::FRect ui_wide_middle_dst_rect_{};
+	sys::FRect ui_bottom_src_rect_{};
+	sys::FRect ui_4x3_bottom_dst_rect_{};
+	sys::FRect ui_wide_bottom_dst_rect_{};
+	std::array<sys::FRect, 2> filler_ui_rects_{};
+	std::array<sys::FRect, 4> filler_hud_rects_{};
+	sys::FRect screen_dst_rect_{};
 	sys::Color filler_color_{};
 
 
@@ -713,8 +713,8 @@ try {
 
 void SwVideo::copy_texture_to_rendering_target(
 	sys::Texture& texture,
-	const sys::Rect* src_rect,
-	const sys::Rect* dst_rect)
+	const sys::FRect* src_rect,
+	const sys::FRect* dst_rect)
 try {
 	texture.copy(src_rect, dst_rect);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -724,7 +724,7 @@ try {
 	texture.set_blend_mode(is_enable ? sys::TextureBlendMode::blend : sys::TextureBlendMode::none);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void SwVideo::fill_rects(std::span<const sys::Rect> rects)
+void SwVideo::fill_rects(std::span<const sys::FRect> rects)
 try {
 	renderer_->fill(rects);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -819,162 +819,144 @@ void SwVideo::calculate_dimensions()
 
 	// UI whole rect
 	//
-	ui_src_rect_ = sys::Rect
-	{
-		0,
-		0,
-		vga_ref_width,
-		vga_ref_height,
+	ui_src_rect_ = sys::FRect{
+		.x = 0.0F,
+		.y = 0.0F,
+		.width = static_cast<float>(vga_ref_width),
+		.height = static_cast<float>(vga_ref_height),
 	};
 
-	ui_4x3_dst_rect_ = sys::Rect
-	{
-		vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width,
-		vid_layout_.window_viewport_top_height,
-		vid_layout_.screen_width_4x3,
-		vid_layout_.screen_height,
+	ui_4x3_dst_rect_ = sys::FRect{
+		.x = static_cast<float>(vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width),
+		.y = static_cast<float>(vid_layout_.window_viewport_top_height),
+		.width = static_cast<float>(vid_layout_.screen_width_4x3),
+		.height = static_cast<float>(vid_layout_.screen_height),
 	};
 
 	// UI stretched rect
 	//
-	ui_wide_dst_rect_ = sys::Rect
-	{
-		vid_layout_.window_viewport_left_width,
-		vid_layout_.window_viewport_top_height,
-		vid_layout_.screen_width,
-		vid_layout_.screen_height,
+	ui_wide_dst_rect_ = sys::FRect{
+		.x = static_cast<float>(vid_layout_.window_viewport_left_width),
+		.y = static_cast<float>(vid_layout_.window_viewport_top_height),
+		.width = static_cast<float>(vid_layout_.screen_width),
+		.height = static_cast<float>(vid_layout_.screen_height),
 	};
 
 	// UI top rect
 	//
-	ui_top_src_rect_ = sys::Rect
-	{
-		0,
-		0,
-		vga_ref_width,
-		ref_top_bar_height,
+	ui_top_src_rect_ = sys::FRect{
+		.x = 0.0F,
+		.y = 0.0F,
+		.width = static_cast<float>(vga_ref_width),
+		.height = static_cast<float>(ref_top_bar_height),
 	};
 
-	ui_4x3_top_dst_rect_ = sys::Rect
-	{
-		vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width,
-		vid_layout_.window_viewport_top_height,
-		vid_layout_.screen_width_4x3,
-		vid_layout_.screen_top_filler_height,
+	ui_4x3_top_dst_rect_ = sys::FRect{
+		.x = static_cast<float>(vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width),
+		.y = static_cast<float>(vid_layout_.window_viewport_top_height),
+		.width = static_cast<float>(vid_layout_.screen_width_4x3),
+		.height = static_cast<float>(vid_layout_.screen_top_filler_height),
 	};
 
-	ui_wide_top_dst_rect_ = sys::Rect
-	{
-		vid_layout_.window_viewport_left_width,
-		vid_layout_.window_viewport_top_height,
-		vid_layout_.screen_width,
-		vid_layout_.screen_top_filler_height,
+	ui_wide_top_dst_rect_ = sys::FRect{
+		.x = static_cast<float>(vid_layout_.window_viewport_left_width),
+		.y = static_cast<float>(vid_layout_.window_viewport_top_height),
+		.width = static_cast<float>(vid_layout_.screen_width),
+		.height = static_cast<float>(vid_layout_.screen_top_filler_height),
 	};
 
 	// UI middle rect (stretched to full width)
 	//
-	ui_middle_src_rect_ = sys::Rect
-	{
-		0,
-		ref_view_top_y,
-		vga_ref_width,
-		ref_view_height,
+	ui_middle_src_rect_ = sys::FRect{
+		.x = 0.0F,
+		.y = static_cast<float>(ref_view_top_y),
+		.width = static_cast<float>(vga_ref_width),
+		.height = static_cast<float>(ref_view_height),
 	};
 
-	ui_4x3_middle_dst_rect_ = sys::Rect
-	{
-		vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width,
-		vid_layout_.window_viewport_top_height + vid_layout_.screen_top_filler_height,
-		vid_layout_.screen_width_4x3,
-		vid_layout_.screen_height - vid_layout_.screen_top_filler_height - vid_layout_.screen_bottom_filler_height,
+	ui_4x3_middle_dst_rect_ = sys::FRect{
+		.x = static_cast<float>(vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width),
+		.y = static_cast<float>(vid_layout_.window_viewport_top_height + vid_layout_.screen_top_filler_height),
+		.width = static_cast<float>(vid_layout_.screen_width_4x3),
+		.height = static_cast<float>(vid_layout_.screen_height - vid_layout_.screen_top_filler_height - vid_layout_.screen_bottom_filler_height),
 	};
 
-	ui_wide_middle_dst_rect_ = sys::Rect
-	{
-		vid_layout_.window_viewport_left_width,
-		vid_layout_.window_viewport_top_height + vid_layout_.screen_top_filler_height,
-		vid_layout_.screen_width,
-		vid_layout_.screen_height - vid_layout_.screen_top_filler_height - vid_layout_.screen_bottom_filler_height,
+	ui_wide_middle_dst_rect_ = sys::FRect{
+		.x = static_cast<float>(vid_layout_.window_viewport_left_width),
+		.y = static_cast<float>(vid_layout_.window_viewport_top_height + vid_layout_.screen_top_filler_height),
+		.width = static_cast<float>(vid_layout_.screen_width),
+		.height = static_cast<float>(vid_layout_.screen_height - vid_layout_.screen_top_filler_height - vid_layout_.screen_bottom_filler_height),
 	};
 
 	// UI bottom rect
 	//
-	ui_bottom_src_rect_ = sys::Rect
-	{
-		0,
-		ref_view_bottom_y + 1,
-		vga_ref_width,
-		ref_bottom_bar_height,
+	ui_bottom_src_rect_ = sys::FRect{
+		.x = 0.0F,
+		.y = static_cast<float>(ref_view_bottom_y + 1),
+		.width = static_cast<float>(vga_ref_width),
+		.height = static_cast<float>(ref_bottom_bar_height),
 	};
 
-	ui_4x3_bottom_dst_rect_ = sys::Rect
-	{
-		vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width,
-		vid_layout_.window_viewport_top_height + vid_layout_.screen_height - vid_layout_.screen_bottom_filler_height,
-		vid_layout_.screen_width_4x3,
-		vid_layout_.screen_bottom_filler_height,
+	ui_4x3_bottom_dst_rect_ = sys::FRect{
+		.x = static_cast<float>(vid_layout_.window_viewport_left_width + vid_layout_.screen_left_filler_width),
+		.y = static_cast<float>(vid_layout_.window_viewport_top_height + vid_layout_.screen_height - vid_layout_.screen_bottom_filler_height),
+		.width = static_cast<float>(vid_layout_.screen_width_4x3),
+		.height = static_cast<float>(vid_layout_.screen_bottom_filler_height),
 	};
 
-	ui_wide_bottom_dst_rect_ = sys::Rect
-	{
-		vid_layout_.window_viewport_left_width,
-		vid_layout_.window_viewport_top_height + vid_layout_.screen_height - vid_layout_.screen_bottom_filler_height,
-		vid_layout_.screen_width,
-		vid_layout_.screen_bottom_filler_height,
+	ui_wide_bottom_dst_rect_ = sys::FRect{
+		.x = static_cast<float>(vid_layout_.window_viewport_left_width),
+		.y = static_cast<float>(vid_layout_.window_viewport_top_height + vid_layout_.screen_height - vid_layout_.screen_bottom_filler_height),
+		.width = static_cast<float>(vid_layout_.screen_width),
+		.height = static_cast<float>(vid_layout_.screen_bottom_filler_height),
 	};
 
 	// UI left bar
-	filler_ui_rects_[0] = sys::Rect
-	{
-		vid_layout_.window_viewport_left_width,
-		vid_layout_.window_viewport_top_height,
-		vid_layout_.screen_left_filler_width,
-		vid_layout_.screen_height,
+	filler_ui_rects_[0] = sys::FRect{
+		.x = static_cast<float>(vid_layout_.window_viewport_left_width),
+		.y = static_cast<float>(vid_layout_.window_viewport_top_height),
+		.width = static_cast<float>(vid_layout_.screen_left_filler_width),
+		.height = static_cast<float>(vid_layout_.screen_height),
 	};
 
 	// UI right bar
-	filler_ui_rects_[1] = sys::Rect
-	{
-		vid_layout_.window_viewport_left_width + vid_layout_.screen_width - vid_layout_.screen_left_filler_width,
-		vid_layout_.window_viewport_top_height,
-		vid_layout_.screen_left_filler_width,
-		vid_layout_.screen_height,
+	filler_ui_rects_[1] = sys::FRect{
+		.x = static_cast<float>(vid_layout_.window_viewport_left_width + vid_layout_.screen_width - vid_layout_.screen_left_filler_width),
+		.y = static_cast<float>(vid_layout_.window_viewport_top_height),
+		.width = static_cast<float>(vid_layout_.screen_left_filler_width),
+		.height = static_cast<float>(vid_layout_.screen_height),
 	};
 
 	// HUD upper left rect
-	filler_hud_rects_[0] = sys::Rect
-	{
-		vid_layout_.window_viewport_left_width,
-		vid_layout_.window_viewport_top_height,
-		vid_layout_.screen_left_filler_width,
-		vid_layout_.screen_top_filler_height,
+	filler_hud_rects_[0] = sys::FRect{
+		.x = static_cast<float>(vid_layout_.window_viewport_left_width),
+		.y = static_cast<float>(vid_layout_.window_viewport_top_height),
+		.width = static_cast<float>(vid_layout_.screen_left_filler_width),
+		.height = static_cast<float>(vid_layout_.screen_top_filler_height),
 	};
 
 	// HUD upper right rect
-	filler_hud_rects_[1] = sys::Rect
-	{
-		vid_layout_.window_viewport_left_width + vid_layout_.screen_width - vid_layout_.screen_right_filler_width,
-		vid_layout_.window_viewport_top_height,
-		vid_layout_.screen_right_filler_width,
-		vid_layout_.screen_top_filler_height,
+	filler_hud_rects_[1] = sys::FRect{
+		.x = static_cast<float>(vid_layout_.window_viewport_left_width + vid_layout_.screen_width - vid_layout_.screen_right_filler_width),
+		.y = static_cast<float>(vid_layout_.window_viewport_top_height),
+		.width = static_cast<float>(vid_layout_.screen_right_filler_width),
+		.height = static_cast<float>(vid_layout_.screen_top_filler_height),
 	};
 
 	// HUD lower left rect
-	filler_hud_rects_[2] = sys::Rect
-	{
-		vid_layout_.window_viewport_left_width,
-		vid_layout_.window_viewport_top_height + vid_layout_.screen_height - vid_layout_.screen_bottom_filler_height,
-		vid_layout_.screen_left_filler_width,
-		vid_layout_.screen_bottom_filler_height,
+	filler_hud_rects_[2] = sys::FRect{
+		.x = static_cast<float>(vid_layout_.window_viewport_left_width),
+		.y = static_cast<float>(vid_layout_.window_viewport_top_height + vid_layout_.screen_height - vid_layout_.screen_bottom_filler_height),
+		.width = static_cast<float>(vid_layout_.screen_left_filler_width),
+		.height = static_cast<float>(vid_layout_.screen_bottom_filler_height),
 	};
 
 	// HUD lower right rect
-	filler_hud_rects_[3] = sys::Rect
-	{
-		vid_layout_.window_viewport_left_width + vid_layout_.screen_width - vid_layout_.screen_right_filler_width,
-		vid_layout_.window_viewport_top_height + vid_layout_.screen_height - vid_layout_.screen_bottom_filler_height,
-		vid_layout_.screen_right_filler_width,
-		vid_layout_.screen_bottom_filler_height,
+	filler_hud_rects_[3] = sys::FRect{
+		.x = static_cast<float>(vid_layout_.window_viewport_left_width + vid_layout_.screen_width - vid_layout_.screen_right_filler_width),
+		.y = static_cast<float>(vid_layout_.window_viewport_top_height + vid_layout_.screen_height - vid_layout_.screen_bottom_filler_height),
+		.width = static_cast<float>(vid_layout_.screen_right_filler_width),
+		.height = static_cast<float>(vid_layout_.screen_bottom_filler_height),
 	};
 
 	apply_filler_color_index();
@@ -990,12 +972,12 @@ void SwVideo::calculate_dimensions()
 	const auto screen_width = (vid_cfg_is_widescreen() ? vid_layout_.screen_width : vid_layout_.screen_width_4x3);
 	const auto screen_height = vid_layout_.screen_height;
 
-	screen_dst_rect_ = sys::Rect
+	screen_dst_rect_ = sys::FRect
 	{
-		screen_left,
-		screen_top,
-		screen_width,
-		screen_height,
+		static_cast<float>(screen_left),
+		static_cast<float>(screen_top),
+		static_cast<float>(screen_width),
+		static_cast<float>(screen_height),
 	};
 }
 
