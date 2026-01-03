@@ -466,9 +466,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_static_ro_memory_stream.h
 	src/bstone_stream.cpp
 	src/bstone_stream.h
-	src/bstone_sys_special_path.cpp
-	src/bstone_sys_special_path.h
-	src/bstone_sys_special_path_sdl.cpp
 	src/bstone_ts_auto_arena_resource.cpp
 	src/bstone_ts_auto_arena_resource.h
 	src/bstone_unicode.cpp
@@ -715,6 +712,8 @@ set(BSTONE_BSTONE_SYS_SOURCES
 	src/bstone_sys_rectangle.h
 	src/bstone_sys_renderer.cpp
 	src/bstone_sys_renderer.h
+	src/bstone_sys_special_path.cpp
+	src/bstone_sys_special_path.h
 	src/bstone_sys_swap_interval_type.cpp
 	src/bstone_sys_swap_interval_type.h
 	src/bstone_sys_system_mgr.cpp
@@ -764,6 +763,7 @@ set(BSTONE_BSTONE_SYS_SDL_SOURCES
 	src/bstone_sys_renderer_sdl.h
 	src/bstone_sys_sdl_subsystem.cpp
 	src/bstone_sys_sdl_subsystem.h
+	src/bstone_sys_special_path_sdl.cpp
 	src/bstone_sys_system_mgr_sdl.cpp
 	src/bstone_sys_texture_lock_sdl.cpp
 	src/bstone_sys_texture_lock_sdl.h
