@@ -310,7 +310,7 @@ DisplayMode VideoMgrSdl::map_display_mode(const SDL_DisplayMode& sdl_display_mod
 	return DisplayMode{
 		.width = sdl_display_mode.w,
 		.height = sdl_display_mode.h,
-		.refresh_rate = static_cast<int>(sdl_display_mode.refresh_rate),
+		.refresh_rate = sdl_display_mode.refresh_rate,
 	};
 }
 
