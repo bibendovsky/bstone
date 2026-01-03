@@ -38,14 +38,14 @@ class WindowSdl final : public WindowSdlInternal
 public:
 	WindowSdl(
 		Logger& logger,
-		WindowRoundedCornerMgr& rounded_corner_mgr,
+		WindowDecorationMgr& decoration_mgr,
 		const WindowInitParam& param);
 
 	~WindowSdl() override;
 
 private:
 	Logger& logger_;
-	WindowRoundedCornerMgr& rounded_corner_mgr_;
+	WindowDecorationMgr& decoration_mgr_;
 	SDL_Window* sdl_window_{};
 	Uint32 sdl_window_id_{};
 	void* native_window_handle_{};
@@ -84,11 +84,11 @@ private:
 
 WindowSdl::WindowSdl(
 	Logger& logger,
-	WindowRoundedCornerMgr& rounded_corner_mgr,
+	WindowDecorationMgr& decoration_mgr,
 	const WindowInitParam& param)
 	:
 	logger_{logger},
-	rounded_corner_mgr_{rounded_corner_mgr}
+	decoration_mgr_{decoration_mgr}
 {
 	const int sdl_x = map_offset(param.x);
 	const int sdl_y = map_offset(param.y);
@@ -139,7 +139,7 @@ WindowSdl::WindowSdl(
 		fail_sdl_func("SDL_GetPointerProperty(SDL_PROP_WINDOW_WIN32_HWND_POINTER)");
 	}
 #endif
-	rounded_corner_mgr_.set_round_corner_type(*this, param.rounded_corner_type);
+	decoration_mgr_.set_round_corner_type(*this, param.rounded_corner_type);
 	sdl_window_ = sdl_window;
 	sdl_window = nullptr;
 }
@@ -305,7 +305,7 @@ void WindowSdl::do_show(bool is_visible)
 
 void WindowSdl::do_set_rounded_corner_type(WindowRoundedCornerType value)
 {
-	rounded_corner_mgr_.set_round_corner_type(*this, value);
+	decoration_mgr_.set_round_corner_type(*this, value);
 }
 
 WindowFullscreenType WindowSdl::do_get_fullscreen_mode()
@@ -514,10 +514,10 @@ void WindowSdl::set_gl_attributes(const GlContextAttributes& gl_attribs)
 
 WindowUPtr make_window_sdl(
 	Logger& logger,
-	WindowRoundedCornerMgr& rounded_corner_mgr,
+	WindowDecorationMgr& decoration_mgr,
 	const WindowInitParam& param)
 {
-	return std::make_unique<WindowSdl>(logger, rounded_corner_mgr, param);
+	return std::make_unique<WindowSdl>(logger, decoration_mgr, param);
 }
 
 } // namespace bstone::sys

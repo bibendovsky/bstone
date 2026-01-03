@@ -731,11 +731,11 @@ set(BSTONE_BSTONE_SYS_SOURCES
 	src/bstone_sys_vulkan_mgr.h
 	src/bstone_sys_window.cpp
 	src/bstone_sys_window.h
+	src/bstone_sys_window_decoration_mgr.cpp
+	src/bstone_sys_window_decoration_mgr.h
+	src/bstone_sys_window_decoration_mgr_null.cpp
 	src/bstone_sys_window_mgr.cpp
 	src/bstone_sys_window_mgr.h
-	src/bstone_sys_window_rounded_corner_mgr.cpp
-	src/bstone_sys_window_rounded_corner_mgr.h
-	src/bstone_sys_window_rounded_corner_mgr_null.cpp
 )
 
 target_sources(bstone PRIVATE ${BSTONE_BSTONE_SYS_SOURCES})
@@ -773,9 +773,9 @@ set(BSTONE_BSTONE_SYS_SDL_SOURCES
 	src/bstone_sys_video_mgr_sdl.h
 	src/bstone_sys_vulkan_mgr_sdl.cpp
 	src/bstone_sys_vulkan_mgr_sdl.h
+	src/bstone_sys_window_decoration_mgr_sdl.cpp
 	src/bstone_sys_window_mgr_sdl.cpp
 	src/bstone_sys_window_mgr_sdl.h
-	src/bstone_sys_window_rounded_corner_mgr_sdl.cpp
 	src/bstone_sys_window_sdl.cpp
 	src/bstone_sys_window_sdl.h
 )

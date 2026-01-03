@@ -4,21 +4,21 @@ Copyright (c) 2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Window rounded corner manager (NULL)
+// Window decoration manager (NULL)
 
 #ifndef _WIN32
 
-#include "bstone_sys_window_rounded_corner_mgr.h"
+#include "bstone_sys_window_decoration_mgr.h"
 
 namespace bstone::sys {
 
 namespace {
 
-class NullWindowRoundedCornerMgr final : public WindowRoundedCornerMgr
+class NullWindowDecorationMgr final : public WindowDecorationMgr
 {
 public:
-	NullWindowRoundedCornerMgr() = default;
-	~NullWindowRoundedCornerMgr() override = default;
+	NullWindowDecorationMgr() = default;
+	~NullWindowDecorationMgr() override = default;
 
 private:
 	void do_set_round_corner_type(Window& window, WindowRoundedCornerType round_corner_type) override;
@@ -26,7 +26,7 @@ private:
 
 // --------------------------------------
 
-void NullWindowRoundedCornerMgr::do_set_round_corner_type(
+void NullWindowDecorationMgr::do_set_round_corner_type(
 	[[maybe_unused]] Window& window,
 	[[maybe_unused]] WindowRoundedCornerType round_corner_type)
 {}
@@ -35,9 +35,9 @@ void NullWindowRoundedCornerMgr::do_set_round_corner_type(
 
 // ======================================
 
-WindowRoundedCornerMgrUPtr make_window_rounded_corner_mgr()
+WindowDecorationMgrUPtr make_window_decoration_mgr()
 {
-	return std::make_unique<NullWindowRoundedCornerMgr>();
+	return std::make_unique<NullWindowDecorationMgr>();
 }
 
 } // namespace bstone::sys
