@@ -4,13 +4,13 @@ Copyright (c) 2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Window rounded corner manager
+// Window decoration manager
 
-#include "bstone_sys_window_rounded_corner_mgr.h"
+#include "bstone_sys_window_decoration_mgr.h"
 
 namespace bstone::sys {
 
-void WindowRoundedCornerMgr::set_round_corner_type(Window& window, WindowRoundedCornerType round_corner_type)
+void WindowDecorationMgr::set_round_corner_type(Window& window, WindowRoundedCornerType round_corner_type)
 {
 	do_set_round_corner_type(window, round_corner_type);
 }

@@ -4,21 +4,21 @@ Copyright (c) 2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Window rounded corner manager
+// Window decoration manager
 
-#ifndef BSTONE_SYS_WINDOW_ROUNDED_CORNER_MGR_INCLUDED
-#define BSTONE_SYS_WINDOW_ROUNDED_CORNER_MGR_INCLUDED
+#ifndef BSTONE_SYS_WINDOW_DECORATION_MGR_INCLUDED
+#define BSTONE_SYS_WINDOW_DECORATION_MGR_INCLUDED
 
 #include "bstone_sys_window.h"
 #include <memory>
 
 namespace bstone::sys {
 
-class WindowRoundedCornerMgr
+class WindowDecorationMgr
 {
 public:
-	WindowRoundedCornerMgr() = default;
-	virtual ~WindowRoundedCornerMgr() = default;
+	WindowDecorationMgr() = default;
+	virtual ~WindowDecorationMgr() = default;
 
 	void set_round_corner_type(Window& window, WindowRoundedCornerType round_corner_type);
 
@@ -28,10 +28,10 @@ private:
 
 // ======================================
 
-using WindowRoundedCornerMgrUPtr = std::unique_ptr<WindowRoundedCornerMgr>;
+using WindowDecorationMgrUPtr = std::unique_ptr<WindowDecorationMgr>;
 
-WindowRoundedCornerMgrUPtr make_window_rounded_corner_mgr();
+WindowDecorationMgrUPtr make_window_decoration_mgr();
 
 } // namespace bstone::sys
 
-#endif // BSTONE_SYS_WINDOW_ROUNDED_CORNER_MGR_INCLUDED
+#endif // BSTONE_SYS_WINDOW_DECORATION_MGR_INCLUDED

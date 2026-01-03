@@ -8,7 +8,7 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_sys_window_mgr_sdl.h"
 #include "bstone_sys_window_sdl.h"
-#include "bstone_sys_window_rounded_corner_mgr.h"
+#include "bstone_sys_window_decoration_mgr.h"
 
 namespace bstone::sys {
 
@@ -22,7 +22,7 @@ public:
 
 private:
 	Logger& logger_;
-	WindowRoundedCornerMgrUPtr rounded_corner_mgr_{};
+	WindowDecorationMgrUPtr decoration_mgr_{};
 
 	WindowUPtr do_make_window(const WindowInitParam& param) override;
 };
@@ -34,7 +34,7 @@ WindowMgrSdl::WindowMgrSdl(Logger& logger)
 	logger_{logger}
 {
 	logger_.log_information("Starting SDL window manager.");
-	rounded_corner_mgr_ = make_window_rounded_corner_mgr();
+	decoration_mgr_ = make_window_decoration_mgr();
 	logger_.log_information("SDL window manager has started.");
 }
 
@@ -45,7 +45,7 @@ WindowMgrSdl::~WindowMgrSdl()
 
 WindowUPtr WindowMgrSdl::do_make_window(const WindowInitParam& param)
 {
-	return make_window_sdl(logger_, *rounded_corner_mgr_, param);
+	return make_window_sdl(logger_, *decoration_mgr_, param);
 }
 
 } // namespace

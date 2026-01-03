@@ -4,7 +4,7 @@ Copyright (c) 2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Window rounded corner manager (SDL).
+// Window decoration manager (SDL)
 
 #ifdef _WIN32
 
@@ -12,7 +12,7 @@ SPDX-License-Identifier: MIT
 #define WIN32_LEAN_AND_MEAN
 #endif
 
-#include "bstone_sys_window_rounded_corner_mgr.h"
+#include "bstone_sys_window_decoration_mgr.h"
 #include "bstone_exception.h"
 #include "bstone_shared_library.h"
 #include "bstone_sys_window_sdl.h"
@@ -38,11 +38,11 @@ namespace bstone::sys {
 
 namespace {
 
-class WindowRoundedCornerMgrSdl final : public WindowRoundedCornerMgr
+class WindowDecorationMgrSdl final : public WindowDecorationMgr
 {
 public:
-	WindowRoundedCornerMgrSdl();
-	~WindowRoundedCornerMgrSdl() override = default;
+	WindowDecorationMgrSdl();
+	~WindowDecorationMgrSdl() override = default;
 
 private:
 	using PFNDWMSETWINDOWATTRIBUTEPROC = HRESULT (WINAPI *)(
@@ -59,7 +59,7 @@ private:
 
 // --------------------------------------
 
-WindowRoundedCornerMgrSdl::WindowRoundedCornerMgrSdl()
+WindowDecorationMgrSdl::WindowDecorationMgrSdl()
 {
 	constexpr win32::OsVersion min_os_version{10, 0, 22000};
 	const win32::OsVersion os_version = win32::get_os_version();
@@ -80,7 +80,7 @@ WindowRoundedCornerMgrSdl::WindowRoundedCornerMgrSdl()
 	wdmapi_shared_library_.swap(wdmapi_shared_library);
 }
 
-void WindowRoundedCornerMgrSdl::do_set_round_corner_type(
+void WindowDecorationMgrSdl::do_set_round_corner_type(
 	Window& window,
 	WindowRoundedCornerType rounded_corner_type)
 {
@@ -123,9 +123,9 @@ void WindowRoundedCornerMgrSdl::do_set_round_corner_type(
 
 // ======================================
 
-WindowRoundedCornerMgrUPtr make_window_rounded_corner_mgr()
+WindowDecorationMgrUPtr make_window_decoration_mgr()
 {
-	return std::make_unique<WindowRoundedCornerMgrSdl>();
+	return std::make_unique<WindowDecorationMgrSdl>();
 }
 
 } // namespace bstone::sys

@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_sys_logger.h"
 #include "bstone_sys_window.h"
-#include "bstone_sys_window_rounded_corner_mgr.h"
+#include "bstone_sys_window_decoration_mgr.h"
 
 namespace bstone::sys {
 
@@ -33,7 +33,7 @@ private:
 
 WindowUPtr make_window_sdl(
 	Logger& logger,
-	WindowRoundedCornerMgr& rounded_corner_mgr,
+	WindowDecorationMgr& decoration_mgr,
 	const WindowInitParam& param);
 
 } // namespace bstone::sys
