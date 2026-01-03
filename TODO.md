@@ -14,5 +14,4 @@
 - HDR support.
 - Use floating-point type for refresh rate.
 - Move "mouse relative mode" code to window.
-- Add floating-point rectangle.
 - Rename WindowRoundedCornerMgr (i.e. WindowDecorationMgr)

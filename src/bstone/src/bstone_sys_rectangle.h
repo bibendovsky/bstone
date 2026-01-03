@@ -19,6 +19,14 @@ struct Rect
 	int height;
 };
 
+struct FRect
+{
+	float x;
+	float y;
+	float width;
+	float height;
+};
+
 } // namespace bstone::sys
 
 #endif // BSTONE_RECTANGLE_INCLUDED

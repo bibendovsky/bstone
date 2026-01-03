@@ -28,7 +28,15 @@ static_assert(
 		offsetof(SDL_Rect, y) == offsetof(Rect, y) &&
 		offsetof(SDL_Rect, w) == offsetof(Rect, width) &&
 		offsetof(SDL_Rect, h) == offsetof(Rect, height),
-	"Unsupported rectangle type.");
+	"Unsupported integer rectangle type.");
+
+static_assert(
+	sizeof(SDL_FRect) == sizeof(FRect) &&
+		offsetof(SDL_FRect, x) == offsetof(FRect, x) &&
+		offsetof(SDL_FRect, y) == offsetof(FRect, y) &&
+		offsetof(SDL_FRect, w) == offsetof(FRect, width) &&
+		offsetof(SDL_FRect, h) == offsetof(FRect, height),
+	"Unsupported floating-point rectangle type.");
 
 static_assert(
 	sizeof(SDL_Rect) == sizeof(RendererViewport) &&
@@ -49,17 +57,14 @@ public:
 	~RendererSdl() override;
 
 private:
-	using FRectBuffer = std::vector<SDL_FRect>;
-
 	Logger& logger_;
 	SDL_Renderer* sdl_renderer_;
-	FRectBuffer frect_buffer_{};
 
 	const char* do_get_name() const override;
 	void do_set_viewport(const RendererViewport* viewport) override;
 	void do_clear() override;
 	void do_set_draw_color(Color color) override;
-	void do_fill(std::span<const Rect> rects) override;
+	void do_fill(std::span<const FRect> rects) override;
 	void do_present() override;
 	void do_read_pixels(const Rect* rect, PixelFormat pixel_format, void* pixels, int pitch) override;
 	TextureUPtr do_make_texture(const TextureInitParam& param) override;
@@ -139,27 +144,16 @@ void RendererSdl::do_set_draw_color(Color color)
 	}
 }
 
-void RendererSdl::do_fill(std::span<const Rect> rects)
+void RendererSdl::do_fill(std::span<const FRect> rects)
 {
 	if (rects.size() > INT_MAX)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Too many rectangles.");
 	}
-	frect_buffer_.clear();
-	frect_buffer_.reserve(rects.size());
-	for (const Rect& rect : rects)
-	{
-		frect_buffer_.emplace_back(SDL_FRect{
-			.x = static_cast<float>(rect.x),
-			.y = static_cast<float>(rect.y),
-			.w = static_cast<float>(rect.width),
-			.h = static_cast<float>(rect.height),
-		});
-	}
 	if (!SDL_RenderFillRects(
 		sdl_renderer_,
-		frect_buffer_.data(),
-		static_cast<int>(frect_buffer_.size())))
+		reinterpret_cast<const SDL_FRect*>(rects.data()),
+		static_cast<int>(rects.size())))
 	{
 		fail_sdl_func("SDL_RenderFillRects");
 	}
