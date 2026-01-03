@@ -16,7 +16,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone::sys {
 
-TextureLockUPtr make_texture_lock_sdl(SDL_Texture& sdl_texture, const Rectangle* rect);
+TextureLockUPtr make_texture_lock_sdl(SDL_Texture& sdl_texture, const Rect* rect);
 
 } // namespace bstone::sys
 

@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone::sys {
 
-struct Rectangle
+struct Rect
 {
 	int x;
 	int y;
