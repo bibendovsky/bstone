@@ -32,8 +32,8 @@ private:
 	SDL_Texture* sdl_texture_{};
 
 	void do_set_blend_mode(TextureBlendMode mode) override;
-	void do_copy(const Rectangle* texture_rect, const Rectangle* target_rect) override;
-	TextureLockUPtr do_make_lock(const Rectangle* rect) override;
+	void do_copy(const Rect* texture_rect, const Rect* target_rect) override;
+	TextureLockUPtr do_make_lock(const Rect* rect) override;
 
 	[[noreturn]] static void fail_sdl_func(const char* func_name);
 	static SDL_BlendMode map_blend_mode(TextureBlendMode blend_mode);
@@ -90,7 +90,7 @@ void TextureSdl::do_set_blend_mode(TextureBlendMode blend_mode)
 	}
 }
 
-void TextureSdl::do_copy(const Rectangle* texture_rect, const Rectangle* target_rect)
+void TextureSdl::do_copy(const Rect* texture_rect, const Rect* target_rect)
 {
 	SDL_FRect sdl_texture_rect;
 	const SDL_FRect* sdl_texture_rect_ptr;
@@ -134,7 +134,7 @@ void TextureSdl::do_copy(const Rectangle* texture_rect, const Rectangle* target_
 	}
 }
 
-TextureLockUPtr TextureSdl::do_make_lock(const Rectangle* rect)
+TextureLockUPtr TextureSdl::do_make_lock(const Rect* rect)
 {
 	return make_texture_lock_sdl(*sdl_texture_, rect);
 }
