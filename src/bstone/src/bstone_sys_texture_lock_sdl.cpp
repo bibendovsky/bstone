@@ -19,11 +19,11 @@ namespace bstone::sys {
 namespace {
 
 static_assert(
-	sizeof(SDL_Rect) == sizeof(Rectangle) &&
-		offsetof(SDL_Rect, x) == offsetof(Rectangle, x) &&
-		offsetof(SDL_Rect, y) == offsetof(Rectangle, y) &&
-		offsetof(SDL_Rect, w) == offsetof(Rectangle, width) &&
-		offsetof(SDL_Rect, h) == offsetof(Rectangle, height),
+	sizeof(SDL_Rect) == sizeof(Rect) &&
+		offsetof(SDL_Rect, x) == offsetof(Rect, x) &&
+		offsetof(SDL_Rect, y) == offsetof(Rect, y) &&
+		offsetof(SDL_Rect, w) == offsetof(Rect, width) &&
+		offsetof(SDL_Rect, h) == offsetof(Rect, height),
 	"Unsupported Rectangle type.");
 
 // ======================================
@@ -31,7 +31,7 @@ static_assert(
 class TextureLockSdl final : public TextureLock
 {
 public:
-	TextureLockSdl(SDL_Texture& sdl_texture, const Rectangle* rect);
+	TextureLockSdl(SDL_Texture& sdl_texture, const Rect* rect);
 	TextureLockSdl(const TextureLockSdl& rhs) = delete;
 	TextureLockSdl& operator=(const TextureLockSdl& rhs) = delete;
 	~TextureLockSdl() override;
@@ -67,7 +67,7 @@ private:
 
 // ======================================
 
-TextureLockSdl::TextureLockSdl(SDL_Texture& sdl_texture, const Rectangle* rect)
+TextureLockSdl::TextureLockSdl(SDL_Texture& sdl_texture, const Rect* rect)
 	:
 	sdl_texture_{sdl_texture}
 {
@@ -143,7 +143,7 @@ TextureLockSdl::Storage& TextureLockSdl::Storage::get_singleton()
 
 // ======================================
 
-TextureLockUPtr make_texture_lock_sdl(SDL_Texture& sdl_texture, const Rectangle* rect)
+TextureLockUPtr make_texture_lock_sdl(SDL_Texture& sdl_texture, const Rect* rect)
 {
 	return std::make_unique<TextureLockSdl>(sdl_texture, rect);
 }

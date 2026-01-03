@@ -23,12 +23,12 @@ namespace bstone::sys {
 namespace {
 
 static_assert(
-	sizeof(SDL_Rect) == sizeof(Rectangle) &&
-		offsetof(SDL_Rect, x) == offsetof(Rectangle, x) &&
-		offsetof(SDL_Rect, y) == offsetof(Rectangle, y) &&
-		offsetof(SDL_Rect, w) == offsetof(Rectangle, width) &&
-		offsetof(SDL_Rect, h) == offsetof(Rectangle, height),
-	"Unsupported Rectangle type.");
+	sizeof(SDL_Rect) == sizeof(Rect) &&
+		offsetof(SDL_Rect, x) == offsetof(Rect, x) &&
+		offsetof(SDL_Rect, y) == offsetof(Rect, y) &&
+		offsetof(SDL_Rect, w) == offsetof(Rect, width) &&
+		offsetof(SDL_Rect, h) == offsetof(Rect, height),
+	"Unsupported rectangle type.");
 
 static_assert(
 	sizeof(SDL_Rect) == sizeof(RendererViewport) &&
@@ -59,9 +59,9 @@ private:
 	void do_set_viewport(const RendererViewport* viewport) override;
 	void do_clear() override;
 	void do_set_draw_color(Color color) override;
-	void do_fill(std::span<const Rectangle> rects) override;
+	void do_fill(std::span<const Rect> rects) override;
 	void do_present() override;
-	void do_read_pixels(const Rectangle* rect, PixelFormat pixel_format, void* pixels, int pitch) override;
+	void do_read_pixels(const Rect* rect, PixelFormat pixel_format, void* pixels, int pitch) override;
 	TextureUPtr do_make_texture(const TextureInitParam& param) override;
 
 	[[noreturn]] static void fail_sdl_func(const char* func_name);
@@ -139,7 +139,7 @@ void RendererSdl::do_set_draw_color(Color color)
 	}
 }
 
-void RendererSdl::do_fill(std::span<const Rectangle> rects)
+void RendererSdl::do_fill(std::span<const Rect> rects)
 {
 	if (rects.size() > INT_MAX)
 	{
@@ -147,7 +147,7 @@ void RendererSdl::do_fill(std::span<const Rectangle> rects)
 	}
 	frect_buffer_.clear();
 	frect_buffer_.reserve(rects.size());
-	for (const Rectangle& rect : rects)
+	for (const Rect& rect : rects)
 	{
 		frect_buffer_.emplace_back(SDL_FRect{
 			.x = static_cast<float>(rect.x),
@@ -173,7 +173,7 @@ void RendererSdl::do_present()
 	}
 }
 
-void RendererSdl::do_read_pixels(const Rectangle* rect, PixelFormat pixel_format, void* pixels, int pitch)
+void RendererSdl::do_read_pixels(const Rect* rect, PixelFormat pixel_format, void* pixels, int pitch)
 {
 	if (pixel_format != PixelFormat::r8g8b8)
 	{
