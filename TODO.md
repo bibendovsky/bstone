@@ -12,5 +12,4 @@
 - Rename `R3rR2TextureInitParam::mipmap_count` to `mip_count`.
 - Rename `R3rR2TextureUpdateParam::mipmap_level` to `mip_level`.
 - HDR support.
-- Use floating-point type for refresh rate.
 - Move "mouse relative mode" code to window.

@@ -234,7 +234,7 @@ DisplayMode WindowSdl::do_get_display_mode()
 			return DisplayMode{
 				.width = sdl_display_mode->w,
 				.height = sdl_display_mode->h,
-				.refresh_rate = static_cast<int>(sdl_display_mode->refresh_rate),
+				.refresh_rate = sdl_display_mode->refresh_rate,
 			};
 		}
 	}
@@ -257,7 +257,7 @@ DisplayMode WindowSdl::do_get_display_mode()
 	return DisplayMode{
 		.width = sdl_w,
 		.height = sdl_h,
-		.refresh_rate = static_cast<int>(sdl_display_mode->refresh_rate),
+		.refresh_rate = sdl_display_mode->refresh_rate,
 	};
 }
 

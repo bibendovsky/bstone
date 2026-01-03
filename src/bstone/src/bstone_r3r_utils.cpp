@@ -159,7 +159,7 @@ try {
 	sys::DisplayMode desire_window_display_mode = param.display_mode;
 	desire_window_display_mode.width = std::max(desire_window_display_mode.width, window_min_width);
 	desire_window_display_mode.height = std::max(desire_window_display_mode.height, window_min_height);
-	desire_window_display_mode.refresh_rate = std::max(desire_window_display_mode.refresh_rate, 0);
+	desire_window_display_mode.refresh_rate = std::max(desire_window_display_mode.refresh_rate, 0.0F);
 	if (desire_fullscreen_mode == sys::WindowFullscreenType::exclusive)
 	{
 		window.set_display_mode(desire_window_display_mode);

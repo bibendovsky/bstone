@@ -15,7 +15,7 @@ struct DisplayMode
 {
 	int width;
 	int height;
-	int refresh_rate;
+	float refresh_rate;
 };
 
 } // namespace bstone::sys
