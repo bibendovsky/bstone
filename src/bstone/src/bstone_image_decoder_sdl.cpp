@@ -132,7 +132,7 @@ void ImageDecoderSdl::decode(
 
 // ======================================
 
-ImageDecodeUPtr make_image_decoder(ImageDecoderType image_decoder_type)
+ImageDecoderUPtr make_image_decoder(ImageDecoderType image_decoder_type)
 {
 	return std::make_unique<ImageDecoderSdl>(image_decoder_type);
 }
