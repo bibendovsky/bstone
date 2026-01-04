@@ -430,7 +430,7 @@ Minimum requirements:
 
 * C++20 compatible compiler.
 * [CMake 3.24.0](http://cmake.org/)
-* [SDL v3.2.0](http://libsdl.org/)  
+* [SDL v3.4.0](http://libsdl.org/)  
 
 CMake variables:
 * `CMAKE_BUILD_TYPE`  
@@ -859,9 +859,6 @@ Add option `--cheats` to enable these keys.
 * [OpenAL Soft](http://openal-soft.org/)  
   See file `src/lib/openal_soft/COPYING` for license information.  
   Note: The port uses public headers only.
-
-* [stb_image / stb_image_write](http://github.com/nothings/stb)  
-  See file `src/lib/stb/LICENSE` for license information.
 
 * [xBRZ](http://sourceforge.net/projects/xbrz/)  
   See directory `src/lib/xbrz` for license information (`License.txt`) and essential changes made for the port (`bstone_changelog.txt`).

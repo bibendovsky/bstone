@@ -883,8 +883,6 @@ source_group("bstone/video" FILES ${BSTONE_BSTONE_VIDEO_SOURCES})
 
 set(BSTONE_BSTONE_IMAGE_SOURCES
 	src/bstone_bmp_image_common.h
-	src/bstone_bmp_image_decoder.cpp
-	src/bstone_bmp_image_decoder.h
 	src/bstone_image_decoder.cpp
 	src/bstone_image_decoder.h
 	src/bstone_image_encoder.cpp
@@ -895,16 +893,20 @@ set(BSTONE_BSTONE_IMAGE_SOURCES
 	src/bstone_sprite.h
 	src/bstone_sprite_cache.cpp
 	src/bstone_sprite_cache.h
-	src/bstone_stb_image_decoder.cpp
-	src/bstone_stb_image_decoder.h
-	src/bstone_stb_image_encoder.cpp
-	src/bstone_stb_image_encoder.h
-	src/bstone_stb_image_utils.cpp
-	src/bstone_stb_image_utils.h
 )
 
 target_sources(bstone PRIVATE ${BSTONE_BSTONE_IMAGE_SOURCES})
 source_group("bstone/image" FILES ${BSTONE_BSTONE_IMAGE_SOURCES})
+
+# ---------------------------------------------------------------------------
+
+set(BSTONE_BSTONE_IMAGE_SDL_SOURCES
+	src/bstone_image_decoder_sdl.cpp
+	src/bstone_image_encoder_sdl.cpp
+)
+
+target_sources(bstone PRIVATE ${BSTONE_BSTONE_IMAGE_SDL_SOURCES})
+source_group("bstone/image/sdl" FILES ${BSTONE_BSTONE_IMAGE_SDL_SOURCES})
 
 # ---------------------------------------------------------------------------
 
