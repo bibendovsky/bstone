@@ -396,8 +396,8 @@ private:
 	bool is_external_textures_enabled_{};
 	Buffer image_buffer_;
 	Rgba8Buffer image_buffer_rgba8_;
-	ImageDecodeUPtr bmp_image_decoder_;
-	ImageDecodeUPtr png_image_decoder_;
+	ImageDecoderUPtr bmp_image_decoder_;
+	ImageDecoderUPtr png_image_decoder_;
 	ExternalImageProbeItems image_probe_items_;
 	std::string image_data_path_;
 	std::string image_mod_path_;
