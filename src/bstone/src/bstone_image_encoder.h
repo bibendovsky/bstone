@@ -4,29 +4,27 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// Image encoder
 
 #ifndef BSTONE_IMAGE_ENCODER_INCLUDED
 #define BSTONE_IMAGE_ENCODER_INCLUDED
 
-
 #include <cstdint>
-
 #include <memory>
 
+namespace bstone {
 
-namespace bstone
+enum class ImageEncoderType
 {
-
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	none,
+	png,
+};
 
 class ImageEncoder
 {
 public:
-	ImageEncoder() noexcept;
-
-	virtual ~ImageEncoder();
-
+	ImageEncoder() = default;
+	virtual ~ImageEncoder() = default;
 
 	virtual void encode_24(
 		const std::uint8_t* src_buffer,
@@ -35,28 +33,14 @@ public:
 		std::uint8_t* dst_buffer,
 		int dst_buffer_max_size,
 		int& dst_size) = 0;
-}; // ImageEncoder
+};
 
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+// ======================================
 
+using ImageEncoderUPtr = std::unique_ptr<ImageEncoder>;
 
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ImageEncoderUPtr make_image_encoder(ImageEncoderType image_encoder_type);
 
-enum class ImageEncoderType
-{
-	none,
-	png,
-}; // ImageEncoderType
+} // namespace bstone
 
-using ImageEncodeUPtr = std::unique_ptr<ImageEncoder>;
-
-ImageEncodeUPtr make_image_encoder(
-	ImageEncoderType image_encoder_type);
-
-// >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-
-} // bstone
-
-
-#endif // !BSTONE_IMAGE_ENCODER_INCLUDED
+#endif // BSTONE_IMAGE_ENCODER_INCLUDED

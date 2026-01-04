@@ -883,9 +883,7 @@ source_group("bstone/video" FILES ${BSTONE_BSTONE_VIDEO_SOURCES})
 
 set(BSTONE_BSTONE_IMAGE_SOURCES
 	src/bstone_bmp_image_common.h
-	src/bstone_image_decoder.cpp
 	src/bstone_image_decoder.h
-	src/bstone_image_encoder.cpp
 	src/bstone_image_encoder.h
 	src/bstone_image_extractor.cpp
 	src/bstone_image_extractor.h

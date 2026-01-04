@@ -89,7 +89,7 @@ void PngImageEncoderSdl::encode_24(
 
 } // namespace
 
-ImageEncodeUPtr make_image_encoder(ImageEncoderType image_encoder_type)
+ImageEncoderUPtr make_image_encoder(ImageEncoderType image_encoder_type)
 {
 	switch (image_encoder_type)
 	{
