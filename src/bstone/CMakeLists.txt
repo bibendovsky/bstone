@@ -884,6 +884,7 @@ set(BSTONE_BSTONE_IMAGE_SOURCES
 	src/bstone_bmp_image_common.h
 	src/bstone_image_decoder.h
 	src/bstone_image_encoder.h
+	src/bstone_image_extractor.cpp
 	src/bstone_image_extractor.h
 	src/bstone_sprite.cpp
 	src/bstone_sprite.h
@@ -899,7 +900,6 @@ source_group("bstone/image" FILES ${BSTONE_BSTONE_IMAGE_SOURCES})
 set(BSTONE_BSTONE_IMAGE_SDL_SOURCES
 	src/bstone_image_decoder_sdl.cpp
 	src/bstone_image_encoder_sdl.cpp
-	src/bstone_image_extractor_sdl.cpp
 )
 
 target_sources(bstone PRIVATE ${BSTONE_BSTONE_IMAGE_SDL_SOURCES})
