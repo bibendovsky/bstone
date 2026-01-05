@@ -7,6 +7,7 @@
 - [CMake] Raise minimum C++ standard to 20.
 - [CMake] Renamed BSTONE_INTERNAL_SDL2 to BSTONE_SDL_BUNDLED.
 - [SDL] Raise minimum version to v3.4.
+- Image extractor writes images in PNG file format.
 
 ### Removed
 - [CMake] Variable SDL2W_SDL2_DIR.

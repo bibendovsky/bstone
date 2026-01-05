@@ -61,7 +61,7 @@ private:
 	using Colors = std::vector<std::uint8_t>;
 	using Colors32 = std::vector<SDL_Color>;
 
-	constinit inline static const char* const file_ext = ".bmp";
+	constinit inline static const char* const file_ext = ".png";
 
 	Logger& logger_;
 	PageMgr& page_mgr_;
@@ -213,9 +213,9 @@ void ImageExtractorImpl::save_image(const std::string& file_name_prefix, int ima
 			fail_sdl_func("SDL_SetPaletteColors");
 		}
 	}
-	if (!SDL_SaveBMP(sdl_surface, file_path.c_str()))
+	if (!SDL_SavePNG(sdl_surface, file_path.c_str()))
 	{
-		fail_sdl_func("SDL_SaveBMP");
+		fail_sdl_func("SDL_SavePNG");
 	}
 }
 
