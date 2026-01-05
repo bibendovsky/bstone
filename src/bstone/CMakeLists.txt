@@ -262,7 +262,6 @@ target_link_libraries(bstone
 		bstone::lib::khronos
 		bstone::lib::nuked_opl3
 		bstone::lib::openal_soft
-		bstone::lib::stb
 		bstone::lib::xbrz
 		bstone::vulkan
 )

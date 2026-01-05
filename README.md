@@ -722,15 +722,15 @@ Notes:
 
 * `--extract_vga_palette dir`  
   Extracts VGA palette into directory `dir`.  
-  Supported file format: [BMP](http://wikipedia.org/wiki/BMP_file_format)
+  Output file format: [PNG](http://en.wikipedia.org/wiki/PNG)
 
 * `--extract_walls dir`  
   Extracts graphics resources (wall, flooring, etc.) into directory `dir`.  
-  Supported file format: [BMP](http://wikipedia.org/wiki/BMP_file_format)
+  Output file format: [PNG](http://en.wikipedia.org/wiki/PNG)
 
 * `--extract_sprites dir`  
   Extracts graphics resources (actors, decorations, etc.) into directory `dir`.  
-  Supported file format: [BMP](http://wikipedia.org/wiki/BMP_file_format)
+  Output file format: [PNG](http://en.wikipedia.org/wiki/PNG)
 
 * `--extract_music dir`  
   Extracts music resources into directory `dir`.  
