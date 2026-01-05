@@ -1730,20 +1730,17 @@ bool ca_is_level_exists(int level_number)
 
 void ca_extract_vga_palette(const std::string& destination_dir)
 {
-	auto images_extractor = bstone::ImageExtractor{};
-	images_extractor.extract_vga_palette(destination_dir);
+	bstone::make_image_extractor()->extract_vga_palette(destination_dir);
 }
 
 void ca_extract_walls(const std::string& destination_dir)
 {
-	auto images_extractor = bstone::ImageExtractor{};
-	images_extractor.extract_walls(destination_dir);
+	bstone::make_image_extractor()->extract_walls(destination_dir);
 }
 
 void ca_extract_sprites(const std::string& destination_dir)
 {
-	auto images_extractor = bstone::ImageExtractor{};
-	images_extractor.extract_sprites(destination_dir);
+	bstone::make_image_extractor()->extract_sprites(destination_dir);
 }
 
 void ca_extract_music(
