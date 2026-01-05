@@ -5,19 +5,17 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-// Image extractor (SDL)
+// Image extractor
 
 #include "bstone_image_extractor.h"
 #include "bstone_exception.h"
 #include "bstone_fs.h"
 #include "bstone_fs_utils.h"
 #include "bstone_globals.h"
-#include "bstone_rgb8.h"
-#include "bstone_scope_exit.h"
+#include "bstone_image_encoder.h"
 #include "bstone_sprite_cache.h"
 #include "id_ca.h"
 #include "id_vh.h"
-#include <cassert>
 #include <cstdint>
 #include <array>
 #include <format>
@@ -25,7 +23,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <numeric>
 #include <unordered_map>
 #include <vector>
-#include "SDL3/SDL_surface.h"
 
 namespace bstone {
 
@@ -56,15 +53,16 @@ private:
 		std::uint8_t a;
 	};
 
-	using Palette = std::array<SDL_Color, 256>;
+	using Palette = std::array<Color32, 256>;
 	using PaletteMap = std::unordered_map<int, int>;
 	using Colors = std::vector<std::uint8_t>;
-	using Colors32 = std::vector<SDL_Color>;
+	using Colors32 = std::vector<Color32>;
 
 	constinit inline static const char* const file_ext = ".png";
 
 	Logger& logger_;
 	PageMgr& page_mgr_;
+	ImageEncoderUPtr image_encoder_{};
 	SpriteCache sprite_cache_{};
 	std::string dst_directory_{};
 	int bit_depth_{};
@@ -81,7 +79,6 @@ private:
 	void do_extract_walls(const std::string& destination_dir) override;
 	void do_extract_sprites(const std::string& destination_dir) override;
 
-	[[noreturn]] static void fail_sdl_func(const char* sdl_func_name);
 	void initialize_bs_palette();
 	void save_image(const std::string& file_name_without_ext, int image_number);
 	void impl_extract_palette();
@@ -96,6 +93,7 @@ ImageExtractorImpl::ImageExtractorImpl()
 	logger_{*globals::logger},
 	page_mgr_{*globals::page_mgr}
 {
+	image_encoder_ = make_image_encoder(ImageEncoderType::png);
 	palette_map_.reserve(256);
 	initialize_bs_palette();
 }
@@ -143,18 +141,12 @@ void ImageExtractorImpl::do_extract_sprites(const std::string& destination_dir)
 	logger_.log_information("Sprites has extracted.");
 }
 
-[[noreturn]] void ImageExtractorImpl::fail_sdl_func(const char* sdl_func_name)
-{
-	const std::string message = std::format("[{}] {}", sdl_func_name, SDL_GetError());
-	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
-}
-
 void ImageExtractorImpl::initialize_bs_palette()
 {
 	for (int i_color = 0; i_color < 256; ++i_color)
 	{
 		const std::uint8_t* const src_colors = &vgapal[i_color * 3];
-		SDL_Color& dst_color = bs_palette_[i_color];
+		Color32& dst_color = bs_palette_[i_color];
 		dst_color.r = static_cast<std::uint8_t>((255 * src_colors[0]) / 63);
 		dst_color.g = static_cast<std::uint8_t>((255 * src_colors[1]) / 63);
 		dst_color.b = static_cast<std::uint8_t>((255 * src_colors[2]) / 63);
@@ -164,26 +156,6 @@ void ImageExtractorImpl::initialize_bs_palette()
 
 void ImageExtractorImpl::save_image(const std::string& file_name_prefix, int image_number)
 {
-	bool has_palette = false;
-	int pitch;
-	SDL_PixelFormat sdl_surface_format;
-	void* pixels;
-	switch (bit_depth_)
-	{
-		case 8:
-			has_palette = true;
-			pitch = width_;
-			sdl_surface_format = SDL_PIXELFORMAT_INDEX8;
-			pixels = colors_.data();
-			break;
-		case 32:
-			pitch = width_ * 4;
-			sdl_surface_format = SDL_PIXELFORMAT_RGBA32;
-			pixels = colors32_.data();
-			break;
-		default:
-			BSTONE_THROW_STATIC_SOURCE("Unknown bit depth.");
-	}
 	const std::string file_path = fs_utils::append_path(
 		dst_directory_,
 		std::format(
@@ -191,31 +163,26 @@ void ImageExtractorImpl::save_image(const std::string& file_name_prefix, int ima
 			file_name_prefix,
 			image_number >= 0 ? ca_make_padded_asset_number_string(image_number) : "",
 			file_ext));
-	SDL_Surface* const sdl_surface = SDL_CreateSurfaceFrom(width_, height_, sdl_surface_format, pixels, pitch);
-	if (sdl_surface == nullptr)
+	switch (bit_depth_)
 	{
-		fail_sdl_func("SDL_CreateSurfaceFrom");
-	}
-	const auto scope_exit = make_scope_exit(
-		[&sdl_surface]()
-		{
-			SDL_DestroySurface(sdl_surface);
-		});
-	if (has_palette)
-	{
-		SDL_Palette* const sdl_palette = SDL_CreateSurfacePalette(sdl_surface);
-		if (sdl_palette == nullptr)
-		{
-			fail_sdl_func("SDL_CreateSurfacePalette");
-		}
-		if (!SDL_SetPaletteColors(sdl_palette, palette_.data(), 0, palette_size_))
-		{
-			fail_sdl_func("SDL_SetPaletteColors");
-		}
-	}
-	if (!SDL_SavePNG(sdl_surface, file_path.c_str()))
-	{
-		fail_sdl_func("SDL_SavePNG");
+		case 8:
+			image_encoder_->encode_indexed8_to_file(
+				width_,
+				height_,
+				palette_size_,
+				reinterpret_cast<const std::uint8_t*>(palette_.data()),
+				colors_.data(),
+				file_path.c_str());
+			break;
+		case 32:
+			image_encoder_->encode_rgba8888_to_file(
+				width_,
+				height_,
+				reinterpret_cast<const std::uint8_t*>(colors32_.data()),
+				file_path.c_str());
+			break;
+		default:
+			BSTONE_THROW_STATIC_SOURCE("Unknown bit depth.");
 	}
 }
 
@@ -291,7 +258,7 @@ void ImageExtractorImpl::impl_extract_sprite(int sprite_index)
 		}
 		for (int h = 0; h < height_; ++h)
 		{
-			SDL_Color dst_color{};
+			Color32 dst_color{};
 			if (column != nullptr && h >= top && h <= bottom)
 			{
 				const int color_index = column[h - top];

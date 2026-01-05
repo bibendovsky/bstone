@@ -31,8 +31,30 @@ public:
 		int dst_buffer_max_size,
 		int& dst_size) override;
 
+	void encode_indexed8_to_file(
+		int width,
+		int height,
+		int palette_color_count,
+		const std::uint8_t* rgba_palette,
+		const std::uint8_t* pixels,
+		const char* file_path) override;
+
+	void encode_rgba8888_to_file(
+		int width,
+		int height,
+		const std::uint8_t* pixels,
+		const char* file_path) override;
+
 private:
 	[[noreturn]] static void fail_sdl_func(const char* sdl_func_name);
+
+	void encode_indexed8_or_rgba8888_to_file(
+		int width,
+		int height,
+		int palette_color_count,
+		const std::uint8_t* rgba_palette,
+		const std::uint8_t* pixels,
+		const char* file_path);
 };
 
 // --------------------------------------
@@ -50,14 +72,8 @@ void PngImageEncoderSdl::encode_24(
 	const auto scope_exit = make_scope_exit(
 		[&sdl_surface, &sdl_io_stream]()
 		{
-			if (sdl_surface != nullptr)
-			{
-				SDL_DestroySurface(sdl_surface);
-			}
-			if (sdl_io_stream != nullptr)
-			{
-				SDL_CloseIO(sdl_io_stream);
-			}
+			SDL_DestroySurface(sdl_surface);
+			SDL_CloseIO(sdl_io_stream);
 		});
 	sdl_surface = SDL_CreateSurfaceFrom(
 		src_width,
@@ -81,10 +97,86 @@ void PngImageEncoderSdl::encode_24(
 	dst_size = static_cast<int>(SDL_TellIO(sdl_io_stream));
 }
 
+void PngImageEncoderSdl::encode_indexed8_to_file(
+	int width,
+	int height,
+	int palette_color_count,
+	const std::uint8_t* rgba_palette,
+	const std::uint8_t* pixels,
+	const char* file_path)
+{
+	encode_indexed8_or_rgba8888_to_file(
+		width,
+		height,
+		palette_color_count,
+		rgba_palette,
+		pixels,
+		file_path);
+}
+
+void PngImageEncoderSdl::encode_rgba8888_to_file(
+	int width,
+	int height,
+	const std::uint8_t* pixels,
+	const char* file_path)
+{
+	encode_indexed8_or_rgba8888_to_file(
+		width,
+		height,
+		0,
+		nullptr,
+		pixels,
+		file_path);
+}
+
 [[noreturn]] void PngImageEncoderSdl::fail_sdl_func(const char* sdl_func_name)
 {
 	const std::string message = std::format("[{}] {}", sdl_func_name, SDL_GetError());
 	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+}
+
+void PngImageEncoderSdl::encode_indexed8_or_rgba8888_to_file(
+	int width,
+	int height,
+	int palette_color_count,
+	const std::uint8_t* rgba_palette,
+	const std::uint8_t* pixels,
+	const char* file_path)
+{
+	const bool has_palette = palette_color_count > 0 && rgba_palette != nullptr;
+	const int pitch = has_palette ? width : width * 4;
+	const SDL_PixelFormat sdl_surface_format = has_palette ? SDL_PIXELFORMAT_INDEX8 : SDL_PIXELFORMAT_RGBA32;
+	SDL_Surface* const sdl_surface = SDL_CreateSurfaceFrom(
+		width,
+		height,
+		sdl_surface_format,
+		const_cast<std::uint8_t*>(pixels),
+		pitch);
+	if (sdl_surface == nullptr)
+	{
+		fail_sdl_func("SDL_CreateSurfaceFrom");
+	}
+	const auto scope_exit = make_scope_exit(
+		[&sdl_surface]()
+		{
+			SDL_DestroySurface(sdl_surface);
+		});
+	if (has_palette)
+	{
+		SDL_Palette* const sdl_palette = SDL_CreateSurfacePalette(sdl_surface);
+		if (sdl_palette == nullptr)
+		{
+			fail_sdl_func("SDL_CreateSurfacePalette");
+		}
+		if (!SDL_SetPaletteColors(sdl_palette, reinterpret_cast<const SDL_Color*>(rgba_palette), 0, palette_color_count))
+		{
+			fail_sdl_func("SDL_SetPaletteColors");
+		}
+	}
+	if (!SDL_SavePNG(sdl_surface, file_path))
+	{
+		fail_sdl_func("SDL_SavePNG");
+	}
 }
 
 } // namespace

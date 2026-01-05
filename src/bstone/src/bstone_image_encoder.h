@@ -33,6 +33,20 @@ public:
 		std::uint8_t* dst_buffer,
 		int dst_buffer_max_size,
 		int& dst_size) = 0;
+
+	virtual void encode_indexed8_to_file(
+		int width,
+		int height,
+		int palette_color_count,
+		const std::uint8_t* rgba_palette,
+		const std::uint8_t* pixels,
+		const char* file_path) = 0;
+
+	virtual void encode_rgba8888_to_file(
+		int width,
+		int height,
+		const std::uint8_t* pixels,
+		const char* file_path) = 0;
 };
 
 // ======================================
