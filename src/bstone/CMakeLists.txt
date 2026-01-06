@@ -989,8 +989,6 @@ set(BSTONE_BSTONE_SOURCES
 	src/bstone_text_reader.h
 	src/bstone_text_writer.cpp
 	src/bstone_text_writer.h
-	src/bstone_time.cpp
-	src/bstone_time.h
 	src/bstone_version.cpp
 	src/bstone_version.h
 )
