@@ -8,6 +8,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <algorithm>
 #include <chrono>
+#include <format>
 #include <string_view>
 
 #include "id_ca.h"
@@ -31,7 +32,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_string_helper.h"
 #include "bstone_sw_video.h"
 #include "bstone_text_writer.h"
-#include "bstone_time.h"
 #include "bstone_version.h"
 #include "bstone_video_cvars.h"
 
@@ -429,12 +429,12 @@ SaveScreenshotMtTask::~SaveScreenshotMtTask() = default;
 void SaveScreenshotMtTask::execute()
 try
 {
-	const auto date_time = bstone::make_local_date_time();
-
-	const auto date_time_string = bstone::make_local_date_time_string(
-		date_time,
-		bstone::DateTimeStringFormat::screenshot_file_name
-	);
+	const auto now = std::chrono::system_clock::now();
+	const auto now_s = std::chrono::floor<std::chrono::seconds>(now);
+	const auto now_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - now_s);
+	const auto ms = static_cast<int>(now_ms.count());
+	const auto date_time = std::chrono::zoned_time{std::chrono::current_zone(), now_s};
+	const std::string date_time_string = std::format("{:%Y%m%d_%H%M%S}_{:03}", date_time, ms);
 
 	const auto& screenshot_dir = get_screenshot_dir();
 
