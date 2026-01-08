@@ -431,7 +431,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_four_cc.cpp
 	src/bstone_four_cc.h
 	src/bstone_fs.h
-	src/bstone_fs_sdl.cpp
 	src/bstone_generic_pool_resource.cpp
 	src/bstone_generic_pool_resource.h
 	src/bstone_memory.cpp
@@ -464,7 +463,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_stream.cpp
 	src/bstone_stream.h
 	src/bstone_timer.h
-	src/bstone_timer_sdl.cpp
 	src/bstone_ts_auto_arena_resource.cpp
 	src/bstone_ts_auto_arena_resource.h
 	src/bstone_unicode.cpp
@@ -500,6 +498,18 @@ set(BSTONE_LIB_MISC_SOURCES
 
 target_sources(bstone PRIVATE ${BSTONE_LIB_MISC_SOURCES})
 source_group("lib/misc" FILES ${BSTONE_LIB_MISC_SOURCES})
+
+# ---------------------------------------------------------------------------
+
+set(BSTONE_LIB_MISC_SDL_SOURCES
+	src/bstone_sdl.cpp
+	src/bstone_sdl.h
+	src/bstone_fs_sdl.cpp
+	src/bstone_timer_sdl.cpp
+)
+
+target_sources(bstone PRIVATE ${BSTONE_LIB_MISC_SDL_SOURCES})
+source_group("lib/misc/sdl" FILES ${BSTONE_LIB_MISC_SDL_SOURCES})
 
 # ---------------------------------------------------------------------------
 

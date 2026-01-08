@@ -9,11 +9,10 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_window_sdl.h"
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"
+#include "bstone_sdl.h"
 #include "bstone_string_builder.h"
 #include "bstone_sys_gl_context_sdl.h"
 #include "bstone_sys_renderer_sdl.h"
-#include <format>
-#include <string>
 #include <type_traits>
 #include "SDL3/SDL_video.h"
 
@@ -70,7 +69,6 @@ private:
 	void do_gl_swap_buffers() override;
 	RendererUPtr do_make_renderer(const RendererInitParam& param) override;
 
-	[[noreturn]] void fail_sdl_func(const char* sdl_func_name);
 	static int map_offset(WindowOffset offset);
 	static Uint32 map_flags(const WindowInitParam& param) noexcept;
 	static SDL_GLProfile map_gl_context_profile(GlContextProfile context_profile);
@@ -108,7 +106,7 @@ WindowSdl::WindowSdl(
 	SDL_Window* sdl_window = SDL_CreateWindow(param.title, param.width, param.height, sdl_flags);
 	if (sdl_window == nullptr)
 	{
-		fail_sdl_func("SDL_CreateWindow");
+		sdl::fail("SDL_CreateWindow");
 	}
 	const auto scope_exit = make_scope_exit(
 		[&sdl_window]()
@@ -120,23 +118,23 @@ WindowSdl::WindowSdl(
 		});
 	if (!SDL_SetWindowPosition(sdl_window, sdl_x, sdl_y))
 	{
-		fail_sdl_func("SDL_SetWindowPosition");
+		sdl::fail("SDL_SetWindowPosition");
 	}
 	sdl_window_id_ = SDL_GetWindowID(sdl_window);
 	if (sdl_window_id_ == 0)
 	{
-		fail_sdl_func("SDL_GetWindowID");
+		sdl::fail("SDL_GetWindowID");
 	}
 #ifdef _WIN32
 	const SDL_PropertiesID sdl_window_properties_id = SDL_GetWindowProperties(sdl_window);
 	if (sdl_window_properties_id == 0)
 	{
-		fail_sdl_func("SDL_GetWindowProperties");
+		sdl::fail("SDL_GetWindowProperties");
 	}
 	native_window_handle_ = SDL_GetPointerProperty(sdl_window_properties_id, SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
 	if (native_window_handle_ == nullptr)
 	{
-		fail_sdl_func("SDL_GetPointerProperty(SDL_PROP_WINDOW_WIN32_HWND_POINTER)");
+		sdl::fail("SDL_GetPointerProperty(SDL_PROP_WINDOW_WIN32_HWND_POINTER)");
 	}
 #endif
 	decoration_mgr_.set_round_corner_type(*this, param.rounded_corner_type);
@@ -172,7 +170,7 @@ void WindowSdl::do_set_title(const char* title)
 {
 	if (!SDL_SetWindowTitle(sdl_window_, title))
 	{
-		fail_sdl_func("SDL_SetWindowTitle");
+		sdl::fail("SDL_SetWindowTitle");
 	}
 }
 
@@ -182,7 +180,7 @@ WindowPosition WindowSdl::do_get_position()
 	int y;
 	if (!SDL_GetWindowPosition(sdl_window_, &x, &y))
 	{
-		fail_sdl_func("SDL_GetWindowPosition");
+		sdl::fail("SDL_GetWindowPosition");
 	}
 	return WindowPosition{
 		.x = WindowOffset{x},
@@ -196,7 +194,7 @@ void WindowSdl::do_set_position(WindowPosition position)
 	const int sdl_y = map_offset(position.y);
 	if (!SDL_SetWindowPosition(sdl_window_, sdl_x, sdl_y))
 	{
-		fail_sdl_func("SDL_SetWindowPosition");
+		sdl::fail("SDL_SetWindowPosition");
 	}
 }
 
@@ -206,7 +204,7 @@ WindowSize WindowSdl::do_get_size()
 	int height;
 	if (!SDL_GetWindowSize(sdl_window_, &width, &height))
 	{
-		fail_sdl_func("SDL_GetWindowSize");
+		sdl::fail("SDL_GetWindowSize");
 	}
 	return WindowSize{
 		.width = width,
@@ -218,7 +216,7 @@ void WindowSdl::do_set_size(WindowSize size)
 {
 	if (!SDL_SetWindowSize(sdl_window_, size.width, size.height))
 	{
-		fail_sdl_func("SDL_SetWindowSize");
+		sdl::fail("SDL_SetWindowSize");
 	}
 }
 
@@ -241,18 +239,18 @@ DisplayMode WindowSdl::do_get_display_mode()
 	const SDL_DisplayID sdl_display_id = SDL_GetPrimaryDisplay();
 	if (sdl_display_id == 0)
 	{
-		fail_sdl_func("SDL_GetPrimaryDisplay");
+		sdl::fail("SDL_GetPrimaryDisplay");
 	}
 	const SDL_DisplayMode* const sdl_display_mode = SDL_GetCurrentDisplayMode(sdl_display_id);
 	if (sdl_display_mode == nullptr)
 	{
-		fail_sdl_func("SDL_GetCurrentDisplayMode");
+		sdl::fail("SDL_GetCurrentDisplayMode");
 	}
 	int sdl_w;
 	int sdl_h;
 	if (!SDL_GetWindowSizeInPixels(sdl_window, &sdl_w, &sdl_h))
 	{
-		fail_sdl_func("SDL_GetWindowSizeInPixels");
+		sdl::fail("SDL_GetWindowSizeInPixels");
 	}
 	return DisplayMode{
 		.width = sdl_w,
@@ -266,7 +264,7 @@ void WindowSdl::do_set_display_mode(const DisplayMode& display_mode)
 	const SDL_DisplayID sdl_display_id = SDL_GetDisplayForWindow(sdl_window_);
 	if (sdl_display_id == 0)
 	{
-		fail_sdl_func("SDL_GetDisplayForWindow");
+		sdl::fail("SDL_GetDisplayForWindow");
 	}
 	SDL_DisplayMode sdl_display_mode;
 	if (!SDL_GetClosestFullscreenDisplayMode(
@@ -277,11 +275,11 @@ void WindowSdl::do_set_display_mode(const DisplayMode& display_mode)
 		false,
 		&sdl_display_mode))
 	{
-		fail_sdl_func("SDL_GetClosestFullscreenDisplayMode");
+		sdl::fail("SDL_GetClosestFullscreenDisplayMode");
 	}
 	if (!SDL_SetWindowFullscreenMode(sdl_window_, &sdl_display_mode))
 	{
-		fail_sdl_func("SDL_SetWindowFullscreenMode");
+		sdl::fail("SDL_SetWindowFullscreenMode");
 	}
 }
 
@@ -291,14 +289,14 @@ void WindowSdl::do_show(bool is_visible)
 	{
 		if (!SDL_ShowWindow(sdl_window_))
 		{
-			fail_sdl_func("SDL_ShowWindow");
+			sdl::fail("SDL_ShowWindow");
 		}
 	}
 	else
 	{
 		if (!SDL_HideWindow(sdl_window_))
 		{
-			fail_sdl_func("SDL_HideWindow");
+			sdl::fail("SDL_HideWindow");
 		}
 	}
 }
@@ -343,12 +341,12 @@ void WindowSdl::do_set_fullscreen_mode(WindowFullscreenType fullscreen_mode)
 	{
 		if (!SDL_SetWindowFullscreenMode(sdl_window_, nullptr))
 		{
-			fail_sdl_func("SDL_SetWindowFullscreenMode");
+			sdl::fail("SDL_SetWindowFullscreenMode");
 		}
 	}
 	if (!SDL_SetWindowFullscreen(sdl_window_, is_fullscreen))
 	{
-		fail_sdl_func("SDL_SetWindowFullscreen");
+		sdl::fail("SDL_SetWindowFullscreen");
 	}
 }
 
@@ -363,7 +361,7 @@ WindowSize WindowSdl::do_gl_get_drawable_size()
 	int sdl_height;
 	if (!SDL_GetWindowSizeInPixels(sdl_window_, &sdl_width, &sdl_height))
 	{
-		fail_sdl_func("SDL_GetWindowSizeInPixels");
+		sdl::fail("SDL_GetWindowSizeInPixels");
 	}
 	return WindowSize{
 		.width = sdl_width,
@@ -375,19 +373,13 @@ void WindowSdl::do_gl_swap_buffers()
 {
 	if (!SDL_GL_SwapWindow(sdl_window_))
 	{
-		fail_sdl_func("SDL_GL_SwapWindow");
+		sdl::fail("SDL_GL_SwapWindow");
 	}
 }
 
 RendererUPtr WindowSdl::do_make_renderer(const RendererInitParam& param)
 {
 	return make_renderer_sdl(logger_, *sdl_window_, param);
-}
-
-[[noreturn]] void WindowSdl::fail_sdl_func(const char* sdl_func_name)
-{
-	const std::string message = std::format("[{}] {}", sdl_func_name, SDL_GetError());
-	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 }
 
 int WindowSdl::map_offset(WindowOffset offset)
