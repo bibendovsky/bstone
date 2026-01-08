@@ -430,10 +430,8 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_fixed_pool_resource.h
 	src/bstone_four_cc.cpp
 	src/bstone_four_cc.h
-	src/bstone_fs.cpp
 	src/bstone_fs.h
-	src/bstone_fs_posix.cpp
-	src/bstone_fs_win32.cpp
+	src/bstone_fs_sdl.cpp
 	src/bstone_generic_pool_resource.cpp
 	src/bstone_generic_pool_resource.h
 	src/bstone_memory.cpp
