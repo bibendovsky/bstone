@@ -8,11 +8,11 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"
+#include "bstone_sdl.h"
 #include "bstone_string_builder.h"
 #include "bstone_sys_texture_sdl.h"
 #include "bstone_sys_renderer_sdl.h"
 #include <climits>
-#include <format>
 #include <string>
 #include <vector>
 #include "SDL3/SDL_rect.h"
@@ -69,7 +69,6 @@ private:
 	void do_read_pixels(const Rect* rect, PixelFormat pixel_format, void* pixels, int pitch) override;
 	TextureUPtr do_make_texture(const TextureInitParam& param) override;
 
-	[[noreturn]] static void fail_sdl_func(const char* func_name);
 	static SDL_PixelFormat map_pixel_format(PixelFormat pixel_format);
 	void log_info(SDL_Renderer* sdl_renderer);
 };
@@ -88,7 +87,7 @@ RendererSdl::RendererSdl(Logger& logger, SDL_Window& sdl_window, const RendererI
 	SDL_DestroyProperties(sdl_properties_id);
 	if (sdl_renderer == nullptr)
 	{
-		fail_sdl_func("SDL_CreateRendererWithProperties");
+		sdl::fail("SDL_CreateRendererWithProperties");
 	}
 	const auto scope_exit = make_scope_exit(
 		[&sdl_renderer]()
@@ -115,7 +114,7 @@ const char* RendererSdl::do_get_name() const
 	const SDL_PropertiesID sdl_properties_id = SDL_GetRendererProperties(sdl_renderer_);
 	if (sdl_properties_id == 0)
 	{
-		fail_sdl_func("SDL_GetRendererProperties");
+		sdl::fail("SDL_GetRendererProperties");
 	}
 	return SDL_GetStringProperty(sdl_properties_id, SDL_PROP_RENDERER_NAME_STRING, "");
 }
@@ -124,7 +123,7 @@ void RendererSdl::do_set_viewport(const RendererViewport* viewport)
 {
 	if (!SDL_SetRenderViewport(sdl_renderer_, reinterpret_cast<const SDL_Rect*>(viewport)))
 	{
-		fail_sdl_func("SDL_SetRenderViewport");
+		sdl::fail("SDL_SetRenderViewport");
 	}
 }
 
@@ -132,7 +131,7 @@ void RendererSdl::do_clear()
 {
 	if (!SDL_RenderClear(sdl_renderer_))
 	{
-		fail_sdl_func("SDL_RenderClear");
+		sdl::fail("SDL_RenderClear");
 	}
 }
 
@@ -140,7 +139,7 @@ void RendererSdl::do_set_draw_color(Color color)
 {
 	if (!SDL_SetRenderDrawColor(sdl_renderer_, color.r, color.g, color.b, color.a))
 	{
-		fail_sdl_func("SDL_SetRenderDrawColor");
+		sdl::fail("SDL_SetRenderDrawColor");
 	}
 }
 
@@ -155,7 +154,7 @@ void RendererSdl::do_fill(std::span<const FRect> rects)
 		reinterpret_cast<const SDL_FRect*>(rects.data()),
 		static_cast<int>(rects.size())))
 	{
-		fail_sdl_func("SDL_RenderFillRects");
+		sdl::fail("SDL_RenderFillRects");
 	}
 }
 
@@ -163,7 +162,7 @@ void RendererSdl::do_present()
 {
 	if (!SDL_RenderPresent(sdl_renderer_))
 	{
-		fail_sdl_func("SDL_RenderPresent");
+		sdl::fail("SDL_RenderPresent");
 	}
 }
 
@@ -176,7 +175,7 @@ void RendererSdl::do_read_pixels(const Rect* rect, PixelFormat pixel_format, voi
 	SDL_Surface* sdl_surface = SDL_RenderReadPixels(sdl_renderer_, reinterpret_cast<const SDL_Rect*>(rect));
 	if (sdl_surface == nullptr)
 	{
-		fail_sdl_func("SDL_RenderReadPixels");
+		sdl::fail("SDL_RenderReadPixels");
 	}
 	const auto scope_exit = make_scope_exit(
 		[&sdl_surface]()
@@ -199,7 +198,7 @@ void RendererSdl::do_read_pixels(const Rect* rect, PixelFormat pixel_format, voi
 	{
 		if (!SDL_LockSurface(sdl_surface))
 		{
-			fail_sdl_func("SDL_LockSurface");
+			sdl::fail("SDL_LockSurface");
 		}
 	}
 	if (!SDL_ConvertPixels(
@@ -212,19 +211,13 @@ void RendererSdl::do_read_pixels(const Rect* rect, PixelFormat pixel_format, voi
 		pixels,
 		pitch))
 	{
-		fail_sdl_func("SDL_ConvertPixels");
+		sdl::fail("SDL_ConvertPixels");
 	}
 }
 
 TextureUPtr RendererSdl::do_make_texture(const TextureInitParam& param)
 {
 	return make_texture_sdl(logger_, *sdl_renderer_, param);
-}
-
-[[noreturn]] void RendererSdl::fail_sdl_func(const char* func_name)
-{
-	const std::string message = std::format("[{}] {}", func_name, SDL_GetError());
-	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 }
 
 SDL_PixelFormat RendererSdl::map_pixel_format(PixelFormat pixel_format)

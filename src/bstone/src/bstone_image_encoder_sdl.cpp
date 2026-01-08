@@ -9,8 +9,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_exception.h"
 #include "bstone_image_encoder.h"
 #include "bstone_scope_exit.h"
-#include <format>
-#include <string>
+#include "bstone_sdl.h"
 #include "SDL3/SDL_surface.h"
 
 namespace bstone {
@@ -46,8 +45,6 @@ public:
 		const char* file_path) override;
 
 private:
-	[[noreturn]] static void fail_sdl_func(const char* sdl_func_name);
-
 	void encode_indexed8_or_rgba8888_to_file(
 		int width,
 		int height,
@@ -83,16 +80,16 @@ void PngImageEncoderSdl::encode_24(
 		src_width * 3);
 	if (sdl_surface == nullptr)
 	{
-		fail_sdl_func("SDL_CreateSurfaceFrom");
+		sdl::fail("SDL_CreateSurfaceFrom");
 	}
 	sdl_io_stream = SDL_IOFromMem(dst_buffer, dst_buffer_max_size);
 	if (sdl_io_stream == nullptr)
 	{
-		fail_sdl_func("SDL_IOFromMem");
+		sdl::fail("SDL_IOFromMem");
 	}
 	if (!SDL_SavePNG_IO(sdl_surface, sdl_io_stream, false))
 	{
-		fail_sdl_func("SDL_SavePNG_IO");
+		sdl::fail("SDL_SavePNG_IO");
 	}
 	dst_size = static_cast<int>(SDL_TellIO(sdl_io_stream));
 }
@@ -129,12 +126,6 @@ void PngImageEncoderSdl::encode_rgba8888_to_file(
 		file_path);
 }
 
-[[noreturn]] void PngImageEncoderSdl::fail_sdl_func(const char* sdl_func_name)
-{
-	const std::string message = std::format("[{}] {}", sdl_func_name, SDL_GetError());
-	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
-}
-
 void PngImageEncoderSdl::encode_indexed8_or_rgba8888_to_file(
 	int width,
 	int height,
@@ -154,7 +145,7 @@ void PngImageEncoderSdl::encode_indexed8_or_rgba8888_to_file(
 		pitch);
 	if (sdl_surface == nullptr)
 	{
-		fail_sdl_func("SDL_CreateSurfaceFrom");
+		sdl::fail("SDL_CreateSurfaceFrom");
 	}
 	const auto scope_exit = make_scope_exit(
 		[&sdl_surface]()
@@ -166,16 +157,16 @@ void PngImageEncoderSdl::encode_indexed8_or_rgba8888_to_file(
 		SDL_Palette* const sdl_palette = SDL_CreateSurfacePalette(sdl_surface);
 		if (sdl_palette == nullptr)
 		{
-			fail_sdl_func("SDL_CreateSurfacePalette");
+			sdl::fail("SDL_CreateSurfacePalette");
 		}
 		if (!SDL_SetPaletteColors(sdl_palette, reinterpret_cast<const SDL_Color*>(rgba_palette), 0, palette_color_count))
 		{
-			fail_sdl_func("SDL_SetPaletteColors");
+			sdl::fail("SDL_SetPaletteColors");
 		}
 	}
 	if (!SDL_SavePNG(sdl_surface, file_path))
 	{
-		fail_sdl_func("SDL_SavePNG");
+		sdl::fail("SDL_SavePNG");
 	}
 }
 
