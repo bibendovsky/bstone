@@ -9,9 +9,8 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_texture_sdl.h"
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"
+#include "bstone_sdl.h"
 #include "bstone_sys_texture_lock_sdl.h"
-#include <format>
-#include <string>
 #include "SDL3/SDL_render.h"
 
 namespace bstone::sys {
@@ -35,7 +34,6 @@ private:
 	void do_copy(const FRect* texture_rect, const FRect* target_rect) override;
 	TextureLockUPtr do_make_lock(const Rect* rect) override;
 
-	[[noreturn]] static void fail_sdl_func(const char* func_name);
 	static SDL_BlendMode map_blend_mode(TextureBlendMode blend_mode);
 	static SDL_PixelFormat map_pixel_format(PixelFormat pixel_format);
 	static SDL_TextureAccess map_access(TextureAccess texture_access);
@@ -58,7 +56,7 @@ TextureSdl::TextureSdl(Logger& logger, SDL_Renderer& sdl_renderer, const Texture
 		param.height);
 	if (sdl_texture == nullptr)
 	{
-		fail_sdl_func("SDL_CreateTexture");
+		sdl::fail("SDL_CreateTexture");
 	}
 	const auto scope_exit = make_scope_exit(
 		[&sdl_texture]()
@@ -70,7 +68,7 @@ TextureSdl::TextureSdl(Logger& logger, SDL_Renderer& sdl_renderer, const Texture
 		});
 	if (!SDL_SetTextureScaleMode(sdl_texture, SDL_SCALEMODE_NEAREST))
 	{
-		fail_sdl_func("SDL_SetTextureScaleMode");
+		sdl::fail("SDL_SetTextureScaleMode");
 	}
 	sdl_texture_ = sdl_texture;
 	sdl_texture = nullptr;
@@ -86,7 +84,7 @@ void TextureSdl::do_set_blend_mode(TextureBlendMode blend_mode)
 	const SDL_BlendMode sdl_blend_mode = map_blend_mode(blend_mode);
 	if (!SDL_SetTextureBlendMode(sdl_texture_, sdl_blend_mode))
 	{
-		fail_sdl_func("SDL_SetTextureBlendMode");
+		sdl::fail("SDL_SetTextureBlendMode");
 	}
 }
 
@@ -98,19 +96,13 @@ void TextureSdl::do_copy(const FRect* texture_rect, const FRect* target_rect)
 		reinterpret_cast<const SDL_FRect*>(texture_rect),
 		reinterpret_cast<const SDL_FRect*>(target_rect)))
 	{
-		fail_sdl_func("SDL_RenderTexture");
+		sdl::fail("SDL_RenderTexture");
 	}
 }
 
 TextureLockUPtr TextureSdl::do_make_lock(const Rect* rect)
 {
 	return make_texture_lock_sdl(*sdl_texture_, rect);
-}
-
-[[noreturn]] void TextureSdl::fail_sdl_func(const char* func_name)
-{
-	const std::string message = std::format("[{}] {}", func_name, SDL_GetError());
-	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 }
 
 SDL_BlendMode TextureSdl::map_blend_mode(TextureBlendMode blend_mode)
