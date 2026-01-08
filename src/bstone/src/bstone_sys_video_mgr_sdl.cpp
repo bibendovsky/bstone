@@ -9,6 +9,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_video_mgr_sdl.h"
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"
+#include "bstone_sdl.h"
 #include "bstone_string_builder.h"
 #include "bstone_sys_logger.h"
 #include "bstone_sys_gl_current_context_sdl.h"
@@ -20,8 +21,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_sdl_subsystem.h"
 #include <algorithm>
 #include <exception>
-#include <format>
-#include <string>
 #include "SDL3/SDL_video.h"
 
 namespace bstone::sys {
@@ -56,7 +55,6 @@ private:
 	MouseMgr& do_get_mouse_mgr() override;
 	WindowMgr& do_get_window_mgr() override;
 
-	[[noreturn]] void fail_sdl_func(const char* sdl_func_name);
 	static void log_sdl_error(StringBuilder& formatter);
 	static void log_drivers(StringBuilder& formatter);
 	static void log_display_bounds(SDL_DisplayID sdl_display_id, StringBuilder& formatter);
@@ -105,12 +103,12 @@ DisplayMode VideoMgrSdl::do_get_current_display_mode()
 	const SDL_DisplayID sdl_display_id = SDL_GetPrimaryDisplay();
 	if (sdl_display_id == 0)
 	{
-		fail_sdl_func("SDL_GetPrimaryDisplay");
+		sdl::fail("SDL_GetPrimaryDisplay");
 	}
 	const SDL_DisplayMode* sdl_display_mode = SDL_GetCurrentDisplayMode(sdl_display_id);
 	if (sdl_display_mode == nullptr)
 	{
-		fail_sdl_func("SDL_GetCurrentDisplayMode");
+		sdl::fail("SDL_GetCurrentDisplayMode");
 	}
 	return map_display_mode(*sdl_display_mode);
 }
@@ -121,7 +119,7 @@ std::span<const DisplayMode> VideoMgrSdl::do_get_display_modes()
 	SDL_DisplayMode** const sdl_display_mode_ptrs = SDL_GetFullscreenDisplayModes(SDL_GetPrimaryDisplay(), &sdl_mode_count);
 	if (sdl_display_mode_ptrs == nullptr)
 	{
-		fail_sdl_func("SDL_GetFullscreenDisplayModes");
+		sdl::fail("SDL_GetFullscreenDisplayModes");
 	}
 	const auto scope_exit = make_scope_exit(
 		[sdl_display_mode_ptrs]()
@@ -162,12 +160,6 @@ MouseMgr& VideoMgrSdl::do_get_mouse_mgr()
 WindowMgr& VideoMgrSdl::do_get_window_mgr()
 {
 	return *window_mgr_;
-}
-
-[[noreturn]] void VideoMgrSdl::fail_sdl_func(const char* sdl_func_name)
-{
-	const std::string message = std::format("[{}] {}", sdl_func_name, SDL_GetError());
-	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 }
 
 void VideoMgrSdl::log_sdl_error(StringBuilder& formatter)

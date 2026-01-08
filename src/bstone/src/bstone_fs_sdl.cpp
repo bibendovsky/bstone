@@ -9,28 +9,11 @@ SPDX-License-Identifier: MIT
 #include "bstone_fs.h"
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"
+#include "bstone_sdl.h"
 #include <string>
 #include "SDL3/SDL_filesystem.h"
 
 namespace bstone::fs {
-
-namespace {
-
-[[noreturn]] void fail_sdl_func(const char* sdl_func_name)
-{
-	const std::size_t sdl_func_name_length = std::string::traits_type::length(sdl_func_name);
-	const char* const sdl_error_message = SDL_GetError();
-	const std::size_t sdl_error_message_length = std::string::traits_type::length(sdl_error_message);
-	std::string message{};
-	message.reserve(sdl_func_name_length + sdl_error_message_length + 3);
-	message += '[';
-	message += sdl_func_name;
-	message += "] ";
-	message += sdl_error_message;
-	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
-}
-
-} // namespace
 
 std::intptr_t get_working_directory(char* buffer, std::intptr_t buffer_size)
 try
@@ -46,7 +29,7 @@ try
 	char* const sdl_directoy = SDL_GetCurrentDirectory();
 	if (sdl_directoy == nullptr)
 	{
-		fail_sdl_func("SDL_GetCurrentDirectory");
+		sdl::fail("SDL_GetCurrentDirectory");
 	}
 	const auto scope_exit = make_scope_exit(
 		[sdl_directoy]()
@@ -68,7 +51,7 @@ try
 {
 	if (!SDL_CreateDirectory(path))
 	{
-		fail_sdl_func("SDL_CreateDirectory");
+		sdl::fail("SDL_CreateDirectory");
 	}
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -78,7 +61,7 @@ try
 {
 	if (!SDL_RenamePath(old_path, new_path))
 	{
-		fail_sdl_func("SDL_RenamePath");
+		sdl::fail("SDL_RenamePath");
 	}
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -92,7 +75,7 @@ try
 	}
 	if (!SDL_RemovePath(path))
 	{
-		fail_sdl_func("SDL_RemovePath");
+		sdl::fail("SDL_RemovePath");
 	}
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -102,7 +85,7 @@ try
 {
 	if (!SDL_RemovePath(path))
 	{
-		fail_sdl_func("SDL_RemovePath");
+		sdl::fail("SDL_RemovePath");
 	}
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED

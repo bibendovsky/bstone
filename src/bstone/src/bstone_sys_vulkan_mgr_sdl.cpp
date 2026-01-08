@@ -8,8 +8,8 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_sys_vulkan_mgr_sdl.h"
 #include "bstone_exception.h"
+#include "bstone_sdl.h"
 #include "bstone_sys_window_sdl.h"
-#include <format>
 #include <string>
 #include "vulkan/vulkan.h"
 #include "SDL3/SDL_vulkan.h"
@@ -33,7 +33,6 @@ private:
 	std::span<const char* const> do_get_required_extensions(Window& window) override;
 	VkSurfaceKHR do_create_surface(Window& window, VkInstance vk_instance) override;
 
-	[[noreturn]] static void fail_sdl_func(const char* sdl_func_name);
 	static SDL_Window* get_sdl_window(Window& window);
 	[[noreturn]] static void vulkan_not_available();
 	bool impl_is_vulkan_available() const;
@@ -49,7 +48,12 @@ VulkanMgrSdl::VulkanMgrSdl(Logger& logger)
 	logger_.log_information("Starting SDL Vulkan manager.");
 	if (!SDL_Vulkan_LoadLibrary(nullptr))
 	{
-		const std::string message = std::format("[{}] {}", "SDL_Vulkan_LoadLibrary", SDL_GetError());
+		std::string message{};
+		message.reserve(256);
+		message += '[';
+		message += "SDL_Vulkan_LoadLibrary";
+		message += "] ";
+		message += SDL_GetError();
 		logger_.log_information(message.c_str());
 		return;
 	}
@@ -96,15 +100,9 @@ VkSurfaceKHR VulkanMgrSdl::do_create_surface(Window& window, VkInstance vk_insta
 	VkSurfaceKHR vk_surface_khr;
 	if (!SDL_Vulkan_CreateSurface(sdl_window, vk_instance, nullptr, &vk_surface_khr))
 	{
-		fail_sdl_func("SDL_Vulkan_CreateSurface");
+		sdl::fail("SDL_Vulkan_CreateSurface");
 	}
 	return vk_surface_khr;
-}
-
-[[noreturn]] void VulkanMgrSdl::fail_sdl_func(const char* sdl_func_name)
-{
-	const std::string message = std::format("[{}] {}", sdl_func_name, SDL_GetError());
-	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 }
 
 SDL_Window* VulkanMgrSdl::get_sdl_window(Window& window)

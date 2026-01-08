@@ -8,7 +8,7 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_timer.h"
 #include "bstone_exception.h"
-#include <string>
+#include "bstone_sdl.h"
 #include "SDL3/SDL_timer.h"
 
 namespace bstone {
@@ -16,22 +16,10 @@ namespace bstone {
 class Timer::Impl
 {
 public:
-	[[noreturn]] static void fail_sdl_func(const char* sdl_func_name);
 	static Uint64 SDLCALL sdl_callback(void* userdata, SDL_TimerID timerID, Uint64 interval);
 };
 
 // --------------------------------------
-
-[[noreturn]] void Timer::Impl::fail_sdl_func(const char* sdl_func_name)
-{
-	std::string message{};
-	message.reserve(256);
-	message += '[';
-	message += sdl_func_name;
-	message += "] ";
-	message += SDL_GetError();
-	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
-}
 
 Uint64 SDLCALL Timer::Impl::sdl_callback(void* userdata, [[maybe_unused]] SDL_TimerID timerID, Uint64 interval)
 {
@@ -72,7 +60,7 @@ try
 	native_handle_ = SDL_AddTimerNS(static_cast<Uint64>(period_ns), &Impl::sdl_callback, this);
 	if (!started())
 	{
-		Impl::fail_sdl_func("SDL_AddTimerNS");
+		sdl::fail("SDL_AddTimerNS");
 	}
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -85,7 +73,7 @@ void Timer::stop()
 	}
 	if (!SDL_RemoveTimer(native_handle_))
 	{
-		Impl::fail_sdl_func("SDL_RemoveTimer");
+		sdl::fail("SDL_RemoveTimer");
 	}
 	native_handle_ = 0;
 }

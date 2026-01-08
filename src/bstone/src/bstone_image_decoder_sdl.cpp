@@ -9,9 +9,8 @@ SPDX-License-Identifier: MIT
 #include "bstone_exception.h"
 #include "bstone_image_decoder.h"
 #include "bstone_scope_exit.h"
+#include "bstone_sdl.h"
 #include <algorithm>
-#include <format>
-#include <string>
 #include "SDL3/SDL_surface.h"
 
 namespace bstone {
@@ -35,8 +34,6 @@ private:
 	using SdlLoadFunc = SDL_Surface* (SDLCALL *)(SDL_IOStream* src, bool closeio);
 
 	SdlLoadFunc sdl_load_func_;
-
-	[[noreturn]] static void fail_sdl_func(const char* sdl_func_name);
 };
 
 // --------------------------------------
@@ -76,12 +73,12 @@ void ImageDecoderSdl::decode(
 	sdl_io_stream = SDL_IOFromConstMem(src_data, static_cast<std::size_t>(src_data_size));
 	if (sdl_io_stream == nullptr)
 	{
-		fail_sdl_func("SDL_IOFromConstMem");
+		sdl::fail("SDL_IOFromConstMem");
 	}
 	sdl_surface = sdl_load_func_(sdl_io_stream, false);
 	if (sdl_surface == nullptr)
 	{
-		fail_sdl_func("SDL_SDL_LoadXXX_IO");
+		sdl::fail("SDL_SDL_LoadXXX_IO");
 	}
 	const int dst_pitch = sdl_surface->w * 4;
 	const std::size_t area_size_t = static_cast<std::size_t>(sdl_surface->w * sdl_surface->h);
@@ -95,7 +92,7 @@ void ImageDecoderSdl::decode(
 		sdl_surface2 = SDL_ConvertSurface(sdl_surface, SDL_PIXELFORMAT_RGBA32);
 		if (sdl_surface2 == nullptr)
 		{
-			fail_sdl_func("SDL_ConvertSurface");
+			sdl::fail("SDL_ConvertSurface");
 		}
 		if (sdl_surface2->pitch != sdl_surface2->w * 4)
 		{
@@ -115,17 +112,11 @@ void ImageDecoderSdl::decode(
 			dst_buffer.data(),
 			dst_pitch))
 		{
-			fail_sdl_func("SDL_ConvertPixels");
+			sdl::fail("SDL_ConvertPixels");
 		}
 	}
 	dst_width = sdl_surface->w;
 	dst_height = sdl_surface->h;
-}
-
-[[noreturn]] void ImageDecoderSdl::fail_sdl_func(const char* sdl_func_name)
-{
-	const std::string message = std::format("[{}] {}", sdl_func_name, SDL_GetError());
-	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 }
 
 } // namespace
