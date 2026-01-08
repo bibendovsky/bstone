@@ -330,7 +330,11 @@ CreateAndWaitForExitResult create_and_wait_for_exit(const CreateAndWaitForExitPa
 
 			try
 			{
-				fs::set_working_directory(param.working_directory);
+				const int chdir_result = chdir(param.working_directory);
+				if (chdir_result != 0)
+				{
+					BSTONE_THROW_STATIC_SOURCE("Failed to set current directory.");
+				}
 				is_working_directory_set = true;
 			}
 #ifdef BSTONE_PROCESS_DEBUG
