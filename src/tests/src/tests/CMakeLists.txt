@@ -35,7 +35,7 @@ target_include_directories(bstone_tests
 target_link_libraries(bstone_tests
 	PRIVATE
 		${CMAKE_DL_LIBS}
-		bstone_tests_shared_library
+		bstone::sdl
 )
 
 target_sources(bstone_tests
@@ -78,6 +78,8 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_utf16.h
 		../../../bstone/src/bstone_utf8.cpp
 		../../../bstone/src/bstone_utf8.h
+		../../../bstone/src/bstone_sdl.cpp
+		../../../bstone/src/bstone_sdl.h
 		../../../bstone/src/bstone_single_pool_resource.cpp
 		../../../bstone/src/bstone_single_pool_resource.h
 		../../../bstone/src/bstone_fixed_pool_resource.cpp
@@ -110,10 +112,8 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_binary_writer.h
 		../../../bstone/src/bstone_crc32.cpp
 		../../../bstone/src/bstone_crc32.h
-		../../../bstone/src/bstone_shared_library.cpp
+		../../../bstone/src/bstone_shared_library_sdl.cpp
 		../../../bstone/src/bstone_shared_library.h
-		../../../bstone/src/bstone_shared_library_posix.cpp
-		../../../bstone/src/bstone_shared_library_win32.cpp
 		../../../bstone/src/bstone_win32_registry_key.cpp
 		../../../bstone/src/bstone_win32_registry_key.h
 		../../../bstone/src/bstone_api_string.cpp
@@ -166,7 +166,6 @@ target_sources(bstone_tests
 		src/bstone_tests_binary_reader.cpp
 		src/bstone_tests_binary_writer.cpp
 		src/bstone_tests_crc32.cpp
-		src/bstone_tests_shared_library.cpp
 		src/bstone_tests_win32_registry_key.cpp
 		src/bstone_tests_api_string.cpp
 		src/bstone_tests_four_cc.cpp
