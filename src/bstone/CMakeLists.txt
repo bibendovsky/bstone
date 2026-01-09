@@ -450,10 +450,8 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_scope_exit.h
 	src/bstone_sha1.cpp
 	src/bstone_sha1.h
-	src/bstone_shared_library.cpp
+	src/bstone_shared_library_sdl.cpp
 	src/bstone_shared_library.h
-	src/bstone_shared_library_posix.cpp
-	src/bstone_shared_library_win32.cpp
 	src/bstone_single_pool_resource.cpp
 	src/bstone_single_pool_resource.h
 	src/bstone_static_memory_stream.cpp
