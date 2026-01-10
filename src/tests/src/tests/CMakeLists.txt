@@ -130,10 +130,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_uuid.h
 		../../../bstone/src/bstone_win32_unique_resources.cpp
 		../../../bstone/src/bstone_win32_unique_resources.h
-		../../../bstone/src/bstone_process.cpp
-		../../../bstone/src/bstone_process_posix.cpp
-		../../../bstone/src/bstone_process_win32.cpp
-		../../../bstone/src/bstone_process.h
 	PRIVATE
 		src/bstone_tests_ascii.cpp
 		src/bstone_tests_char_conv.cpp
@@ -170,7 +166,6 @@ target_sources(bstone_tests
 		src/bstone_tests_api_string.cpp
 		src/bstone_tests_four_cc.cpp
 		src/bstone_tests_uuid.cpp
-		src/bstone_tests_process.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h

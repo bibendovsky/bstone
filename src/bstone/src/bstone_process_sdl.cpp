@@ -4,15 +4,20 @@ Copyright (c) 2024-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// Process management
+// Process management (SDL)
 
-#ifndef BSTONE_PROCESS_INCLUDED
-#define BSTONE_PROCESS_INCLUDED
+#include "bstone_process.h"
+#include "bstone_sdl.h"
+#include "SDL3/SDL_misc.h"
 
 namespace bstone::process {
 
-void open_file_or_url(const char* url);
+void open_file_or_url(const char* url)
+{
+	if (!SDL_OpenURL(url))
+	{
+		sdl::fail("SDL_OpenURL");
+	}
+}
 
 } // namespace bstone::process
-
-#endif // BSTONE_PROCESS_INCLUDED

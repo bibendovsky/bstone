@@ -489,9 +489,8 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_win32_wstring.h
 	src/bstone_win32_unique_resources.cpp
 	src/bstone_win32_unique_resources.h
+	src/bstone_process_sdl.cpp
 	src/bstone_process.h
-	src/bstone_process_posix.cpp
-	src/bstone_process_win32.cpp
 )
 
 target_sources(bstone PRIVATE ${BSTONE_LIB_MISC_SOURCES})
