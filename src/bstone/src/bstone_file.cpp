@@ -7,7 +7,9 @@ SPDX-License-Identifier: MIT
 // File primitive.
 
 #include "bstone_file.h"
+#include "bstone_assert.h"
 #include <algorithm>
+#include <memory>
 
 // ==========================================================================
 
@@ -15,33 +17,29 @@ namespace bstone {
 
 File::File(File&& rhs) noexcept
 	:
-	handle_(rhs.handle_)
+	handle_{rhs.handle_},
+	is_readable_{rhs.is_readable_}
 {
-	rhs.handle_ = invalid_handle;
+	rhs.handle_ = nullptr;
 }
 
 File& File::operator=(File&& rhs) noexcept
 {
-	std::swap(handle_, rhs.handle_);
+	BSTONE_ASSERT(std::addressof(rhs) != this);
+	close();
+	handle_ = rhs.handle_;
+	rhs.handle_ = nullptr;
+	is_readable_ = rhs.is_readable_;
 	return *this;
-}
-
-bool File::lock(FileLockType lock_type) const
-{
-	switch (lock_type)
-	{
-		case file_lock_shared: return lock_shared();
-		case file_lock_exclusive: return lock_exclusive();
-		default: return false;
-	}
 }
 
 void File::swap(File& file)
 {
 	std::swap(handle_, file.handle_);
+	std::swap(is_readable_, file.is_readable_);
 }
 
-// ==========================================================================
+// ======================================
 
 FileFlags operator|(FileFlags a, FileFlags b)
 {
