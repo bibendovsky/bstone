@@ -4,14 +4,12 @@ Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-// File primitive.
+// File primitive
 
 #ifndef BSTONE_FILE_INCLUDED
 #define BSTONE_FILE_INCLUDED
 
-#include <stdint.h>
-
-// ==========================================================================
+#include <cstdint>
 
 namespace bstone {
 
@@ -31,8 +29,6 @@ enum FileErrorCode
 	ec_file_lock = -106 // Could not lock a file.
 };
 
-// ==========================================================================
-
 enum FileOrigin
 {
 	file_origin_none = 0,
@@ -41,7 +37,7 @@ enum FileOrigin
 	file_origin_end = 3,
 };
 
-// ==========================================================================
+// ======================================
 
 enum FileFlags
 {
@@ -56,12 +52,12 @@ enum FileFlags
 	file_flags_read_write = file_flags_read | file_flags_write,
 };
 
-// --------------------------------------------------------------------------
+// --------------------------------------
 
 FileFlags operator|(FileFlags a, FileFlags b);
 FileFlags& operator|=(FileFlags& a, FileFlags b);
 
-// ==========================================================================
+// ======================================
 
 enum FileLockType
 {
@@ -70,17 +66,14 @@ enum FileLockType
 	file_lock_exclusive = 2,
 };
 
-// ==========================================================================
-
 class File
 {
 public:
-	static const int invalid_handle = -1;
-
-public:
-	File();
+	File() = default;
 	File(const char* path, FileFlags flags);
 	File(const char* path, FileFlags flags, FileErrorCode& error_code);
+	File(const File&) = delete;
+	File& operator=(const File&) = delete;
 	File(File&& rhs) noexcept;
 	File& operator=(File&& rhs) noexcept;
 	~File();
@@ -89,29 +82,22 @@ public:
 	bool open(const char* path, FileFlags flags);
 	bool open(const char* path, FileFlags flags, FileErrorCode& error_code);
 	void close();
-	intptr_t read(void* buffer, intptr_t size) const;
-	bool read_exactly(void* buffer, intptr_t size) const;
-	intptr_t write(const void* buffer, intptr_t size) const;
-	bool write_exactly(const void* buffer, intptr_t size) const;
-	int64_t seek(int64_t offset, FileOrigin origin) const;
-	int64_t skip(int64_t offset) const;
-	int64_t get_position() const;
-	bool set_position(int64_t position) const;
-	int64_t get_size() const;
-	bool set_size(int64_t size) const;
+	std::intptr_t read(void* buffer, std::intptr_t size) const;
+	bool read_exactly(void* buffer, std::intptr_t size) const;
+	std::intptr_t write(const void* buffer, std::intptr_t size) const;
+	bool write_exactly(const void* buffer, std::intptr_t size) const;
+	std::int64_t seek(std::int64_t offset, FileOrigin origin) const;
+	std::int64_t skip(std::int64_t offset) const;
+	std::int64_t get_position() const;
+	bool set_position(std::int64_t position) const;
+	std::int64_t get_size() const;
+	bool set_size(std::int64_t size) const;
 	bool flush() const;
-	bool lock(FileLockType lock_type) const;
-	bool lock_shared() const;
-	bool lock_exclusive() const;
-	bool unlock() const;
 	void swap(File& file);
 
 private:
-	File(const File&) = delete;
-	File& operator=(const File&) = delete;
-
-private:
-	int handle_;
+	void* handle_{};
+	bool is_readable_{};
 };
 
 } // namespace bstone
