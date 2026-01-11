@@ -92,10 +92,9 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_ts_auto_arena_resource.h
 		../../../bstone/src/bstone_win32_wstring.cpp
 		../../../bstone/src/bstone_win32_wstring.h
-		../../../bstone/src/bstone_file_posix.cpp
-		../../../bstone/src/bstone_file_win32.cpp
 		../../../bstone/src/bstone_file.cpp
 		../../../bstone/src/bstone_file.h
+		../../../bstone/src/bstone_file_sdl.cpp
 		../../../bstone/src/bstone_stream.cpp
 		../../../bstone/src/bstone_stream.h
 		../../../bstone/src/bstone_file_stream.cpp
@@ -154,7 +153,6 @@ target_sources(bstone_tests
 		src/bstone_tests_ts_auto_arena_resource.cpp
 		src/bstone_tests_win32_wstring.cpp
 		src/bstone_tests_configurations.cpp
-		src/bstone_tests_file.cpp
 		src/bstone_tests_file_stream.cpp
 		src/bstone_tests_memory_stream.cpp
 		src/bstone_tests_static_memory_stream.cpp
