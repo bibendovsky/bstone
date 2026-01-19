@@ -34,6 +34,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_text_writer.h"
 #include "bstone_version.h"
 #include "bstone_video_cvars.h"
+#include "bstone_sys_time.h"
 
 
 namespace {
@@ -429,12 +430,17 @@ SaveScreenshotMtTask::~SaveScreenshotMtTask() = default;
 void SaveScreenshotMtTask::execute()
 try
 {
-	const auto now = std::chrono::system_clock::now();
-	const auto now_s = std::chrono::floor<std::chrono::seconds>(now);
-	const auto now_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - now_s);
-	const auto ms = static_cast<int>(now_ms.count());
-	const auto date_time = std::chrono::zoned_time{std::chrono::current_zone(), now_s};
-	const std::string date_time_string = std::format("{:%Y%m%d_%H%M%S}_{:03}", date_time, ms);
+	const bstone::sys::TimeNs time_ns = bstone::sys::get_current_time_ns();
+	const bstone::sys::DateTime date_time = bstone::sys::time_ns_to_date_time(time_ns, bstone::sys::DateTimeKind::local);
+	const std::string date_time_string = std::format(
+		"{:04}{:02}{:02}_{:02}{:02}{:02}_{:03}",
+		date_time.year,
+		date_time.month,
+		date_time.day,
+		date_time.hour,
+		date_time.minute,
+		date_time.second,
+		date_time.nanosecond / 1'000'000);
 
 	const auto& screenshot_dir = get_screenshot_dir();
 

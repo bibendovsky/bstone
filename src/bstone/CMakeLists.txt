@@ -723,6 +723,8 @@ set(BSTONE_BSTONE_SYS_SOURCES
 	src/bstone_sys_swap_interval_type.h
 	src/bstone_sys_system_mgr.cpp
 	src/bstone_sys_system_mgr.h
+	src/bstone_sys_time.cpp
+	src/bstone_sys_time.h
 	src/bstone_sys_texture.cpp
 	src/bstone_sys_texture.h
 	src/bstone_sys_texture_lock.cpp
@@ -770,6 +772,7 @@ set(BSTONE_BSTONE_SYS_SDL_SOURCES
 	src/bstone_sys_sdl_subsystem.h
 	src/bstone_sys_special_path_sdl.cpp
 	src/bstone_sys_system_mgr_sdl.cpp
+	src/bstone_sys_time_sdl.cpp
 	src/bstone_sys_texture_lock_sdl.cpp
 	src/bstone_sys_texture_lock_sdl.h
 	src/bstone_sys_texture_sdl.cpp
