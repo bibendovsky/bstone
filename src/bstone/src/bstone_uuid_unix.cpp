@@ -27,7 +27,7 @@ try {
 	Uuid uuid;
 	UuidValue& uuid_value = uuid.get_value();
 	const int file = ::open("/dev/urandom", O_RDONLY);
-	const ssize_t read_size = ::read(file, uuid_value.get_data(), uuid_value_size);
+	const ssize_t read_size = ::read(file, uuid_value.data(), uuid_value_size);
 	::close(file);
 
 	if (read_size != uuid_value_size)
