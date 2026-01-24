@@ -10,6 +10,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstring>
 
 #include <algorithm>
+#include <chrono>
+#include <thread>
 
 #include "gfxv.h"
 #include "id_ca.h"
@@ -1469,57 +1471,39 @@ void DrawPlayerWeapon()
 
 void CalcTics()
 {
-	std::int32_t newtime;
-
-	//
-	// calculate tics since last refresh for adaptive timing
-	//
-	if (lasttimecount > TimeCount)
-	{
-		TimeCount = lasttimecount; // if the game was paused a LONG time
-
-
-	}
-
-	{
-		//
-		// non demo, so report actual time
-		//
-		do
-		{
-			newtime = TimeCount;
-			auto diff = newtime - lasttimecount;
-			if (diff <= 0)
-			{
-				tics = 0;
-			}
-			else
-			{
-				tics = static_cast<std::uint16_t>(diff);
-			}
-		} while (tics == 0); // make sure at least one tic passes
-
-		lasttimecount = newtime;
-		framecount++;
-
+	constexpr long long one_second_ns = 1'000'000'000;
+	using Clock = std::chrono::steady_clock;
+	using TimePoint = Clock::time_point;
+	static long long period_counter = 0;
+	static TimePoint last_time_point{};
+	const TimePoint time_point = Clock::now();
+	const long long diff_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(time_point - last_time_point).count();
+	last_time_point = time_point;
+	period_counter += diff_ns * TickBase;
+	const long long elapsed_periods = period_counter / one_second_ns;
+	period_counter %= one_second_ns;
+	const std::chrono::nanoseconds delay{(one_second_ns - period_counter) / TickBase};
+	std::this_thread::sleep_for(delay);
+	constexpr long long min_tics = 1;
+	constexpr long long max_tics = UINT16_MAX;
+	tics = static_cast<std::uint16_t>(bstone::clamp(elapsed_periods, min_tics, max_tics));
+	lasttimecount = TimeCount;
+	framecount++;
 #ifdef FILEPROFILE
-		strcpy(scratch, "\tTics:");
-		itoa(tics, str, 10);
-		strcat(scratch, str);
-		strcat(scratch, "\n");
-		write(profilehandle, scratch, strlen(scratch));
+	strcpy(scratch, "\tTics:");
+	itoa(tics, str, 10);
+	strcat(scratch, str);
+	strcat(scratch, "\n");
+	write(profilehandle, scratch, strlen(scratch));
 #endif
-
 #ifdef DEBUGTICS
-		VW_SetAtrReg(ATR_OVERSCAN, tics);
+	VW_SetAtrReg(ATR_OVERSCAN, tics);
 #endif
-
-		realtics = tics;
-		if (tics > MAXTICS)
-		{
-			TimeCount -= (tics - MAXTICS);
-			tics = MAXTICS;
-		}
+	realtics = tics;
+	if (tics > MAXTICS)
+	{
+		TimeCount = std::max(TimeCount - (tics - MAXTICS), 0);
+		tics = MAXTICS;
 	}
 }
 
