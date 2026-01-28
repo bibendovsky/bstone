@@ -2598,7 +2598,6 @@ enum exit_t
 	ex_loadedgame,
 	ex_victorious,
 	ex_abort,
-	ex_demodone,
 	ex_secretlevel,
 	ex_title
 }; // exit_t

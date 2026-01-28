@@ -114,12 +114,6 @@ const int viewsize = 20;
 
 ButtonHeld buttonheld;
 
-bool demorecord;
-bool demoplayback;
-char* demoptr;
-char* lastdemoptr;
-void* demobuffer;
-
 // Light sourcing flag
 
 std::uint8_t lightson;
@@ -568,41 +562,6 @@ void PollControls()
 	buttonheld = buttonstate;
 	buttonstate.reset();
 
-#if 0 // TODO Remove
-	if (demoplayback)
-	{
-		//
-		// read commands from demo buffer
-		//
-		buttonbits = *demoptr++;
-		for (int i = 0; i < NUMBUTTONS; ++i)
-		{
-			buttonstate[i] = ((buttonbits & 1) != 0);
-			buttonbits >>= 1;
-		}
-
-		controlx = *demoptr++;
-		controly = *demoptr++;
-		tics = *demoptr++;
-
-		while (TimeCount - lasttimecount < tics)
-		{
-		}
-		lasttimecount = TimeCount;
-
-		if (demoptr == lastdemoptr)
-		{
-			playstate = ex_completed; // demo is done
-
-		}
-		controlx *= tics;
-		controly *= tics;
-
-
-		return;
-	}
-#endif
-
 	//
 	// get timing info for last frame
 	//
@@ -740,7 +699,7 @@ void CheckKeys()
 	static bool I_KeyReleased;
 	static bool S_KeyReleased;
 
-	if (screenfaded || demoplayback)
+	if (screenfaded)
 	{          // don't do anything with a faded screen
 		return;
 	}
@@ -2017,11 +1976,6 @@ void PlayLoop()
 	in_clear_mouse_deltas();
 	tics = 1; // for first time through
 
-	if (demoplayback)
-	{
-		IN_StartAck();
-	}
-
 	do
 	{
 		PollControls();
@@ -2103,11 +2057,6 @@ void PlayLoop()
 
 		CheckKeys();
 
-		if (demoplayback && demoptr == lastdemoptr)
-		{
-			playstate = ex_title;
-		}
-
 		//
 		// debug aids
 		//
@@ -2115,14 +2064,6 @@ void PlayLoop()
 		{
 			VW_WaitVBL(14);
 		}
-
-		if ((demoplayback) && (IN_CheckAck()))
-		{
-			IN_ClearKeysDown();
-			playstate = ex_abort;
-		}
-
-
 	} while (!playstate && !startgame);
 
 	if (playstate != ex_died)
@@ -2137,8 +2078,7 @@ void ShowQuickInstructions()
 
 	const auto& assets_info = get_assets_info();
 
-	if (demoplayback ||
-		(assets_info.is_ps() && (gamestate.mapon > 0)))
+	if (assets_info.is_ps() && gamestate.mapon > 0)
 	{
 		return;
 	}
