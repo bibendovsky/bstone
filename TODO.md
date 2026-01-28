@@ -13,5 +13,4 @@
 - Rename `R3rR2TextureUpdateParam::mipmap_level` to `mip_level`.
 - HDR support.
 - Move "mouse relative mode" code to window.
-- Remove demo related code (FUBAR for a long time).
 - Handle events inside TP_SlowPrint.
