@@ -48,13 +48,11 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_vl.h"
 
 #include "bstone_char_conv.h"
-#include "bstone_game_timer.h"
 #include "bstone_logger.h"
 
+long long sys_get_time_ns();
 
 // Global variables
-
-bstone::GameTimer TimeCount; // Global time in ticks
 
 int PrintX;
 int PrintY;
@@ -84,11 +82,6 @@ void US_Shutdown()
 	{
 		return;
 	}
-
-	// BBi
-	TimeCount.stop();
-	// BBi
-
 	US_Started = false;
 }
 
@@ -417,7 +410,9 @@ bool US_LineInput(
 	int h;
 	int len;
 	int temp;
-	std::int32_t lasttime;
+	constexpr long long one_second_ns = 1'000'000'000;
+	constexpr long long half_second_ns = one_second_ns / 2;
+	long long lasttime;
 
 	if (def != nullptr)
 	{
@@ -435,7 +430,7 @@ bool US_LineInput(
 
 	cursorvis = false;
 	done = false;
-	lasttime = TimeCount;
+	lasttime = sys_get_time_ns();
 	LastASCII = key_None;
 	LastScan = ScanCode::sc_none;
 
@@ -543,15 +538,13 @@ bool US_LineInput(
 		if (cursormoved)
 		{
 			cursorvis = false;
-			lasttime = TimeCount - TickBase;
-
+			lasttime = sys_get_time_ns() - one_second_ns;
 			cursormoved = false;
 		}
 
-		if (TimeCount - lasttime > TickBase / 2)
+		if (sys_get_time_ns() - lasttime > half_second_ns)
 		{
-			lasttime = TimeCount;
-
+			lasttime = sys_get_time_ns();
 			cursorvis ^= true;
 		}
 
@@ -602,11 +595,6 @@ void US_Startup()
 	{
 		return;
 	}
-
-	// BBi
-	TimeCount.start(TickBase);
-	// BBi
-
 	US_InitRndT(true); // Initialize the random number generator
 	US_Started = true;
 }

@@ -32,7 +32,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_scope_exit.h"
 #include "bstone_r3r_limits.h"
 
-
 #define GAME_DESCRIPTION_LEN (31)
 
 // Box behind text for cursor
@@ -217,8 +216,7 @@ void DrawOutline(
 
 void WaitKeyUp();
 
-void TicDelay(
-	std::int16_t count);
+void TicDelay(int count);
 
 void CheckPause();
 
@@ -2042,8 +2040,6 @@ bool CP_CheckQuick(
 			StartCPMusic(MENUSONG);
 
 			pickquick = CP_SaveGame(0);
-
-			lasttimecount = TimeCount;
 			in_clear_mouse_deltas();
 		}
 
@@ -2089,8 +2085,6 @@ bool CP_CheckQuick(
 			StartCPMusic(MENUSONG);
 
 			pickquick = CP_LoadGame(0);
-
-			lasttimecount = TimeCount;
 			in_clear_mouse_deltas();
 		}
 
@@ -3819,7 +3813,6 @@ std::int16_t HandleMenu(
 
 	flash_tics = 40;
 	exit = 0;
-	TimeCount = 0;
 	IN_ClearKeysDown();
 
 	do
@@ -4143,17 +4136,15 @@ void DrawGun(
 // ---------------------------------------------------------------------------
 // TicDelay() - DELAY FOR AN AMOUNT OF TICS OR UNTIL CONTROLS ARE INACTIVE
 // ---------------------------------------------------------------------------
-void TicDelay(
-	std::int16_t count)
+void TicDelay(int count)
 {
 	ControlInfo ci;
-
-	TimeCount = 0;
-
+	const long long max_duration_ns = (1'000'000'000LL * count) / TickBase;
+	const long long end_time_ns = sys_get_time_ns() + max_duration_ns;
 	do
 	{
 		ReadAnyControl(&ci);
-	} while (TimeCount < count && ci.dir != dir_None);
+	} while (ci.dir != dir_None && sys_get_time_ns() < end_time_ns);
 }
 
 // ---------------------------------------------------------------------------
@@ -4318,10 +4309,11 @@ std::int16_t Confirm(
 	//
 	x = static_cast<std::int16_t>(PrintX);
 	y = static_cast<std::int16_t>(PrintY);
-	TimeCount = 0;
+	constexpr long long blink_duration_ns = (1'000'000'000LL * 10) / TickBase;
+	long long end_time_ns = sys_get_time_ns() + blink_duration_ns;
 	do
 	{
-		if (TimeCount >= 10)
+		if (sys_get_time_ns() > end_time_ns)
 		{
 			switch (tick)
 			{
@@ -4337,7 +4329,7 @@ std::int16_t Confirm(
 
 			VW_UpdateScreen();
 			tick ^= 1;
-			TimeCount = 0;
+			end_time_ns = sys_get_time_ns() + blink_duration_ns;
 		}
 
 		// BBi

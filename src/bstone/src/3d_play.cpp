@@ -568,6 +568,7 @@ void PollControls()
 	buttonheld = buttonstate;
 	buttonstate.reset();
 
+#if 0 // TODO Remove
 	if (demoplayback)
 	{
 		//
@@ -600,6 +601,7 @@ void PollControls()
 
 		return;
 	}
+#endif
 
 	//
 	// get timing info for last frame
@@ -1143,9 +1145,6 @@ void CheckKeys()
 		vid_is_hud = false;
 
 		in_clear_mouse_deltas();
-
-		lasttimecount = TimeCount;
-
 		return;
 	}
 
@@ -2008,8 +2007,6 @@ void PlayLoop()
 	bool reset_areas = false;
 	objtype* obj;
 
-	lasttimecount = 0;
-	TimeCount = 0;
 	playstate = ex_stillplaying;
 
 	framecount = frameon = 0;
@@ -2117,7 +2114,6 @@ void PlayLoop()
 		if (singlestep)
 		{
 			VW_WaitVBL(14);
-			lasttimecount = TimeCount;
 		}
 
 		if ((demoplayback) && (IN_CheckAck()))
