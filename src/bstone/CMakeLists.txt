@@ -459,7 +459,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_static_ro_memory_stream.h
 	src/bstone_stream.cpp
 	src/bstone_stream.h
-	src/bstone_timer.h
 	src/bstone_ts_auto_arena_resource.cpp
 	src/bstone_ts_auto_arena_resource.h
 	src/bstone_unicode.cpp
@@ -501,7 +500,6 @@ set(BSTONE_LIB_MISC_SDL_SOURCES
 	src/bstone_sdl.cpp
 	src/bstone_sdl.h
 	src/bstone_fs_sdl.cpp
-	src/bstone_timer_sdl.cpp
 )
 
 target_sources(bstone PRIVATE ${BSTONE_LIB_MISC_SDL_SOURCES})
@@ -959,8 +957,6 @@ set(BSTONE_BSTONE_SOURCES
 	src/bstone_extent_2d.h
 	src/bstone_fs_utils.cpp
 	src/bstone_fs_utils.h
-	src/bstone_game_timer.cpp
-	src/bstone_game_timer.h
 	src/bstone_globals.cpp
 	src/bstone_globals.h
 	src/bstone_gog_content_path.cpp

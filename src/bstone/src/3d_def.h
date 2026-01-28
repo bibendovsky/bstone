@@ -22,7 +22,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_audio_mixer_voice_handle.h"
 #include "bstone_cvar_mgr.h"
-#include "bstone_game_timer.h"
 #include "bstone_math.h"
 #include "bstone_mt_task_mgr.h"
 #include "bstone_voice.h"
@@ -2872,8 +2871,6 @@ extern PlayerWarp player_warp;
 =============================================================================
 */
 
-extern bstone::GameTimer TimeCount; // Global time in ticks
-
 extern std::int16_t TITLE_LOOP_MUSIC;
 
 #define CANT_PLAY_TXT "\n" \
@@ -3157,7 +3154,6 @@ using SubTravelTable = std::array<std::uint8_t, MAPSIZE>;
 using TravelTable = std::array<SubTravelTable, MAPSIZE>;
 extern TravelTable travel_table_;
 
-extern std::int32_t lasttimecount;
 extern std::int32_t framecount;
 extern std::int32_t frameon;
 extern bool fizzlein;
@@ -3997,6 +3993,8 @@ void InitSmartAnim(
 
 
 void sys_sleep_for(int milliseconds);
+void sys_sleep_for_ns(long long nanoseconds);
+long long sys_get_time_ns();
 
 void sys_default_sleep_for();
 

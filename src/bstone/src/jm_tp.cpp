@@ -3453,7 +3453,7 @@ bool TP_SlowPrint(
 {
 	auto old_color = fontcolor;
 	std::int16_t old_x, old_y;
-	std::int32_t tc;
+	long long tc;
 	bool aborted = false;
 
 	while (*string)
@@ -3514,8 +3514,9 @@ bool TP_SlowPrint(
 		if (!aborted)
 		{
 			LastScan = ScanCode::sc_none;
-			tc = TimeCount;
-			while (TimeCount - tc < delay)
+			constexpr long long one_second_ns = 1'000'000'000;
+			tc = sys_get_time_ns();
+			while ((TickBase * (sys_get_time_ns() - tc)) / one_second_ns < delay)
 			{
 				VW_WaitVBL(1);
 				CycleColors();

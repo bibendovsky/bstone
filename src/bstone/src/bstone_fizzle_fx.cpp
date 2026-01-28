@@ -55,8 +55,6 @@ bool FizzleFX::present()
 	auto frame = 0;
 
 	IN_StartAck();
-
-	TimeCount = 0;
 	LastScan = ScanCode::sc_none;
 
 	auto is_finished = false;
