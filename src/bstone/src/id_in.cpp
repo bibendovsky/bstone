@@ -1110,22 +1110,32 @@ void IN_Ack()
 //              button up.
 //
 ///////////////////////////////////////////////////////////////////////////
-bool IN_UserInput(std::int32_t delay)
+bool IN_UserInput(int delay)
 {
-	const auto lasttime = static_cast<bstone::GameTimerTicks>(TimeCount);
-
 	IN_StartAck();
-
-	do
+	constexpr long long one_second_ns = 1'000'000'000;
+	constexpr long long max_sleep_for_ms = 10;
+	constexpr long long max_sleep_for_ns = (one_second_ns * max_sleep_for_ms) / 1000;
+	const long long delay_ns = (one_second_ns * delay) / TickBase;
+	const long long end_time_ns = sys_get_time_ns() + delay_ns;
+	for (;;)
 	{
-		VL_WaitVBL(1);
-
 		if (IN_CheckAck())
 		{
 			return true;
 		}
-	} while ((TimeCount - lasttime) < delay);
-
+		const long long time_ns = sys_get_time_ns();
+		const long long diff_ns = end_time_ns - time_ns;
+		if (diff_ns < 0)
+		{
+			break;
+		}
+		if (diff_ns >= max_sleep_for_ns)
+		{
+			const long long sleep_for_ns = std::min(diff_ns, max_sleep_for_ns);
+			sys_sleep_for_ns(sleep_for_ns);
+		}
+	}
 	return false;
 }
 

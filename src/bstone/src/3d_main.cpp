@@ -46,6 +46,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_sha1.h"
 #include "bstone_sys_message_box.h"
 #include "bstone_sys_special_path.h"
+#include "bstone_sys_time.h"
 #include "bstone_static_ro_memory_stream.h"
 #include "bstone_string_helper.h"
 #include "bstone_text_reader.h"
@@ -10754,6 +10755,17 @@ void sys_sleep_for(int milliseconds)
 {
 	const auto delay_ms = std::chrono::milliseconds{milliseconds};
 	std::this_thread::sleep_for(delay_ms);
+}
+
+void sys_sleep_for_ns(long long nanoseconds)
+{
+	const std::chrono::nanoseconds delay_ns{nanoseconds};
+	std::this_thread::sleep_for(delay_ns);
+}
+
+long long sys_get_time_ns()
+{
+	return bstone::sys::get_current_time_ns();
 }
 
 void sys_default_sleep_for()

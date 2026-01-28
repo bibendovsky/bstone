@@ -17,6 +17,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "movie.h"
 #include "bstone_archiver.h"
 #include "bstone_endian.h"
+#include <algorithm>
 
 
 class Movie
@@ -113,6 +114,7 @@ private:
 	const std::uint8_t* palette_{};
 
 	bstone::Archiver archiver_;
+	long long page_last_time_ns_{};
 
 
 	const Descriptor& get_descriptor(
@@ -218,6 +220,7 @@ void Movie::initialize(
 	archiver_.close();
 
 	IN_ClearKeysDown();
+	page_last_time_ns_ = sys_get_time_ns();
 }
 
 void Movie::uninitialize()
@@ -426,38 +429,21 @@ void Movie::handle_page(
 		show_frame(frame);
 
 		VL_RefreshScreen();
-
-		if (TimeCount < descriptor.tick_delay_)
+		const long long one_second_ns = 1'000'000'000;
+		const long long two_seconds_ns = 2 * one_second_ns;
+		const long long delay_ns = (one_second_ns * descriptor.tick_delay_) / TickBase;
+		const long long diff_ns = sys_get_time_ns() - page_last_time_ns_;
+		if (diff_ns < delay_ns)
 		{
-			const auto min_wait_time = 0;
-			const auto max_wait_time = 2 * TickBase; // 2 seconds
-
-			auto wait_time = descriptor.tick_delay_ - TimeCount;
-
-			if (wait_time < min_wait_time)
-			{
-				wait_time = min_wait_time;
-			}
-
-			if (wait_time > max_wait_time)
-			{
-				wait_time = max_wait_time;
-			}
-
-			if (wait_time > 0)
-			{
-				wait_time *= 1000;
-				wait_time /= TickBase;
-
-				sys_sleep_for(wait_time);
-			}
+			const long long sleep_for_ns = std::clamp(delay_ns - diff_ns, 0LL, two_seconds_ns);
+			sys_sleep_for_ns(sleep_for_ns);
 		}
 		else
 		{
 			sys_sleep_for(1000 / TickBase);
 		}
 
-		TimeCount = 0;
+		page_last_time_ns_ = sys_get_time_ns();
 
 		if (!screenfaded &&
 			(control_info_.button0 || control_info_.button1 || LastScan != ScanCode::sc_none))

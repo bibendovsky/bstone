@@ -10,8 +10,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstring>
 
 #include <algorithm>
-#include <chrono>
-#include <thread>
 
 #include "gfxv.h"
 #include "id_ca.h"
@@ -116,7 +114,6 @@ void UpdateTravelTable();
 // player interface stuff
 //
 
-std::int32_t lasttimecount;
 std::int32_t frameon;
 std::int32_t framecount;
 
@@ -1471,37 +1468,23 @@ void DrawPlayerWeapon()
 void CalcTics()
 {
 	constexpr long long one_second_ns = 1'000'000'000;
-	using Clock = std::chrono::steady_clock;
-	using TimePoint = Clock::time_point;
-	static long long period_counter = 0;
-	static TimePoint last_time_point{};
-	const TimePoint time_point = Clock::now();
-	const long long diff_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(time_point - last_time_point).count();
-	last_time_point = time_point;
+	constinit static long long period_counter = 0;
+	constinit static long long last_time_ns = 0;
+	const long long time_ns = sys_get_time_ns();
+	const long long diff_ns = time_ns - last_time_ns;
+	last_time_ns = time_ns;
 	period_counter += diff_ns * TickBase;
 	const long long elapsed_periods = period_counter / one_second_ns;
 	period_counter %= one_second_ns;
-	const std::chrono::nanoseconds delay{(one_second_ns - period_counter) / TickBase};
-	std::this_thread::sleep_for(delay);
+	const long long delay_ns = (one_second_ns - period_counter) / TickBase;
+	sys_sleep_for_ns(delay_ns);
 	constexpr long long min_tics = 1;
 	constexpr long long max_tics = UINT16_MAX;
-	tics = static_cast<std::uint16_t>(bstone::clamp(elapsed_periods, min_tics, max_tics));
-	lasttimecount = TimeCount;
-	framecount++;
-#ifdef FILEPROFILE
-	strcpy(scratch, "\tTics:");
-	itoa(tics, str, 10);
-	strcat(scratch, str);
-	strcat(scratch, "\n");
-	write(profilehandle, scratch, strlen(scratch));
-#endif
-#ifdef DEBUGTICS
-	VW_SetAtrReg(ATR_OVERSCAN, tics);
-#endif
+	tics = static_cast<std::uint16_t>(std::clamp(elapsed_periods, min_tics, max_tics));
+	++framecount;
 	realtics = tics;
 	if (tics > MAXTICS)
 	{
-		TimeCount = std::max(TimeCount - (tics - MAXTICS), 0);
 		tics = MAXTICS;
 	}
 }
@@ -1665,8 +1648,6 @@ void ThreeDRefresh()
 		fizzle.initialize(gp_vanilla_fizzle_fx());
 
 		static_cast<void>(fizzle.present());
-
-		lasttimecount = TimeCount; // don't make a big tic count
 	}
 
 	bufferofs = 0;
