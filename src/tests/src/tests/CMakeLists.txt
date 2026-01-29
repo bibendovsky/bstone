@@ -123,10 +123,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_win32_advapi32_symbols.h
 		../../../bstone/src/bstone_four_cc.cpp
 		../../../bstone/src/bstone_four_cc.h
-		../../../bstone/src/bstone_uuid.cpp
-		../../../bstone/src/bstone_uuid_unix.cpp
-		../../../bstone/src/bstone_uuid_win32.cpp
-		../../../bstone/src/bstone_uuid.h
 		../../../bstone/src/bstone_win32_unique_resources.cpp
 		../../../bstone/src/bstone_win32_unique_resources.h
 	PRIVATE
@@ -163,7 +159,6 @@ target_sources(bstone_tests
 		src/bstone_tests_win32_registry_key.cpp
 		src/bstone_tests_api_string.cpp
 		src/bstone_tests_four_cc.cpp
-		src/bstone_tests_uuid.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h
