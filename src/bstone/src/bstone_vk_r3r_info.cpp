@@ -11,7 +11,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_ascii.h"
 #include "bstone_assert.h"
 #include "bstone_char_conv.h"
-#include "bstone_uuid.h"
 #include "bstone_sys_logger.h"
 #include "bstone_vk_r3r_array_extractor.h"
 #include "bstone_vk_r3r_context.h"
@@ -314,6 +313,7 @@ public:
 private:
 	static const std::size_t indentation_delta = 2;
 	static constexpr const char* const colon_space = ": ";
+	static constexpr int uuid_byte_count = 16;
 
 	static const std::string& prefix;
 
@@ -369,7 +369,7 @@ private:
 	void append_line(const char* string);
 	void append_line(const std::string& string);
 	void append_api_version(std::uint32_t api_version);
-	void append_uuid(const std::uint8_t (&uuid_bytes)[uuid_value_size]);
+	void append_uuid(const std::uint8_t (&uuid_bytes)[uuid_byte_count]);
 
 	void append_physical_device_vendor_id_property(std::uint32_t vk_vendor_id, const char* name);
 	void append_physical_device_type(VkPhysicalDeviceType type);
@@ -909,14 +909,23 @@ void VkR3rInfo::Impl::append_api_version(std::uint32_t api_version)
 	append_number(version_patch);
 }
 
-void VkR3rInfo::Impl::append_uuid(const std::uint8_t (&uuid_bytes)[uuid_value_size])
+void VkR3rInfo::Impl::append_uuid(const std::uint8_t (&uuid_bytes)[uuid_byte_count])
 {
-	constexpr int max_uuid_chars = 40;
-	char uuid_chars[max_uuid_chars];
-	const Uuid uuid{uuid_bytes};
-	char* const end_iter = uuid.to_chars(uuid_chars, &uuid_chars[max_uuid_chars]);
-	end_iter[0] = '\0';
-	append(uuid_chars);
+	/*        1         2         3
+	012345678901234567890123456789012345
+	xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx */
+	char chars[37];
+	bytes_to_hex_chars(uuid_bytes +  0, uuid_bytes +  4, chars +  0, chars +  8);
+	chars[ 8] = '-';
+	bytes_to_hex_chars(uuid_bytes +  4, uuid_bytes +  6, chars +  9, chars + 14);
+	chars[13] = '-';
+	bytes_to_hex_chars(uuid_bytes +  6, uuid_bytes +  8, chars + 14, chars + 19);
+	chars[18] = '-';
+	bytes_to_hex_chars(uuid_bytes +  8, uuid_bytes + 10, chars + 19, chars + 24);
+	chars[23] = '-';
+	bytes_to_hex_chars(uuid_bytes + 10, uuid_bytes + 16, chars + 24, chars + 36);
+	chars[36] = '\0';
+	append(chars);
 }
 
 void VkR3rInfo::Impl::append_physical_device_vendor_id_property(std::uint32_t vk_vendor_id, const char* name)

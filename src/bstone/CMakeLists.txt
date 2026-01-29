@@ -471,10 +471,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_utf16.h
 	src/bstone_utf8.cpp
 	src/bstone_utf8.h
-	src/bstone_uuid.cpp
-	src/bstone_uuid.h
-	src/bstone_uuid_unix.cpp
-	src/bstone_uuid_win32.cpp
 	src/bstone_win32_advapi32_symbols.cpp
 	src/bstone_win32_advapi32_symbols.h
 	src/bstone_win32_com.cpp

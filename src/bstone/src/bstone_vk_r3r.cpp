@@ -13,7 +13,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"
 #include "bstone_single_pool_resource.h"
-#include "bstone_uuid.h"
 #include "bstone_r3r_cmd_buffer.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_sys_logger.h"
