@@ -395,8 +395,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_sha1.h
 	src/bstone_shared_library_sdl.cpp
 	src/bstone_shared_library.h
-	src/bstone_single_pool_resource.cpp
-	src/bstone_single_pool_resource.h
 	src/bstone_static_memory_stream.cpp
 	src/bstone_static_memory_stream.h
 	src/bstone_static_ro_memory_stream.cpp

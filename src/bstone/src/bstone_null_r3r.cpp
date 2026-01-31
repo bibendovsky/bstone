@@ -10,7 +10,6 @@ SPDX-License-Identifier: MIT
 #include <stddef.h>
 #include <stdint.h>
 #include "bstone_assert.h"
-#include "bstone_single_pool_resource.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_null_r3r_buffer.h"
 #include "bstone_null_r3r_r2_texture.h"
@@ -30,9 +29,6 @@ class NullR3rImpl final : public R3r
 public:
 	NullR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param);
 	~NullR3rImpl() override;
-
-	void* operator new(size_t size);
-	void operator delete(void* ptr);
 
 private:
 	R3rType do_get_type() const noexcept override;
@@ -69,12 +65,6 @@ private:
 	void do_wait_for_device() override;
 
 private:
-	using MemoryPool = SinglePoolResource<NullR3rImpl>;
-
-private:
-	static MemoryPool memory_pool_;
-
-private:
 	sys::VideoMgr& video_mgr_;
 	sys::WindowMgr& window_mgr_;
 
@@ -89,10 +79,6 @@ private:
 	void initialize_device_features();
 	void initialize_window();
 };
-
-// --------------------------------------------------------------------------
-
-NullR3rImpl::MemoryPool NullR3rImpl::memory_pool_{};
 
 // --------------------------------------------------------------------------
 
@@ -112,16 +98,6 @@ try
 	initialize_device_features();
 	initialize_window();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void* NullR3rImpl::operator new(size_t size)
-try {
-	return memory_pool_.allocate(static_cast<intptr_t>(size));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void NullR3rImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 R3rType NullR3rImpl::do_get_type() const noexcept
 {

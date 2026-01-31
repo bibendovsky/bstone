@@ -12,7 +12,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_char_conv.h"
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"
-#include "bstone_single_pool_resource.h"
 #include "bstone_r3r_cmd_buffer.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_sys_logger.h"
@@ -55,9 +54,6 @@ public:
 	VkR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param);
 	~VkR3rImpl() override;
 
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
-
 	R3rType do_get_type() const noexcept override;
 	std::string_view do_get_name() const noexcept override;
 	std::string_view do_get_description() const noexcept override;
@@ -91,7 +87,6 @@ public:
 	void do_submit_commands(std::span<R3rCmdBuffer*> command_buffers) override;
 	void do_wait_for_device() override;
 
-	using MemoryPool = SinglePoolResource<VkR3rImpl>;
 	using StringPointers = std::vector<const char*>;
 	using QueueFamilies = std::vector<VkQueueFamilyProperties>;
 	enum class FenceState
@@ -105,8 +100,6 @@ public:
 		bool is_acquired_image_from_swapchain;
 		bool is_recorded_any_command;
 	};
-
-	static MemoryPool memory_pool_;
 
 	sys::Logger& logger_;
 	sys::VideoMgr& video_mgr_;
@@ -258,10 +251,6 @@ public:
 
 // --------------------------------------
 
-VkR3rImpl::MemoryPool VkR3rImpl::memory_pool_{};
-
-// --------------------------------------
-
 VkR3rImpl::~VkR3rImpl()
 {
 	wait_for_device();
@@ -310,16 +299,6 @@ try
 	initialize_pipeline_mgr();
 	initialize_r3r_device_features();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void* VkR3rImpl::operator new(std::size_t size)
-try {
-	return memory_pool_.allocate(static_cast<std::intptr_t>(size));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VkR3rImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 R3rType VkR3rImpl::do_get_type() const noexcept
 {

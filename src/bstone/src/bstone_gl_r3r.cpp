@@ -12,7 +12,6 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_assert.h"
 #include "bstone_exception.h"
-#include "bstone_single_pool_resource.h"
 #include "bstone_unique_resource.h"
 
 #include "bstone_sys_gl_context.h"
@@ -47,9 +46,6 @@ class GlR3rImpl final : public R3r
 public:
 	GlR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param);
 	~GlR3rImpl() override {}
-
-	void* operator new(size_t size);
-	void operator delete(void* ptr);
 
 private:
 	R3rType do_get_type() const noexcept override;
@@ -86,8 +82,6 @@ private:
 	void do_wait_for_device() override;
 
 private:
-	using MemoryPool = SinglePoolResource<GlR3rImpl>;
-
 	class FboDeleter
 	{
 	public:
@@ -116,9 +110,6 @@ private:
 
 	using Shaders = std::list<GlR3rShaderUPtr>;
 	using ShaderStages = std::list<GlR3rShaderStageUPtr>;
-
-private:
-	static MemoryPool memory_pool_;
 
 private:
 	sys::VideoMgr& video_mgr_;
@@ -225,10 +216,6 @@ private:
 
 	void submit_draw_indexed(const R3rDrawIndexedCmd& command);
 };
-
-// ==========================================================================
-
-GlR3rImpl::MemoryPool GlR3rImpl::memory_pool_{};
 
 // ==========================================================================
 
@@ -398,16 +385,6 @@ try
 	context_->clear(sys::Color{});
 	present();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void* GlR3rImpl::operator new(size_t size)
-try {
-	return memory_pool_.allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void GlR3rImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 R3rType GlR3rImpl::do_get_type() const noexcept
 {
