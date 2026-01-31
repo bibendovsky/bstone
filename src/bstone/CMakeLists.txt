@@ -382,8 +382,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_memory.h
 	src/bstone_memory_binary_reader.cpp
 	src/bstone_memory_binary_reader.h
-	src/bstone_memory_pool_bitmap.cpp
-	src/bstone_memory_pool_bitmap.h
 	src/bstone_memory_resource.cpp
 	src/bstone_memory_resource.h
 	src/bstone_memory_stream.cpp
