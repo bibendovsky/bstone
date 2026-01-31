@@ -105,10 +105,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_shared_library.h
 		../../../bstone/src/bstone_win32_registry_key.cpp
 		../../../bstone/src/bstone_win32_registry_key.h
-		../../../bstone/src/bstone_api_string.cpp
-		../../../bstone/src/bstone_api_string.h
-		../../../bstone/src/bstone_posix_string.cpp
-		../../../bstone/src/bstone_posix_string.h
 		../../../bstone/src/bstone_win32_advapi32_symbols.cpp
 		../../../bstone/src/bstone_win32_advapi32_symbols.h
 		../../../bstone/src/bstone_four_cc.cpp
@@ -150,7 +146,6 @@ target_sources(bstone_tests
 		src/bstone_tests_binary_writer.cpp
 		src/bstone_tests_crc32.cpp
 		src/bstone_tests_win32_registry_key.cpp
-		src/bstone_tests_api_string.cpp
 		src/bstone_tests_four_cc.cpp
 	PRIVATE
 		src/bstone_tester.cpp
