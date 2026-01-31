@@ -369,9 +369,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_enum_flags.h
 	src/bstone_exception.cpp
 	src/bstone_exception.h
-	src/bstone_file.cpp
-	src/bstone_file.h
-	src/bstone_file_sdl.cpp
 	src/bstone_file_stream.cpp
 	src/bstone_file_stream.h
 	src/bstone_four_cc.cpp
@@ -606,6 +603,7 @@ set(BSTONE_BSTONE_SYS_SOURCES
 	src/bstone_sys_event_mgr.h
 	src/bstone_sys_event_mgr_null.cpp
 	src/bstone_sys_event_mgr_null.h
+	src/bstone_sys_file.h
 	src/bstone_sys_gl_context.cpp
 	src/bstone_sys_gl_context.h
 	src/bstone_sys_gl_context_attributes.cpp
@@ -671,6 +669,7 @@ set(BSTONE_BSTONE_SYS_SDL_SOURCES
 	src/bstone_sys_audio_mgr_sdl.h
 	src/bstone_sys_event_mgr_sdl.cpp
 	src/bstone_sys_event_mgr_sdl.h
+	src/bstone_sys_file_sdl.cpp
 	src/bstone_sys_gl_context_sdl.cpp
 	src/bstone_sys_gl_context_sdl.h
 	src/bstone_sys_gl_current_context_sdl.cpp

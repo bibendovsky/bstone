@@ -260,7 +260,6 @@ private:
 	bool is_flush_acknowledged_{};
 	bool has_messages_{};
 	bool is_file_open_{};
-	bool is_file_open_at_least_once_{};
 	bool is_thread_failed_{};
 	LoggerFlushPolicy flush_policy_{};
 	std::intptr_t consumer_queue_index_{};
@@ -401,17 +400,9 @@ void LoggerImpl::try_open_file() noexcept
 		return;
 	}
 
-	FileFlags flags = file_flags_create | file_flags_read_write;
-
-	if (!is_file_open_at_least_once_)
-	{
-		flags |= file_flags_truncate;
-	}
-
-	if (file_stream_.open(file_path_.c_str(), flags))
+	if (file_stream_.open(file_path_.c_str(), sys::FileMode::create))
 	{
 		is_file_open_ = true;
-		is_file_open_at_least_once_ = true;
 	}
 }
 

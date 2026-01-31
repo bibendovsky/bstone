@@ -26,7 +26,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_atomic_flag.h"
 #include "bstone_exception.h"
 #include "bstone_fs_utils.h"
-#include "bstone_file.h"
 #include "bstone_globals.h"
 #include "bstone_missing_sprite_64x64_image.h"
 #include "bstone_missing_wall_64x64_image.h"
@@ -38,6 +37,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_rgb8.h"
 #include "bstone_sprite_cache.h"
 #include "bstone_image_decoder.h"
+#include "bstone_sys_file.h"
 
 #include "bstone_r3r_utils.h"
 
@@ -1678,18 +1678,18 @@ try {
 
 	for (const auto& image_probe_item : image_probe_items_)
 	{
-		File image_file{};
+		sys::File image_file{};
 
 		if (!image_file.is_open() && !image_mod_path_.empty())
 		{
 			fs_utils::replace_extension(image_mod_path_, image_probe_item.file_name_extension);
-			image_file.open(image_mod_path_.c_str(), FileFlags::file_flags_shared);
+			image_file.open(image_mod_path_.c_str(), sys::FileMode::read);
 		}
 
 		if (!image_file.is_open() && !image_data_path_.empty())
 		{
 			fs_utils::replace_extension(image_data_path_, image_probe_item.file_name_extension);
-			image_file.open(image_data_path_.c_str(), FileFlags::file_flags_shared);
+			image_file.open(image_data_path_.c_str(), sys::FileMode::read);
 		}
 
 		if (!image_file.is_open())

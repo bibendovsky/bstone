@@ -314,7 +314,7 @@ void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, con
 
 	FileStream file_stream(
 		dst_file_name.c_str(),
-		file_flags_create | file_flags_truncate | file_flags_exclusive);
+		sys::FileMode::create);
 
 	if (!file_stream.is_open())
 	{
@@ -349,7 +349,7 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir,
 
 	FileStream file_stream(
 		dst_file_name.c_str(),
-		file_flags_create | file_flags_truncate | file_flags_exclusive);
+		sys::FileMode::create);
 
 	if (!file_stream.is_open())
 	{
