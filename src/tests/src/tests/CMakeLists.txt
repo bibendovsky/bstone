@@ -90,8 +90,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_auto_arena_resource.h
 		../../../bstone/src/bstone_ts_auto_arena_resource.cpp
 		../../../bstone/src/bstone_ts_auto_arena_resource.h
-		../../../bstone/src/bstone_win32_wstring.cpp
-		../../../bstone/src/bstone_win32_wstring.h
 		../../../bstone/src/bstone_file.cpp
 		../../../bstone/src/bstone_file.h
 		../../../bstone/src/bstone_file_sdl.cpp
@@ -123,8 +121,14 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_win32_advapi32_symbols.h
 		../../../bstone/src/bstone_four_cc.cpp
 		../../../bstone/src/bstone_four_cc.h
+		../../../bstone/src/bstone_win32_os_version.cpp
+		../../../bstone/src/bstone_win32_os_version.h
 		../../../bstone/src/bstone_win32_unique_resources.cpp
 		../../../bstone/src/bstone_win32_unique_resources.h
+		../../../bstone/src/bstone_win32_utility.cpp
+		../../../bstone/src/bstone_win32_utility.h
+		../../../bstone/src/bstone_win32_wstring.cpp
+		../../../bstone/src/bstone_win32_wstring.h
 	PRIVATE
 		src/bstone_tests_ascii.cpp
 		src/bstone_tests_char_conv.cpp
@@ -147,7 +151,6 @@ target_sources(bstone_tests
 		src/bstone_tests_generic_pool_resource.cpp
 		src/bstone_tests_auto_arena_resource.cpp
 		src/bstone_tests_ts_auto_arena_resource.cpp
-		src/bstone_tests_win32_wstring.cpp
 		src/bstone_tests_configurations.cpp
 		src/bstone_tests_file_stream.cpp
 		src/bstone_tests_memory_stream.cpp
