@@ -13,7 +13,6 @@ SPDX-License-Identifier: MIT
 #include <unordered_set>
 
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_resource.h"
 #include "bstone_unique_resource.h"
 
 #include "bstone_r3r_limits.h"
@@ -38,9 +37,6 @@ public:
 	GlR3rShaderStageImpl(GlR3rContext& context, const R3rShaderStageInitParam& param);
 	~GlR3rShaderStageImpl() override;
 
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
-
 	GlR3rContext& get_context() const noexcept override;
 	void set() override;
 
@@ -60,8 +56,6 @@ private:
 	GLuint get_gl_name() const noexcept override;
 
 private:
-	using MemoryPool = FixedPoolResource<GlR3rShaderStageImpl, R3rLimits::max_shader_stages()>;
-
 	using NameBuffer = std::vector<char>;
 
 	struct ShaderStageDeleter
@@ -71,9 +65,6 @@ private:
 
 	using ShaderStageResource = UniqueResource<GLuint, ShaderStageDeleter>;
 	using ShaderVars = std::vector<GlR3rShaderVarUPtr>;
-
-private:
-	static MemoryPool memory_pool_;
 
 private:
 	GlR3rContext& context_;
@@ -97,10 +88,6 @@ private:
 	R3rShaderVar* find_var_internal(const std::string& name) noexcept;
 	R3rShaderVar* find_var_internal(R3rShaderVarTypeId type_id, const char* name) noexcept;
 };
-
-// ==========================================================================
-
-GlR3rShaderStageImpl::MemoryPool GlR3rShaderStageImpl::memory_pool_{};
 
 // ==========================================================================
 
@@ -180,16 +167,6 @@ GlR3rShaderStageImpl::~GlR3rShaderStageImpl()
 	{
 		vertex_shader_->attach_to_shader_stage(nullptr);
 	}
-}
-
-void* GlR3rShaderStageImpl::operator new(size_t size)
-try {
-	return memory_pool_.allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void GlR3rShaderStageImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
 }
 
 GlR3rContext& GlR3rShaderStageImpl::get_context() const noexcept

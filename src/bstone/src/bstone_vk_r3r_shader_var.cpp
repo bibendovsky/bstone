@@ -8,7 +8,6 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_vk_r3r_shader_var.h"
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_resource.h"
 #include "bstone_r3r_limits.h"
 #include <cstddef>
 #include <cstdint>
@@ -28,9 +27,6 @@ public:
 		const char* name,
 		void* mapped_memory);
 	~VkR3rShaderVarImpl() override {}
-
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
 
 private:
 	R3rShaderVarType do_get_type() const noexcept override;
@@ -52,16 +48,8 @@ private:
 	std::string name_{};
 	void* mapped_memory_{};
 
-	using MemoryPool = FixedPoolResource<VkR3rShaderVarImpl, R3rLimits::max_shader_vars()>;
-
-	static MemoryPool memory_pool_;
-
 	void ensure_is_not_vertex_attribute() const;
 };
-
-// --------------------------------------
-
-VkR3rShaderVarImpl::MemoryPool VkR3rShaderVarImpl::memory_pool_;
 
 // --------------------------------------
 
@@ -78,16 +66,6 @@ VkR3rShaderVarImpl::VkR3rShaderVarImpl(
 	name_{name},
 	mapped_memory_{mapped_memory}
 {}
-
-void* VkR3rShaderVarImpl::operator new(std::size_t size)
-try {
-	return memory_pool_.allocate(static_cast<std::intptr_t>(size));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VkR3rShaderVarImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 R3rShaderVarType VkR3rShaderVarImpl::do_get_type() const noexcept
 {

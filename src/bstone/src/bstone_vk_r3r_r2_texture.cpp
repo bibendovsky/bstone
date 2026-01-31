@@ -9,7 +9,6 @@ SPDX-License-Identifier: MIT
 #include "bstone_vk_r3r_r2_texture.h"
 #include "bstone_assert.h"
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_resource.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_vk_r3r_context.h"
 #include "bstone_vk_r3r_raii.h"
@@ -29,9 +28,6 @@ public:
 	VkR3rR2TextureImpl(VkR3rContext& context, const R3rR2TextureInitParam& param);
 	~VkR3rR2TextureImpl() override {}
 
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
-
 private:
 	void do_update(const R3rR2TextureUpdateParam& param) override;
 	void do_generate_mipmaps() override;
@@ -39,10 +35,8 @@ private:
 	VkImageView do_get_vk_image_view() const override;
 
 	constexpr static const VkFormat vk_default_format = VK_FORMAT_R8G8B8A8_UNORM;
-	using MemoryPool = FixedPoolResource<VkR3rR2TextureImpl, R3rLimits::max_textures()>;
 	using ImageLayouts = std::array<VkImageLayout, R3rLimits::max_mipmap_count()>;
 
-	static MemoryPool memory_pool_;
 	VkR3rContext& context_;
 	VkR3rDeviceMemoryResource image_device_memory_resource_{};
 	VkR3rImageViewResource image_view_resource_{};
@@ -58,10 +52,6 @@ private:
 	void transition_image_layout(VkCommandBuffer vk_command_buffer, int mip_level, VkImageLayout new_vk_image_layout);
 	void transition_image_layouts(VkCommandBuffer vk_command_buffer, VkImageLayout new_vk_image_layout);
 };
-
-// --------------------------------------
-
-VkR3rR2TextureImpl::MemoryPool VkR3rR2TextureImpl::memory_pool_{};
 
 // --------------------------------------
 
@@ -113,16 +103,6 @@ VkR3rR2TextureImpl::VkR3rR2TextureImpl(VkR3rContext& context, const R3rR2Texture
 	height_ = param.height;
 	mip_count_ = param.mipmap_count;
 	image_layouts_.fill(VK_IMAGE_LAYOUT_UNDEFINED);
-}
-
-void* VkR3rR2TextureImpl::operator new(std::size_t size)
-try {
-	return memory_pool_.allocate(static_cast<std::intptr_t>(size));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VkR3rR2TextureImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
 }
 
 void VkR3rR2TextureImpl::do_update(const R3rR2TextureUpdateParam& param)

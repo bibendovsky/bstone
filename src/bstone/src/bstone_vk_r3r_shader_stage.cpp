@@ -8,7 +8,6 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_vk_r3r_shader_stage.h"
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_resource.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_vk_r3r_context.h"
 #include "bstone_vk_r3r_observer.h"
@@ -38,9 +37,6 @@ class VkR3rShaderStageImpl final : public VkR3rShaderStage
 public:
 	VkR3rShaderStageImpl(VkR3rContext& context, const R3rShaderStageInitParam& param);
 	~VkR3rShaderStageImpl() override;
-
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
 
 private:
 	R3rShaderVar* do_find_var(const char* name) override;
@@ -88,7 +84,6 @@ private:
 		VkR3rBufferResource uniform_buffer;
 		void* uniform_mapped_memory;
 	};
-	using MemoryPool = FixedPoolResource<VkR3rShaderStageImpl, R3rLimits::max_shader_stages()>;
 	using ShaderVars = std::vector<R3rShaderVarUPtr>;
 	using DescriptorSetLayoutBindings = std::vector<VkDescriptorSetLayoutBinding>;
 	using DescriptorContexts = std::vector<DescriptorContext>;
@@ -96,7 +91,6 @@ private:
 	using WriteDescriptorSets = std::vector<VkWriteDescriptorSet>;
 	using UniformHostMemory = std::vector<unsigned char>;
 
-	static MemoryPool memory_pool_;
 	VkR3rContext& context_;
 	PostPresentObserver post_present_observer_;
 	VkR3rShader* vertex_shader_{};
@@ -120,10 +114,6 @@ private:
 	void on_post_present();
 	void commit_uniforms(DescriptorContext& descriptor_context);
 };
-
-// --------------------------------------
-
-VkR3rShaderStageImpl::MemoryPool VkR3rShaderStageImpl::memory_pool_{};
 
 // --------------------------------------
 
@@ -154,16 +144,6 @@ VkR3rShaderStageImpl::VkR3rShaderStageImpl(VkR3rContext& context, const R3rShade
 VkR3rShaderStageImpl::~VkR3rShaderStageImpl()
 {
 	context_.post_present_subject.detach(post_present_observer_);
-}
-
-void* VkR3rShaderStageImpl::operator new(std::size_t size)
-try {
-	return memory_pool_.allocate(static_cast<std::intptr_t>(size));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VkR3rShaderStageImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
 }
 
 R3rShaderVar* VkR3rShaderStageImpl::do_find_var(const char* name)
