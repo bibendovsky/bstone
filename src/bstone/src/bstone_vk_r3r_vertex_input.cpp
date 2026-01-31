@@ -8,7 +8,6 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_vk_r3r_vertex_input.h"
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_resource.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_vk_r3r_buffer.h"
 #include "bstone_vk_r3r_context.h"
@@ -27,9 +26,6 @@ public:
 	VkR3rVertexInputImpl(VkR3rContext& context, const R3rCreateVertexInputParam& param);
 	~VkR3rVertexInputImpl() override {}
 
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
-
 private:
 	VkR3rBuffer* do_get_index_buffer() const override;
 	VkR3rBuffer* do_get_vertex_buffer() const override;
@@ -38,12 +34,10 @@ private:
 
 	constexpr static std::uint32_t default_value_size = sizeof(R3rVec4);
 
-	using MemoryPool = FixedPoolResource<VkR3rVertexInputImpl, R3rLimits::max_vertex_inputs()>;
 	using VkAttributeDescriptions = std::vector<VkVertexInputAttributeDescription>;
 	using VkVertexInputBindingDescriptions = std::vector<VkVertexInputBindingDescription>;
 	using DefaultValues = std::vector<R3rVec4>;
 
-	static MemoryPool memory_pool_;
 	VkR3rContext& context_;
 	VkR3rBuffer* index_buffer_{};
 	VkR3rBuffer* vertex_buffer_{};
@@ -55,10 +49,6 @@ private:
 
 	void initialize_generic_buffer(const DefaultValues& default_values);
 };
-
-// --------------------------------------
-
-VkR3rVertexInputImpl::MemoryPool VkR3rVertexInputImpl::memory_pool_{};
 
 // --------------------------------------
 
@@ -187,16 +177,6 @@ try
 		/* pVertexAttributeDescriptions */    vk_attribute_descriptions_.data(),
 	};
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void* VkR3rVertexInputImpl::operator new(std::size_t size)
-try {
-	return memory_pool_.allocate(static_cast<std::intptr_t>(size));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VkR3rVertexInputImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 VkR3rBuffer* VkR3rVertexInputImpl::do_get_index_buffer() const
 {

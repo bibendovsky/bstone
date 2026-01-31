@@ -8,7 +8,6 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_vk_r3r_pipeline.h"
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_resource.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_vk_r3r_buffer.h"
 #include "bstone_vk_r3r_context.h"
@@ -32,13 +31,6 @@ public:
 	VkR3rPipelineImpl(VkR3rContext& context);
 	~VkR3rPipelineImpl() override {}
 
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
-
-	using MemoryPool = FixedPoolResource<VkR3rPipelineImpl, VkR3rContext::max_pipelines>;
-
-	static MemoryPool memory_pool_;
-
 	VkR3rContext& context_;
 	VkR3rPipelineLayoutResource pipeline_layout_{};
 	VkR3rPipelineResource pipeline_{};
@@ -53,10 +45,6 @@ public:
 	void enqueue_bind_descriptor_set();
 	void enqueue_draw_indexed(const VkR3rPipelineDrawIndexedParam& param);
 };
-
-// --------------------------------------
-
-VkR3rPipelineImpl::MemoryPool VkR3rPipelineImpl::memory_pool_{};
 
 // --------------------------------------
 
@@ -304,16 +292,6 @@ VkR3rPipelineImpl::VkR3rPipelineImpl(VkR3rContext& context)
 	//
 	pipeline_layout_.swap(pipeline_layout);
 	pipeline_.swap(pipeline);
-}
-
-void* VkR3rPipelineImpl::operator new(std::size_t size)
-try {
-	return memory_pool_.allocate(static_cast<std::intptr_t>(size));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VkR3rPipelineImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
 }
 
 void VkR3rPipelineImpl::do_draw_indexed(const VkR3rPipelineDrawIndexedParam& param)

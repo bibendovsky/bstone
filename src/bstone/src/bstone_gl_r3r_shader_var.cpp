@@ -8,7 +8,6 @@ SPDX-License-Identifier: MIT
 
 #include <stddef.h>
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_resource.h"
 
 #include "bstone_r3r_limits.h"
 #include "bstone_r3r_tests.h"
@@ -55,9 +54,6 @@ public:
 
 	~GlR3rShaderVarImpl() override {};
 
-	void* operator new(size_t size);
-	void operator delete(void* ptr);
-
 private:
 	R3rShaderVarType do_get_type() const noexcept override;
 	R3rShaderVarTypeId do_get_type_id() const noexcept override;
@@ -71,12 +67,6 @@ private:
 	void do_set_vec4(const float* value) override;
 	void do_set_mat4(const float* value) override;
 	void do_set_r2_sampler(int32_t value) override;
-
-private:
-	using MemoryPool = FixedPoolResource<GlR3rShaderVarImpl, R3rLimits::max_shader_vars()>;
-
-private:
-	static MemoryPool memory_pool_;
 
 private:
 	GlR3rShaderStage& shader_stage_;
@@ -95,10 +85,6 @@ private:
 
 // --------------------------------------------------------------------------
 
-GlR3rShaderVarImpl::MemoryPool GlR3rShaderVarImpl::memory_pool_{};
-
-// --------------------------------------------------------------------------
-
 GlR3rShaderVarImpl::GlR3rShaderVarImpl(
 	GlR3rShaderStage& shader_stage,
 	const GlR3rShaderVarInitParam& param)
@@ -113,16 +99,6 @@ try
 	name_.assign(param.name.data(), param.name.size());
 	gl_location_ = param.gl_location;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void* GlR3rShaderVarImpl::operator new(size_t size)
-try {
-	return memory_pool_.allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void GlR3rShaderVarImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 R3rShaderVarType GlR3rShaderVarImpl::do_get_type() const noexcept
 {

@@ -10,7 +10,6 @@ SPDX-License-Identifier: MIT
 #include <stddef.h>
 #include <stdint.h>
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_resource.h"
 #include "bstone_r3r_limits.h"
 
 // ==========================================================================
@@ -25,19 +24,10 @@ public:
 	NullR3rSamplerImpl(const R3rSamplerInitParam& param);
 	~NullR3rSamplerImpl() override {}
 
-	void* operator new(size_t size);
-	void operator delete(void* ptr);
-
 private:
 	void do_update(const R3rSamplerUpdateParam& param) override;
 
 	const R3rSamplerState& do_get_state() const noexcept override;
-
-private:
-	using MemoryPool = FixedPoolResource<NullR3rSamplerImpl, R3rLimits::max_samplers()>;
-
-private:
-	static MemoryPool memory_pool_;
 
 private:
 	R3rSamplerState state_{};
@@ -45,24 +35,10 @@ private:
 
 // --------------------------------------------------------------------------
 
-NullR3rSamplerImpl::MemoryPool NullR3rSamplerImpl::memory_pool_{};
-
-// --------------------------------------------------------------------------
-
 NullR3rSamplerImpl::NullR3rSamplerImpl(const R3rSamplerInitParam& param)
 	:
 	state_{param.state}
 {}
-
-void* NullR3rSamplerImpl::operator new(size_t size)
-try {
-	return memory_pool_.allocate(static_cast<intptr_t>(size));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void NullR3rSamplerImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 void NullR3rSamplerImpl::do_update([[maybe_unused]] const R3rSamplerUpdateParam& param)
 {}

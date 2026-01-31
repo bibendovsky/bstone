@@ -9,7 +9,6 @@ SPDX-License-Identifier: MIT
 #include <stddef.h>
 #include "bstone_assert.h"
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_resource.h"
 #include "bstone_unique_resource.h"
 
 #include "bstone_r3r_limits.h"
@@ -32,9 +31,6 @@ public:
 	GlR3rShaderImpl(const R3rShaderInitParam& param);
 	~GlR3rShaderImpl() override;
 
-	void* operator new(size_t size);
-	void operator delete(void* ptr);
-
 private:
 	R3rShaderType do_get_type() const noexcept override;
 
@@ -44,17 +40,12 @@ public:
 	void attach_to_shader_stage(GlR3rShaderStage* shader_stage) override;
 
 private:
-	using MemoryPool = FixedPoolResource<GlR3rShaderImpl, R3rLimits::max_shaders()>;
-
 	struct ShaderDeleter
 	{
 		void operator()(GLuint gl_name) noexcept;
 	};
 
 	using ShaderResource = UniqueResource<GLuint, ShaderDeleter>;
-
-private:
-	static MemoryPool memory_pool_;
 
 private:
 	R3rShaderType type_{};
@@ -66,10 +57,6 @@ private:
 
 	void validate(const R3rShaderInitParam& param);
 };
-
-// ==========================================================================
-
-GlR3rShaderImpl::MemoryPool GlR3rShaderImpl::memory_pool_{};
 
 // ==========================================================================
 
@@ -137,16 +124,6 @@ GlR3rShaderImpl::~GlR3rShaderImpl()
 				break;
 		}
 	}
-}
-
-void* GlR3rShaderImpl::operator new(size_t size)
-try {
-	return memory_pool_.allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void GlR3rShaderImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
 }
 
 R3rShaderType GlR3rShaderImpl::do_get_type() const noexcept
