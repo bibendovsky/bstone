@@ -29,6 +29,8 @@ bool operator<(const OsVersion& lhs, const OsVersion& rhs);
 // ==========================================================================
 
 OsVersion get_os_version();
+bool is_windows_vista_or_later();
+bool is_windows_11_or_later();
 
 } // namespace win32
 } // namespace bstone
