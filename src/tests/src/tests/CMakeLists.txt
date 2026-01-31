@@ -70,8 +70,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_sha1.h
 		../../../bstone/src/bstone_memory_pool_bitmap.cpp
 		../../../bstone/src/bstone_memory_pool_bitmap.h
-		../../../bstone/src/bstone_unicode.cpp
-		../../../bstone/src/bstone_unicode.h
 		../../../bstone/src/bstone_sdl.cpp
 		../../../bstone/src/bstone_sdl.h
 		../../../bstone/src/bstone_single_pool_resource.cpp
