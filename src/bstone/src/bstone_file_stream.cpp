@@ -14,14 +14,9 @@ namespace bstone {
 
 FileStream::FileStream() = default;
 
-FileStream::FileStream(const char* path, FileFlags flags)
+FileStream::FileStream(const char* path, sys::FileMode mode)
 	:
-	file_(path, flags)
-{}
-
-FileStream::FileStream(const char* path, FileFlags flags, FileErrorCode& error_code)
-	:
-	file_(path, flags, error_code)
+	file_(path, mode)
 {}
 
 FileStream::FileStream(FileStream&&) noexcept = default;
@@ -30,14 +25,9 @@ FileStream& FileStream::operator=(FileStream&&) noexcept = default;
 
 FileStream::~FileStream() = default;
 
-bool FileStream::open(const char* path, FileFlags flags)
+bool FileStream::open(const char* path, sys::FileMode mode)
 {
-	return file_.open(path, flags);
-}
-
-bool FileStream::open(const char* path, FileFlags flags, FileErrorCode& error_code)
-{
-	return file_.open(path, flags, error_code);
+	return file_.open(path, mode);
 }
 
 void FileStream::do_close() noexcept
@@ -52,7 +42,7 @@ bool FileStream::do_is_open() const noexcept
 
 std::intptr_t FileStream::do_read(void* buffer, std::intptr_t count)
 try {
-	const std::intptr_t result = file_.read(buffer, count);
+	const std::intptr_t result = file_.read(buffer, static_cast<int>(count));
 
 	if (result < 0)
 	{
@@ -64,7 +54,7 @@ try {
 
 std::intptr_t FileStream::do_write(const void* buffer, std::intptr_t count)
 try {
-	const std::intptr_t result = file_.write(buffer, count);
+	const std::intptr_t result = file_.write(buffer, static_cast<int>(count));
 
 	if (result < 0)
 	{
@@ -76,13 +66,13 @@ try {
 
 std::int64_t FileStream::do_seek(std::int64_t offset, StreamOrigin origin)
 try {
-	FileOrigin file_origin;
+	sys::FileOrigin file_origin;
 
 	switch (origin)
 	{
-		case StreamOrigin::begin: file_origin = file_origin_begin; break;
-		case StreamOrigin::current: file_origin = file_origin_current; break;
-		case StreamOrigin::end: file_origin = file_origin_end; break;
+		case StreamOrigin::begin: file_origin = sys::FileOrigin::begin; break;
+		case StreamOrigin::current: file_origin = sys::FileOrigin::current; break;
+		case StreamOrigin::end: file_origin = sys::FileOrigin::end; break;
 		default: BSTONE_THROW_STATIC_SOURCE("Unknown origin.");
 	}
 
@@ -108,12 +98,9 @@ try {
 	return result;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void FileStream::do_set_size(std::int64_t size)
+void FileStream::do_set_size([[maybe_unused]] std::int64_t size)
 try {
-	if (!file_.set_size(size))
-	{
-		BSTONE_THROW_STATIC_SOURCE("Failed to set a size.");
-	}
+	BSTONE_THROW_STATIC_SOURCE("Resize not supported.");
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void FileStream::do_flush()

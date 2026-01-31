@@ -9,8 +9,8 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_FILE_STREAM_INCLUDED
 #define BSTONE_FILE_STREAM_INCLUDED
 
-#include "bstone_file.h"
 #include "bstone_stream.h"
+#include "bstone_sys_file.h"
 
 namespace bstone {
 
@@ -19,18 +19,16 @@ class FileStream final : public Stream
 public:
 	FileStream();
 
-	FileStream(const char* path, FileFlags flags);
-	FileStream(const char* path, FileFlags flags, FileErrorCode& error_code);
+	FileStream(const char* path, sys::FileMode mode);
 
 	FileStream(FileStream&&) noexcept;
 	FileStream& operator=(FileStream&&) noexcept;
 	~FileStream() override;
 
-	bool open(const char* path, FileFlags flags);
-	bool open(const char* path, FileFlags flags, FileErrorCode& error_code);
+	bool open(const char* path, sys::FileMode mode);
 
 private:
-	File file_{};
+	sys::File file_{};
 
 private:
 	void do_close() noexcept override;

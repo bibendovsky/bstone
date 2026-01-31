@@ -64,9 +64,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_sha1.h
 		../../../bstone/src/bstone_sdl.cpp
 		../../../bstone/src/bstone_sdl.h
-		../../../bstone/src/bstone_file.cpp
-		../../../bstone/src/bstone_file.h
-		../../../bstone/src/bstone_file_sdl.cpp
 		../../../bstone/src/bstone_stream.cpp
 		../../../bstone/src/bstone_stream.h
 		../../../bstone/src/bstone_file_stream.cpp
@@ -97,6 +94,8 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_win32_utility.h
 		../../../bstone/src/bstone_win32_wstring.cpp
 		../../../bstone/src/bstone_win32_wstring.h
+		../../../bstone/src/bstone_sys_file.h
+		../../../bstone/src/bstone_sys_file_sdl.cpp
 	PRIVATE
 		src/bstone_tests_ascii.cpp
 		src/bstone_tests_char_conv.cpp

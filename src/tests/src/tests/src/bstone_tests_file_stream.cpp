@@ -3,8 +3,8 @@
 #include <iterator>
 #include <utility>
 
-#include "bstone_file.h"
 #include "bstone_file_stream.h"
+#include "bstone_sys_file.h"
 #include "bstone_tester.h"
 
 namespace {
@@ -17,18 +17,18 @@ constexpr auto test_data_file_name = "test.data";
 
 // ==========================================================================
 
-// explicit FileStream(const char*, FileFlags)
+// explicit FileStream(const char*, FileMode)
 void test_9iuvd5h9gzjbt351()
 {
-	const bstone::FileStream file(test_data_file_name, bstone::file_flags_create | bstone::file_flags_exclusive);
+	const bstone::FileStream file(test_data_file_name, bstone::sys::FileMode::create);
 	tester.check(file.is_open());
 }
 
-// explicit FileStream(const char*, FileFlags)
-// Invalid flags.
+// explicit FileStream(const char*, FileMode)
+// Invalid mode.
 void test_cz3bzq9ia1144mgd()
 {
-	const bstone::FileStream file(test_data_file_name, bstone::file_flags_none);
+	const bstone::FileStream file(test_data_file_name, bstone::sys::FileMode::none);
 	tester.check(!file.is_open());
 }
 
@@ -37,7 +37,7 @@ void test_cz3bzq9ia1144mgd()
 // FileStream(FileStream&&) noexcept
 void test_87hjc768xmbd1t34()
 {
-	bstone::FileStream file_1(test_data_file_name, bstone::file_flags_create | bstone::file_flags_exclusive);
+	bstone::FileStream file_1(test_data_file_name, bstone::sys::FileMode::create);
 	tester.check(file_1.is_open());
 	auto&& file_2 = std::move(file_1);
 	tester.check(file_2.is_open());
@@ -48,7 +48,7 @@ void test_87hjc768xmbd1t34()
 // FileStream& operator=(FileStream&&) noexcept
 void test_5mmf4qysfrd2fonu()
 {
-	bstone::FileStream file_1(test_data_file_name, bstone::file_flags_create | bstone::file_flags_exclusive);
+	bstone::FileStream file_1(test_data_file_name, bstone::sys::FileMode::create);
 	bstone::FileStream file_2;
 	tester.check(file_1.is_open());
 	file_2 = std::move(file_1);
@@ -57,20 +57,20 @@ void test_5mmf4qysfrd2fonu()
 
 // ==========================================================================
 
-// void open(const char*, FileFlags)
+// void open(const char*, FileMode)
 void test_3h64grd141dr6atb()
 {
 	bstone::FileStream file;
-	file.open(test_data_file_name, bstone::file_flags_create | bstone::file_flags_exclusive);
+	file.open(test_data_file_name, bstone::sys::FileMode::create);
 	tester.check(file.is_open());
 }
 
-// void open(const char*, FileFlags)
-// Invalid flags.
+// void open(const char*, FileMode)
+// Invalid mode.
 void test_bfq3co9j1znbbjim()
 {
 	bstone::FileStream file;
-	tester.check(!file.open(test_data_file_name, bstone::file_flags_none));
+	tester.check(!file.open(test_data_file_name, bstone::sys::FileMode::none));
 	tester.check(!file.is_open());
 }
 
@@ -79,7 +79,7 @@ void test_bfq3co9j1znbbjim()
 // void close() noexcept
 void test_wrbmfiq7r9t2bjfi()
 {
-	bstone::FileStream file(test_data_file_name, bstone::file_flags_create | bstone::file_flags_exclusive);
+	bstone::FileStream file(test_data_file_name, bstone::sys::FileMode::create);
 	tester.check(file.is_open());
 	file.close();
 	tester.check(!file.is_open());
@@ -92,7 +92,7 @@ void test_n0q8fvihwy1v2klm()
 {
 	const bstone::FileStream file(
 		test_data_file_name,
-		bstone::file_flags_create | bstone::file_flags_exclusive);
+		bstone::sys::FileMode::create);
 
 	tester.check(file.is_open());
 }
@@ -103,38 +103,33 @@ void test_n0q8fvihwy1v2klm()
 // std::intptr_t write(const void*, std::intptr_t)
 void test_s4ldcda38dhh06px()
 {
-	auto is_failed = false;
-	auto is_open = false;
-	auto is_zero_size = false;
-	auto is_written = false;
-	auto is_set_position = false;
-	auto is_read = false;
-	auto is_equal = false;
-
+	bool is_failed = false;
+	bool is_open_create = false;
+	bool is_written = false;
+	bool is_open_read = false;
+	bool is_read = false;
+	bool is_equal = false;
 	try
 	{
-		constexpr auto byte_count = 4;
+		constexpr int byte_count = 4;
 		const unsigned char ref_bytes[byte_count] = {0x11, 0x44, 0x22, 0x33};
-
 		unsigned char bytes[byte_count] = {};
 
-		bstone::FileStream file(
-			test_data_file_name,
-			bstone::file_flags_create | bstone::file_flags_truncate | bstone::file_flags_read | bstone::file_flags_exclusive);
-
-		is_open = file.is_open();
-		is_zero_size = file.get_size() == 0;
-		is_written = file.write(ref_bytes + 0, 2) == 2 && file.write(ref_bytes + 2, 2) == 2;
-		is_set_position = file.seek(0, bstone::StreamOrigin::begin) == 0;
-		is_read = file.read(bytes + 0, 2) == 2 && file.read(bytes + 2, 2) == 2;
+		bstone::FileStream file{};
+		file.open(test_data_file_name, bstone::sys::FileMode::create);
+		is_open_create = file.is_open();
+		is_written = (file.write(ref_bytes + 0, 2) == 2 && file.write(ref_bytes + 2, 2) == 2);
+		file.close();
+		is_open_read = file.open(test_data_file_name, bstone::sys::FileMode::read);
+		is_read = (file.read(bytes + 0, 2) == 2 && file.read(bytes + 2, 2) == 2);
+		file.close();
 		is_equal = std::equal(std::cbegin(bytes), std::cend(bytes), ref_bytes);
 	}
 	catch (...)
 	{
 		is_failed = true;
 	}
-
-	tester.check(!is_failed && is_open && is_zero_size && is_written && is_set_position && is_read && is_equal);
+	tester.check(!is_failed && is_open_create && is_written && is_open_read && is_read && is_equal);
 }
 
 // std::intptr_t read(void*, std::intptr_t)
@@ -185,42 +180,33 @@ void test_oe31t4aait031058()
 // void write_exactly(const void*, std::intptr_t)
 void test_xv0g17przcyh3w4p()
 {
-	auto is_open = false;
-	auto is_zero_size = false;
-	auto is_set_position = false;
-	auto is_equal = false;
-
 	constexpr auto byte_count = 4;
 	const unsigned char ref_bytes[byte_count] = {0x11, 0x44, 0x22, 0x33};
-
 	unsigned char bytes[byte_count] = {};
-
-	bstone::FileStream file(
-		test_data_file_name,
-		bstone::file_flags_create | bstone::file_flags_truncate | bstone::file_flags_read | bstone::file_flags_exclusive);
-
-	is_open = file.is_open();
-	is_zero_size = file.get_size() == 0;
+	bstone::FileStream file{};
+	const bool is_open_create = file.open(test_data_file_name, bstone::sys::FileMode::create);
 	file.write_exactly(ref_bytes + 0, 2);
 	file.write_exactly(ref_bytes + 2, 2);
-	is_set_position = file.seek(0, bstone::StreamOrigin::begin) == 0;
+	file.close();
+	const bool is_open_read = file.open(test_data_file_name, bstone::sys::FileMode::read);
 	file.read_exactly(bytes + 0, 2);
 	file.read_exactly(bytes + 2, 2);
-	is_equal = std::equal(std::cbegin(bytes), std::cend(bytes), ref_bytes);
-
-	tester.check(is_open && is_zero_size && is_set_position && is_equal);
+	const bool is_equal = std::equal(std::cbegin(bytes), std::cend(bytes), ref_bytes);
+	tester.check(is_open_create && is_open_read && is_equal);
 }
 
 // void read_exactly(void*, std::intptr_t)
 // Failed.
 void test_kms3o2eisp359ubi()
 {
+	{
+		const bstone::FileStream file{test_data_file_name, bstone::sys::FileMode::create};
+	}
+
 	auto is_open = false;
 	auto is_zero_size = false;
 
-	bstone::FileStream file(
-		test_data_file_name,
-		bstone::file_flags_create | bstone::file_flags_truncate | bstone::file_flags_read | bstone::file_flags_exclusive);
+	bstone::FileStream file{test_data_file_name, bstone::sys::FileMode::read};
 
 	is_open = file.is_open();
 	is_zero_size = file.get_size() == 0;
@@ -289,15 +275,17 @@ void test_qfmcpsx4dy9jrgwi()
 {
 	auto is_failed = false;
 	auto is_open = false;
+	bool is_written_100 = false;
 	auto is_set_position_1 = false;
 	auto is_set_position_2 = false;
 	auto is_set_position_3 = false;
 
 	try
 	{
-		bstone::FileStream file(test_data_file_name, bstone::file_flags_create | bstone::file_flags_exclusive);
+		bstone::FileStream file(test_data_file_name, bstone::sys::FileMode::create);
 		is_open = file.is_open();
-		file.set_size(100);
+		char content[100];
+		is_written_100 = (file.write(content, 100) == 100);
 		is_set_position_1 = file.seek(0, bstone::StreamOrigin::end) == 100;
 		is_set_position_2 = file.seek(10, bstone::StreamOrigin::begin) == 10;
 		is_set_position_3 = file.seek(-5, bstone::StreamOrigin::current) == 5;
@@ -307,7 +295,7 @@ void test_qfmcpsx4dy9jrgwi()
 		is_failed = true;
 	}
 
-	tester.check(!is_failed && is_open && is_set_position_1 && is_set_position_2 && is_set_position_3);
+	tester.check(!is_failed && is_open && is_written_100 && is_set_position_1 && is_set_position_2 && is_set_position_3);
 }
 
 // std::int64_t seek(std::int64_t, StreamOrigin)
@@ -331,30 +319,10 @@ void test_dlyk87psgz8v3vjh()
 }
 
 // std::int64_t seek(std::int64_t, StreamOrigin)
-// Negative new position.
-void test_u10bndy2nk4hdfc4()
-{
-	bstone::FileStream file(test_data_file_name, bstone::file_flags_create | bstone::file_flags_exclusive);
-	const auto is_open = file.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		file.seek(-1, bstone::StreamOrigin::begin);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_failed && is_open);
-}
-
-// std::int64_t seek(std::int64_t, StreamOrigin)
 // Invalid origin.
 void test_72lcszx25t7bqxbj()
 {
-	bstone::FileStream file(test_data_file_name, bstone::file_flags_create | bstone::file_flags_exclusive);
+	bstone::FileStream file(test_data_file_name, bstone::sys::FileMode::create);
 	const auto is_open = file.is_open();
 	auto is_failed = false;
 
@@ -375,16 +343,17 @@ void test_72lcszx25t7bqxbj()
 // std::int64_t skip(std::int64_t)
 void test_gmx97qp03xosymdn()
 {
-	auto is_failed = false;
-	auto is_open = false;
-	auto is_set_position_1 = false;
-	auto is_set_position_2 = false;
-
+	bool is_failed = false;
+	bool is_open = false;
+	bool is_written = false;
+	bool is_set_position_1 = false;
+	bool is_set_position_2 = false;
 	try
 	{
-		bstone::FileStream file(test_data_file_name, bstone::file_flags_create | bstone::file_flags_exclusive);
+		bstone::FileStream file{test_data_file_name, bstone::sys::FileMode::create};
 		is_open = file.is_open();
-		file.set_size(100);
+		char content[100];
+		is_written = (file.write(content, 100) == 100);
 		is_set_position_1 = file.seek(0, bstone::StreamOrigin::end) == 100;
 		is_set_position_2 = file.skip(-5) == 95;
 	}
@@ -392,8 +361,7 @@ void test_gmx97qp03xosymdn()
 	{
 		is_failed = true;
 	}
-
-	tester.check(!is_failed && is_open && is_set_position_1 && is_set_position_2);
+	tester.check(!is_failed && is_open && is_written && is_set_position_1 && is_set_position_2);
 }
 
 // std::int64_t skip(std::int64_t)
@@ -416,26 +384,6 @@ void test_uhi05vu6mylnqz0n()
 	tester.check(is_failed && !is_open);
 }
 
-// std::int64_t skip(std::int64_t)
-// Negative new position.
-void test_1bursksrrifu63wi()
-{
-	bstone::FileStream file(test_data_file_name, bstone::file_flags_create | bstone::file_flags_exclusive);
-	const auto is_open = file.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		file.skip(-1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_failed && is_open);
-}
-
 // ==========================================================================
 
 // std::int64_t get_position()
@@ -448,7 +396,7 @@ void test_n9h6bhuu066frk7i()
 
 	try
 	{
-		bstone::FileStream file(test_data_file_name, bstone::file_flags_create | bstone::file_flags_exclusive);
+		bstone::FileStream file(test_data_file_name, bstone::sys::FileMode::create);
 		is_open = file.is_open();
 		is_set_position_1 = file.seek(42, bstone::StreamOrigin::begin) == 42;
 		is_set_position_2 = file.get_position() == 42;
@@ -492,7 +440,7 @@ void test_j7d9qfbvnl7p0fdh()
 
 	try
 	{
-		bstone::FileStream file(test_data_file_name, bstone::file_flags_create | bstone::file_flags_exclusive);
+		bstone::FileStream file(test_data_file_name, bstone::sys::FileMode::create);
 		is_open = file.is_open();
 		file.set_position(42);
 		is_set_position = file.seek(0, bstone::StreamOrigin::current) == 42;
@@ -525,26 +473,6 @@ void test_jc0d01vftb1ajsp8()
 	tester.check(is_failed && !is_open);
 }
 
-// void set_position(std::int64_t)
-// Negative position.
-void test_jrd1d6d7manaolbe()
-{
-	bstone::FileStream file(test_data_file_name, bstone::file_flags_create | bstone::file_flags_exclusive);
-	const auto is_open = file.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		file.set_position(-1);
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_failed && is_open);
-}
-
 // ==========================================================================
 
 // std::int64_t get_size() const
@@ -558,9 +486,7 @@ void test_jvs8f0vrf44bei94()
 	try
 	{
 		const char buffer = '\0';
-		bstone::FileStream file(
-			test_data_file_name,
-			bstone::file_flags_create | bstone::file_flags_truncate | bstone::file_flags_exclusive);
+		bstone::FileStream file(test_data_file_name, bstone::sys::FileMode::create);
 		is_open = file.is_open();
 		is_valid_size_1 = file.get_size() == 0;
 		file.seek(99, bstone::StreamOrigin::begin);
@@ -575,62 +501,33 @@ void test_jvs8f0vrf44bei94()
 	tester.check(!is_failed && is_open && is_valid_size_1 && is_valid_size_2);
 }
 
-// std::int64_t get_size() const
-// Closed.
-void test_r6ivsn8er7p825tf()
-{
-	auto file = bstone::FileStream{};
-	const auto is_open = file.is_open();
-	auto is_failed = false;
-
-	try
-	{
-		file.get_size();
-	}
-	catch (...)
-	{
-		is_failed = true;
-	}
-
-	tester.check(is_failed && !is_open);
-}
-
 // ==========================================================================
 
 // void set_size(std::int64_t)
 void test_apnc1tdy41tuubu6()
 {
-	auto is_failed = false;
-	auto is_open = false;
-	auto is_valid_size_1 = false;
-	auto is_valid_size_2 = false;
-
+	bool is_open = false;
+	bool is_failed = false;
 	try
 	{
-		bstone::FileStream file(
-			test_data_file_name,
-			bstone::file_flags_create | bstone::file_flags_truncate | bstone::file_flags_exclusive);
+		bstone::FileStream file(test_data_file_name, bstone::sys::FileMode::create);
 		is_open = file.is_open();
-		is_valid_size_1 = file.get_size() == 0;
 		file.set_size(100);
-		is_valid_size_2 = file.get_size() == 100;
 	}
 	catch (...)
 	{
 		is_failed = true;
 	}
-
-	tester.check(!is_failed && is_open && is_valid_size_1 && is_valid_size_2);
+	tester.check(is_open && is_failed);
 }
 
 // void set_size(std::int64_t)
 // Closed.
 void test_b9d4vp9n3n0bt4gq()
 {
-	auto file = bstone::FileStream{};
-	const auto is_open = file.is_open();
-	auto is_failed = false;
-
+	bstone::FileStream file{};
+	const bool is_open = file.is_open();
+	bool is_failed = false;
 	try
 	{
 		file.set_size(0);
@@ -639,18 +536,16 @@ void test_b9d4vp9n3n0bt4gq()
 	{
 		is_failed = true;
 	}
-
-	tester.check(is_failed && !is_open);
+	tester.check(!is_open && is_failed);
 }
 
 // void set_size(std::int64_t)
 // Negative size.
 void test_kzfzam0srnegz5ni()
 {
-	bstone::FileStream file(test_data_file_name, bstone::file_flags_create | bstone::file_flags_exclusive);
-	const auto is_open = file.is_open();
-	auto is_failed = false;
-
+	bstone::FileStream file{test_data_file_name, bstone::sys::FileMode::create};
+	const bool is_open = file.is_open();
+	bool is_failed = false;
 	try
 	{
 		file.set_size(-1);
@@ -659,8 +554,7 @@ void test_kzfzam0srnegz5ni()
 	{
 		is_failed = true;
 	}
-
-	tester.check(is_failed && is_open);
+	tester.check(is_open && is_failed);
 }
 
 // ==========================================================================
@@ -673,7 +567,7 @@ void test_2o69zbx04pa7rsz4()
 
 	try
 	{
-		bstone::FileStream file(test_data_file_name, bstone::file_flags_create | bstone::file_flags_exclusive);
+		bstone::FileStream file(test_data_file_name, bstone::sys::FileMode::create);
 		is_open = file.is_open();
 		file.flush();
 	}
@@ -771,7 +665,6 @@ private:
 	{
 		tester.register_test("FileStream#qfmcpsx4dy9jrgwi", test_qfmcpsx4dy9jrgwi);
 		tester.register_test("FileStream#dlyk87psgz8v3vjh", test_dlyk87psgz8v3vjh);
-		tester.register_test("FileStream#u10bndy2nk4hdfc4", test_u10bndy2nk4hdfc4);
 		tester.register_test("FileStream#72lcszx25t7bqxbj", test_72lcszx25t7bqxbj);
 	}
 
@@ -779,7 +672,6 @@ private:
 	{
 		tester.register_test("FileStream#gmx97qp03xosymdn", test_gmx97qp03xosymdn);
 		tester.register_test("FileStream#uhi05vu6mylnqz0n", test_uhi05vu6mylnqz0n);
-		tester.register_test("FileStream#1bursksrrifu63wi", test_1bursksrrifu63wi);
 	}
 
 	void register_get_position()
@@ -792,13 +684,11 @@ private:
 	{
 		tester.register_test("FileStream#j7d9qfbvnl7p0fdh", test_j7d9qfbvnl7p0fdh);
 		tester.register_test("FileStream#jc0d01vftb1ajsp8", test_jc0d01vftb1ajsp8);
-		tester.register_test("FileStream#jrd1d6d7manaolbe", test_jrd1d6d7manaolbe);
 	}
 
 	void register_get_size()
 	{
 		tester.register_test("FileStream#jvs8f0vrf44bei94", test_jvs8f0vrf44bei94);
-		tester.register_test("FileStream#r6ivsn8er7p825tf", test_r6ivsn8er7p825tf);
 	}
 
 	void register_set_size()
