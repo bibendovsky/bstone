@@ -459,8 +459,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_unique_resource.h
 	src/bstone_win32_advapi32_symbols.cpp
 	src/bstone_win32_advapi32_symbols.h
-	src/bstone_win32_com.cpp
-	src/bstone_win32_com.h
 	src/bstone_win32_os_version.cpp
 	src/bstone_win32_os_version.h
 	src/bstone_win32_registry_key.cpp
