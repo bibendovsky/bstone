@@ -235,7 +235,6 @@ target_link_libraries(bstone
 	PRIVATE
 		${CMAKE_DL_LIBS}
 		bstone::sdl
-		$<$<BOOL:${WIN32}>:wbemuuid>
 		Threads::Threads
 		bstone::lib::khronos
 		bstone::lib::nuked_opl3
