@@ -10,7 +10,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_audio_mixer.h"
 #include "bstone_exception.h"
 #include "bstone_logger.h"
-#include "bstone_memory.h"
 #include "bstone_oal_audio_mixer.h"
 #include "bstone_system_audio_mixer.h"
 
