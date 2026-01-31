@@ -3038,11 +3038,6 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Not found any 3D renderer.");
 	}
 
-// TODO
-#ifdef __vita__
-	param.window_.is_visible = true;
-#endif // __vita__
-
 	auto& window = renderer_->get_window();
 	apply_window_mode();
 	window.set_title(title.c_str());
