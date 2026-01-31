@@ -874,8 +874,6 @@ set(BSTONE_BSTONE_SOURCES
 	src/bstone_archiver.h
 	src/bstone_atomic_flag.cpp
 	src/bstone_atomic_flag.h
-	src/bstone_char_hasher.cpp
-	src/bstone_char_hasher.h
 	src/bstone_cl.cpp
 	src/bstone_cl.h
 	src/bstone_configurations.cpp
