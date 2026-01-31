@@ -947,8 +947,6 @@ set(BSTONE_BSTONE_SOURCES
 	src/bstone_content_path.cpp
 	src/bstone_content_path.h
 	src/bstone_door.h
-	src/bstone_encoding.cpp
-	src/bstone_encoding.h
 	src/bstone_exception_utils.cpp
 	src/bstone_exception_utils.h
 	src/bstone_extent_2d.cpp
