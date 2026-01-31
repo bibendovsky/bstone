@@ -109,8 +109,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_four_cc.h
 		../../../bstone/src/bstone_win32_os_version.cpp
 		../../../bstone/src/bstone_win32_os_version.h
-		../../../bstone/src/bstone_win32_unique_resources.cpp
-		../../../bstone/src/bstone_win32_unique_resources.h
 		../../../bstone/src/bstone_win32_utility.cpp
 		../../../bstone/src/bstone_win32_utility.h
 		../../../bstone/src/bstone_win32_wstring.cpp
