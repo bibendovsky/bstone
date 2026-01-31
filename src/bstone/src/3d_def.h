@@ -2907,11 +2907,7 @@ extern int last_map_tile_y;
 // BBi
 const int min_mouse_sensitivity = 0;
 const int max_mouse_sensitivity = 54;
-#ifndef __vita__
 const int default_mouse_sensitivity = 5;
-#else
-const int default_mouse_sensitivity = 27;
-#endif
 // BBi
 
 //
@@ -3103,9 +3099,6 @@ extern const int viewsize;
 //
 extern int controlx;
 extern int controly; // range from -100 to 100
-#ifdef __vita__
-extern int control2x; //left stick horizontal axis
-#endif
 
 using ButtonState = std::bitset<NUMBUTTONS>;
 extern ButtonState buttonstate;

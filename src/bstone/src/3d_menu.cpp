@@ -3332,11 +3332,6 @@ void CP_ExitOptions(
 void CP_Control(
 	std::int16_t)
 {
-#ifdef __vita__
-	MouseSensitivity(0);
-	return;
-#endif
-
 	enum
 	{
 		MOUSEENABLE,
@@ -3409,11 +3404,7 @@ void DrawMousePos()
 void DrawMouseSens()
 {
 	ClearMScreen();
-#ifdef __vita__
-	DrawMenuTitle("JOYSTICK SENSITIVITY");
-#else
 	DrawMenuTitle("MOUSE SENSITIVITY");
-#endif
 	DrawInstructions(IT_MOUSE_SEN);
 
 	fontnumber = 4;
@@ -6048,9 +6039,7 @@ void cp_video(
 				break;
 
 		case mvl_widescreen:
-#ifndef __vita__
 			vid_cfg_set_is_widescreen(!vid_cfg_is_widescreen());
-#endif
 			ShootSnd();
 			video_draw_switch(video_items.curpos);
 			vl_update_widescreen();
