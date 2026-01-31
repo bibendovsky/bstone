@@ -74,8 +74,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_single_pool_resource.h
 		../../../bstone/src/bstone_fixed_pool_resource.cpp
 		../../../bstone/src/bstone_fixed_pool_resource.h
-		../../../bstone/src/bstone_auto_arena_resource.cpp
-		../../../bstone/src/bstone_auto_arena_resource.h
 		../../../bstone/src/bstone_file.cpp
 		../../../bstone/src/bstone_file.h
 		../../../bstone/src/bstone_file_sdl.cpp
@@ -126,7 +124,6 @@ target_sources(bstone_tests
 		src/bstone_tests_memory_pool_bitmap.cpp
 		src/bstone_tests_single_pool_resource.cpp
 		src/bstone_tests_fixed_pool_resource.cpp
-		src/bstone_tests_auto_arena_resource.cpp
 		src/bstone_tests_configurations.cpp
 		src/bstone_tests_file_stream.cpp
 		src/bstone_tests_memory_stream.cpp
