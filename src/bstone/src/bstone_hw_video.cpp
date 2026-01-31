@@ -24,7 +24,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_single_pool_resource.h"
 
 #include "bstone_cgm_mat.h"
-#include "bstone_cgm_clip_space.h"
 #include "bstone_cgm_transform.h"
 #include "bstone_cgm_vec.h"
 
