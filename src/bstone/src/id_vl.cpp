@@ -506,7 +506,7 @@ try
 	{
 		bstone::FileStream file_stream(
 			path.c_str(),
-			bstone::file_flags_create | bstone::file_flags_truncate | bstone::file_flags_exclusive);
+			bstone::sys::FileMode::create);
 
 		file_stream.write_exactly(dst_buffer.get(), dst_buffer_size);
 	}

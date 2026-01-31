@@ -11,10 +11,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "id_ca.h"
 
-#include "bstone_file.h"
 #include "bstone_fs.h"
 #include "bstone_fs_utils.h"
 #include "bstone_globals.h"
+#include "bstone_sys_file.h"
 
 namespace bstone {
 
@@ -58,9 +58,9 @@ void LevelExtractor::extract_levels(const std::string& destination_dir)
 		dst_file_path += ".flr";
 
 		{
-			File file(
+			sys::File file(
 				tmp_file_path.c_str(),
-				bstone::file_flags_create | bstone::file_flags_truncate | bstone::file_flags_exclusive);
+				bstone::sys::FileMode::create);
 
 			if (!file.is_open())
 			{
