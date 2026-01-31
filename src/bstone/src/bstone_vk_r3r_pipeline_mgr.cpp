@@ -8,7 +8,6 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_vk_r3r_pipeline_mgr.h"
 #include "bstone_exception.h"
-#include "bstone_single_pool_resource.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_vk_r3r_context.h"
 #include "bstone_vk_r3r_pipeline.h"
@@ -26,14 +25,10 @@ public:
 	VkR3rPipelineMgrImpl(VkR3rContext& context);
 	~VkR3rPipelineMgrImpl() override {}
 
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
-
 private:
 	void do_clear() override;
 	VkR3rPipeline* do_acquire_pipeline() override;
 
-	using MemoryPool = SinglePoolResource<VkR3rPipelineMgrImpl>;
 	using PipelineMapKey = VkR3rContext::DrawState;
 	class ByteHasher
 	{
@@ -95,15 +90,9 @@ private:
 		PipelineMapKeyHasher,
 		PipelineMapKeyComparer>;
 
-	static MemoryPool memory_pool_;
-
 	VkR3rContext& context_;
 	PipelineMap pipeline_map_{};
 };
-
-// --------------------------------------
-
-VkR3rPipelineMgrImpl::MemoryPool VkR3rPipelineMgrImpl::memory_pool_{};
 
 // --------------------------------------
 
@@ -112,16 +101,6 @@ VkR3rPipelineMgrImpl::VkR3rPipelineMgrImpl(VkR3rContext& context)
 	context_{context}
 {
 	pipeline_map_.reserve(32);
-}
-
-void* VkR3rPipelineMgrImpl::operator new(std::size_t size)
-try {
-	return memory_pool_.allocate(static_cast<std::intptr_t>(size));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VkR3rPipelineMgrImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
 }
 
 void VkR3rPipelineMgrImpl::do_clear()

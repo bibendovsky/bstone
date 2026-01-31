@@ -8,7 +8,6 @@ SPDX-License-Identifier: MIT
 
 #include <stddef.h>
 #include "bstone_exception.h"
-#include "bstone_single_pool_resource.h"
 
 #include "bstone_r3r_tests.h"
 
@@ -40,9 +39,6 @@ public:
 
 	GlR3rContextImpl(const GlR3rContextImpl& rhs) = delete;
 	~GlR3rContextImpl() override {}
-
-	void* operator new(size_t size);
-	void operator delete(void* ptr);
 
 	const R3rDeviceFeatures& get_device_features() const noexcept override;
 	const GlR3rDeviceFeatures& get_gl_device_features() const noexcept override;
@@ -80,12 +76,6 @@ public:
 
 	void enable_blending(bool is_enable) override;
 	void set_blending_func(const R3rBlendingFunc& func) override;
-
-private:
-	using MemoryPool = SinglePoolResource<GlR3rContextImpl>;
-
-private:
-	static MemoryPool memory_pool_;
 
 private:
 	const R3rDeviceFeatures& device_features_;
@@ -138,10 +128,6 @@ private:
 
 // ==========================================================================
 
-GlR3rContextImpl::MemoryPool GlR3rContextImpl::memory_pool_{};
-
-// ==========================================================================
-
 GlR3rContextImpl::GlR3rContextImpl(
 	const R3rDeviceFeatures& device_features,
 	const GlR3rDeviceFeatures& gl_device_features)
@@ -177,16 +163,6 @@ try {
 	glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
 	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void* GlR3rContextImpl::operator new(size_t size)
-try {
-	return memory_pool_.allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void GlR3rContextImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 const R3rDeviceFeatures& GlR3rContextImpl::get_device_features() const noexcept
 {
