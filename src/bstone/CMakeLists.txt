@@ -377,8 +377,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_four_cc.cpp
 	src/bstone_four_cc.h
 	src/bstone_fs.h
-	src/bstone_memory.cpp
-	src/bstone_memory.h
 	src/bstone_memory_binary_reader.cpp
 	src/bstone_memory_binary_reader.h
 	src/bstone_memory_stream.cpp
