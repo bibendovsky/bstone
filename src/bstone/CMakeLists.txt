@@ -479,10 +479,12 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_win32_os_version.h
 	src/bstone_win32_registry_key.cpp
 	src/bstone_win32_registry_key.h
-	src/bstone_win32_wstring.cpp
-	src/bstone_win32_wstring.h
 	src/bstone_win32_unique_resources.cpp
 	src/bstone_win32_unique_resources.h
+	src/bstone_win32_utility.cpp
+	src/bstone_win32_utility.h
+	src/bstone_win32_wstring.cpp
+	src/bstone_win32_wstring.h
 	src/bstone_process_sdl.cpp
 	src/bstone_process.h
 )

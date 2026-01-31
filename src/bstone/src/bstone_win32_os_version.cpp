@@ -30,20 +30,21 @@ class OsVersionImpl
 public:
 	OsVersionImpl();
 	OsVersion get_os_version() const;
+	bool is_windows_vista_or_later() const;
+	bool is_windows_11_or_later() const;
 
 private:
 	OsVersion os_version_{};
+	bool is_windows_vista_or_later_{};
+	bool is_windows_11_or_later_{};
 };
 
 // --------------------------------------------------------------------------
 
 OsVersionImpl::OsVersionImpl()
 {
-	// Set default version to Windows XP (Whistler).
-	os_version_.major = 5;
-	os_version_.minor = 1;
-	os_version_.build = 2600;
-
+	constexpr OsVersion windows_xp_os_version{.major = 5, .minor = 1, .build = 2600,}; // Whistler
+	os_version_ = windows_xp_os_version;
 	using IMPL_NTSTATUS = long;
 	using IMPL_RtlGetVersion = IMPL_NTSTATUS (WINAPI *)(const OSVERSIONINFOW* lpVersionInformation);
 	SharedLibrary impl_ntdll_{};
@@ -59,6 +60,10 @@ OsVersionImpl::OsVersionImpl()
 				os_version_.major = osversioninfow.dwMajorVersion;
 				os_version_.minor = osversioninfow.dwMinorVersion;
 				os_version_.build = osversioninfow.dwBuildNumber;
+				constexpr OsVersion windows_vista_os_version{.major = 6, .minor = 0, .build = 6000,};
+				constexpr OsVersion windows_11_os_version{.major = 10, .minor = 0, .build = 22000,};
+				is_windows_vista_or_later_ = (os_version_ >= windows_vista_os_version);
+				is_windows_11_or_later_ = (os_version_ >= windows_11_os_version);
 			}
 		}
 	}
@@ -67,6 +72,16 @@ OsVersionImpl::OsVersionImpl()
 OsVersion OsVersionImpl::get_os_version() const
 {
 	return os_version_;
+}
+
+bool OsVersionImpl::is_windows_vista_or_later() const
+{
+	return is_windows_vista_or_later_;
+}
+
+bool OsVersionImpl::is_windows_11_or_later() const
+{
+	return is_windows_11_or_later_;
 }
 
 // ==========================================================================
@@ -95,6 +110,16 @@ bool operator<(const OsVersion& lhs, const OsVersion& rhs)
 OsVersion get_os_version()
 {
 	return os_version_impl.get_os_version();
+}
+
+bool is_windows_vista_or_later()
+{
+	return os_version_impl.is_windows_vista_or_later();
+}
+
+bool is_windows_11_or_later()
+{
+	return os_version_impl.is_windows_11_or_later();
 }
 
 } // namespace win32
