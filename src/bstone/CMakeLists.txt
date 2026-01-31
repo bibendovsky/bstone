@@ -453,8 +453,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_static_ro_memory_stream.h
 	src/bstone_stream.cpp
 	src/bstone_stream.h
-	src/bstone_ts_auto_arena_resource.cpp
-	src/bstone_ts_auto_arena_resource.h
 	src/bstone_unicode.cpp
 	src/bstone_unicode.h
 	src/bstone_unique_resource.cpp
