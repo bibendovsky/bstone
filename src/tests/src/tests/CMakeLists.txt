@@ -72,12 +72,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_memory_pool_bitmap.h
 		../../../bstone/src/bstone_unicode.cpp
 		../../../bstone/src/bstone_unicode.h
-		../../../bstone/src/bstone_utf.cpp
-		../../../bstone/src/bstone_utf.h
-		../../../bstone/src/bstone_utf16.cpp
-		../../../bstone/src/bstone_utf16.h
-		../../../bstone/src/bstone_utf8.cpp
-		../../../bstone/src/bstone_utf8.h
 		../../../bstone/src/bstone_sdl.cpp
 		../../../bstone/src/bstone_sdl.h
 		../../../bstone/src/bstone_single_pool_resource.cpp
@@ -145,7 +139,6 @@ target_sources(bstone_tests
 		src/bstone_tests_cgm_transform.cpp
 		src/bstone_tests_sha1.cpp
 		src/bstone_tests_memory_pool_bitmap.cpp
-		src/bstone_tests_utf.cpp
 		src/bstone_tests_single_pool_resource.cpp
 		src/bstone_tests_fixed_pool_resource.cpp
 		src/bstone_tests_generic_pool_resource.cpp
