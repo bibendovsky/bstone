@@ -62,8 +62,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_cgm_vec.h
 		../../../bstone/src/bstone_cgm_mat.cpp
 		../../../bstone/src/bstone_cgm_mat.h
-		../../../bstone/src/bstone_cgm_clip_space.cpp
-		../../../bstone/src/bstone_cgm_clip_space.h
 		../../../bstone/src/bstone_cgm_transform.cpp
 		../../../bstone/src/bstone_cgm_transform.h
 		../../../bstone/src/bstone_sha1.cpp
@@ -123,7 +121,6 @@ target_sources(bstone_tests
 		src/bstone_tests_unique_resource.cpp
 		src/bstone_tests_cgm_vec.cpp
 		src/bstone_tests_cgm_mat.cpp
-		src/bstone_tests_cgm_clip_space.cpp
 		src/bstone_tests_cgm_transform.cpp
 		src/bstone_tests_sha1.cpp
 		src/bstone_tests_memory_pool_bitmap.cpp

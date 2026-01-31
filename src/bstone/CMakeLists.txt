@@ -352,8 +352,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_binary_reader.h
 	src/bstone_binary_writer.cpp
 	src/bstone_binary_writer.h
-	src/bstone_cgm_clip_space.cpp
-	src/bstone_cgm_clip_space.h
 	src/bstone_cgm_mat.cpp
 	src/bstone_cgm_mat.h
 	src/bstone_cgm_transform.cpp
