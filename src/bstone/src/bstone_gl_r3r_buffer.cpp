@@ -9,7 +9,6 @@ SPDX-License-Identifier: MIT
 #include <stddef.h>
 
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_resource.h"
 #include "bstone_unique_resource.h"
 
 #include "bstone_r3r_limits.h"
@@ -32,9 +31,6 @@ public:
 	GlR3rBufferImpl(GlR3rContext& context, const R3rBufferInitParam& param);
 	~GlR3rBufferImpl() override {}
 
-	void* operator new(size_t size);
-	void operator delete(void* ptr);
-
 private:
 	R3rBufferType do_get_type() const noexcept override;
 	R3rBufferUsageType do_get_usage_type() const noexcept override;
@@ -46,17 +42,12 @@ private:
 	void set(bool is_set) override;
 
 private:
-	using MemoryPool = FixedPoolResource<GlR3rBufferImpl, R3rLimits::max_buffers()>;
-
 	struct BufferDeleter
 	{
 		void operator()(GLuint gl_name) const noexcept;
 	};
 
 	using BufferResource = UniqueResource<GLuint, BufferDeleter>;
-
-private:
-	static MemoryPool memory_pool_;
 
 private:
 	GlR3rContext& context_;
@@ -75,10 +66,6 @@ private:
 	static GLenum gl_get_target(R3rBufferType type);
 	static GLenum gl_get_usage(R3rBufferUsageType usage_type);
 };
-
-// =========================================================================
-
-GlR3rBufferImpl::MemoryPool GlR3rBufferImpl::memory_pool_{};
 
 // =========================================================================
 
@@ -129,16 +116,6 @@ try
 		GlR3rError::check_optionally();
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void* GlR3rBufferImpl::operator new(size_t size)
-try {
-	return memory_pool_.allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void GlR3rBufferImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 R3rBufferType GlR3rBufferImpl::do_get_type() const noexcept
 {

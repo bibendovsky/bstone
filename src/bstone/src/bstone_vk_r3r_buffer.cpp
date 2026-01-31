@@ -8,7 +8,6 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_vk_r3r_buffer.h"
 #include "bstone_assert.h"
-#include "bstone_fixed_pool_resource.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_vk_r3r_context.h"
 #include "bstone_vk_r3r_raii.h"
@@ -26,9 +25,6 @@ public:
 	VkR3rBufferImpl(VkR3rContext& context, const R3rBufferInitParam& param);
 	~VkR3rBufferImpl() override {}
 
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
-
 private:
 	R3rBufferType do_get_type() const noexcept override;
 	R3rBufferUsageType do_get_usage_type() const noexcept override;
@@ -36,10 +32,6 @@ private:
 	void do_update(const R3rUpdateBufferParam& param) override;
 
 	VkBuffer do_get_vk_buffer() const override;
-
-	using MemoryPool = FixedPoolResource<VkR3rBufferImpl, R3rLimits::max_buffers()>;
-
-	static MemoryPool memory_pool_;
 
 	VkR3rContext& context_;
 	R3rBufferType type_{};
@@ -49,10 +41,6 @@ private:
 	VkR3rBufferResource buffer_resource_{};
 	void* mapped_memory_{};
 };
-
-// --------------------------------------
-
-VkR3rBufferImpl::MemoryPool VkR3rBufferImpl::memory_pool_{};
 
 // --------------------------------------
 
@@ -90,16 +78,6 @@ try :
 		device_memory_resource_);
 	mapped_memory_ = context_.map_memory(device_memory_resource_.get());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void* VkR3rBufferImpl::operator new(std::size_t size)
-try {
-	return memory_pool_.allocate(static_cast<std::intptr_t>(size));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VkR3rBufferImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 R3rBufferType VkR3rBufferImpl::do_get_type() const noexcept
 {

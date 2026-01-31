@@ -13,7 +13,6 @@ SPDX-License-Identifier: MIT
 #include <utility>
 #include <vector>
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_resource.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_null_r3r_shader_var.h"
 
@@ -29,9 +28,6 @@ public:
 	NullR3rShaderStageImpl(const R3rShaderStageInitParam& param);
 	~NullR3rShaderStageImpl() override {}
 
-	void* operator new(size_t size);
-	void operator delete(void* ptr);
-
 private:
 	R3rShaderVar* do_find_var(const char* name) override;
 	R3rShaderVar* do_find_int32_var(const char* name) override;
@@ -43,11 +39,7 @@ private:
 	R3rShaderVar* do_find_r2_sampler_var(const char* name) override;
 
 private:
-	using MemoryPool = FixedPoolResource<NullR3rShaderStageImpl, R3rLimits::max_shader_stages()>;
 	using ShaderVars = std::vector<NullR3rShaderVarUPtr>;
-
-private:
-	static MemoryPool memory_pool_;
 
 private:
 	ShaderVars shader_vars_{make_shader_vars()};
@@ -60,22 +52,8 @@ private:
 
 // --------------------------------------------------------------------------
 
-NullR3rShaderStageImpl::MemoryPool NullR3rShaderStageImpl::memory_pool_{};
-
-// --------------------------------------------------------------------------
-
 NullR3rShaderStageImpl::NullR3rShaderStageImpl([[maybe_unused]] const R3rShaderStageInitParam& param)
 {}
-
-void* NullR3rShaderStageImpl::operator new(size_t size)
-try {
-	return memory_pool_.allocate(static_cast<intptr_t>(size));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void NullR3rShaderStageImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 R3rShaderVar* NullR3rShaderStageImpl::do_find_var(const char* name)
 {

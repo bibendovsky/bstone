@@ -10,7 +10,6 @@ SPDX-License-Identifier: MIT
 #include <algorithm>
 
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_resource.h"
 #include "bstone_unique_resource.h"
 
 #include "bstone_r3r_limits.h"
@@ -40,26 +39,18 @@ public:
 
 	~GlR3rVertexInputImpl() override;
 
-	void* operator new(size_t size);
-	void operator delete(void* ptr);
-
 	void bind_vao() override;
 	R3rBuffer* get_index_buffer() const noexcept override;
 
 	void bind() override;
 
 private:
-	using MemoryPool = FixedPoolResource<GlR3rVertexInputImpl, R3rLimits::max_vertex_inputs()>;
-
 	struct VaoDeleter
 	{
 		void operator()(GLuint gl_name) noexcept;
 	};
 
 	using VaoResource = UniqueResource<GLuint, VaoDeleter>;
-
-private:
-	static MemoryPool memory_pool_;
 
 private:
 	GlR3rVertexInputMgr& manager_;
@@ -81,10 +72,6 @@ private:
 
 	void bind_internal();
 };
-
-// =========================================================================
-
-GlR3rVertexInputImpl::MemoryPool GlR3rVertexInputImpl::memory_pool_{};
 
 // =========================================================================
 
@@ -124,16 +111,6 @@ try
 GlR3rVertexInputImpl::~GlR3rVertexInputImpl()
 {
 	manager_.bind_default_vao();
-}
-
-void* GlR3rVertexInputImpl::operator new(size_t size)
-try {
-	return memory_pool_.allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void GlR3rVertexInputImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
 }
 
 void GlR3rVertexInputImpl::bind_vao()

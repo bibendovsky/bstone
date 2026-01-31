@@ -8,7 +8,6 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_vk_r3r_shader.h"
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_resource.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_vk_r3r_context.h"
 #include "bstone_vk_r3r_raii.h"
@@ -25,24 +24,14 @@ public:
 	VkR3rShaderImpl(VkR3rContext& context, const R3rShaderInitParam& param);
 	~VkR3rShaderImpl() override {}
 
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
-
 private:
 	R3rShaderType do_get_type() const noexcept override;
 	VkShaderModule do_get_vk_shader_module() const override;
 
-	using MemoryPool = FixedPoolResource<VkR3rShaderImpl, R3rLimits::max_shaders()>;
-
-	static MemoryPool memory_pool_;
 	VkR3rContext& context_;
 	R3rShaderType type_{};
 	VkR3rShaderModuleResource shader_{};
 };
-
-// --------------------------------------
-
-VkR3rShaderImpl::MemoryPool VkR3rShaderImpl::memory_pool_{};
 
 // --------------------------------------
 
@@ -64,16 +53,6 @@ VkR3rShaderImpl::VkR3rShaderImpl(VkR3rContext& context, const R3rShaderInitParam
 		context_.device.get(), &vk_shader_module_create_info, nullptr, &vk_shader_module);
 	VkR3rContext::ensure_success_vk_result(vk_result, "vkCreateShaderModule");
 	shader_.reset(vk_shader_module, VkR3rShaderModuleDeleter{context_});
-}
-
-void* VkR3rShaderImpl::operator new(std::size_t size)
-try {
-	return memory_pool_.allocate(static_cast<std::intptr_t>(size));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VkR3rShaderImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
 }
 
 R3rShaderType VkR3rShaderImpl::do_get_type() const noexcept

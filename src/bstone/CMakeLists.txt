@@ -375,8 +375,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_file_sdl.cpp
 	src/bstone_file_stream.cpp
 	src/bstone_file_stream.h
-	src/bstone_fixed_pool_resource.cpp
-	src/bstone_fixed_pool_resource.h
 	src/bstone_four_cc.cpp
 	src/bstone_four_cc.h
 	src/bstone_fs.h

@@ -8,7 +8,6 @@ SPDX-License-Identifier: MIT
 
 #include <stddef.h>
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_resource.h"
 #include "bstone_unique_resource.h"
 
 #include "bstone_r3r_limits.h"
@@ -33,9 +32,6 @@ public:
 	GlR3rSamplerImpl(const GlR3rSampler& rhs) = delete;
 	~GlR3rSamplerImpl() override {}
 
-	void* operator new(size_t size);
-	void operator delete(void* ptr);
-
 	void set() override;
 
 private:
@@ -44,17 +40,12 @@ private:
 	const R3rSamplerState& do_get_state() const noexcept override;
 
 private:
-	using MemoryPool = FixedPoolResource<GlR3rSamplerImpl, R3rLimits::max_samplers()>;
-
 	struct SamplerDeleter
 	{
 		void operator()(GLuint gl_name) noexcept;
 	};
 
 	using SamplerResource = bstone::UniqueResource<GLuint, SamplerDeleter>;
-
-private:
-	static MemoryPool memory_pool_;
 
 private:
 	GlR3rContext& context_;
@@ -74,10 +65,6 @@ private:
 
 	void set_initial_state();
 };
-
-// =========================================================================
-
-GlR3rSamplerImpl::MemoryPool GlR3rSamplerImpl::memory_pool_{};
 
 // =========================================================================
 
@@ -117,16 +104,6 @@ try
 
 	set_initial_state();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void* GlR3rSamplerImpl::operator new(size_t size)
-try {
-	return memory_pool_.allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void GlR3rSamplerImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 void GlR3rSamplerImpl::set()
 try {

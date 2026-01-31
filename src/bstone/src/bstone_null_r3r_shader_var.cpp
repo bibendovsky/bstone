@@ -10,7 +10,6 @@ SPDX-License-Identifier: MIT
 #include <stddef.h>
 #include <stdint.h>
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_resource.h"
 #include "bstone_r3r_limits.h"
 
 // ==========================================================================
@@ -28,9 +27,6 @@ public:
 		int index,
 		const char* name);
 	~NullR3rShaderVarImpl() override {}
-
-	void* operator new(size_t size);
-	void operator delete(void* ptr);
 
 private:
 	R3rShaderVarType do_get_type() const override;
@@ -51,17 +47,7 @@ private:
 	R3rShaderVarTypeId type_id_{};
 	int index_{};
 	std::string name_{};
-
-private:
-	using MemoryPool = FixedPoolResource<NullR3rShaderVarImpl, R3rLimits::max_shader_vars()>;
-
-private:
-	static MemoryPool memory_pool_;
 };
-
-// --------------------------------------------------------------------------
-
-NullR3rShaderVarImpl::MemoryPool NullR3rShaderVarImpl::memory_pool_;
 
 // --------------------------------------------------------------------------
 
@@ -76,16 +62,6 @@ NullR3rShaderVarImpl::NullR3rShaderVarImpl(
 	index_{index},
 	name_{name}
 {}
-
-void* NullR3rShaderVarImpl::operator new(size_t size)
-try {
-	return memory_pool_.allocate(static_cast<intptr_t>(size));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void NullR3rShaderVarImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 R3rShaderVarType NullR3rShaderVarImpl::do_get_type() const
 {

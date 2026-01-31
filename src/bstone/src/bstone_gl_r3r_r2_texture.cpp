@@ -8,7 +8,6 @@ SPDX-License-Identifier: MIT
 
 #include <stddef.h>
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_resource.h"
 #include "bstone_unique_resource.h"
 
 #include "bstone_r3r_limits.h"
@@ -34,9 +33,6 @@ public:
 	GlR3rR2TextureImpl(GlR3rContext& context, const R3rR2TextureInitParam& param);
 	~GlR3rR2TextureImpl() override {}
 
-	void* operator new(size_t size);
-	void operator delete(void* ptr);
-
 private:
 	void do_update(const R3rR2TextureUpdateParam& param) override;
 	void do_generate_mipmaps() override;
@@ -46,17 +42,12 @@ public:
 	void update_sampler_state(const R3rSamplerState& new_sampler_state) override;
 
 private:
-	using MemoryPool = FixedPoolResource<GlR3rR2TextureImpl, R3rLimits::max_textures()>;
-
 	struct TextureDeleter
 	{
 		void operator()(GLuint gl_name) noexcept;
 	};
 
 	using TextureResource = UniqueResource<GLuint, TextureDeleter>;
-
-private:
-	static MemoryPool memory_pool_;
 
 private:
 	GlR3rContext& context_;
@@ -96,10 +87,6 @@ private:
 
 	void set_sampler_state_defaults();
 };
-
-// =========================================================================
-
-GlR3rR2TextureImpl::MemoryPool GlR3rR2TextureImpl::memory_pool_{};
 
 // =========================================================================
 
@@ -240,16 +227,6 @@ try
 		}
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void* GlR3rR2TextureImpl::operator new(size_t size)
-try {
-	return memory_pool_.allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void GlR3rR2TextureImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 void GlR3rR2TextureImpl::do_update(const R3rR2TextureUpdateParam& param)
 try {

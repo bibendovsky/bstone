@@ -8,7 +8,6 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_vk_r3r_sampler.h"
 #include "bstone_exception.h"
-#include "bstone_fixed_pool_resource.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_vk_r3r_context.h"
 #include "bstone_vk_r3r_raii.h"
@@ -28,19 +27,12 @@ public:
 	VkR3rSamplerImpl(VkR3rContext& context, const R3rSamplerInitParam& param);
 	~VkR3rSamplerImpl() override {}
 
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
-
 private:
 	static const int min_anisotropy;
 
 	void do_update(const R3rSamplerUpdateParam& param) override;
 	const R3rSamplerState& do_get_state() const noexcept override;
 	VkSampler do_get_vk_sampler() const override;
-
-	using MemoryPool = FixedPoolResource<VkR3rSamplerImpl, R3rLimits::max_samplers()>;
-
-	static MemoryPool memory_pool_;
 
 	VkR3rContext& context_;
 	R3rSamplerState state_{};
@@ -56,7 +48,6 @@ private:
 // --------------------------------------
 
 const int VkR3rSamplerImpl::min_anisotropy = 1;
-VkR3rSamplerImpl::MemoryPool VkR3rSamplerImpl::memory_pool_{};
 
 // --------------------------------------
 
@@ -68,16 +59,6 @@ try
 {
 	update_internal();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void* VkR3rSamplerImpl::operator new(std::size_t size)
-try {
-	return memory_pool_.allocate(static_cast<std::intptr_t>(size));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VkR3rSamplerImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 void VkR3rSamplerImpl::do_update(const R3rSamplerUpdateParam& param)
 {

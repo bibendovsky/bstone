@@ -9,7 +9,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_null_r3r_buffer.h"
 #include <stddef.h>
 #include <stdint.h>
-#include "bstone_fixed_pool_resource.h"
+#include "bstone_exception.h"
 #include "bstone_r3r_limits.h"
 
 // ==========================================================================
@@ -24,21 +24,12 @@ public:
 	NullR3rBufferImpl(const R3rBufferInitParam& param);
 	~NullR3rBufferImpl() override {}
 
-	void* operator new(size_t size);
-	void operator delete(void* ptr);
-
 private:
 	R3rBufferType do_get_type() const noexcept override;
 	R3rBufferUsageType do_get_usage_type() const noexcept override;
 	int do_get_size() const noexcept override;
 
 	void do_update(const R3rUpdateBufferParam& param) override;
-
-private:
-	using MemoryPool = FixedPoolResource<NullR3rBufferImpl, R3rLimits::max_buffers()>;
-
-private:
-	static MemoryPool memory_pool_;
 
 private:
 	R3rBufferType type_{};
@@ -48,26 +39,12 @@ private:
 
 // --------------------------------------------------------------------------
 
-NullR3rBufferImpl::MemoryPool NullR3rBufferImpl::memory_pool_{};
-
-// --------------------------------------------------------------------------
-
 NullR3rBufferImpl::NullR3rBufferImpl(const R3rBufferInitParam& param)
 	:
 	type_{param.type},
 	usage_type_{param.usage_type},
 	size_{param.size}
 {}
-
-void* NullR3rBufferImpl::operator new(size_t size)
-try {
-	return memory_pool_.allocate(static_cast<intptr_t>(size));
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void NullR3rBufferImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 R3rBufferType NullR3rBufferImpl::do_get_type() const noexcept
 {
