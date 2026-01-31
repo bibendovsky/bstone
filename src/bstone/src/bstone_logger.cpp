@@ -24,7 +24,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_exception.h"
 #include "bstone_file_stream.h"
-#include "bstone_memory_resource.h"
 
 namespace bstone {
 
