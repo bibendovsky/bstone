@@ -14,7 +14,6 @@ SPDX-License-Identifier: MIT
 #include <unordered_map>
 
 #include "bstone_exception.h"
-#include "bstone_single_pool_resource.h"
 
 #include "bstone_r3r_tests.h"
 
@@ -36,9 +35,6 @@ public:
 	GlR3rExtensionMgrImpl(const sys::GlSymbolResolver& symbol_resolver);
 	~GlR3rExtensionMgrImpl() override {}
 
-	void* operator new(size_t size);
-	void operator delete(void* ptr);
-
 	int get_count() const noexcept override;
 	const std::string& get_name(int extension_index) const noexcept override;
 	const GlR3rVersion& get_gl_version() const noexcept override;
@@ -50,8 +46,6 @@ public:
 	bool operator[](GlR3rExtensionId extension_id) const noexcept override;
 
 private:
-	using MemoryPool = SinglePoolResource<GlR3rExtensionMgrImpl>;
-
 	using ExtensionNames = std::vector<std::string>;
 
 	using GlSymbol = void (*)();
@@ -69,9 +63,6 @@ private:
 	};
 
 	using Registry = std::vector<RegistryItem>;
-
-private:
-	static MemoryPool memory_pool_;
 
 private:
 	const sys::GlSymbolResolver& symbol_resolver_;
@@ -120,10 +111,6 @@ private:
 
 // ==========================================================================
 
-GlR3rExtensionMgrImpl::MemoryPool GlR3rExtensionMgrImpl::memory_pool_{};
-
-// ==========================================================================
-
 GlR3rExtensionMgrImpl::GlR3rExtensionMgrImpl(const sys::GlSymbolResolver& symbol_resolver)
 try
 	:
@@ -137,16 +124,6 @@ try
 
 	initialize_registry();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void* GlR3rExtensionMgrImpl::operator new(size_t size)
-try {
-	return memory_pool_.allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void GlR3rExtensionMgrImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 int GlR3rExtensionMgrImpl::get_count() const noexcept
 {

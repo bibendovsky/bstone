@@ -19,7 +19,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_logger.h"
-#include "bstone_single_pool_resource.h"
 #include "bstone_sw_video.h"
 #include "bstone_video.h"
 #include "bstone_video_cvars.h"
@@ -39,9 +38,6 @@ public:
 	SwVideo(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr);
 
 	~SwVideo() override;
-
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
 
 	bool is_hardware() const noexcept override;
 	std::string_view get_renderer_name() override;
@@ -177,11 +173,6 @@ private:
 
 // ==========================================================================
 
-using SwVideoPool = bstone::SinglePoolResource<SwVideo>;
-SwVideoPool sw_video_pool{};
-
-// ==========================================================================
-
 constexpr sys::Color SwVideo::opaque_black = sys::Color{
 	.r = 0,
 	.g = 0,
@@ -201,16 +192,6 @@ try
 SwVideo::~SwVideo()
 {
 	uninitialize_vga_buffer();
-}
-
-void* SwVideo::operator new(std::size_t size)
-try {
-	return sw_video_pool.allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void SwVideo::operator delete(void* ptr)
-{
-	sw_video_pool.deallocate(ptr);
 }
 
 bool SwVideo::is_hardware() const noexcept

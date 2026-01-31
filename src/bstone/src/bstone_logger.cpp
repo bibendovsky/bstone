@@ -25,7 +25,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_exception.h"
 #include "bstone_file_stream.h"
 #include "bstone_memory_resource.h"
-#include "bstone_single_pool_resource.h"
 
 namespace bstone {
 
@@ -242,9 +241,6 @@ public:
 	LoggerImpl(const LoggerOpenParam& param);
 	~LoggerImpl() override;
 
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr) noexcept;
-
 private:
 	static const std::string_view empty_sv;
 	static const std::string_view error_prefix_sv;
@@ -288,8 +284,6 @@ private:
 	void do_flush() noexcept override;
 
 private:
-	static MemoryResource& get_memory_resource();
-
 	void log_logger_current_exception() noexcept;
 	void try_open_file() noexcept;
 	void write_internal(LoggerMessageType message_type, std::string_view message_sv);
@@ -357,16 +351,6 @@ LoggerImpl::~LoggerImpl()
 	thread_.join();
 }
 
-void* LoggerImpl::operator new(std::size_t size)
-{
-	return get_memory_resource().allocate(size);
-}
-
-void LoggerImpl::operator delete(void* ptr) noexcept
-{
-	get_memory_resource().deallocate(ptr);
-}
-
 void LoggerImpl::do_log(LoggerMessageType message_type, std::string_view message_sv) noexcept
 {
 	try
@@ -389,12 +373,6 @@ void LoggerImpl::do_flush() noexcept
 	{
 		log_logger_current_exception();
 	}
-}
-
-MemoryResource& LoggerImpl::get_memory_resource()
-{
-	static SinglePoolResource<LoggerImpl> memory_resource{};
-	return memory_resource;
 }
 
 void LoggerImpl::log_logger_current_exception() noexcept

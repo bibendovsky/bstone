@@ -70,8 +70,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_memory_pool_bitmap.h
 		../../../bstone/src/bstone_sdl.cpp
 		../../../bstone/src/bstone_sdl.h
-		../../../bstone/src/bstone_single_pool_resource.cpp
-		../../../bstone/src/bstone_single_pool_resource.h
 		../../../bstone/src/bstone_file.cpp
 		../../../bstone/src/bstone_file.h
 		../../../bstone/src/bstone_file_sdl.cpp
@@ -120,7 +118,6 @@ target_sources(bstone_tests
 		src/bstone_tests_cgm_transform.cpp
 		src/bstone_tests_sha1.cpp
 		src/bstone_tests_memory_pool_bitmap.cpp
-		src/bstone_tests_single_pool_resource.cpp
 		src/bstone_tests_configurations.cpp
 		src/bstone_tests_file_stream.cpp
 		src/bstone_tests_memory_stream.cpp

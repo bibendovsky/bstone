@@ -21,7 +21,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_exception_utils.h"
-#include "bstone_single_pool_resource.h"
 
 #include "bstone_cgm_mat.h"
 #include "bstone_cgm_transform.h"
@@ -50,9 +49,6 @@ class HwVideo final : public Video
 public:
 	HwVideo();
 	~HwVideo() override;
-
-	void* operator new(std::size_t size);
-	void operator delete(void* ptr);
 
 	bool is_hardware() const noexcept override;
 	std::string_view get_renderer_name() override;
@@ -1489,11 +1485,6 @@ private:
 
 // ==========================================================================
 
-using HwVideoPool = SinglePoolResource<HwVideo>;
-HwVideoPool hw_video_pool{};
-
-// ==========================================================================
-
 HwVideo::HwVideo()
 try {
 	initialize_video();
@@ -1502,16 +1493,6 @@ try {
 HwVideo::~HwVideo()
 {
 	uninitialize_video();
-}
-
-void* HwVideo::operator new(std::size_t size)
-try {
-	return hw_video_pool.allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void HwVideo::operator delete(void* ptr)
-{
-	hw_video_pool.deallocate(ptr);
 }
 
 bool HwVideo::is_hardware() const noexcept

@@ -8,7 +8,6 @@ SPDX-License-Identifier: MIT
 
 #include <stddef.h>
 #include "bstone_exception.h"
-#include "bstone_single_pool_resource.h"
 
 #include "bstone_r3r_tests.h"
 
@@ -28,19 +27,10 @@ public:
 	GlR3rVertexInputMgrImpl(GlR3rContext& context);
 	~GlR3rVertexInputMgrImpl() override {}
 
-	void* operator new(size_t size);
-	void operator delete(void* ptr);
-
 	GlR3rContext& get_context() const noexcept override;
 	R3rVertexInputUPtr create(const R3rCreateVertexInputParam& param) override;
 	void set(R3rVertexInput& vertex_input) override;
 	void bind_default_vao() override;
-
-private:
-	using MemoryPool = SinglePoolResource<GlR3rVertexInputMgrImpl>;
-
-private:
-	static MemoryPool memory_pool_;
 
 private:
 	GlR3rContext& context_;
@@ -52,10 +42,6 @@ private:
 
 // ==========================================================================
 
-GlR3rVertexInputMgrImpl::MemoryPool GlR3rVertexInputMgrImpl::memory_pool_{};
-
-// ==========================================================================
-
 GlR3rVertexInputMgrImpl::GlR3rVertexInputMgrImpl(GlR3rContext& context)
 try
 	:
@@ -64,16 +50,6 @@ try
 {
 	initialize_default_vertex_input();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void* GlR3rVertexInputMgrImpl::operator new(size_t size)
-try {
-	return memory_pool_.allocate(size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void GlR3rVertexInputMgrImpl::operator delete(void* ptr)
-{
-	memory_pool_.deallocate(ptr);
-}
 
 GlR3rContext& GlR3rVertexInputMgrImpl::get_context() const noexcept
 {
