@@ -27,7 +27,6 @@ message(STATUS "[bstone] v${BSTONE_VERSION}")
 # Options.
 #
 option(BSTONE_USE_STATIC_LINKING "Link build statically." OFF)
-option(BSTONE_PANDORA "Build for Pandora." OFF)
 option(BSTONE_USE_PCH "Use precompiled headers if available." OFF)
 option(BSTONE_USE_MULTI_PROCESS_COMPILATION "Use multi-process compilation." ON)
 option(BSTONE_MORE_COMPILER_WARNINGS "Enables more compiler warnings." OFF)
@@ -177,13 +176,6 @@ target_compile_definitions(bstone
 		$<$<BOOL:${BSTONE_VULKAN_COMPILE_SHADERS}>:BSTONE_VULKAN_COMPILE_SHADERS>
 )
 
-if (BSTONE_PANDORA)
-	target_compile_definitions(bstone
-		PRIVATE
-			BSTONE_PANDORA
-	)
-endif ()
-
 #
 # Target compile options.
 #
@@ -210,20 +202,6 @@ if (MSVC)
 				-MP
 		)
 	endif ()
-endif ()
-
-if (BSTONE_PANDORA)
-	target_compile_options(bstone
-		PRIVATE
-			-fsigned-char
-			-fsigned-char
-			-mcpu=cortex-a8
-			-mfpu=neon
-			-mfloat-abi=softfp
-			-ffast-math
-			-fsingle-precision-constant
-			-fno-inline-functions
-	)
 endif ()
 
 #
@@ -266,21 +244,6 @@ target_link_libraries(bstone
 		bstone::vulkan
 )
 
-if (BSTONE_PANDORA)
-	target_link_libraries(bstone
-		PRIVATE
-			Xext
-			Xau
-			Xdmcp
-			X11
-			GLESv2
-			EGL
-			IMGegl
-			srv_um
-			ts
-	)
-endif ()
-
 #
 # Target include directories.
 #
@@ -292,13 +255,6 @@ target_include_directories(bstone
 		${PROJECT_BINARY_DIR}/src
 		$<$<BOOL:${BSTONE_VULKAN_COMPILE_SHADERS}>:${bstone_vulkan_shaders_output_dir}>
 )
-
-if (BSTONE_PANDORA)
-	target_include_directories(bstone
-		PRIVATE
-			$ENV{PNDSDK}
-	)
-endif ()
 
 if (BSTONE_USE_PCH AND NOT (${CMAKE_VERSION} VERSION_LESS "3.16.0"))
 	target_precompile_headers(bstone
