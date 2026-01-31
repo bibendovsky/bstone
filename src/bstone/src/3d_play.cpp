@@ -123,9 +123,6 @@ std::uint8_t lightson;
 //
 int controlx;
 int controly; // range from -100 to 100 per tic
-#ifdef __vita__
-int control2x; //left stick horizontal axis
-#endif
 ButtonState buttonstate;
 int strafe_value = 0;
 
@@ -613,17 +610,6 @@ void PollControls()
 	{
 		controly = min_control;
 	}
-#ifdef __vita__
-	if (control2x > max_control)
-	{
-		control2x = max_control;
-	}
-	else if (control2x < min_control)
-	{
-		control2x = min_control;
-	}
-#endif
-
 }
 
 

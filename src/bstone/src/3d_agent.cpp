@@ -524,29 +524,6 @@ void ControlMovement(
 	//
 	// side to side move
 	//
-#ifdef __vita__
-	if (control2x != 0)
-	{
-		if (control2x > 0)
-		{
-			int angle2 = ob->angle - ANGLES / 4;
-			if (angle2 < 0)
-			{
-				angle2 += ANGLES;
-			}
-			Thrust(static_cast<std::int16_t>(angle2), control2x * MOVESCALE); // move to left
-		}
-		else if (control2x < 0)
-		{
-			int angle2 = ob->angle + ANGLES / 4;
-			if (angle2 >= ANGLES)
-			{
-				angle2 -= ANGLES;
-			}
-			Thrust(static_cast<std::int16_t>(angle2), -control2x * MOVESCALE); // move to right
-		}
-	}
-#else
 	if (is_original_strafe || (is_modern_strafe && controly == 0))
 	{
 		const auto sign = (strafe_value > 0 ? 1 : -1);
@@ -554,7 +531,6 @@ void ControlMovement(
 
 		Thrust(static_cast<std::int16_t>(angle), -abs(strafe_value) * MOVESCALE);
 	}
-#endif
 
 	if (!is_original_strafe)
 	{

@@ -21,15 +21,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <cstdint>
 #include <bitset>
-// TODO
-#if 0
-#ifdef __vita__
-#include "SDL.h"
-void TranslateControllerEvent(SDL_Event *ev);
-void TranslateTouchEvent(SDL_Event *ev);
-void TranslateAnalogEvent(SDL_Event *ev);
-#endif
-#endif
 #include "bstone_ccmd_mgr.h"
 #include "bstone_cvar_mgr.h"
 #include "bstone_text_writer.h"
