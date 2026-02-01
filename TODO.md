@@ -14,3 +14,4 @@
 - HDR support.
 - Move "mouse relative mode" code to window.
 - Handle events inside TP_SlowPrint.
+- Use endianness for samples in audio extractor.

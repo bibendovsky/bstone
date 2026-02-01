@@ -74,8 +74,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_static_memory_stream.h
 		../../../bstone/src/bstone_static_ro_memory_stream.cpp
 		../../../bstone/src/bstone_static_ro_memory_stream.h
-		../../../bstone/src/bstone_binary_writer.cpp
-		../../../bstone/src/bstone_binary_writer.h
 		../../../bstone/src/bstone_crc32.cpp
 		../../../bstone/src/bstone_crc32.h
 		../../../bstone/src/bstone_shared_library_sdl.cpp
@@ -111,7 +109,6 @@ target_sources(bstone_tests
 		src/bstone_tests_memory_stream.cpp
 		src/bstone_tests_static_memory_stream.cpp
 		src/bstone_tests_static_ro_memory_stream.cpp
-		src/bstone_tests_binary_writer.cpp
 		src/bstone_tests_crc32.cpp
 		src/bstone_tests_win32_registry_key.cpp
 		src/bstone_tests_four_cc.cpp
