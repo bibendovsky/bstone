@@ -5,8 +5,6 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-#define SDL_MAIN_HANDLED
-
 #include <cmath>
 #include <cstdint>
 #include <algorithm>

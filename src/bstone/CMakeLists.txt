@@ -233,6 +233,7 @@ endif ()
 
 target_link_libraries(bstone
 	PRIVATE
+		$<$<AND:$<BOOL:${WIN32}>,$<BOOL:${MINGW}>>:-municode>
 		${CMAKE_DL_LIBS}
 		bstone::sdl
 		Threads::Threads
@@ -360,7 +361,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_crc32.h
 	src/bstone_endian.cpp
 	src/bstone_endian.h
-	src/bstone_entry_point.cpp
 	src/bstone_entry_point.h
 	src/bstone_enum_flags.h
 	src/bstone_exception.cpp
@@ -413,6 +413,7 @@ source_group("lib/misc" FILES ${BSTONE_LIB_MISC_SOURCES})
 set(BSTONE_LIB_MISC_SDL_SOURCES
 	src/bstone_sdl.cpp
 	src/bstone_sdl.h
+	src/bstone_entry_point_sdl.cpp
 	src/bstone_fs_sdl.cpp
 )
 
