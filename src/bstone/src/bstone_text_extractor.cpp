@@ -1,7 +1,7 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
@@ -9,14 +9,11 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "gfxv.h"
 #include "id_ca.h"
 #include "jm_lzh.h"
-#include "bstone_binary_reader.h"
-#include "bstone_endian.h"
 #include "bstone_exception.h"
 #include "bstone_fs_utils.h"
 #include "bstone_globals.h"
 #include "bstone_logger.h"
-#include "bstone_memory_stream.h"
-#include "bstone_static_ro_memory_stream.h"
+#include "bstone_memory_binary_reader.h"
 #include "bstone_text_extractor.h"
 
 namespace bstone {
@@ -121,22 +118,16 @@ void TextExtractor::initialize_text()
 
 CompHeader_t TextExtractor::deserialize_header(int number, const std::uint8_t* data)
 {
-	auto stream = StaticRoMemoryStream{data, CompHeader_t::class_size};
-	auto reader = BinaryReader{stream};
-	auto result = CompHeader_t{};
-
-	reader.get_stream().read_exactly(result.NameId, 4);
-	result.OriginalLen = endian::to_little(reader.read_u32());
-	result.CompType = static_cast<ct_TYPES>(endian::to_little(reader.read_u16()));
-	result.CompressLen = endian::to_little(reader.read_u32());
-
-	const auto four_cc = std::string{result.NameId, 4};
-
-	if (four_cc != JAMP)
+	MemoryBinaryReader reader{data, CompHeader_t::class_size};
+	CompHeader_t result;
+	reader.read(result.NameId, 4);
+	result.OriginalLen = reader.read_u32_le();
+	result.CompType = static_cast<ct_TYPES>(reader.read_u16_le());
+	result.CompressLen = reader.read_u32_le();
+	if (!std::equal(result.NameId, result.NameId + 4, JAMP))
 	{
 		fail(number, "Unsupported FOURCC.");
 	}
-
 	return result;
 }
 
