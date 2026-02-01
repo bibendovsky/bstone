@@ -12,7 +12,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <algorithm>
 #include "bstone_adlib_decoder.h"
 #include "bstone_audio_decoder.h"
-#include "bstone_endian.h"
 #include "bstone_memory_binary_reader.h"
 #include "bstone_opl3.h"
 
@@ -100,15 +99,17 @@ bool AdlibSfxDecoder::initialize(const AudioDecoderInitParam& param)
 
 	emulator_->initialize(param.dst_rate_);
 	adlib::initialize_registers(emulator_.get());
-	static_cast<void>(reader_.open(param.src_raw_data_, param.src_raw_size_));
-	const auto sfx_length = static_cast<int>(bstone::endian::to_little(reader_.read_s32()));
-
+	reader_ = MemoryBinaryReader{param.src_raw_data_, param.src_raw_size_};
+	if (!reader_.can_read_x32())
+	{
+		return false;
+	}
+	const int sfx_length = reader_.read_s32_le();
 	if (sfx_length <= 0)
 	{
 		return false;
 	}
-
-	if ((sfx_length + get_header_size()) >= param.src_raw_size_)
+	if (!reader_.can_read_n(get_header_size() + sfx_length))
 	{
 		return false;
 	}
@@ -241,7 +242,7 @@ int AdlibSfxDecoder::decode(int dst_count, std::int16_t* dst_data)
 
 void AdlibSfxDecoder::uninitialize_internal()
 {
-	reader_.close();
+	reader_ = MemoryBinaryReader{};
 	instrument_ = {};
 	commands_count_ = {};
 	command_index_ = {};
