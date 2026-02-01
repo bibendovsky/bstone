@@ -12,7 +12,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <algorithm>
 #include "bstone_adlib_decoder.h"
 #include "bstone_audio_decoder.h"
-#include "bstone_endian.h"
 #include "bstone_memory_binary_reader.h"
 #include "bstone_opl3.h"
 
@@ -95,19 +94,20 @@ bool AdlibMusicDecoder::initialize(const AudioDecoderInitParam& param)
 	}
 
 	emulator_->initialize(param.dst_rate_);
-	static_cast<void>(reader_.open(param.src_raw_data_, param.src_raw_size_));
-	const auto commands_size = static_cast<int>(bstone::endian::to_little(reader_.read_u16()));
-
+	reader_ = MemoryBinaryReader{param.src_raw_data_, param.src_raw_size_};
+	if (!reader_.can_read_x16())
+	{
+		return false;
+	}
+	const int commands_size = reader_.read_u16_le();
+	if (!reader_.can_read_n(commands_size))
+	{
+		return false;
+	}
 	if ((commands_size % 4) != 0)
 	{
 		return false;
 	}
-
-	if ((commands_size + 2) > param.src_raw_size_)
-	{
-		return false;
-	}
-
 	command_index_ = 0;
 	commands_count_ = commands_size / 4;
 	samples_per_tick_ = 0;
@@ -118,7 +118,7 @@ bool AdlibMusicDecoder::initialize(const AudioDecoderInitParam& param)
 	for (int i = 0; i < commands_count_; ++i)
 	{
 		reader_.skip(2);
-		ticks_count += bstone::endian::to_little(reader_.read_u16());
+		ticks_count += reader_.read_u16_le();
 	}
 
 	dst_length_in_samples_ = static_cast<int>(static_cast<long long>(ticks_count) * emulator_->get_sample_rate() / get_tick_rate());
@@ -201,9 +201,9 @@ int AdlibMusicDecoder::decode(int dst_count, std::int16_t* dst_data)
 
 			while (command_index_ < commands_count_ && delay == 0)
 			{
-				const auto command_port = static_cast<int>(reader_.read_u8());
-				const auto command_value = static_cast<int>(reader_.read_u8());
-				delay = bstone::endian::to_little(reader_.read_u16());
+				const int command_port = reader_.read_u8();
+				const int command_value = reader_.read_u8();
+				delay = reader_.read_u16_le();
 				emulator_->write_buffered(command_port, command_value);
 				++command_index_;
 			}
@@ -236,7 +236,7 @@ void AdlibMusicDecoder::uninitialize_internal()
 	}
 
 	is_initialized_ = {};
-	reader_.close();
+	reader_ = MemoryBinaryReader{};
 	commands_count_ = {};
 	command_index_ = {};
 	samples_per_tick_ = {};
