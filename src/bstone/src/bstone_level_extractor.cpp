@@ -11,10 +11,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "id_ca.h"
 
-#include "bstone_fs.h"
 #include "bstone_fs_utils.h"
 #include "bstone_globals.h"
 #include "bstone_sys_file.h"
+#include "bstone_sys_fs.h"
 
 namespace bstone {
 
@@ -26,7 +26,7 @@ void LevelExtractor::extract_levels(const std::string& destination_dir)
 	globals::logger->log_information(("Destination dir: \"" + destination_dir + "\"").c_str());
 
 	const std::string normalized_destination_dir = fs_utils::normalize_path(destination_dir);
-	fs::create_directories(normalized_destination_dir.c_str());
+	sys::create_directories(normalized_destination_dir.c_str());
 
 	std::uint16_t plane_buffer[MAPSIZE * MAPSIZE];
 
@@ -98,8 +98,8 @@ void LevelExtractor::extract_levels(const std::string& destination_dir)
 			}
 		}
 
-		fs::remove_if_exists(dst_file_path.c_str());
-		fs::rename(tmp_file_path.c_str(), dst_file_path.c_str());
+		sys::remove_path_if_exists(dst_file_path.c_str());
+		sys::rename_path(tmp_file_path.c_str(), dst_file_path.c_str());
 		++level_counter;
 	}
 
