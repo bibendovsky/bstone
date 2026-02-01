@@ -37,7 +37,6 @@ loaded into the data segment
 #include "bstone_audio_extractor.h"
 #include "bstone_endian.h"
 #include "bstone_exception.h"
-#include "bstone_fs.h"
 #include "bstone_fs_utils.h"
 #include "bstone_globals.h"
 #include "bstone_image_extractor.h"
@@ -49,6 +48,7 @@ loaded into the data segment
 #include "bstone_sprite_cache.h"
 #include "bstone_string_helper.h"
 #include "bstone_text_extractor.h"
+#include "bstone_sys_fs.h"
 
 #include "bstone_opl3.h"
 #include "bstone_audio_decoder.h"
@@ -1752,7 +1752,7 @@ void ca_extract_music(
 	auto audio_extractor = bstone::make_audio_extractor(*audio_content_mgr);
 
 	const auto normalized_dst_dir = bstone::fs_utils::normalize_path(destination_dir);
-	bstone::fs::create_directories(normalized_dst_dir.c_str());
+	bstone::sys::create_directories(normalized_dst_dir.c_str());
 	audio_extractor->extract_music(normalized_dst_dir);
 
 	bstone::globals::logger->log_information(">>> ================");
@@ -1770,7 +1770,7 @@ void ca_extract_sfx(
 	auto audio_extractor = bstone::make_audio_extractor(*audio_content_mgr);
 
 	const auto normalized_dst_dir = bstone::fs_utils::normalize_path(destination_dir);
-	bstone::fs::create_directories(normalized_dst_dir.c_str());
+	bstone::sys::create_directories(normalized_dst_dir.c_str());
 	audio_extractor->extract_sfx(normalized_dst_dir);
 
 	bstone::globals::logger->log_information(">>> ================");
@@ -1786,7 +1786,7 @@ void ca_extract_texts(
 
 	auto text_extractor = bstone::TextExtractor{};
 	const std::string normalized_destination_dir = bstone::fs_utils::normalize_path(destination_dir);
-	bstone::fs::create_directories(normalized_destination_dir.c_str());
+	bstone::sys::create_directories(normalized_destination_dir.c_str());
 	text_extractor.extract_text(normalized_destination_dir);
 
 	bstone::globals::logger->log_information(">>> ================");

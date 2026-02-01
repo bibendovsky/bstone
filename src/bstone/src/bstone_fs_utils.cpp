@@ -7,8 +7,8 @@ SPDX-License-Identifier: MIT
 // File system utils.
 
 #include "bstone_exception.h"
-#include "bstone_fs.h"
 #include "bstone_fs_utils.h"
+#include "bstone_sys_fs.h"
 
 namespace bstone {
 namespace fs_utils {
@@ -19,9 +19,9 @@ std::string normalize_path(const std::string& path)
 
 	for (auto& ch : result)
 	{
-		if ((ch == '/' || ch == '\\') && ch != fs::native_separator)
+		if ((ch == '/' || ch == '\\') && ch != sys::native_separator)
 		{
-			ch = fs::native_separator;
+			ch = sys::native_separator;
 		}
 	}
 
@@ -32,9 +32,9 @@ std::string append_path_separator(const std::string& path)
 {
 	auto result = path;
 
-	if (!result.empty() && result.back() != fs::native_separator)
+	if (!result.empty() && result.back() != sys::native_separator)
 	{
-		result += fs::native_separator;
+		result += sys::native_separator;
 	}
 
 	return result;
@@ -61,9 +61,9 @@ std::string append_path(const std::string& path, const std::string& sub_path)
 		result.reserve(path.size() + sub_path.size() + 1);
 		result.assign(path);
 
-		if (result.back() != fs::native_separator)
+		if (result.back() != sys::native_separator)
 		{
-			result += fs::native_separator;
+			result += sys::native_separator;
 		}
 
 		result += sub_path;
@@ -104,15 +104,15 @@ std::string get_working_dir()
 	constexpr auto max_path_size = 4096;
 	auto working_directory = std::string{};
 	working_directory.resize(max_path_size);
-	const auto path_size = fs::get_working_directory(&working_directory.front(), max_path_size);
+	const auto path_size = sys::get_working_directory(&working_directory.front(), max_path_size);
 	working_directory.resize(path_size);
 	return working_directory;
 }
 
 void rename_with_overwrite(const std::string& old_path, const std::string& new_path)
 {
-	fs::remove_if_exists(new_path.c_str());
-	fs::rename(old_path.c_str(), new_path.c_str());
+	sys::remove_path_if_exists(new_path.c_str());
+	sys::rename_path(old_path.c_str(), new_path.c_str());
 }
 
 } // fs_utils

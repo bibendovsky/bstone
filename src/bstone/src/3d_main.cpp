@@ -31,7 +31,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_exception.h"
 #include "bstone_exception_utils.h"
 #include "bstone_four_cc.h"
-#include "bstone_fs.h"
 #include "bstone_fs_utils.h"
 #include "bstone_globals.h"
 #include "bstone_logger.h"
@@ -42,6 +41,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_saved_game.h"
 #include "bstone_scope_exit.h"
 #include "bstone_sha1.h"
+#include "bstone_sys_fs.h"
 #include "bstone_sys_message_box.h"
 #include "bstone_sys_special_path.h"
 #include "bstone_sys_time.h"
@@ -10011,7 +10011,7 @@ int main(
 		bstone::globals::logger->log_error(error_message.c_str());
 		bstone::globals::logger->flush();
 
-		const auto has_log_file = bstone::fs::is_regular_file_exists(log_file_path.c_str());
+		const auto has_log_file = bstone::sys::is_regular_file_exists(log_file_path.c_str());
 
 		try
 		{
