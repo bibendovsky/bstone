@@ -1,227 +1,94 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-
-//
-// A binary reader for a block of memory.
-//
-
-
 #include "bstone_memory_binary_reader.h"
-
-#include <algorithm>
-#include <memory>
-
+#include "bstone_assert.h"
 #include "bstone_endian.h"
+#include <algorithm>
 
+namespace bstone {
 
-namespace bstone
-{
-
-
-MemoryBinaryReader::MemoryBinaryReader()
+MemoryBinaryReader::MemoryBinaryReader(const void* data, int size)
 	:
-	data_{},
-	data_size_{},
-	data_offset_{}
+	data_{static_cast<const std::uint8_t*>(data)},
+	size_{size}
+{}
+
+void MemoryBinaryReader::set_position(int position)
 {
+	position_ = std::clamp(position, 0, size_);
 }
 
-MemoryBinaryReader::MemoryBinaryReader(
-	const void* data,
-	const std::int64_t data_size)
+void MemoryBinaryReader::skip(int count)
 {
-	static_cast<void>(open(data, data_size));
+	set_position(position_ + count);
 }
 
-bool MemoryBinaryReader::is_initialized() const
+bool MemoryBinaryReader::can_read_n(int count) const
 {
-	return data_ != nullptr;
+	return size_ - position_ >= count;
 }
 
-bool MemoryBinaryReader::open(
-	const void* data,
-	const std::int64_t data_size)
+bool MemoryBinaryReader::can_read_x8() const
 {
-	close();
-
-	if (!data)
-	{
-		return false;
-	}
-
-	if (data_size <= 0)
-	{
-		return false;
-	}
-
-	data_ = static_cast<const std::uint8_t*>(data);
-	data_size_ = data_size;
-	data_offset_ = 0;
-
-	return true;
+	return can_read_n(1);
 }
 
-void MemoryBinaryReader::close()
+bool MemoryBinaryReader::can_read_x16() const
 {
-	data_ = nullptr;
-	data_size_ = 0;
-	data_offset_ = 0;
+	return can_read_n(2);
+}
+
+bool MemoryBinaryReader::can_read_x32() const
+{
+	return can_read_n(4);
 }
 
 std::int8_t MemoryBinaryReader::read_s8()
 {
-	return read<std::int8_t>();
+	return static_cast<std::int8_t>(read_u8());
 }
 
 std::uint8_t MemoryBinaryReader::read_u8()
 {
-	return read<std::uint8_t>();
+	BSTONE_ASSERT(can_read_x8());
+	return static_cast<std::uint8_t>(data_[position_++]);
 }
 
-std::int16_t MemoryBinaryReader::read_s16()
+std::int16_t MemoryBinaryReader::read_s16_le()
 {
-	return read<std::int16_t>();
+	return static_cast<std::int16_t>(read_u16_le());
 }
 
-std::uint16_t MemoryBinaryReader::read_u16()
+std::uint16_t MemoryBinaryReader::read_u16_le()
 {
-	return read<std::uint16_t>();
+	BSTONE_ASSERT(can_read_x16());
+	const std::uint16_t value = endian::read_u16_le(data_ + position_);
+	position_ += 2;
+	return value;
 }
 
-std::int32_t MemoryBinaryReader::read_s32()
+std::int32_t MemoryBinaryReader::read_s32_le()
 {
-	return read<std::int32_t>();
+	return static_cast<std::int32_t>(read_u32_le());
 }
 
-std::uint32_t MemoryBinaryReader::read_u32()
+std::uint32_t MemoryBinaryReader::read_u32_le()
 {
-	return read<std::uint32_t>();
+	BSTONE_ASSERT(can_read_x32());
+	const std::uint32_t value = endian::read_u32_le(data_ + position_);
+	position_ += 4;
+	return value;
 }
 
-std::int64_t MemoryBinaryReader::read_s64()
+void MemoryBinaryReader::read(void* buffer, int size)
 {
-	return read<std::int64_t>();
+	BSTONE_ASSERT(can_read_n(size));
+	std::copy_n(data_ + position_, size, static_cast<std::uint8_t*>(buffer));
+	position_ += size;
 }
 
-std::uint64_t MemoryBinaryReader::read_u64()
-{
-	return read<std::uint64_t>();
-}
-
-float MemoryBinaryReader::read_r32()
-{
-	return read<float>();
-}
-
-double MemoryBinaryReader::read_r64()
-{
-	return read<double>();
-}
-
-std::string MemoryBinaryReader::read_string()
-{
-	auto length = bstone::endian::to_little(read_s32());
-
-	if (length == 0)
-	{
-		return {};
-	}
-
-	std::string string(length, '\0');
-
-	if (length > 0)
-	{
-		if (!read(&string[0], length))
-		{
-			return {};
-		}
-	}
-
-	return string;
-}
-
-bool MemoryBinaryReader::read(
-	void* buffer,
-	const int count)
-{
-	if (!buffer)
-	{
-		return false;
-	}
-
-	if (count <= 0)
-	{
-		return true;
-	}
-
-	if (!is_initialized())
-	{
-		return false;
-	}
-
-	if (data_offset_ < 0)
-	{
-		return false;
-	}
-
-	if ((data_offset_ + count) >= data_size_)
-	{
-		return false;
-	}
-
-	std::copy_n(&data_[data_offset_], count, static_cast<std::uint8_t*>(buffer));
-
-	data_offset_ += count;
-
-	return true;
-}
-
-bool MemoryBinaryReader::skip(
-	const std::int64_t count)
-{
-	if (!is_initialized())
-	{
-		return false;
-	}
-
-	auto new_offset = data_offset_ + count;
-
-	if (new_offset < 0)
-	{
-		return false;
-	}
-
-	data_offset_ = new_offset;
-
-	return true;
-}
-
-std::int64_t MemoryBinaryReader::get_position() const
-{
-	return data_offset_;
-}
-
-bool MemoryBinaryReader::set_position(
-	const std::int64_t position)
-{
-	if (!is_initialized())
-	{
-		return false;
-	}
-
-	if (position < 0)
-	{
-		return false;
-	}
-
-	data_offset_ = position;
-
-	return true;
-}
-
-
-} // bstone
+} // namespace bstone
