@@ -345,8 +345,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_ascii.h
 	src/bstone_assert.cpp
 	src/bstone_assert.h
-	src/bstone_binary_writer.cpp
-	src/bstone_binary_writer.h
 	src/bstone_cgm_mat.cpp
 	src/bstone_cgm_mat.h
 	src/bstone_cgm_transform.cpp
@@ -374,6 +372,8 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_fs.h
 	src/bstone_memory_binary_reader.cpp
 	src/bstone_memory_binary_reader.h
+	src/bstone_memory_binary_writer.cpp
+	src/bstone_memory_binary_writer.h
 	src/bstone_memory_stream.cpp
 	src/bstone_memory_stream.h
 	src/bstone_platform.h

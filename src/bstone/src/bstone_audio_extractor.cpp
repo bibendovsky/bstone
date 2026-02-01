@@ -16,12 +16,11 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_assert.h"
 #include "bstone_audio_decoder.h"
 #include "bstone_audio_extractor.h"
-#include "bstone_binary_writer.h"
-#include "bstone_endian.h"
 #include "bstone_exception.h"
 #include "bstone_fs_utils.h"
 #include "bstone_globals.h"
 #include "bstone_logger.h"
+#include "bstone_memory_binary_writer.h"
 #include "bstone_sha1.h"
 #include "bstone_string_helper.h"
 
@@ -116,31 +115,34 @@ void AudioExtractorImpl::extract_sfx(const std::string& dst_dir)
 
 bool AudioExtractorImpl::write_wav_header(int data_size, int bit_depth, int sample_rate, bstone::Stream& stream)
 {
-	const auto aligned_data_size = ((data_size + 1) / 2) * 2;
-	const auto wav_size = aligned_data_size + wav_prefix_size;
-	const auto audio_format = 1; // PCM
-	const auto channel_count = 1;
-	const auto byte_depth = bit_depth / 8;
-	const auto byte_rate = sample_rate * channel_count * byte_depth;
-	const auto block_align = channel_count * byte_depth;
-	auto writer = bstone::BinaryWriter{stream};
-	auto result = true;
-	writer.write_u32(bstone::endian::to_big(0x52494646)); // "RIFF"
-	// riff_chunk_size = = "file size" - "chunk id" + "chunk size".
-	const auto riff_chunk_size = static_cast<std::uint32_t>(wav_size - 4 - 4);
-	writer.write_u32(bstone::endian::to_little(riff_chunk_size)); // Chunk size.
-	writer.write_u32(bstone::endian::to_big(0x57415645)); // "WAVE"
-	writer.write_u32(bstone::endian::to_big(0x666D7420)); // "fmt "
-	writer.write_u32(bstone::endian::to_little(16)); // Format size.
-	writer.write_u16(bstone::endian::to_little(static_cast<std::uint16_t>(audio_format))); // Audio format.
-	writer.write_u16(bstone::endian::to_little(static_cast<std::uint16_t>(channel_count))); // Channel count.
-	writer.write_u32(bstone::endian::to_little(sample_rate)); // Sample rate.
-	writer.write_u32(bstone::endian::to_little(static_cast<std::uint32_t>(byte_rate))); // Byte rate.
-	writer.write_u16(bstone::endian::to_little(static_cast<std::uint16_t>(block_align))); // Block align.
-	writer.write_u16(bstone::endian::to_little(static_cast<std::uint16_t>(bit_depth))); // Bits per sample.
-	writer.write_u32(bstone::endian::to_big(0x64617461)); // "data"
-	writer.write_u32(bstone::endian::to_little(static_cast<std::uint32_t>(data_size))); // Data size.
-	return result;
+	const int aligned_data_size = ((data_size + 1) / 2) * 2;
+	const int wav_size = aligned_data_size + wav_prefix_size;
+	const int riff_chunk_size = wav_size - (4 + 4); // file_size - chunk_header_size
+	const int audio_format = 1; // PCM
+	const int channel_count = 1;
+	const int byte_depth = bit_depth / 8;
+	const int byte_rate = sample_rate * channel_count * byte_depth;
+	const int block_align = channel_count * byte_depth;
+	constexpr const char* riff_fourcc = "RIFF";
+	constexpr const char* wave_fourcc = "WAVE";
+	constexpr const char* fmt0x20_fourcc = "fmt ";
+	constexpr const char* data_fourcc = "data";
+	unsigned char wav_prefix[wav_prefix_size];
+	MemoryBinaryWriter writer{wav_prefix, wav_prefix_size};
+	writer.write(riff_fourcc, 4); // "RIFF"
+	writer.write_u32_le(static_cast<unsigned int>(riff_chunk_size)); // Chunk size.
+	writer.write(wave_fourcc, 4); // "WAVE"
+	writer.write(fmt0x20_fourcc, 4); // "fmt "
+	writer.write_u32_le(16); // Format size.
+	writer.write_u16_le(static_cast<unsigned short>(audio_format)); // Audio format.
+	writer.write_u16_le(static_cast<unsigned short>(channel_count)); // Channel count.
+	writer.write_u32_le(static_cast<unsigned int>(sample_rate)); // Sample rate.
+	writer.write_u32_le(static_cast<unsigned int>(byte_rate)); // Byte rate.
+	writer.write_u16_le(static_cast<unsigned short>(block_align)); // Block align.
+	writer.write_u16_le(static_cast<unsigned short>(bit_depth)); // Bits per sample.
+	writer.write(data_fourcc, 4); // "data"
+	writer.write_u32_le(static_cast<unsigned int>(data_size)); // Data size.
+	return stream.write(wav_prefix, wav_prefix_size) == wav_prefix_size;
 }
 
 void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio_chunk, bstone::Stream& stream, Opl3Type opl3_type)
