@@ -35,7 +35,6 @@ loaded into the data segment
 
 #include "bstone_audio_content_mgr.h"
 #include "bstone_audio_extractor.h"
-#include "bstone_binary_writer.h"
 #include "bstone_endian.h"
 #include "bstone_exception.h"
 #include "bstone_fs.h"
