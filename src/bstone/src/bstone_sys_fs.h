@@ -6,35 +6,33 @@ SPDX-License-Identifier: MIT
 
 // File system management
 
-#ifndef BSTONE_FS_INCLUDED
-#define BSTONE_FS_INCLUDED
+#ifndef BSTONE_SYS_FS_INCLUDED
+#define BSTONE_SYS_FS_INCLUDED
 
-#include <cstdint>
-
-namespace bstone::fs {
+namespace bstone::sys {
 
 constexpr char native_separator =
-#if defined(_WIN32)
+#ifdef _WIN32
 	'\\'
 #else
 	'/'
 #endif
 ;
 
-// ======================================
+// =====================================
 
-std::intptr_t get_working_directory(char* buffer, std::intptr_t buffer_size);
+int get_working_directory(char* buffer, int buffer_size);
 
 void create_directories(const char* path);
 
-void rename(const char* old_path, const char* new_path);
+void rename_path(const char* old_path, const char* new_path);
 
-void remove_if_exists(const char* path);
-void remove(const char* path);
+void remove_path_if_exists(const char* path);
+void remove_path(const char* path);
 
 bool is_directory_exists(const char* path);
 bool is_regular_file_exists(const char* path);
 
-} // namespace bstone::fs
+} // namespace bstone::sys
 
-#endif // BSTONE_FS_INCLUDED
+#endif // BSTONE_SYS_FS_INCLUDED

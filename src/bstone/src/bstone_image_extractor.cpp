@@ -9,11 +9,11 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_image_extractor.h"
 #include "bstone_exception.h"
-#include "bstone_fs.h"
 #include "bstone_fs_utils.h"
 #include "bstone_globals.h"
 #include "bstone_image_encoder.h"
 #include "bstone_sprite_cache.h"
+#include "bstone_sys_fs.h"
 #include "id_ca.h"
 #include "id_vh.h"
 #include <cstdint>
@@ -104,7 +104,7 @@ void ImageExtractorImpl::do_extract_vga_palette(const std::string& destination_d
 	logger_.log_information("Extracting VGA palette.");
 	logger_.log_information(std::format("Destination dir: {}", destination_dir).c_str());
 	dst_directory_ = fs_utils::normalize_path(destination_dir);
-	fs::create_directories(dst_directory_.c_str());
+	sys::create_directories(dst_directory_.c_str());
 	impl_extract_palette();
 	logger_.log_information("VGA palette has extracted.");
 }
@@ -117,7 +117,7 @@ void ImageExtractorImpl::do_extract_walls(const std::string& destination_dir)
 	logger_.log_information(std::format("Destination dir: {}", destination_dir).c_str());
 	logger_.log_information(std::format("Wall count: {}", wall_count).c_str());
 	dst_directory_ = fs_utils::normalize_path(destination_dir);
-	fs::create_directories(dst_directory_.c_str());
+	sys::create_directories(dst_directory_.c_str());
 	for (int i = 0; i < wall_count; ++i)
 	{
 		impl_extract_wall(i);
@@ -133,7 +133,7 @@ void ImageExtractorImpl::do_extract_sprites(const std::string& destination_dir)
 	logger_.log_information(std::format("Destination dir: {}", destination_dir).c_str());
 	logger_.log_information(std::format("File count: {}", sprite_count).c_str());
 	dst_directory_ = fs_utils::normalize_path(destination_dir);
-	fs::create_directories(dst_directory_.c_str());
+	sys::create_directories(dst_directory_.c_str());
 	for (int i = 1; i < sprite_count; ++i)
 	{
 		impl_extract_sprite(i);

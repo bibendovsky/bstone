@@ -6,26 +6,18 @@ SPDX-License-Identifier: MIT
 
 // File system management (SDL)
 
-#include "bstone_fs.h"
+#include "bstone_sys_fs.h"
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"
 #include "bstone_sdl.h"
-#include <string>
+#include <algorithm>
 #include "SDL3/SDL_filesystem.h"
 
-namespace bstone::fs {
+namespace bstone::sys {
 
-std::intptr_t get_working_directory(char* buffer, std::intptr_t buffer_size)
+int get_working_directory(char* buffer, int buffer_size)
 try
 {
-	if (buffer == nullptr)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Null buffer.");
-	}
-	if (buffer_size < 0)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Invalid buffer size.");
-	}
 	char* const sdl_directoy = SDL_GetCurrentDirectory();
 	if (sdl_directoy == nullptr)
 	{
@@ -36,12 +28,12 @@ try
 		{
 			SDL_free(sdl_directoy);
 		});
-	const std::size_t sdl_directoy_length = std::string::traits_type::length(sdl_directoy);
+	const std::size_t sdl_directoy_length = SDL_strlen(sdl_directoy);
 	if (static_cast<std::size_t>(buffer_size) < sdl_directoy_length)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Buffer too small.");
 	}
-	std::string::traits_type::copy(buffer, sdl_directoy, sdl_directoy_length);
+	std::copy_n(sdl_directoy, sdl_directoy_length, buffer);
 	return sdl_directoy_length;
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -56,7 +48,7 @@ try
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void rename(const char* old_path, const char* new_path)
+void rename_path(const char* old_path, const char* new_path)
 try
 {
 	if (!SDL_RenamePath(old_path, new_path))
@@ -66,7 +58,7 @@ try
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void remove_if_exists(const char* path)
+void remove_path_if_exists(const char* path)
 try
 {
 	if (!SDL_GetPathInfo(path, nullptr))
@@ -80,7 +72,7 @@ try
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void remove(const char* path)
+void remove_path(const char* path)
 try
 {
 	if (!SDL_RemovePath(path))
@@ -91,27 +83,23 @@ try
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool is_directory_exists(const char* path)
-try
 {
-	SDL_PathInfo sdl_path_info;
-	if (!SDL_GetPathInfo(path, &sdl_path_info))
+	if (SDL_PathInfo sdl_path_info;
+		SDL_GetPathInfo(path, &sdl_path_info))
 	{
-		return false;
+		return sdl_path_info.type == SDL_PATHTYPE_DIRECTORY;
 	}
-	return sdl_path_info.type == SDL_PATHTYPE_DIRECTORY;
+	return false;
 }
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool is_regular_file_exists(const char* path)
-try
 {
-	SDL_PathInfo sdl_path_info;
-	if (!SDL_GetPathInfo(path, &sdl_path_info))
+	if (SDL_PathInfo sdl_path_info;
+		SDL_GetPathInfo(path, &sdl_path_info))
 	{
-		return false;
+		return sdl_path_info.type == SDL_PATHTYPE_FILE;
 	}
-	return sdl_path_info.type == SDL_PATHTYPE_FILE;
+	return false;
 }
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-} // namespace bstone::fs
+} // namespace bstone::sys
