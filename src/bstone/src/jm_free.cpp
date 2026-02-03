@@ -1157,7 +1157,7 @@ void PreDemo()
 
 	// Show JAM logo
 	//
-	if (!DoMovie(MovieId::intro))
+	if (!DoMovie(bstone::MovieId::intro))
 	{
 		BSTONE_THROW_STATIC_SOURCE("JAM animation (IANIM.xxx) does not exist.");
 	}
