@@ -1755,7 +1755,7 @@ try {
 HwTextureMgrImpl::R2TextureItem HwTextureMgrImpl::wall_create_texture(
 	const int wall_id)
 try {
-	const auto indexed_pixels = bstone::globals::page_mgr->get(wall_id);
+	const auto indexed_pixels = bstone::globals::vswap->get_wall_data(wall_id);
 
 	if (!indexed_pixels)
 	{

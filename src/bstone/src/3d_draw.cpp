@@ -71,7 +71,7 @@ struct star_t
 
 int door_get_page_base_index()
 {
-	return bstone::globals::page_mgr->get_wall_count() - NUMDOORTYPES;
+	return bstone::globals::vswap->get_wall_count() - NUMDOORTYPES;
 }
 
 constexpr auto ACTORSIZE = bstone::math::fixed_to_floating(0x4000);
@@ -504,7 +504,7 @@ void HitVertWall()
 			wallpic = vertwall[tilehit];
 		}
 
-		last_texture_data = bstone::globals::page_mgr->get(wallpic);
+		last_texture_data = bstone::globals::vswap->get_wall_data(wallpic);
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
@@ -579,7 +579,7 @@ void HitHorizWall()
 			wallpic = horizwall[tilehit];
 		}
 
-		last_texture_data = bstone::globals::page_mgr->get(wallpic);
+		last_texture_data = bstone::globals::vswap->get_wall_data(wallpic);
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
@@ -759,7 +759,7 @@ void HitHorizDoor()
 
 		const auto doorpage = get_door_page_number(door_index, false);
 
-		last_texture_data = bstone::globals::page_mgr->get(doorpage);
+		last_texture_data = bstone::globals::vswap->get_wall_data(doorpage);
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
@@ -842,7 +842,7 @@ void HitVertDoor()
 
 		const auto doorpage = get_door_page_number(door_index, true);
 
-		last_texture_data = bstone::globals::page_mgr->get(doorpage);
+		last_texture_data = bstone::globals::vswap->get_wall_data(doorpage);
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
@@ -891,7 +891,7 @@ void HitHorizPWall()
 		postx = pixx;
 
 		const auto wallpic = horizwall[tilehit & 63];
-		last_texture_data = bstone::globals::page_mgr->get(wallpic);
+		last_texture_data = bstone::globals::vswap->get_wall_data(wallpic);
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}
@@ -940,7 +940,7 @@ void HitVertPWall()
 		postx = pixx;
 
 		const auto wallpic = vertwall[tilehit & 63];
-		last_texture_data = bstone::globals::page_mgr->get(wallpic);
+		last_texture_data = bstone::globals::vswap->get_wall_data(wallpic);
 		last_texture_offset = texture;
 		postsource = &last_texture_data[last_texture_offset];
 	}

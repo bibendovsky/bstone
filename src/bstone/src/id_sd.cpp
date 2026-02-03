@@ -514,7 +514,7 @@ void sd_startup()
 			sd_log("Music volume: " + std::to_string(sd_get_music_volume()) + " / " + std::to_string(sd_max_volume));
 			sd_log("OPL3 type: " + sd_get_opl3_long_name(sd_mixer_->get_opl3_type()));
 
-			audio_content_mgr = bstone::make_audio_content_mgr(*bstone::globals::page_mgr);
+			audio_content_mgr = bstone::make_audio_content_mgr(*bstone::globals::vswap);
 			audio_content_mgr->set_sfx_type(sd_get_sfx_type_from_cvar());
 			audio_content_mgr->set_is_sfx_digitized(snd_is_sfx_digitized_cvar.get_bool());
 		}

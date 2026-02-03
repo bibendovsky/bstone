@@ -12,7 +12,7 @@ namespace globals {
 
 CVarMgrUPtr cvar_mgr{};
 CCmdMgrUPtr ccmd_mgr{};
-PageMgrUPtr page_mgr{};
+VswapUPtr vswap{};
 
 sys::SystemMgrUPtr sys_system_mgr{};
 sys::EventMgr* sys_event_mgr{};
