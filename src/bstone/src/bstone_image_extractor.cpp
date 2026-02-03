@@ -61,7 +61,7 @@ private:
 	constinit inline static const char* const file_ext = ".png";
 
 	Logger& logger_;
-	PageMgr& page_mgr_;
+	Vswap& vswap_;
 	ImageEncoderUPtr image_encoder_{};
 	SpriteCache sprite_cache_{};
 	std::string dst_directory_{};
@@ -91,7 +91,7 @@ private:
 ImageExtractorImpl::ImageExtractorImpl()
 	:
 	logger_{*globals::logger},
-	page_mgr_{*globals::page_mgr}
+	vswap_{*globals::vswap}
 {
 	image_encoder_ = make_image_encoder(ImageEncoderType::png);
 	palette_map_.reserve(256);
@@ -111,7 +111,7 @@ void ImageExtractorImpl::do_extract_vga_palette(const std::string& destination_d
 
 void ImageExtractorImpl::do_extract_walls(const std::string& destination_dir)
 {
-	const int wall_count = page_mgr_.get_wall_count();
+	const int wall_count = vswap_.get_wall_count();
 	logger_.log_information();
 	logger_.log_information("Extracting walls.");
 	logger_.log_information(std::format("Destination dir: {}", destination_dir).c_str());
@@ -127,7 +127,7 @@ void ImageExtractorImpl::do_extract_walls(const std::string& destination_dir)
 
 void ImageExtractorImpl::do_extract_sprites(const std::string& destination_dir)
 {
-	const int sprite_count = std::max(page_mgr_.get_sprite_count(), 0);
+	const int sprite_count = std::max(vswap_.get_sprite_count(), 0);
 	logger_.log_information();
 	logger_.log_information("Extracting sprites.");
 	logger_.log_information(std::format("Destination dir: {}", destination_dir).c_str());
@@ -201,7 +201,7 @@ void ImageExtractorImpl::impl_extract_palette()
 
 void ImageExtractorImpl::impl_extract_wall(int wall_index)
 {
-	const std::uint8_t* const wall_page = page_mgr_.get(wall_index);
+	const std::uint8_t* const wall_page = vswap_.get_wall_data(wall_index);
 	if (wall_page == nullptr)
 	{
 		const std::string message = std::format("Missing wall page. (index={})", wall_index);

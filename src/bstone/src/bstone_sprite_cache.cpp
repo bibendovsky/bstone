@@ -42,7 +42,7 @@ const Sprite* SpriteCache::cache(
 		BSTONE_THROW_STATIC_SOURCE("Invalid sprite id.");
 	}
 
-	const auto sprite_data = globals::page_mgr->get_sprite(sprite_id);
+	const auto sprite_data = globals::vswap->get_sprite_data(sprite_id);
 
 	if (!sprite_data)
 	{

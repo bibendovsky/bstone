@@ -3076,7 +3076,7 @@ std::int16_t TP_DrawShape(
 		TP_CacheIn(ct_scaled, 0);
 
 		// FIXME const
-		addr = const_cast<std::uint8_t*>(bstone::globals::page_mgr->get(shapenum));
+		addr = const_cast<std::uint8_t*>(bstone::globals::vswap->get_wall_data(shapenum));
 
 		draw_wall_ui(
 			x,

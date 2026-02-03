@@ -1294,7 +1294,7 @@ void InitGame()
 	std::uint16_t* blockstart;
 
 	CA_Startup();
-	bstone::globals::page_mgr = bstone::make_page_mgr();
+	bstone::globals::vswap = bstone::make_vswap();
 
 	check_for_extract_options();
 	read_high_scores();

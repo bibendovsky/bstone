@@ -882,8 +882,6 @@ set(BSTONE_BSTONE_SOURCES
 	src/bstone_mt_task_mgr.h
 	src/bstone_offset_2d.cpp
 	src/bstone_offset_2d.h
-	src/bstone_page_mgr.cpp
-	src/bstone_page_mgr.h
 	src/bstone_precompiled.h
 	src/bstone_r2_extent.h
 	src/bstone_r2_offset.h
@@ -908,6 +906,8 @@ set(BSTONE_BSTONE_SOURCES
 	src/bstone_text_writer.h
 	src/bstone_version.cpp
 	src/bstone_version.h
+	src/bstone_vswap.cpp
+	src/bstone_vswap.h
 )
 
 target_sources(bstone PRIVATE ${BSTONE_BSTONE_SOURCES})

@@ -32,7 +32,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 static int get_wall_page_count()
 {
-	return bstone::globals::page_mgr->get_wall_count();
+	return bstone::globals::vswap->get_wall_count();
 }
 
 #define NUM_TILES get_wall_page_count()

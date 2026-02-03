@@ -126,7 +126,7 @@ void SetPlaneViewSize()
 		}
 	}
 
-	src = bstone::globals::page_mgr->get(CeilingTile);
+	src = bstone::globals::vswap->get_wall_data(CeilingTile);
 	dest = planepics;
 
 	for (int x = 0; x < 4096; ++x)
@@ -135,7 +135,7 @@ void SetPlaneViewSize()
 		dest += 2;
 	}
 
-	src = bstone::globals::page_mgr->get(FloorTile);
+	src = bstone::globals::vswap->get_wall_data(FloorTile);
 	dest = planepics + 1;
 
 	for (int x = 0; x < 4096; ++x)
