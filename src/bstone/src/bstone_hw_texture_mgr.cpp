@@ -324,7 +324,7 @@ private:
 		Rgba8PaletteCPtr indexed_palette_;
 		const bool* indexed_alphas_;
 
-		SpriteCPtr indexed_sprite_;
+		const Sprite* indexed_sprite_;
 
 		Rgba8CPtr rgba_8_pixels_;
 	}; // R2TextureProperties
