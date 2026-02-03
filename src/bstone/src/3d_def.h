@@ -18,11 +18,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <string_view>
 #include <vector>
 
-#include "movie.h"
-
 #include "bstone_audio_mixer_voice_handle.h"
 #include "bstone_cvar_mgr.h"
 #include "bstone_math.h"
+#include "bstone_movie.h"
 #include "bstone_mt_task_mgr.h"
 #include "bstone_voice.h"
 
@@ -2943,7 +2942,7 @@ void SetPlaneViewSize();
 void NewViewSize();
 
 bool DoMovie(
-	const MovieId movie,
+	const bstone::MovieId movie,
 	const void* const raw_palette = nullptr);
 
 bool CheckDiskSpace(
