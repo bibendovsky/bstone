@@ -26,7 +26,7 @@ AudioContentMgr::~AudioContentMgr() = default;
 class AudioContentMgrImpl final : public AudioContentMgr
 {
 public:
-	AudioContentMgrImpl(PageMgr& page_mgr);
+	AudioContentMgrImpl(Vswap& vswap);
 	~AudioContentMgrImpl() override;
 
 	// ----------------------------------------------------------------------
@@ -59,7 +59,7 @@ private:
 	using AudiotData = std::vector<std::uint8_t>;
 	using AudioChunks = std::vector<AudioChunk>;
 
-	PageMgr& page_mgr_;
+	Vswap& vswap_;
 
 	AudioSfxType sfx_type_{};
 	int sfx_chunk_base_index_{};
@@ -76,9 +76,9 @@ private:
 
 // ----------------------------------------------------------------------
 
-AudioContentMgrImpl::AudioContentMgrImpl(PageMgr& page_mgr)
+AudioContentMgrImpl::AudioContentMgrImpl(Vswap& vswap)
 	:
-	page_mgr_{page_mgr}
+	vswap_{vswap}
 {
 	initialize();
 }
@@ -378,14 +378,14 @@ void AudioContentMgrImpl::make_digitized_sfx(AudioChunks& audio_chunks)
 
 	static_assert(sizeof(DigitizedInfo) == 4, "Unsupported structure size.");
 
-	const auto digitized_infos = reinterpret_cast<const DigitizedInfo*>(page_mgr_.get_last_audio());
+	const auto digitized_infos = reinterpret_cast<const DigitizedInfo*>(vswap_.get_audio_data(vswap_.get_audio_count() - 1));
 
 	for (const auto& digitized_map_item : digitized_map)
 	{
 		const auto& digitized_info = digitized_infos[digitized_map_item.digitized_info_index];
 		const auto page_number = static_cast<int>(bstone::endian::to_little(digitized_info.page_number));
 		const auto data_size = static_cast<int>(bstone::endian::to_little(digitized_info.data_size));
-		const auto data = page_mgr_.get_audio(page_number);
+		const auto data = vswap_.get_audio_data(page_number);
 		const auto digitized_sfx_chunk_index = digitized_sfx_chunk_base_index + digitized_map_item.sfx_index;
 
 		auto& audio_chunk = audio_chunks[digitized_sfx_chunk_index];
@@ -396,9 +396,9 @@ void AudioContentMgrImpl::make_digitized_sfx(AudioChunks& audio_chunks)
 
 // ==========================================================================
 
-AudioContentMgrUPtr make_audio_content_mgr(PageMgr& page_mgr)
+AudioContentMgrUPtr make_audio_content_mgr(Vswap& vswap)
 {
-	return std::make_unique<AudioContentMgrImpl>(page_mgr);
+	return std::make_unique<AudioContentMgrImpl>(vswap);
 }
 
 } // bstone

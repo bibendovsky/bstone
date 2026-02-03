@@ -8,7 +8,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_ccmd_mgr.h"
 #include "bstone_cvar_mgr.h"
 #include "bstone_logger.h"
-#include "bstone_page_mgr.h"
+#include "bstone_vswap.h"
 #include "bstone_sys_polling_audio_device.h"
 #include "bstone_sys_system_mgr.h"
 
@@ -21,7 +21,7 @@ extern CVarMgrUPtr cvar_mgr;
 constexpr auto max_ccmds = 64;
 extern CCmdMgrUPtr ccmd_mgr;
 
-extern PageMgrUPtr page_mgr;
+extern VswapUPtr vswap;
 
 extern sys::SystemMgrUPtr sys_system_mgr;
 extern sys::EventMgr* sys_event_mgr;

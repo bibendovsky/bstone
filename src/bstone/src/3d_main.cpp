@@ -9565,7 +9565,7 @@ void ShutdownId()
 	VW_Shutdown();
 	CA_Shutdown();
 
-	bstone::globals::page_mgr = nullptr;
+	bstone::globals::vswap = nullptr;
 }
 
 void CalcProjection(
