@@ -19,6 +19,8 @@ public:
 	MemoryBinaryReader() = default;
 	MemoryBinaryReader(const void* data, int size);
 
+	int get_size() const;
+	const void* get_current_data() const;
 	void set_position(int position);
 	void skip(int count);
 	bool can_read_n(int count) const;

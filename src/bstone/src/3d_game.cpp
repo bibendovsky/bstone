@@ -3621,23 +3621,23 @@ restartgame:
 				{
 					vid_is_movie = true;
 
-					auto movie = MovieId::intro;
+					auto movie = bstone::MovieId::intro;
 
 					switch (gamestate.episode)
 					{
 					case 0:
 					case 1:
 					case 3:
-						movie = MovieId::final_2;
+						movie = bstone::MovieId::final_2;
 						break;
 
 					case 2:
 					case 4:
-						movie = MovieId::final_3;
+						movie = bstone::MovieId::final_3;
 						break;
 
 					case 5:
-						movie = MovieId::final;
+						movie = bstone::MovieId::final;
 						break;
 					}
 
@@ -3647,7 +3647,7 @@ restartgame:
 				{
 					CA_CacheGrChunk(ENDINGPALETTE);
 
-					DoMovie(MovieId::final, grsegs[ENDINGPALETTE].data());
+					DoMovie(bstone::MovieId::final, grsegs[ENDINGPALETTE].data());
 
 					UNCACHEGRCHUNK(ENDINGPALETTE);
 				}

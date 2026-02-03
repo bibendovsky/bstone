@@ -9608,7 +9608,7 @@ void CalcProjection(
 }
 
 bool DoMovie(
-	const MovieId movie,
+	const bstone::MovieId movie,
 	const void* const raw_palette)
 {
 	sd_stop_sfx_sound();
@@ -9618,7 +9618,7 @@ bool DoMovie(
 
 	const auto palette = static_cast<const std::uint8_t*>(raw_palette);
 
-	const auto result = movie_play(movie, palette ? palette : vgapal);
+	const auto result = movie_play(movie, palette ? palette : vgapal, *bstone::globals::logger);
 
 	sd_stop_sfx_sound();
 	ClearMemory();

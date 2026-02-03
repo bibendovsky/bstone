@@ -282,7 +282,6 @@ set(BSTONE_LEGACY_SOURCES
 	src/3d_play.cpp
 	src/3d_scale.cpp
 	src/3d_state.cpp
-	src/an_codes.h
 	src/audio.h
 	src/colormap.cpp
 	src/d3_d2.cpp
@@ -311,8 +310,6 @@ set(BSTONE_LEGACY_SOURCES
 	src/jm_tp.h
 	src/jm_vl.h
 	src/markhack.cpp
-	src/movie.cpp
-	src/movie.h
 	src/scale.cpp
 	src/stub.cpp
 	src/vgapal.cpp
@@ -878,6 +875,8 @@ set(BSTONE_BSTONE_SOURCES
 	src/bstone_logger.h
 	src/bstone_math.h
 	src/bstone_mod_value.h
+	src/bstone_movie.cpp
+	src/bstone_movie.h
 	src/bstone_mt_task_mgr.cpp
 	src/bstone_mt_task_mgr.h
 	src/bstone_offset_2d.cpp

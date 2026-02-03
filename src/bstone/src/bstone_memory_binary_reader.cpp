@@ -17,6 +17,16 @@ MemoryBinaryReader::MemoryBinaryReader(const void* data, int size)
 	size_{size}
 {}
 
+int MemoryBinaryReader::get_size() const
+{
+	return size_;
+}
+
+const void* MemoryBinaryReader::get_current_data() const
+{
+	return data_ + position_;
+}
+
 void MemoryBinaryReader::set_position(int position)
 {
 	position_ = std::clamp(position, 0, size_);
