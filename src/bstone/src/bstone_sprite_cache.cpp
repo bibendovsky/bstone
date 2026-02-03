@@ -49,11 +49,12 @@ const Sprite* SpriteCache::cache(
 		BSTONE_THROW_STATIC_SOURCE("No sprite data.");
 	}
 
+	const int sprite_size = globals::vswap->get_sprite_size(sprite_id);
 	auto& sprite = cache_[sprite_id];
 
 	if (!sprite.is_initialized())
 	{
-		sprite.initialize(sprite_data);
+		sprite.initialize(sprite_data, sprite_size);
 	}
 
 	return &sprite;
