@@ -413,12 +413,10 @@ private:
 		BsObject bs_object;
 	};
 
-	using SpriteCPtr = const Sprite*;
-
 	struct SpriteDrawItem
 	{
 		int texture_id;
-		SpriteCPtr sprite;
+		const Sprite* sprite;
 	};
 
 	using Sprites = std::vector<Sprite>;
