@@ -4308,8 +4308,7 @@ void SaveOverheadChunk(
 	//
 	const auto chunk_four_cc = bstone::sg_make_overlay_four_cc(tpNum);
 	char chunk_four_cc_chars[4] = {};
-	*reinterpret_cast<std::uint32_t*>(chunk_four_cc_chars) = bstone::endian::to_little(chunk_four_cc.get_value());
-
+	bstone::endian::write_u32_le(chunk_four_cc.get_value(), chunk_four_cc_chars);
 	bstone::sg_delete_chunk(chunk_four_cc, g_playtemp);
 
 	// Prepare buffer
