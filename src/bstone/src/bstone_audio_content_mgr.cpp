@@ -1,60 +1,44 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
 #include "bstone_audio_content_mgr.h"
-#include <cassert>
-#include <vector>
 #include "id_ca.h"
 #include "bstone_endian.h"
 #include "bstone_exception.h"
 #include "bstone_file_stream.h"
+#include <cstdint>
+#include <vector>
 
+namespace bstone {
 
-namespace bstone
-{
-
-AudioContentMgr::AudioContentMgr() noexcept = default;
-
-AudioContentMgr::~AudioContentMgr() = default;
-
-// ==========================================================================
+namespace {
 
 class AudioContentMgrImpl final : public AudioContentMgr
 {
 public:
 	AudioContentMgrImpl(Vswap& vswap);
-	~AudioContentMgrImpl() override;
+	~AudioContentMgrImpl() override = default;
 
-	// ----------------------------------------------------------------------
-	// AudioContentMgr
-
-	AudioSfxType get_sfx_type() const noexcept override;
+	AudioSfxType get_sfx_type() const override;
 	void set_sfx_type(AudioSfxType sfx_type) override;
-
-	void set_is_sfx_digitized(bool is_digitized) noexcept override;
-
-	int get_chunk_count() const noexcept override;
+	void set_is_sfx_digitized(bool is_digitized) override;
+	int get_chunk_count() const override;
 	const AudioChunk& get_chunk(int chunk_number) const override;
 	const AudioChunk& get_sfx_chunk(int chunk_number) const override;
 	int get_sfx_priority(int chunk_number) const override;
-
 	const AudioChunk& get_adlib_music_chunk(int chunk_number) const override;
 
-	// AudioContentMgr
-	// ----------------------------------------------------------------------
-
-
 private:
-	static constexpr auto max_sfx_sounds = NUMSOUNDS;
+	static constexpr int max_sfx_sounds = NUMSOUNDS;
 
-	static constexpr auto pc_speaker_sfx_chunk_base_index = 0;
-	static constexpr auto adlib_sfx_chunk_base_index = 100;
-	static constexpr auto digitized_sfx_chunk_base_index = 200;
-	static constexpr auto adlib_music_chunk_base_index = 300;
+	static constexpr int pc_speaker_sfx_chunk_base_index = 0;
+	static constexpr int adlib_sfx_chunk_base_index = 100;
+	static constexpr int digitized_sfx_chunk_base_index = 200;
+	static constexpr int adlib_music_chunk_base_index = 300;
 
 	using AudiotData = std::vector<std::uint8_t>;
 	using AudioChunks = std::vector<AudioChunk>;
@@ -67,56 +51,52 @@ private:
 	AudiotData audiot_data_{};
 	AudioChunks audio_chunks_{};
 
-	void initialize();
-
 	AudiotData load_audiot_data();
 	AudioChunks make_audio_chunks(const AudiotData& audiot_data);
 	void make_digitized_sfx(AudioChunks& audio_chunks);
-}; // AudioContentMgrImpl
+};
 
-// ----------------------------------------------------------------------
+// -------------------------------------
 
 AudioContentMgrImpl::AudioContentMgrImpl(Vswap& vswap)
 	:
 	vswap_{vswap}
 {
-	initialize();
+	audiot_data_ = load_audiot_data();
+	audio_chunks_ = make_audio_chunks(audiot_data_);
+	make_digitized_sfx(audio_chunks_);
+	set_sfx_type(AudioSfxType::adlib);
+	is_sfx_digitized_ = true;
 }
 
-AudioContentMgrImpl::~AudioContentMgrImpl() = default;
-
-AudioSfxType AudioContentMgrImpl::get_sfx_type() const noexcept
+AudioSfxType AudioContentMgrImpl::get_sfx_type() const
 {
 	return sfx_type_;
 }
 
 void AudioContentMgrImpl::set_sfx_type(AudioSfxType sfx_type)
 {
-	auto sfx_chunk_base_index = 0;
-
+	int sfx_chunk_base_index;
 	switch (sfx_type)
 	{
 		case AudioSfxType::adlib:
 			sfx_chunk_base_index = adlib_sfx_chunk_base_index;
 			break;
-
 		case AudioSfxType::pc_speaker:
 			sfx_chunk_base_index = pc_speaker_sfx_chunk_base_index;
 			break;
-
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported SFX type.");
 	}
-
 	sfx_chunk_base_index_ = sfx_chunk_base_index;
 }
 
-void AudioContentMgrImpl::set_is_sfx_digitized(bool is_digitized) noexcept
+void AudioContentMgrImpl::set_is_sfx_digitized(bool is_digitized)
 {
 	is_sfx_digitized_ = is_digitized;
 }
 
-int AudioContentMgrImpl::get_chunk_count() const noexcept
+int AudioContentMgrImpl::get_chunk_count() const
 {
 	return static_cast<int>(audio_chunks_.size());
 }
@@ -127,7 +107,6 @@ const AudioChunk& AudioContentMgrImpl::get_chunk(int chunk_number) const
 	{
 		BSTONE_THROW_STATIC_SOURCE("Chunk number out of range.");
 	}
-
 	return audio_chunks_[chunk_number];
 }
 
@@ -137,17 +116,14 @@ const AudioChunk& AudioContentMgrImpl::get_sfx_chunk(int chunk_number) const
 	{
 		BSTONE_THROW_STATIC_SOURCE("SFX chunk number out of range.");
 	}
-
 	if (is_sfx_digitized_)
 	{
-		const auto& digitized_sfx_chunk = audio_chunks_[digitized_sfx_chunk_base_index + chunk_number];
-
+		const AudioChunk& digitized_sfx_chunk = audio_chunks_[digitized_sfx_chunk_base_index + chunk_number];
 		if (digitized_sfx_chunk.data)
 		{
 			return digitized_sfx_chunk;
 		}
 	}
-
 	return audio_chunks_[sfx_chunk_base_index_ + chunk_number];
 }
 
@@ -157,42 +133,30 @@ int AudioContentMgrImpl::get_sfx_priority(int chunk_number) const
 	{
 		BSTONE_THROW_STATIC_SOURCE("SFX chunk number out of range.");
 	}
-
-	const auto& audio_chunk = audio_chunks_[sfx_chunk_base_index_ + chunk_number];
-	const auto data_u16 = reinterpret_cast<const std::uint16_t*>(audio_chunk.data);
-	const auto priority = static_cast<int>(endian::to_little(data_u16[2]));
-	return priority;
+	const AudioChunk& audio_chunk = audio_chunks_[sfx_chunk_base_index_ + chunk_number];
+	if (audio_chunk.data_size < 4)
+	{
+		BSTONE_THROW_STATIC_SOURCE("SFX chunk header too small.");
+	}
+	return endian::read_u16_le(audio_chunk.data + 2);
 }
 
 const AudioChunk& AudioContentMgrImpl::get_adlib_music_chunk(int chunk_number) const
 {
-	const auto music_chunk_count = get_chunk_count() - adlib_music_chunk_base_index;
-
+	const int music_chunk_count = get_chunk_count() - adlib_music_chunk_base_index;
 	if (chunk_number < 0 || chunk_number >= music_chunk_count)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Music chunk number out of range.");
 	}
-
 	return audio_chunks_[adlib_music_chunk_base_index + chunk_number];
-}
-
-void AudioContentMgrImpl::initialize()
-{
-	auto audiot_data = load_audiot_data();
-	auto audio_chunks = make_audio_chunks(audiot_data);
-	make_digitized_sfx(audio_chunks);
-	audiot_data_.swap(audiot_data);
-	audio_chunks_.swap(audio_chunks);
-	set_sfx_type(AudioSfxType::adlib);
-	is_sfx_digitized_ = true;
 }
 
 AudioContentMgrImpl::AudiotData AudioContentMgrImpl::load_audiot_data()
 {
-	auto audiot_file = FileStream{};
+	FileStream audiot_file{};
 	ca_open_resource(AssetsResourceType::audiot, audiot_file);
-	const auto audiot_size = static_cast<int>(audiot_file.get_size());
-	auto audiot_data = AudiotData{};
+	const int audiot_size = static_cast<int>(audiot_file.get_size());
+	AudiotData audiot_data{};
 	audiot_data.resize(audiot_size);
 	audiot_file.read_exactly(audiot_data.data(), audiot_size);
 	return audiot_data;
@@ -200,82 +164,67 @@ AudioContentMgrImpl::AudiotData AudioContentMgrImpl::load_audiot_data()
 
 AudioContentMgrImpl::AudioChunks AudioContentMgrImpl::make_audio_chunks(const AudiotData& audiot_data)
 {
-	constexpr auto audiohed_item_size = 4;
-	auto audiohed_file = FileStream{};
+	constexpr int audiohed_item_size = 4;
+	FileStream audiohed_file{};
 	ca_open_resource(AssetsResourceType::audiohed, audiohed_file);
-	const auto audiohed_size = static_cast<int>(audiohed_file.get_size());
-
+	const int audiohed_size = static_cast<int>(audiohed_file.get_size());
 	if ((audiohed_size % audiohed_item_size) != 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Invalid TOC file size.");
 	}
-
-	const auto audiohed_count = audiohed_size / audiohed_item_size;
-	const auto audio_chunk_count = audiohed_count - 1;
-
+	const int audiohed_count = audiohed_size / audiohed_item_size;
+	const int audio_chunk_count = audiohed_count - 1;
 	if (audio_chunk_count <= adlib_music_chunk_base_index)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Invalid audio chunk count.");
 	}
-
-	using Audiohed = std::vector<std::int32_t>;
-	auto audiohed_data = Audiohed{};
-	audiohed_data.resize(audiohed_count);
+	using Audiohed = std::vector<std::uint8_t>;
+	Audiohed audiohed_data{};
+	audiohed_data.resize(audiohed_size);
 	audiohed_file.read_exactly(audiohed_data.data(), audiohed_size);
-
-	for (auto& audiohed_item : audiohed_data)
-	{
-		audiohed_item = endian::to_little(audiohed_item);
-	}
-
-	auto audio_chunks = AudioChunks{};
+	AudioChunks audio_chunks{};
 	audio_chunks.resize(audio_chunk_count);
-
-	auto chunk_offset = 0;
-
-	for (auto i = 0; i < audio_chunk_count; ++i)
+	int chunk_offset = 0;
+	for (int i = 0; i < audio_chunk_count; ++i)
 	{
-		const auto data = &audiot_data[chunk_offset];
-		const auto data_size = audiohed_data[i + 1] - audiohed_data[i];
-		auto& audio_chunk = audio_chunks[i];
+		const std::uint8_t* const data = &audiot_data[chunk_offset];
+		const std::uint8_t* const offsets_bytes = audiohed_data.data() + i * 4;
+		const int data_offset_0 = endian::read_s32_le(offsets_bytes);
+		const int data_offset_1 = endian::read_s32_le(offsets_bytes + 4);
+		const int data_size = data_offset_1 - data_offset_0;
+		AudioChunk& audio_chunk = audio_chunks[i];
 		audio_chunk.data = data;
 		audio_chunk.data_size = data_size;
 		audio_chunk.index = i;
 		chunk_offset += data_size;
 	}
-
-	for (auto i = 0; i < max_sfx_sounds; ++i)
+	for (int i = 0; i < max_sfx_sounds; ++i)
 	{
-		auto& audio_chunk = audio_chunks[pc_speaker_sfx_chunk_base_index + i];
+		AudioChunk& audio_chunk = audio_chunks[pc_speaker_sfx_chunk_base_index + i];
 		audio_chunk.type = AudioChunkType::pc_speaker;
 		audio_chunk.audio_index = i;
 	}
-
-	for (auto i = 0; i < max_sfx_sounds; ++i)
+	for (int i = 0; i < max_sfx_sounds; ++i)
 	{
-		auto& audio_chunk = audio_chunks[adlib_sfx_chunk_base_index + i];
+		AudioChunk& audio_chunk = audio_chunks[adlib_sfx_chunk_base_index + i];
 		audio_chunk.type = AudioChunkType::adlib_sfx;
 		audio_chunk.audio_index = i;
 	}
-
-	for (auto i = 0; i < max_sfx_sounds; ++i)
+	for (int i = 0; i < max_sfx_sounds; ++i)
 	{
-		auto& audio_chunk = audio_chunks[digitized_sfx_chunk_base_index + i];
+		AudioChunk& audio_chunk = audio_chunks[digitized_sfx_chunk_base_index + i];
 		audio_chunk.data = nullptr;
 		audio_chunk.data_size = 0;
 		audio_chunk.type = AudioChunkType::digitized;
 		audio_chunk.audio_index = i;
 	}
-
-	const auto adlib_music_count = audio_chunk_count - adlib_music_chunk_base_index;
-
-	for (auto i = 0; i < adlib_music_count; ++i)
+	const int adlib_music_count = audio_chunk_count - adlib_music_chunk_base_index;
+	for (int i = 0; i < adlib_music_count; ++i)
 	{
-		auto& audio_chunk = audio_chunks[adlib_music_chunk_base_index + i];
+		AudioChunk& audio_chunk = audio_chunks[adlib_music_chunk_base_index + i];
 		audio_chunk.type = AudioChunkType::adlib_music;
 		audio_chunk.audio_index = i;
 	}
-
 	return audio_chunks;
 }
 
@@ -285,7 +234,7 @@ void AudioContentMgrImpl::make_digitized_sfx(AudioChunks& audio_chunks)
 	{
 		int sfx_index;
 		int digitized_info_index;
-	}; // DigitizedMapItem
+	};
 
 	constexpr DigitizedMapItem digitized_map[] =
 	{
@@ -368,37 +317,28 @@ void AudioContentMgrImpl::make_digitized_sfx(AudioChunks& audio_chunks)
 		DigitizedMapItem{CLAWATTACKSND, 56},
 		DigitizedMapItem{SPITATTACKSND, 55},
 		DigitizedMapItem{PUNCHATTACKSND, 57},
-	}; // digitized_map
-
-	struct DigitizedInfo
+	};
+	const std::uint8_t* const digitized_infos_bytes = vswap_.get_audio_data(vswap_.get_audio_count() - 1);
+	for (const DigitizedMapItem& digitized_map_item : digitized_map)
 	{
-		std::uint16_t page_number;
-		std::uint16_t data_size;
-	}; // DigitizedInfo
-
-	static_assert(sizeof(DigitizedInfo) == 4, "Unsupported structure size.");
-
-	const auto digitized_infos = reinterpret_cast<const DigitizedInfo*>(vswap_.get_audio_data(vswap_.get_audio_count() - 1));
-
-	for (const auto& digitized_map_item : digitized_map)
-	{
-		const auto& digitized_info = digitized_infos[digitized_map_item.digitized_info_index];
-		const auto page_number = static_cast<int>(bstone::endian::to_little(digitized_info.page_number));
-		const auto data_size = static_cast<int>(bstone::endian::to_little(digitized_info.data_size));
-		const auto data = vswap_.get_audio_data(page_number);
-		const auto digitized_sfx_chunk_index = digitized_sfx_chunk_base_index + digitized_map_item.sfx_index;
-
-		auto& audio_chunk = audio_chunks[digitized_sfx_chunk_index];
+		const int digitized_info_offset = digitized_map_item.digitized_info_index * (2 + 2);
+		const int page_number = endian::read_u16_le(digitized_infos_bytes + digitized_info_offset);
+		const int data_size = endian::read_u16_le(digitized_infos_bytes + digitized_info_offset + 2);
+		const std::uint8_t* const data = vswap_.get_audio_data(page_number);
+		const int digitized_sfx_chunk_index = digitized_sfx_chunk_base_index + digitized_map_item.sfx_index;
+		AudioChunk& audio_chunk = audio_chunks[digitized_sfx_chunk_index];
 		audio_chunk.data = data;
 		audio_chunk.data_size = data_size;
 	}
 }
 
-// ==========================================================================
+} // namespace
+
+// =====================================
 
 AudioContentMgrUPtr make_audio_content_mgr(Vswap& vswap)
 {
 	return std::make_unique<AudioContentMgrImpl>(vswap);
 }
 
-} // bstone
+} // namespace bstone
