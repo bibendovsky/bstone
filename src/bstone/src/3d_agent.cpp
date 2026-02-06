@@ -29,6 +29,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_archiver.h"
 #include "bstone_ascii.h"
+#include "bstone_endian.h"
 #include "bstone_math.h"
 #include "bstone_memory_stream.h"
 #include "bstone_saved_game.h"
