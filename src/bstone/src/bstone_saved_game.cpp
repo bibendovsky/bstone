@@ -20,24 +20,18 @@ namespace bstone {
 
 void SgChunkHeader::serialize(Stream& stream) const
 try {
-#if BSTONE_ENDIAN == BSTONE_LITTLE_ENDIAN
-	stream.write_exactly(this, sg_chunk_header_size);
-#else
-	auto header_le = SgChunkHeader{};
-	header_le.id = endian::to_little(id);
-	header_le.size = endian::to_little(size);
-	stream.write_exactly(&header_le, sg_chunk_header_size);
-#endif
+	unsigned char buffer[sg_chunk_header_size];
+	endian::write_u32_le(id, buffer);
+	endian::write_s32_le(size, buffer + 4);
+	stream.write_exactly(buffer, sg_chunk_header_size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SgChunkHeader::deserialize(Stream& stream)
 try {
-	stream.read_exactly(this, sg_chunk_header_size);
-
-#if BSTONE_ENDIAN == BSTONE_BIG_ENDIAN
-	id = endian::swap_bytes(id);
-	size = endian::swap_bytes(size);
-#endif
+	unsigned char buffer[sg_chunk_header_size];
+	stream.read_exactly(buffer, sg_chunk_header_size);
+	id = endian::read_u32_le(buffer);
+	size = endian::read_s32_le(buffer + 4);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 FourCc sg_make_numbered_four_cc(char ch_0, char ch_1, int number)
