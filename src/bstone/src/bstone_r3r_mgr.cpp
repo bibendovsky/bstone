@@ -19,10 +19,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-R3rMgr::R3rMgr() = default;
-
-R3rMgr::~R3rMgr() = default;
-
 R3r* R3rMgr::renderer_initialize(const R3rInitParam& param)
 try {
 	return do_renderer_initialize(param);

@@ -27,10 +27,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 namespace bstone {
 
-Logger::Logger() = default;
-
-Logger::~Logger() = default;
-
 void Logger::log(LoggerMessageType message_type, std::string_view message_sv)
 {
 	do_log(message_type, message_sv);

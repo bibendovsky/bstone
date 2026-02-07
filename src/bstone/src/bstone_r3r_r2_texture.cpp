@@ -11,10 +11,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-R3rR2Texture::R3rR2Texture() = default;
-
-R3rR2Texture::~R3rR2Texture() = default;
-
 void R3rR2Texture::update(const R3rR2TextureUpdateParam& param)
 try {
 	do_update(param);

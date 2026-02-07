@@ -21,8 +21,8 @@ class GlR3rContext;
 class GlR3rVertexInputMgr
 {
 public:
-	GlR3rVertexInputMgr() {}
-	virtual ~GlR3rVertexInputMgr() {}
+	GlR3rVertexInputMgr() = default;
+	virtual ~GlR3rVertexInputMgr() = default;
 
 	virtual GlR3rContext& get_context() const = 0;
 	virtual R3rVertexInputUPtr create(const R3rCreateVertexInputParam& param) = 0;

@@ -63,8 +63,8 @@ struct R3rDrawIndexedParam
 class R3r
 {
 public:
-	R3r();
-	virtual ~R3r();
+	R3r() = default;
+	virtual ~R3r() = default;
 
 	R3rType get_type() const;
 	std::string_view get_name() const;

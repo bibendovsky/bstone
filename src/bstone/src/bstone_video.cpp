@@ -12,11 +12,3 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 
 #include "bstone_video.h"
-
-namespace bstone {
-
-Video::Video() = default;
-
-Video::~Video() = default;
-
-} // namespace bstone

@@ -38,8 +38,8 @@ enum class Opl3Type
 class Opl3
 {
 public:
-	Opl3();
-	virtual ~Opl3();
+	Opl3() = default;
+	virtual ~Opl3() = default;
 
 	virtual Opl3Type get_type() const = 0;
 

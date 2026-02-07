@@ -43,8 +43,8 @@ struct R3rShaderStageInitParam
 class R3rShaderStage
 {
 public:
-	R3rShaderStage() {};
-	virtual ~R3rShaderStage() {};
+	R3rShaderStage() = default;
+	virtual ~R3rShaderStage() = default;
 
 	R3rShaderVar* find_var(const char* name);
 	R3rShaderVar* find_int32_var(const char* name);
