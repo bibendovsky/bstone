@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2023 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -11,33 +11,32 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-// TODO Use data member in C++17.
 struct R3rLimits
 {
-	static constexpr int min_anisotropy_off() { return 1; }
-	static constexpr int min_anisotropy_on() { return 2; }
-	static constexpr int max_anisotropy() { return 16; }
+	static constexpr int min_anisotropy_off = 1;
+	static constexpr int min_anisotropy_on = 2;
+	static constexpr int max_anisotropy = 16;
 
-	static constexpr int min_aa_off() { return 1; }
-	static constexpr int min_aa_on() { return 2; }
-	static constexpr int max_aa() { return 32; }
+	static constexpr int min_aa_off = 1;
+	static constexpr int min_aa_on = 2;
+	static constexpr int max_aa = 32;
 
-	static constexpr int max_mipmap_count() { return 31; }
+	static constexpr int max_mipmap_count = 31;
 
-	static constexpr int max_buffers() { return 32; }
+	static constexpr int max_buffers = 32;
 
-	static constexpr int max_textures() { return 4096; }
-	static constexpr int max_samplers() { return 8; }
+	static constexpr int max_textures = 4096;
+	static constexpr int max_samplers = 8;
 
-	static constexpr int max_shaders() { return 2; }
-	static constexpr int max_shader_stages() { return 1; }
-	static constexpr int max_shader_vars() { return 16; }
+	static constexpr int max_shaders = 2;
+	static constexpr int max_shader_stages = 1;
+	static constexpr int max_shader_vars = 16;
 
-	static constexpr int max_vertex_inputs() { return 16; }
-	static constexpr int max_vertex_attributes() { return 16; }
+	static constexpr int max_vertex_inputs = 16;
+	static constexpr int max_vertex_attributes = 16;
 
-	static constexpr int min_viewport_width() { return 320; }
-	static constexpr int min_viewport_height() { return 200; }
+	static constexpr int min_viewport_width = 320;
+	static constexpr int min_viewport_height = 200;
 };
 
 } // namespace bstone

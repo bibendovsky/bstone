@@ -35,7 +35,7 @@ private:
 	VkImageView do_get_vk_image_view() const override;
 
 	static constexpr const VkFormat vk_default_format = VK_FORMAT_R8G8B8A8_UNORM;
-	using ImageLayouts = std::array<VkImageLayout, R3rLimits::max_mipmap_count()>;
+	using ImageLayouts = std::array<VkImageLayout, R3rLimits::max_mipmap_count>;
 
 	VkR3rContext& context_;
 	VkR3rDeviceMemoryResource image_device_memory_resource_{};
@@ -67,7 +67,7 @@ VkR3rR2TextureImpl::VkR3rR2TextureImpl(VkR3rContext& context, const R3rR2Texture
 	{
 		BSTONE_THROW_STATIC_SOURCE("Height out of range.");
 	}
-	if (param.mipmap_count < 1 || param.mipmap_count > R3rLimits::max_mipmap_count())
+	if (param.mipmap_count < 1 || param.mipmap_count > R3rLimits::max_mipmap_count)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Mipmap count out of range.");
 	}

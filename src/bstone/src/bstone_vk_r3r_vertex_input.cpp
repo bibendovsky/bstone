@@ -65,7 +65,7 @@ try
 	{
 		BSTONE_THROW_STATIC_SOURCE("No attribute descriptions.");
 	}
-	if (param.attrib_descrs.size() > R3rLimits::max_vertex_attributes() ||
+	if (param.attrib_descrs.size() > R3rLimits::max_vertex_attributes ||
 		param.attrib_descrs.size() > context_.physical_device_properties.limits.maxVertexInputAttributes)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Too many descriptions.");

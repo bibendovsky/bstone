@@ -336,9 +336,9 @@ sys::Window& VkR3rImpl::do_get_window() const
 void VkR3rImpl::do_handle_resize(sys::WindowSize new_size)
 try
 {
-	if (new_size.width < R3rLimits::min_viewport_width() ||
+	if (new_size.width < R3rLimits::min_viewport_width ||
 		new_size.width > context_.r3r_device_features.max_viewport_width ||
-		new_size.height < R3rLimits::min_viewport_height() ||
+		new_size.height < R3rLimits::min_viewport_height ||
 		new_size.height > context_.r3r_device_features.max_viewport_height)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Invalid size.");
@@ -1050,8 +1050,8 @@ void VkR3rImpl::initialize_defaults()
 {
 	context_.vk_surface_width = 0;
 	context_.vk_surface_height = 0;
-	context_.vk_offscreen_width = static_cast<std::uint32_t>(R3rLimits::min_viewport_width());
-	context_.vk_offscreen_height = static_cast<std::uint32_t>(R3rLimits::min_viewport_height());
+	context_.vk_offscreen_width = static_cast<std::uint32_t>(R3rLimits::min_viewport_width);
+	context_.vk_offscreen_height = static_cast<std::uint32_t>(R3rLimits::min_viewport_height);
 }
 
 void VkR3rImpl::initialize_vulkan_manager()
@@ -1918,12 +1918,12 @@ void VkR3rImpl::initialize_descriptor_pool()
 	const VkDescriptorPoolSize vk_sampler_descriptor_pool_size
 	{
 		/* type */            VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-		/* descriptorCount */ R3rLimits::max_textures(),
+		/* descriptorCount */ R3rLimits::max_textures,
 	};
 	const VkDescriptorPoolSize vk_ubo_descriptor_pool_size
 	{
 		/* type */            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-		/* descriptorCount */ R3rLimits::max_textures(),
+		/* descriptorCount */ R3rLimits::max_textures,
 	};
 	const VkDescriptorPoolSize descriptor_pool_sizes[] =
 	{
@@ -1935,7 +1935,7 @@ void VkR3rImpl::initialize_descriptor_pool()
 		/* sType */         VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
 		/* pNext */         nullptr,
 		/* flags */         VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
-		/* maxSets */       R3rLimits::max_textures(),
+		/* maxSets */       R3rLimits::max_textures,
 		/* poolSizeCount */ static_cast<std::uint32_t>(std::extent<decltype(descriptor_pool_sizes)>::value),
 		/* pPoolSizes */    descriptor_pool_sizes,
 	};
@@ -1964,7 +1964,7 @@ void VkR3rImpl::initialize_sample_count(const R3rInitParam& r3r_init_param)
 	// Ensure at least one sample count.
 	context_.sample_count_bitmask |= VK_SAMPLE_COUNT_1_BIT;
 	// Apply the limit.
-	context_.sample_count_bitmask &= R3rLimits::max_aa() - 1;
+	context_.sample_count_bitmask &= R3rLimits::max_aa - 1;
 	BSTONE_ASSERT(context_.sample_count_bitmask != 0);
 	context_.sample_count = choose_sample_count(r3r_init_param.aa_type, r3r_init_param.aa_value);
 }
@@ -2005,7 +2005,7 @@ void VkR3rImpl::initialize_r3r_device_features()
 	else
 	{
 		r3r_features.is_anisotropy_available = false;
-		r3r_features.max_anisotropy_degree = R3rLimits::min_anisotropy_off();
+		r3r_features.max_anisotropy_degree = R3rLimits::min_anisotropy_off;
 	}
 	//
 	r3r_features.is_npot_available = true;
@@ -2017,7 +2017,7 @@ void VkR3rImpl::initialize_r3r_device_features()
 	const int vk_sample_count = std::min(
 		vk_props.limits.framebufferColorSampleCounts,
 		vk_props.limits.framebufferDepthSampleCounts);
-	const int sample_count = std::min(std::max(vk_sample_count, 1), R3rLimits::max_aa());
+	const int sample_count = std::min(std::max(vk_sample_count, 1), R3rLimits::max_aa);
 	r3r_features.is_msaa_available = (sample_count > 1);
 	r3r_features.is_msaa_render_to_window = false;
 	r3r_features.is_msaa_requires_restart = false;
