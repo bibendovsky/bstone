@@ -18,6 +18,5 @@
 - Use "auto" only if necessary.
 - Use "bit_cast" for pointer-to-function.
 - Convert methods to data-members in R3rLimits.
-- Replace "constexpr static" with "static constexpr".
 - Declare each variable or data-member on separate line.
 - Make constructor/destructor of an interface a default.

@@ -60,7 +60,7 @@ public:
 	void deallocate(void* pointer);
 	static Storage& get_singleton();
 private:
-	constexpr static std::size_t storage_size = sizeof(TextureLockSdl);
+	static constexpr std::size_t storage_size = sizeof(TextureLockSdl);
 	bool is_allocated_{};
 	std::byte storage_[storage_size];
 };
