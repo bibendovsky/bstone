@@ -32,7 +32,7 @@ private:
 	VkBuffer do_get_vk_generic_buffer() const override;
 	const VkPipelineVertexInputStateCreateInfo& do_get_vk_create_info() const override;
 
-	constexpr static std::uint32_t default_value_size = sizeof(R3rVec4);
+	static constexpr std::uint32_t default_value_size = sizeof(R3rVec4);
 
 	using VkAttributeDescriptions = std::vector<VkVertexInputAttributeDescription>;
 	using VkVertexInputBindingDescriptions = std::vector<VkVertexInputBindingDescription>;

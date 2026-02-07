@@ -37,13 +37,13 @@ public:
 	~ImageExtractorImpl() override = default;
 
 private:
-	constexpr static int wall_width = 64;
-	constexpr static int wall_height = 64;
-	constexpr static int wall_area = wall_width * wall_height;
+	static constexpr int wall_width = 64;
+	static constexpr int wall_height = 64;
+	static constexpr int wall_area = wall_width * wall_height;
 
-	constexpr static int sprite_max_width = 64;
-	constexpr static int sprite_max_height = 64;
-	constexpr static int sprite_max_area = sprite_max_width * sprite_max_height;
+	static constexpr int sprite_max_width = 64;
+	static constexpr int sprite_max_height = 64;
+	static constexpr int sprite_max_area = sprite_max_width * sprite_max_height;
 
 	struct Color32
 	{
