@@ -36,18 +36,18 @@ StaticSourceException::StaticSourceException(const std::source_location& source_
 	BSTONE_ASSERT(message != nullptr);
 }
 
-StaticSourceException::StaticSourceException(const std::source_location& source_location) noexcept
+StaticSourceException::StaticSourceException(const std::source_location& source_location)
 	:
 	source_location_{source_location}
 {}
 
-StaticSourceException::StaticSourceException(const StaticSourceException& rhs) noexcept
+StaticSourceException::StaticSourceException(const StaticSourceException& rhs)
 	:
 	source_location_{rhs.source_location_},
 	message_{rhs.message_}
 {}
 
-StaticSourceException& StaticSourceException::operator=(const StaticSourceException& rhs) noexcept
+StaticSourceException& StaticSourceException::operator=(const StaticSourceException& rhs)
 {
 	source_location_ = rhs.source_location_;
 	message_ = rhs.message_;
@@ -56,7 +56,7 @@ StaticSourceException& StaticSourceException::operator=(const StaticSourceExcept
 
 StaticSourceException::~StaticSourceException() = default;
 
-const std::source_location& StaticSourceException::get_source_location() const noexcept
+const std::source_location& StaticSourceException::get_source_location() const
 {
 	return source_location_;
 }
@@ -150,7 +150,7 @@ DynamicSourceException::~DynamicSourceException()
 	}
 }
 
-const std::source_location& DynamicSourceException::get_source_location() const noexcept
+const std::source_location& DynamicSourceException::get_source_location() const
 {
 	return source_location_;
 }

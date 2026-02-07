@@ -46,37 +46,37 @@ struct LoggerLimits
 class Logger
 {
 public:
-	Logger() noexcept;
+	Logger();
 	virtual ~Logger();
 
 	// Writes a message of the specified type.
-	void log(LoggerMessageType message_type, std::string_view message_sv) noexcept;
+	void log(LoggerMessageType message_type, std::string_view message_sv);
 
 	// Write an empty informational message.
-	void log_information() noexcept;
+	void log_information();
 
 	// Writes an informational message.
-	void log_information(std::string_view message_sv) noexcept;
+	void log_information(std::string_view message_sv);
 
 	// Writes a warning message.
-	void log_warning(std::string_view message_sv) noexcept;
+	void log_warning(std::string_view message_sv);
 
 	// Writes an error message.
-	void log_error(std::string_view message_sv) noexcept;
+	void log_error(std::string_view message_sv);
 
 	// Writes an error message for a specified exception.
-	void log_exception(std::exception_ptr exception_ptr) noexcept;
+	void log_exception(std::exception_ptr exception_ptr);
 
 	// Writes an error message for the current exception.
-	void log_current_exception() noexcept;
+	void log_current_exception();
 
 	// Flushes all remaining messages.
 	// (blocks the calling thread)
-	void flush() noexcept;
+	void flush();
 
 private:
-	virtual void do_log(LoggerMessageType message_type, std::string_view message_sv) noexcept = 0;
-	virtual void do_flush() noexcept = 0;
+	virtual void do_log(LoggerMessageType message_type, std::string_view message_sv) = 0;
+	virtual void do_flush() = 0;
 
 private:
 	void log_exception_internal(std::exception_ptr exception_ptr, std::string& message_buffer);

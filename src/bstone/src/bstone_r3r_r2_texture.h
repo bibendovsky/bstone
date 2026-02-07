@@ -36,7 +36,7 @@ struct R3rR2TextureUpdateParam
 class R3rR2Texture
 {
 public:
-	R3rR2Texture() noexcept;
+	R3rR2Texture();
 	virtual ~R3rR2Texture();
 
 	void update(const R3rR2TextureUpdateParam& param);

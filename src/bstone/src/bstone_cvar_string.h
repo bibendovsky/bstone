@@ -17,7 +17,7 @@ namespace bstone {
 class CVarString
 {
 public:
-	CVarString() noexcept;
+	CVarString();
 	explicit CVarString(std::string_view string_view);
 	CVarString(const CVarString& rhs);
 	CVarString(CVarString&& rhs) noexcept;
@@ -25,10 +25,10 @@ public:
 	CVarString& operator=(const CVarString& rhs);
 	CVarString& operator=(CVarString&& rhs) noexcept;
 
-	std::string_view get() const noexcept;
+	std::string_view get() const;
 	void set(std::string_view string_view);
 
-	void swap(CVarString& rhs) noexcept;
+	void swap(CVarString& rhs);
 
 private:
 	using Storage = std::unique_ptr<char[]>;

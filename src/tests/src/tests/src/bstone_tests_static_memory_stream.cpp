@@ -10,7 +10,7 @@ auto tester = bstone::Tester{};
 
 // ==========================================================================
 
-// StaticMemoryStream() noexcept
+// StaticMemoryStream()
 void test_6ds129w9dxsjomlc()
 {
 	const auto memory_stream = bstone::StaticMemoryStream{};
@@ -27,7 +27,7 @@ void test_cg874043ah1bqjbr()
 	tester.check(is_open);
 }
 
-// StaticMemoryStream(const StaticMemoryStream&) noexcept
+// StaticMemoryStream(const StaticMemoryStream&)
 void test_f7khj63zk124btzp()
 {
 	char stream_buffer[100] = {};
@@ -57,7 +57,7 @@ void test_f7khj63zk124btzp()
 		data_result_2);
 }
 
-// StaticMemoryStream& operator=(const StaticMemoryStream&) noexcept
+// StaticMemoryStream& operator=(const StaticMemoryStream&)
 void test_00qcn6my0tb8k541()
 {
 	char stream_buffer[100] = {};
@@ -132,7 +132,7 @@ void test_50buk347p5mbwcdn()
 
 // ==========================================================================
 
-// close() noexcept
+// close()
 void test_8j10siejav8rid6d()
 {
 	auto memory_stream = bstone::StaticMemoryStream{};
@@ -147,7 +147,7 @@ void test_8j10siejav8rid6d()
 
 // ==========================================================================
 
-// bool is_open() const noexcept
+// bool is_open() const
 void test_2siufbq86mhyo1ua()
 {
 	auto memory_stream = bstone::StaticMemoryStream{};

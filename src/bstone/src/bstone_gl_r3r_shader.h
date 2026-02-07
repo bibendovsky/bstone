@@ -28,7 +28,7 @@ public:
 	~GlR3rShader() override {}
 
 
-	virtual GLuint get_gl_name() const noexcept = 0;
+	virtual GLuint get_gl_name() const = 0;
 
 	virtual void attach_to_shader_stage(GlR3rShaderStage* shader_stage) = 0;
 };

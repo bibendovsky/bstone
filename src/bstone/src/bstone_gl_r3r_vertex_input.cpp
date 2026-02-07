@@ -40,14 +40,14 @@ public:
 	~GlR3rVertexInputImpl() override;
 
 	void bind_vao() override;
-	R3rBuffer* get_index_buffer() const noexcept override;
+	R3rBuffer* get_index_buffer() const override;
 
 	void bind() override;
 
 private:
 	struct VaoDeleter
 	{
-		void operator()(GLuint gl_name) noexcept;
+		void operator()(GLuint gl_name);
 	};
 
 	using VaoResource = UniqueResource<GLuint, VaoDeleter>;
@@ -122,7 +122,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rBuffer* GlR3rVertexInputImpl::get_index_buffer() const noexcept
+R3rBuffer* GlR3rVertexInputImpl::get_index_buffer() const
 {
 	return index_buffer_;
 }
@@ -147,7 +147,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rVertexInputImpl::VaoDeleter::operator()(GLuint gl_name) noexcept
+void GlR3rVertexInputImpl::VaoDeleter::operator()(GLuint gl_name)
 {
 	glDeleteVertexArrays(1, &gl_name);
 	GlR3rError::ensure_no_errors_assert();

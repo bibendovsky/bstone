@@ -19,12 +19,12 @@ try
 	CValidator::validate_name(name_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-std::string_view CCmd::get_name() const noexcept
+std::string_view CCmd::get_name() const
 {
 	return name_;
 }
 
-CCmdAction& CCmd::get_action() const noexcept
+CCmdAction& CCmd::get_action() const
 {
 	return *action_;
 }

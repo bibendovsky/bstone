@@ -18,7 +18,7 @@ void test_5vsgrh0ngiztibku()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -26,7 +26,7 @@ void test_5vsgrh0ngiztibku()
 
 	struct Deleter
 	{
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter, EmptyValue>;
@@ -41,7 +41,7 @@ void test_nwhuwglw2a6jo9d6()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -49,7 +49,7 @@ void test_nwhuwglw2a6jo9d6()
 
 	struct Deleter
 	{
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter, EmptyValue>;
@@ -65,7 +65,7 @@ void test_p21v8j553fgt2lal()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -73,7 +73,7 @@ void test_p21v8j553fgt2lal()
 
 	struct Deleter
 	{
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter, EmptyValue>;
@@ -91,7 +91,7 @@ void test_tf5z5j5up4apbh0b()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -99,7 +99,7 @@ void test_tf5z5j5up4apbh0b()
 
 	struct Deleter
 	{
-		void operator()(int) const noexcept
+		void operator()(int) const
 		{
 			++counter_tf5z5j5up4apbh0b;
 		}
@@ -126,7 +126,7 @@ void test_0q6l99sxup31qxq9()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -134,7 +134,7 @@ void test_0q6l99sxup31qxq9()
 
 	struct Deleter
 	{
-		void operator()(int) const noexcept
+		void operator()(int) const
 		{
 			++counter_0q6l99sxup31qxq9;
 		}
@@ -160,7 +160,7 @@ void test_nuixo0tzra25rt5f()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -168,7 +168,7 @@ void test_nuixo0tzra25rt5f()
 
 	struct Deleter
 	{
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter, EmptyValue>;
@@ -183,7 +183,7 @@ void test_5yyqy7ylaj5upttc()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -191,7 +191,7 @@ void test_5yyqy7ylaj5upttc()
 
 	struct Deleter
 	{
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter, EmptyValue>;
@@ -208,7 +208,7 @@ void test_i0gki9p89yl7xv1i()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -216,7 +216,7 @@ void test_i0gki9p89yl7xv1i()
 
 	struct Deleter
 	{
-		void operator()(int) const noexcept
+		void operator()(int) const
 		{
 			++counter_i0gki9p89yl7xv1i;
 		}
@@ -245,7 +245,7 @@ void test_aa2twi6yj4dm1mvo()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -253,7 +253,7 @@ void test_aa2twi6yj4dm1mvo()
 
 	struct Deleter
 	{
-		void operator()(int) const noexcept
+		void operator()(int) const
 		{
 			++counter_aa2twi6yj4dm1mvo;
 		}
@@ -281,7 +281,7 @@ void test_qezkdligeaj4qjaq()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -289,7 +289,7 @@ void test_qezkdligeaj4qjaq()
 
 	struct Deleter
 	{
-		void operator()(int) const noexcept
+		void operator()(int) const
 		{
 			++counter_qezkdligeaj4qjaq;
 		}
@@ -315,7 +315,7 @@ void test_ri9ibhitw8i5tnle()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -323,7 +323,7 @@ void test_ri9ibhitw8i5tnle()
 
 	struct Deleter
 	{
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter, EmptyValue>;
@@ -341,7 +341,7 @@ void test_58aiayzra6imm0p8()
 
 	struct Deleter
 	{
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;
@@ -364,7 +364,7 @@ void test_fp3toubop8s4t805()
 
 	struct Deleter
 	{
-		void operator()(Value*) const noexcept {}
+		void operator()(Value*) const {}
 	};
 
 	using UR = bstone::UniqueResource<Value*, Deleter>;
@@ -383,7 +383,7 @@ void test_iow0ep4j9jhr0s40()
 
 	struct Deleter
 	{
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter>;
@@ -401,7 +401,7 @@ void test_895zkfoibw1c5eu0()
 
 	struct Deleter
 	{
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter>;
@@ -419,7 +419,7 @@ void test_884glztjux6fffet()
 
 	struct Deleter
 	{
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter>;
@@ -436,7 +436,7 @@ void test_ck0h8bfcyrwo4amu()
 
 	struct Deleter
 	{
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter>;
@@ -451,7 +451,7 @@ void test_tcppddfvbsfxx8g7()
 {
 	struct Deleter
 	{
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;
@@ -465,7 +465,7 @@ void test_rr3h438f26wnkhgy()
 {
 	struct Deleter
 	{
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;
@@ -480,7 +480,7 @@ void test_rln6v214wkr5bij1()
 {
 	struct Deleter
 	{
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;
@@ -495,7 +495,7 @@ void test_q6biwiux463ru724()
 {
 	struct Deleter
 	{
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;
@@ -509,7 +509,7 @@ void test_0z0gmpop34d4d8ma()
 {
 	struct Deleter
 	{
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;
@@ -523,7 +523,7 @@ void test_eoae7a2oaxd7c1zx()
 {
 	struct Deleter
 	{
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;
@@ -538,7 +538,7 @@ void test_l9ljlcg6tjrtnftq()
 {
 	struct Deleter
 	{
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;
@@ -553,7 +553,7 @@ void test_xz0dosjcxxysxldj()
 {
 	struct Deleter
 	{
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;
@@ -571,7 +571,7 @@ void test_p6zrqv4d6z0djphc()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -580,7 +580,7 @@ void test_p6zrqv4d6z0djphc()
 	struct Deleter
 	{
 		int dummy;
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter, EmptyValue>;
@@ -595,7 +595,7 @@ void test_985uouwe9v1rl9di()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -604,7 +604,7 @@ void test_985uouwe9v1rl9di()
 	struct Deleter
 	{
 		int dummy;
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter, EmptyValue>;
@@ -620,7 +620,7 @@ void test_pnd40pwxnek91ts6()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -629,7 +629,7 @@ void test_pnd40pwxnek91ts6()
 	struct Deleter
 	{
 		int dummy;
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter, EmptyValue>;
@@ -645,7 +645,7 @@ void test_s5j39m48t33wijqz()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -655,7 +655,7 @@ void test_s5j39m48t33wijqz()
 	{
 		int* counter;
 
-		void operator()(int) const noexcept
+		void operator()(int) const
 		{
 			++(*counter);
 		}
@@ -681,7 +681,7 @@ void test_dk4ur020c1a6awal()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -691,7 +691,7 @@ void test_dk4ur020c1a6awal()
 	{
 		int* counter;
 
-		void operator()(int) const noexcept
+		void operator()(int) const
 		{
 			++(*counter);
 		}
@@ -719,7 +719,7 @@ void test_5jt65pw5ulvjjo5n()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -729,7 +729,7 @@ void test_5jt65pw5ulvjjo5n()
 	{
 		int dummy;
 
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter, EmptyValue>;
@@ -744,7 +744,7 @@ void test_p003g90hg66pw7mq()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -754,7 +754,7 @@ void test_p003g90hg66pw7mq()
 	{
 		int dummy;
 
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter, EmptyValue>;
@@ -769,7 +769,7 @@ void test_xebw87tpiepur40n()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -779,7 +779,7 @@ void test_xebw87tpiepur40n()
 	{
 		int* counter;
 
-		void operator()(int) const noexcept
+		void operator()(int) const
 		{
 			++(*counter);
 		}
@@ -807,7 +807,7 @@ void test_yla859q4iwun5ndz()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -817,7 +817,7 @@ void test_yla859q4iwun5ndz()
 	{
 		int* counter;
 
-		void operator()(int) const noexcept
+		void operator()(int) const
 		{
 			++(*counter);
 		}
@@ -844,7 +844,7 @@ void test_b4mq7z8bda8vf6o9()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -854,7 +854,7 @@ void test_b4mq7z8bda8vf6o9()
 	{
 		int* counter;
 
-		void operator()(int) const noexcept
+		void operator()(int) const
 		{
 			++(*counter);
 		}
@@ -881,7 +881,7 @@ void test_e286jvzfcguikz4o()
 
 	struct EmptyValue
 	{
-		int operator()() const noexcept
+		int operator()() const
 		{
 			return ref_empty_value;
 		}
@@ -891,7 +891,7 @@ void test_e286jvzfcguikz4o()
 	{
 		int dummy;
 
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter, EmptyValue>;
@@ -911,7 +911,7 @@ void test_btbygrlgqri9qcah()
 	{
 		int dummy;
 
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;
@@ -936,7 +936,7 @@ void test_ugkra91u87gsxmtc()
 	{
 		int dummy;
 
-		void operator()(Value*) const noexcept {}
+		void operator()(Value*) const {}
 	};
 
 	using UR = bstone::UniqueResource<Value*, Deleter>;
@@ -957,7 +957,7 @@ void test_whbtdqhs18xl7vfx()
 	{
 		int dummy;
 
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter>;
@@ -977,7 +977,7 @@ void test_bdd5l5d1tu3cqsoh()
 	{
 		int dummy;
 
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter>;
@@ -997,7 +997,7 @@ void test_uugqeeqzltxvf8r9()
 	{
 		int dummy;
 
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter>;
@@ -1016,7 +1016,7 @@ void test_1cb2yc9y9ws4f8vb()
 	{
 		int dummy;
 
-		void operator()(int) const noexcept {}
+		void operator()(int) const {}
 	};
 
 	using UR = bstone::UniqueResource<int, Deleter>;
@@ -1033,7 +1033,7 @@ void test_b1tv8cp0a69aovcw()
 	{
 		int dummy;
 
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;
@@ -1049,7 +1049,7 @@ void test_bmlp49xhueryqml1()
 	{
 		int dummy;
 
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;
@@ -1066,7 +1066,7 @@ void test_raykix8gy7d2i6bb()
 	{
 		int dummy;
 
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;
@@ -1083,7 +1083,7 @@ void test_mukw46ts1mohy0zb()
 	{
 		int dummy;
 
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;
@@ -1099,7 +1099,7 @@ void test_qlcixthuj04lyzea()
 	{
 		int dummy;
 
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;
@@ -1115,7 +1115,7 @@ void test_72voiayfzhz9xb7w()
 	{
 		int dummy;
 
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;
@@ -1132,7 +1132,7 @@ void test_7s4u6jwrjf1s8zo8()
 	{
 		int dummy;
 
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;
@@ -1149,7 +1149,7 @@ void test_9mpqp5y78cl8fdw0()
 	{
 		int dummy;
 
-		void operator()(int*) const noexcept {}
+		void operator()(int*) const {}
 	};
 
 	using UR = bstone::UniqueResource<int*, Deleter>;

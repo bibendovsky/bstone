@@ -133,22 +133,22 @@ try {
 	commands_.emplace_back(command);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-int OalAudioMixer::get_min_rate() const noexcept
+int OalAudioMixer::get_min_rate() const
 {
 	return 11'025;
 }
 
-int OalAudioMixer::get_min_mix_size_ms() const noexcept
+int OalAudioMixer::get_min_mix_size_ms() const
 {
 	return min_mix_size_ms;
 }
 
-int OalAudioMixer::get_default_mix_size_ms() const noexcept
+int OalAudioMixer::get_default_mix_size_ms() const
 {
 	return max_mix_size_ms;
 }
 
-int OalAudioMixer::get_max_channels() const noexcept
+int OalAudioMixer::get_max_channels() const
 {
 	return 2;
 }
@@ -672,7 +672,7 @@ void OalAudioMixer::log_oal_al_extensions()
 	}
 }
 
-const char* OalAudioMixer::get_oal_default_library_file_name() noexcept
+const char* OalAudioMixer::get_oal_default_library_file_name()
 {
 	return
 #if _WIN32
@@ -746,12 +746,12 @@ void OalAudioMixer::initialize_distance_model()
 	al_symbols_.alDistanceModel(AL_NONE);
 }
 
-void OalAudioMixer::initialize_is_mute() noexcept
+void OalAudioMixer::initialize_is_mute()
 {
 	is_mute_ = false;
 }
 
-void OalAudioMixer::initialize_gain() noexcept
+void OalAudioMixer::initialize_gain()
 {
 	gain_ = audio_mixer_max_gain;
 }
@@ -1541,7 +1541,7 @@ void OalAudioMixer::thread_func()
 	}
 }
 
-OalAudioMixer::Voice* OalAudioMixer::find_free_voice() noexcept
+OalAudioMixer::Voice* OalAudioMixer::find_free_voice()
 {
 	for (auto& voice : voices_)
 	{
@@ -1554,7 +1554,7 @@ OalAudioMixer::Voice* OalAudioMixer::find_free_voice() noexcept
 	return nullptr;
 }
 
-OalAudioMixer::Voice* OalAudioMixer::find_music_voice() noexcept
+OalAudioMixer::Voice* OalAudioMixer::find_music_voice()
 {
 	for (auto& voice : voices_)
 	{
@@ -1608,7 +1608,7 @@ void OalAudioMixer::set_listener_r3_orientation()
 	set_al_listener_orientation(listener_r3_orientation_.at.x, listener_r3_orientation_.at.y, listener_r3_orientation_.at.z, listener_r3_orientation_.up.x, listener_r3_orientation_.up.y, listener_r3_orientation_.up.z);
 }
 
-OalSourceSample OalAudioMixer::scale_sample(OalSourceSample sample, int scalar) noexcept
+OalSourceSample OalAudioMixer::scale_sample(OalSourceSample sample, int scalar)
 {
 	auto new_sample = sample * scalar;
 

@@ -40,31 +40,31 @@ public:
 	GlR3rContextImpl(const GlR3rContextImpl& rhs) = delete;
 	~GlR3rContextImpl() override {}
 
-	const R3rDeviceFeatures& get_device_features() const noexcept override;
-	const GlR3rDeviceFeatures& get_gl_device_features() const noexcept override;
+	const R3rDeviceFeatures& get_device_features() const override;
+	const GlR3rDeviceFeatures& get_gl_device_features() const override;
 
 	GlR3rBufferUPtr create_buffer(const R3rBufferInitParam& param) override;
 
-	GlR3rSamplerMgr& get_sampler_manager() const noexcept override;
-	GlR3rVertexInputMgr& get_vertex_input_manager() const noexcept override;
+	GlR3rSamplerMgr& get_sampler_manager() const override;
+	GlR3rVertexInputMgr& get_vertex_input_manager() const override;
 
 	GlR3rShaderUPtr create_shader(const R3rShaderInitParam& param) override;
 
-	GlR3rSampler* get_sampler() const noexcept override;
-	void set_sampler(GlR3rSampler* sampler) noexcept override;
+	GlR3rSampler* get_sampler() const override;
+	void set_sampler(GlR3rSampler* sampler) override;
 
 	R3rR2TextureUPtr create_r2_texture(const R3rR2TextureInitParam& param) override;
 	void bind_r2_texture(GlR3rR2Texture* r2_texture) override;
-	GlR3rR2Texture* get_r2_texture() const noexcept override;
-	void set_r2_texture(GlR3rR2Texture* r2_texture) noexcept override;
+	GlR3rR2Texture* get_r2_texture() const override;
+	void set_r2_texture(GlR3rR2Texture* r2_texture) override;
 
-	GlR3rVertexInput* get_vertex_input() const noexcept override;
-	void set_vertex_input(GlR3rVertexInput* vertex_input) noexcept override;
+	GlR3rVertexInput* get_vertex_input() const override;
+	void set_vertex_input(GlR3rVertexInput* vertex_input) override;
 
 	R3rShaderStageUPtr create_shader_stage(const R3rShaderStageInitParam& param) override;
 	void bind_shader_stage(R3rShaderStage* shader_stage) override;
-	GlR3rShaderStage* get_shader_stage() const noexcept override;
-	void set_shader_stage(GlR3rShaderStage* shader_stage) noexcept override;
+	GlR3rShaderStage* get_shader_stage() const override;
+	void set_shader_stage(GlR3rShaderStage* shader_stage) override;
 
 	void clear(sys::Color color) override;
 
@@ -164,12 +164,12 @@ try {
 	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-const R3rDeviceFeatures& GlR3rContextImpl::get_device_features() const noexcept
+const R3rDeviceFeatures& GlR3rContextImpl::get_device_features() const
 {
 	return device_features_;
 }
 
-const GlR3rDeviceFeatures& GlR3rContextImpl::get_gl_device_features() const noexcept
+const GlR3rDeviceFeatures& GlR3rContextImpl::get_gl_device_features() const
 {
 	return gl_device_features_;
 }
@@ -179,12 +179,12 @@ try {
 	return make_gl_r3r_buffer(*this, param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-GlR3rSamplerMgr& GlR3rContextImpl::get_sampler_manager() const noexcept
+GlR3rSamplerMgr& GlR3rContextImpl::get_sampler_manager() const
 {
 	return *sampler_manager_;
 }
 
-GlR3rVertexInputMgr& GlR3rContextImpl::get_vertex_input_manager() const noexcept
+GlR3rVertexInputMgr& GlR3rContextImpl::get_vertex_input_manager() const
 {
 	return *vertex_input_manager_;
 }
@@ -194,12 +194,12 @@ try {
 	return make_gl_r3r_shader(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-GlR3rSampler* GlR3rContextImpl::get_sampler() const noexcept
+GlR3rSampler* GlR3rContextImpl::get_sampler() const
 {
 	return sampler_;
 }
 
-void GlR3rContextImpl::set_sampler(GlR3rSampler* sampler) noexcept
+void GlR3rContextImpl::set_sampler(GlR3rSampler* sampler)
 {
 	sampler_ = sampler;
 }
@@ -222,22 +222,22 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-GlR3rR2Texture* GlR3rContextImpl::get_r2_texture() const noexcept
+GlR3rR2Texture* GlR3rContextImpl::get_r2_texture() const
 {
 	return r2_texture_;
 }
 
-void GlR3rContextImpl::set_r2_texture(GlR3rR2Texture* r2_texture) noexcept
+void GlR3rContextImpl::set_r2_texture(GlR3rR2Texture* r2_texture)
 {
 	r2_texture_ = r2_texture;
 }
 
-GlR3rVertexInput* GlR3rContextImpl::get_vertex_input() const noexcept
+GlR3rVertexInput* GlR3rContextImpl::get_vertex_input() const
 {
 	return vertex_input_;
 }
 
-void GlR3rContextImpl::set_vertex_input(GlR3rVertexInput* vertex_input) noexcept
+void GlR3rContextImpl::set_vertex_input(GlR3rVertexInput* vertex_input)
 {
 	vertex_input_ = vertex_input;
 }
@@ -260,12 +260,12 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-GlR3rShaderStage* GlR3rContextImpl::get_shader_stage() const noexcept
+GlR3rShaderStage* GlR3rContextImpl::get_shader_stage() const
 {
 	return shader_stage_;
 }
 
-void GlR3rContextImpl::set_shader_stage(GlR3rShaderStage* shader_stage) noexcept
+void GlR3rContextImpl::set_shader_stage(GlR3rShaderStage* shader_stage)
 {
 	shader_stage_ = shader_stage;
 }

@@ -79,7 +79,7 @@ class OalSource
 {
 public:
 	void initialize(const OalSourceInitParam& param);
-	bool is_initialized() const noexcept;
+	bool is_initialized() const;
 	void uninitialize();
 
 	void open(const OalSourceOpenStaticParam& param);

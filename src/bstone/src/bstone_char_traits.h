@@ -20,19 +20,19 @@ namespace bstone {
 namespace char_traits {
 
 template<typename TChar>
-constexpr std::intptr_t get_size(const TChar* chars) noexcept;
+constexpr std::intptr_t get_size(const TChar* chars);
 
 template<typename TChar>
 constexpr int compare(
 	const TChar* lhs_chars,
 	std::intptr_t lhs_size,
 	const TChar* rhs_chars,
-	std::intptr_t rhs_size) noexcept;
+	std::intptr_t rhs_size);
 
 // ==========================================================================
 
 template<typename TChar>
-inline constexpr std::intptr_t get_size(const TChar* chars) noexcept
+inline constexpr std::intptr_t get_size(const TChar* chars)
 {
 	static_assert(
 		std::is_integral<TChar>::value && !std::is_same<TChar, bool>::value,
@@ -55,7 +55,7 @@ inline constexpr int compare(
 	const TChar* lhs_chars,
 	std::intptr_t lhs_size,
 	const TChar* rhs_chars,
-	std::intptr_t rhs_size) noexcept
+	std::intptr_t rhs_size)
 {
 	static_assert(
 		std::is_integral<TChar>::value && !std::is_same<TChar, bool>::value,

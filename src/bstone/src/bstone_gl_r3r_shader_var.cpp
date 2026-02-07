@@ -55,10 +55,10 @@ public:
 	~GlR3rShaderVarImpl() override {};
 
 private:
-	R3rShaderVarType do_get_type() const noexcept override;
-	R3rShaderVarTypeId do_get_type_id() const noexcept override;
-	int do_get_index() const noexcept override;
-	const std::string& do_get_name() const noexcept override;
+	R3rShaderVarType do_get_type() const override;
+	R3rShaderVarTypeId do_get_type_id() const override;
+	int do_get_index() const override;
+	const std::string& do_get_name() const override;
 
 	void do_set_int32(int32_t value) override;
 	void do_set_float32(float value) override;
@@ -100,22 +100,22 @@ try
 	gl_location_ = param.gl_location;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rShaderVarType GlR3rShaderVarImpl::do_get_type() const noexcept
+R3rShaderVarType GlR3rShaderVarImpl::do_get_type() const
 {
 	return type_;
 }
 
-R3rShaderVarTypeId GlR3rShaderVarImpl::do_get_type_id() const noexcept
+R3rShaderVarTypeId GlR3rShaderVarImpl::do_get_type_id() const
 {
 	return type_id_;
 }
 
-int GlR3rShaderVarImpl::do_get_index() const noexcept
+int GlR3rShaderVarImpl::do_get_index() const
 {
 	return index_;
 }
 
-const std::string& GlR3rShaderVarImpl::do_get_name() const noexcept
+const std::string& GlR3rShaderVarImpl::do_get_name() const
 {
 	return name_;
 }

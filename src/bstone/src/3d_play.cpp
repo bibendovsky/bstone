@@ -2097,7 +2097,7 @@ void CleanDrawPlayBorder()
 	DrawPlayBorder();
 }
 
-PaletteShiftInfo palette_shift_get_info() noexcept
+PaletteShiftInfo palette_shift_get_info()
 {
 	return palette_shift_info_;
 }

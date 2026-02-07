@@ -7,7 +7,7 @@ auto tester = bstone::Tester{};
 
 // ==========================================================================
 
-// FourCc() noexcept
+// FourCc()
 void test_e8spipwesrxs9pkr()
 {
 	constexpr auto four_cc = bstone::FourCc{};
@@ -15,7 +15,7 @@ void test_e8spipwesrxs9pkr()
 	tester.check(is_valid_value);
 }
 
-// FourCc(std::uint32_t) noexcept
+// FourCc(std::uint32_t)
 void test_l5lraalljuqar2ks()
 {
 	constexpr auto four_cc = bstone::FourCc{0x01020304U};
@@ -23,7 +23,7 @@ void test_l5lraalljuqar2ks()
 	tester.check(is_valid_value);
 }
 
-// FourCc(TChar, TChar, TChar, TChar) noexcept
+// FourCc(TChar, TChar, TChar, TChar)
 void test_ojgctttjq03zk803()
 {
 	constexpr auto four_cc = bstone::FourCc{'0', '1', '2', '3'};
@@ -31,7 +31,7 @@ void test_ojgctttjq03zk803()
 	tester.check(is_valid_value);
 }
 
-// FourCc(const FourCc&) noexcept
+// FourCc(const FourCc&)
 void test_oz3ffjua2m5aoh3x()
 {
 	constexpr auto four_cc_1 = bstone::FourCc{0x01020304U};
@@ -42,7 +42,7 @@ void test_oz3ffjua2m5aoh3x()
 
 // ==========================================================================
 
-// FourCc& operator=(const FourCc&) noexcept
+// FourCc& operator=(const FourCc&)
 void test_nsq0yax7xgxmat6i()
 {
 	constexpr auto four_cc_1 = bstone::FourCc{0x01020304U};
@@ -54,7 +54,7 @@ void test_nsq0yax7xgxmat6i()
 
 // ==========================================================================
 
-// std::uint32_t get_value() const noexcept
+// std::uint32_t get_value() const
 void test_o0w0veqqj3j3ug8s()
 {
 	constexpr auto four_cc = bstone::FourCc{0x01020304U};
@@ -64,7 +64,7 @@ void test_o0w0veqqj3j3ug8s()
 
 // ==========================================================================
 
-// char operator[](std::intptr_t) const noexcept
+// char operator[](std::intptr_t) const
 void test_cypcn5gej0ddr0u6()
 {
 	constexpr auto four_cc = bstone::FourCc{'0', '1', '2', '3'};
@@ -80,7 +80,7 @@ void test_cypcn5gej0ddr0u6()
 
 // ==========================================================================
 
-// bool operator==(const FourCc&, const FourCc&) noexcept
+// bool operator==(const FourCc&, const FourCc&)
 void test_c9g9s7mj4yip5p5k()
 {
 	constexpr auto four_cc_1 = bstone::FourCc{'0', '1', '2', '3'};
@@ -91,7 +91,7 @@ void test_c9g9s7mj4yip5p5k()
 
 // ==========================================================================
 
-// bool operator!=(const FourCc&, const FourCc&) noexcept
+// bool operator!=(const FourCc&, const FourCc&)
 void test_rcn3ldo9kmvlbicv()
 {
 	constexpr auto four_cc_1 = bstone::FourCc{'_', '1', '2', '3'};

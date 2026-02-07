@@ -64,8 +64,8 @@ public:
 	};
 
 public:
-	static int find_nearest_pot_value(int value) noexcept;
-	static bool is_pot_value(int value) noexcept;
+	static int find_nearest_pot_value(int value);
+	static bool is_pot_value(int value);
 	static int calculate_mipmap_count(int width, int height);
 
 	static sys::WindowFullscreenType get_fullscreen_mode_from_cvar();
@@ -124,39 +124,39 @@ private:
 		const R3rUtilsCreateWindowParam& param);
 
 	// Indexed (row major, has no alpha) -> RGBA
-	static void indexed_to_rgba_8_rm_na(const IndexedToRgba8Param& param) noexcept;
+	static void indexed_to_rgba_8_rm_na(const IndexedToRgba8Param& param);
 
 	// Indexed (row major, has alpha) -> RGBA
-	static void indexed_to_rgba_8_rm_ha(const IndexedToRgba8Param& param) noexcept;
+	static void indexed_to_rgba_8_rm_ha(const IndexedToRgba8Param& param);
 
 	// Indexed (column major, has no alpha) -> RGBA
-	static void indexed_to_rgba_8_cm_na(const IndexedToRgba8Param& param) noexcept;
+	static void indexed_to_rgba_8_cm_na(const IndexedToRgba8Param& param);
 
 	// Indexed (column major, has alpha) -> RGBA
-	static void indexed_to_rgba_8_cm_ha(const IndexedToRgba8Param& param) noexcept;
+	static void indexed_to_rgba_8_cm_ha(const IndexedToRgba8Param& param);
 
 	// Indexed (row major, has no alpha) -> RGBA POT
-	static void indexed_npot_to_rgba_8_rm_na(const IndexedToRgba8Param& param) noexcept;
+	static void indexed_npot_to_rgba_8_rm_na(const IndexedToRgba8Param& param);
 
 	// Indexed (row major, has alpha) -> RGBA POT
-	static void indexed_npot_to_rgba_8_rm_ha(const IndexedToRgba8Param& param) noexcept;
+	static void indexed_npot_to_rgba_8_rm_ha(const IndexedToRgba8Param& param);
 
 	// Indexed (column major, has no alpha) -> RGBA POT
-	static void indexed_npot_to_rgba_8_cm_na(const IndexedToRgba8Param& param) noexcept;
+	static void indexed_npot_to_rgba_8_cm_na(const IndexedToRgba8Param& param);
 
 	// Indexed (column major, has alpha) -> RGBA POT
-	static void indexed_npot_to_rgba_8_cm_ha(const IndexedToRgba8Param& param) noexcept;
+	static void indexed_npot_to_rgba_8_cm_ha(const IndexedToRgba8Param& param);
 
 	static void build_mipmap_1(
 		int previous_dimension,
 		Rgba8CPtr src_colors,
-		Rgba8Ptr dst_colors) noexcept;
+		Rgba8Ptr dst_colors);
 
 	// Averages two colors and premultiplies alpha.
-	static Rgba8 average_pa(Rgba8 color_0, Rgba8 color_1) noexcept;
+	static Rgba8 average_pa(Rgba8 color_0, Rgba8 color_1);
 
 	// Averages four colors and premultiplies alpha.
-	static Rgba8 average_pa(Rgba8 color_0, Rgba8 color_1, Rgba8 color_2, Rgba8 color_3) noexcept;
+	static Rgba8 average_pa(Rgba8 color_0, Rgba8 color_1, Rgba8 color_2, Rgba8 color_3);
 };
 
 } // namespace bstone

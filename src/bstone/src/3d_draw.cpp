@@ -675,7 +675,7 @@ static int get_door_page_number(
 
 namespace {
 
-bool bs_is_tile_solid_wall(int tile) noexcept
+bool bs_is_tile_solid_wall(int tile)
 {
 	return
 		tile != 0 &&

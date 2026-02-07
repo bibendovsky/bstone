@@ -55,21 +55,21 @@ struct R3rUpdateBufferParam
 class R3rBuffer
 {
 public:
-	R3rBuffer() noexcept;
+	R3rBuffer();
 	virtual ~R3rBuffer();
 
 public:
-	R3rBufferType get_type() const noexcept;
-	R3rBufferUsageType get_usage_type() const noexcept;
+	R3rBufferType get_type() const;
+	R3rBufferUsageType get_usage_type() const;
 
-	int get_size() const noexcept;
+	int get_size() const;
 	void update(const R3rUpdateBufferParam& param);
 
 private:
-	virtual R3rBufferType do_get_type() const noexcept = 0;
-	virtual R3rBufferUsageType do_get_usage_type() const noexcept = 0;
+	virtual R3rBufferType do_get_type() const = 0;
+	virtual R3rBufferUsageType do_get_usage_type() const = 0;
 
-	virtual int do_get_size() const noexcept = 0;
+	virtual int do_get_size() const = 0;
 	virtual void do_update(const R3rUpdateBufferParam& param) = 0;
 };
 

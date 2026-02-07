@@ -20,7 +20,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 namespace bstone
 {
 
-AudioDecoder::AudioDecoder() noexcept = default;
+AudioDecoder::AudioDecoder() = default;
 
 AudioDecoder::~AudioDecoder() = default;
 

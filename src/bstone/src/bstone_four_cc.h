@@ -18,15 +18,15 @@ namespace bstone {
 class FourCc
 {
 public:
-	constexpr FourCc() noexcept = default;
+	constexpr FourCc() = default;
 
-	constexpr explicit FourCc(std::uint32_t value) noexcept
+	constexpr explicit FourCc(std::uint32_t value)
 		:
 		value_{value}
 	{}
 
 	template<typename TChar>
-	constexpr FourCc(TChar ch_0, TChar ch_1, TChar ch_2, TChar ch_3) noexcept
+	constexpr FourCc(TChar ch_0, TChar ch_1, TChar ch_2, TChar ch_3)
 		:
 		value_{
 			static_cast<std::uint32_t>(static_cast<std::uint8_t>(ch_0)) |
@@ -35,13 +35,13 @@ public:
 			(static_cast<std::uint32_t>(static_cast<std::uint8_t>(ch_3)) << 24)}
 	{}
 
-	constexpr std::uint32_t get_value() const noexcept
+	constexpr std::uint32_t get_value() const
 	{
 		return value_;
 	}
 
 	template<typename TChar = char>
-	constexpr char operator[](std::intptr_t index) const noexcept
+	constexpr char operator[](std::intptr_t index) const
 	{
 		BSTONE_ASSERT(index >= 0 && index < 4);
 
@@ -54,12 +54,12 @@ private:
 
 // ==========================================================================
 
-inline constexpr bool operator==(const FourCc& lhs, const FourCc& rhs) noexcept
+inline constexpr bool operator==(const FourCc& lhs, const FourCc& rhs)
 {
 	return lhs.get_value() == rhs.get_value();
 }
 
-inline constexpr bool operator!=(const FourCc& lhs, const FourCc& rhs) noexcept
+inline constexpr bool operator!=(const FourCc& lhs, const FourCc& rhs)
 {
 	return !(lhs == rhs);
 }

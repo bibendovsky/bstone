@@ -1110,7 +1110,7 @@ std::uint8_t IN_MouseButtons()
 	return static_cast<std::uint8_t>(INL_GetMouseButtons());
 }
 
-bool in_is_mouse_enabled() noexcept
+bool in_is_mouse_enabled()
 {
 	return in_is_mouse_enabled_cvar.get_bool();
 }
@@ -1120,7 +1120,7 @@ void in_set_is_mouse_enabled(bool is_enabled)
 	in_is_mouse_enabled_cvar.set_bool(is_enabled);
 }
 
-int in_get_mouse_sensitivity() noexcept
+int in_get_mouse_sensitivity()
 {
 	return in_mouse_sensitivity_cvar.get_int32();
 }
@@ -1431,7 +1431,7 @@ try {
 class InClearBindingsCCmdAction final : public bstone::CCmdAction
 {
 public:
-	InClearBindingsCCmdAction() noexcept = default;
+	InClearBindingsCCmdAction() = default;
 	~InClearBindingsCCmdAction() override = default;
 
 private:
@@ -1474,7 +1474,7 @@ try {
 class InClearBindingCCmdAction final : public bstone::CCmdAction
 {
 public:
-	InClearBindingCCmdAction() noexcept = default;
+	InClearBindingCCmdAction() = default;
 	~InClearBindingCCmdAction() override = default;
 
 private:
@@ -1735,7 +1735,7 @@ try {
 class InBindCCmdAction final : public bstone::CCmdAction
 {
 public:
-	InBindCCmdAction() noexcept = default;
+	InBindCCmdAction() = default;
 	~InBindCCmdAction() override = default;
 
 private:

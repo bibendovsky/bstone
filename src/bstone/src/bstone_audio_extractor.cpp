@@ -27,7 +27,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 namespace bstone
 {
 
-AudioExtractor::AudioExtractor() noexcept = default;
+AudioExtractor::AudioExtractor() = default;
 
 AudioExtractor::~AudioExtractor() = default;
 
@@ -93,7 +93,7 @@ AudioExtractorImpl::~AudioExtractorImpl() = default;
 
 void AudioExtractorImpl::extract_music(const std::string& dst_dir)
 {
-	const auto audio_chunk_filter = [](const AudioChunk& audio_chunk) noexcept
+	const auto audio_chunk_filter = [](const AudioChunk& audio_chunk)
 	{
 		return audio_chunk.type == AudioChunkType::adlib_music && audio_chunk.data;
 	};
@@ -103,7 +103,7 @@ void AudioExtractorImpl::extract_music(const std::string& dst_dir)
 
 void AudioExtractorImpl::extract_sfx(const std::string& dst_dir)
 {
-	const auto audio_chunk_filter = [](const AudioChunk& audio_chunk) noexcept
+	const auto audio_chunk_filter = [](const AudioChunk& audio_chunk)
 	{
 		return audio_chunk.type != AudioChunkType::adlib_music && audio_chunk.data;
 	};

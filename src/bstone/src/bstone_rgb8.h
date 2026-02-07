@@ -36,13 +36,13 @@ public:
 	std::uint8_t a_;
 
 
-	Rgba8() noexcept;
+	Rgba8();
 
 	Rgba8(
 		const std::uint8_t r,
 		const std::uint8_t g,
 		const std::uint8_t b,
-		const std::uint8_t a) noexcept;
+		const std::uint8_t a);
 
 
 	std::uint8_t& get(
@@ -59,7 +59,7 @@ public:
 		const int index) const;
 
 
-	void reset() noexcept;
+	void reset();
 }; // Rgba8
 
 using Rgba8Ptr = Rgba8*;
@@ -68,11 +68,11 @@ using Rgba8CPtr = const Rgba8*;
 
 bool operator==(
 	const Rgba8& lhs,
-	const Rgba8& rhs) noexcept;
+	const Rgba8& rhs);
 
 bool operator!=(
 	const Rgba8& lhs,
-	const Rgba8& rhs) noexcept;
+	const Rgba8& rhs);
 
 //
 // Rgba8

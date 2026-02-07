@@ -16,7 +16,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-StaticRoMemoryStream::StaticRoMemoryStream() noexcept = default;
+StaticRoMemoryStream::StaticRoMemoryStream() = default;
 
 StaticRoMemoryStream::StaticRoMemoryStream(const void* buffer, std::intptr_t buffer_size)
 {
@@ -44,12 +44,12 @@ void StaticRoMemoryStream::open(const void* buffer, std::intptr_t buffer_size)
 	size_ = buffer_size;
 }
 
-void StaticRoMemoryStream::do_close() noexcept
+void StaticRoMemoryStream::do_close()
 {
 	close_internal();
 }
 
-bool StaticRoMemoryStream::do_is_open() const noexcept
+bool StaticRoMemoryStream::do_is_open() const
 {
 	return is_open_;
 }
@@ -148,7 +148,7 @@ void StaticRoMemoryStream::do_flush()
 	BSTONE_THROW_STATIC_SOURCE("Not supported.");
 }
 
-void StaticRoMemoryStream::close_internal() noexcept
+void StaticRoMemoryStream::close_internal()
 {
 	is_open_ = false;
 	buffer_ = nullptr;

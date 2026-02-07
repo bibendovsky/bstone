@@ -60,12 +60,12 @@ void Sha1::finish()
 	}
 }
 
-const Sha1Digest& Sha1::get_digest() const noexcept
+const Sha1Digest& Sha1::get_digest() const
 {
 	return digest_;
 }
 
-Sha1::Digest32 Sha1::make_initial_digest_32() noexcept
+Sha1::Digest32 Sha1::make_initial_digest_32()
 {
 	return Digest32
 	{

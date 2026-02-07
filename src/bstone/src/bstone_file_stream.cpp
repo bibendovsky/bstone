@@ -30,12 +30,12 @@ bool FileStream::open(const char* path, sys::FileMode mode)
 	return file_.open(path, mode);
 }
 
-void FileStream::do_close() noexcept
+void FileStream::do_close()
 {
 	file_.close();
 }
 
-bool FileStream::do_is_open() const noexcept
+bool FileStream::do_is_open() const
 {
 	return file_.is_open();
 }

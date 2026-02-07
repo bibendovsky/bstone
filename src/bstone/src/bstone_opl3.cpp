@@ -15,7 +15,7 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
-Opl3::Opl3() noexcept = default;
+Opl3::Opl3() = default;
 
 Opl3::~Opl3() = default;
 

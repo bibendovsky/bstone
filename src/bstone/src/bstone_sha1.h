@@ -39,7 +39,7 @@ public:
 
 	void finish();
 
-	const Sha1Digest& get_digest() const noexcept;
+	const Sha1Digest& get_digest() const;
 
 private:
 	using Block = std::array<std::uint8_t, 64>;
@@ -54,10 +54,10 @@ private:
 	bool is_finished_{}; // Is the digest computed?
 
 private:
-	static Digest32 make_initial_digest_32() noexcept;
+	static Digest32 make_initial_digest_32();
 
 	template<int TBitCount>
-	static std::uint32_t circular_shift(std::uint32_t word) noexcept
+	static std::uint32_t circular_shift(std::uint32_t word)
 	{
 		static_assert(TBitCount >= 0 && TBitCount <= 32, "Invalid bit count.");
 		return word << TBitCount | word >> (32 - TBitCount);

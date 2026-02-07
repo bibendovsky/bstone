@@ -14,7 +14,7 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
-std::int16_t AudioSampleConverter::u8_to_s16(std::uint8_t u8_sample) noexcept
+std::int16_t AudioSampleConverter::u8_to_s16(std::uint8_t u8_sample)
 {
 	const auto sample_s8 = static_cast<int>(u8_sample) - 128;
 
@@ -33,7 +33,7 @@ std::int16_t AudioSampleConverter::u8_to_s16(std::uint8_t u8_sample) noexcept
 	}
 }
 
-float AudioSampleConverter::u8_to_f32(std::uint8_t u8_sample) noexcept
+float AudioSampleConverter::u8_to_f32(std::uint8_t u8_sample)
 {
 	const auto sample_s8 = static_cast<int>(u8_sample) - 128;
 
@@ -51,7 +51,7 @@ float AudioSampleConverter::u8_to_f32(std::uint8_t u8_sample) noexcept
 	}
 }
 
-double AudioSampleConverter::u8_to_f64(std::uint8_t u8_sample) noexcept
+double AudioSampleConverter::u8_to_f64(std::uint8_t u8_sample)
 {
 	const auto sample_s8 = static_cast<int>(u8_sample) - 128;
 
@@ -69,7 +69,7 @@ double AudioSampleConverter::u8_to_f64(std::uint8_t u8_sample) noexcept
 	}
 }
 
-float AudioSampleConverter::s16_to_f32(std::int16_t s16_sample) noexcept
+float AudioSampleConverter::s16_to_f32(std::int16_t s16_sample)
 {
 	if (s16_sample < 0)
 	{
@@ -85,7 +85,7 @@ float AudioSampleConverter::s16_to_f32(std::int16_t s16_sample) noexcept
 	}
 }
 
-std::int16_t AudioSampleConverter::f32_to_s16(float f32_sample) noexcept
+std::int16_t AudioSampleConverter::f32_to_s16(float f32_sample)
 {
 	if (f32_sample < 0.0F)
 	{
@@ -101,7 +101,7 @@ std::int16_t AudioSampleConverter::f32_to_s16(float f32_sample) noexcept
 	}
 }
 
-std::int16_t AudioSampleConverter::f64_to_s16(double f64_sample) noexcept
+std::int16_t AudioSampleConverter::f64_to_s16(double f64_sample)
 {
 	if (f64_sample < 0.0)
 	{

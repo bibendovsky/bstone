@@ -26,7 +26,7 @@ namespace bstone
 
 struct RgbPalette
 {
-	static constexpr int get_max_color_count() noexcept
+	static constexpr int get_max_color_count()
 	{
 		return 256;
 	}

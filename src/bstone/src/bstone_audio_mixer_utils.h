@@ -15,14 +15,14 @@ namespace bstone
 
 struct AudioMixerUtils
 {
-	static AudioMixerR3Vector make_r3_position_from_w3d_coords(double w3d_x, double w3d_y, double w3d_z) noexcept;
-	static AudioMixerListenerR3Orientation make_listener_r3_orientation_from_w3d_view(double w3d_view_cos, double w3d_view_sin) noexcept;
+	static AudioMixerR3Vector make_r3_position_from_w3d_coords(double w3d_x, double w3d_y, double w3d_z);
+	static AudioMixerListenerR3Orientation make_listener_r3_orientation_from_w3d_view(double w3d_view_cos, double w3d_view_sin);
 	// Returns the reciprocal module.
-	static double get_r_module(const AudioMixerR3Vector& v) noexcept;
-	static AudioMixerR3Vector normalize(const AudioMixerR3Vector& v) noexcept;
-	static double get_distance(const AudioMixerR3Vector& a, const AudioMixerR3Vector& b) noexcept;
-	static double dot_product(const AudioMixerR3Vector& a, const AudioMixerR3Vector& b) noexcept;
-	static AudioMixerR3Vector cross_product(const AudioMixerR3Vector& a, const AudioMixerR3Vector& b) noexcept;
+	static double get_r_module(const AudioMixerR3Vector& v);
+	static AudioMixerR3Vector normalize(const AudioMixerR3Vector& v);
+	static double get_distance(const AudioMixerR3Vector& a, const AudioMixerR3Vector& b);
+	static double dot_product(const AudioMixerR3Vector& a, const AudioMixerR3Vector& b);
+	static AudioMixerR3Vector cross_product(const AudioMixerR3Vector& a, const AudioMixerR3Vector& b);
 
 	// Notes:
 	//    - All positions are expected in meters.
@@ -32,7 +32,7 @@ struct AudioMixerUtils
 		const AudioMixerListenerR3Orientation& listener_r3_orientation,
 		const AudioMixerVoiceR3Position& voice_r3_position,
 		double& left_gain,
-		double& right_gain) noexcept;
+		double& right_gain);
 }; // AudioMixerUtils
 
 } // bstone

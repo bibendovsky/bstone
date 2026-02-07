@@ -17,7 +17,7 @@ namespace {
 class AudioMgrNull final : public AudioMgr
 {
 public:
-	AudioMgrNull(Logger& logger) noexcept;
+	AudioMgrNull(Logger& logger);
 	~AudioMgrNull() override;
 
 private:
@@ -31,7 +31,7 @@ private:
 
 // --------------------------------------
 
-AudioMgrNull::AudioMgrNull(Logger& logger) noexcept
+AudioMgrNull::AudioMgrNull(Logger& logger)
 	:
 	logger_{logger}
 {

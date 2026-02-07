@@ -15,7 +15,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 namespace bstone {
 
-Video::Video() noexcept = default;
+Video::Video() = default;
 
 Video::~Video() = default;
 

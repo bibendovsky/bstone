@@ -21,11 +21,11 @@ constexpr auto audio_mixer_voice_invalid_handle_value = AudioMixerVoiceHandleVal
 class AudioMixerVoiceHandle
 {
 public:
-	AudioMixerVoiceHandle() noexcept;
+	AudioMixerVoiceHandle();
 
-	AudioMixerVoiceHandleValue get() const noexcept;
-	bool is_valid() const noexcept;
-	void reset() noexcept;
+	AudioMixerVoiceHandleValue get() const;
+	bool is_valid() const;
+	void reset();
 	AudioMixerVoiceHandle& operator++();
 
 private:
@@ -36,13 +36,13 @@ private:
 
 struct AudioMixerVoiceHandleStdHasher
 {
-	std::size_t operator()(AudioMixerVoiceHandle key) const noexcept;
+	std::size_t operator()(AudioMixerVoiceHandle key) const;
 }; // AudioMixerVoiceHandleStdHasher
 
 // ==========================================================================
 
-bool operator==(const AudioMixerVoiceHandle& lhs, const AudioMixerVoiceHandle& rhs) noexcept;
-bool operator!=(const AudioMixerVoiceHandle& lhs, const AudioMixerVoiceHandle& rhs) noexcept;
+bool operator==(const AudioMixerVoiceHandle& lhs, const AudioMixerVoiceHandle& rhs);
+bool operator!=(const AudioMixerVoiceHandle& lhs, const AudioMixerVoiceHandle& rhs);
 
 } // bstone
 

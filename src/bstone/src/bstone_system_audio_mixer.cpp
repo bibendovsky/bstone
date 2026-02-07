@@ -53,7 +53,7 @@ SystemAudioMixer::CacheItem::CacheItem()
 {
 }
 
-bool SystemAudioMixer::CacheItem::is_decoded() const noexcept
+bool SystemAudioMixer::CacheItem::is_decoded() const
 {
 	return decoded_count == samples_count;
 }
@@ -188,27 +188,27 @@ try {
 	mt_commands_.push_back(command);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-int SystemAudioMixer::get_min_rate() const noexcept
+int SystemAudioMixer::get_min_rate() const
 {
 	return 11'025;
 }
 
-int SystemAudioMixer::get_default_rate() const noexcept
+int SystemAudioMixer::get_default_rate() const
 {
 	return 44'100;
 }
 
-int SystemAudioMixer::get_min_mix_size_ms() const noexcept
+int SystemAudioMixer::get_min_mix_size_ms() const
 {
 	return 20;
 }
 
-int SystemAudioMixer::get_default_mix_size_ms() const noexcept
+int SystemAudioMixer::get_default_mix_size_ms() const
 {
 	return 40;
 }
 
-int SystemAudioMixer::get_max_channels() const noexcept
+int SystemAudioMixer::get_max_channels() const
 {
 	return 2;
 }
@@ -575,18 +575,18 @@ void SystemAudioMixer::mix_samples()
 	}
 }
 
-void SystemAudioMixer::handle_set_mute_command(const SetMuteCommandParam& param) noexcept
+void SystemAudioMixer::handle_set_mute_command(const SetMuteCommandParam& param)
 {
 	is_mute_ = param.is_mute;
 }
 
-void SystemAudioMixer::handle_set_gain_command(const SetGainCommandParam& param) noexcept
+void SystemAudioMixer::handle_set_gain_command(const SetGainCommandParam& param)
 {
 	gain_ = param.gain;
 }
 
 void SystemAudioMixer::handle_set_listener_r3_position_command(
-	const SetListenerR3PositionCommandParam& param) noexcept
+	const SetListenerR3PositionCommandParam& param)
 {
 	if (listener_r3_position_ != param.r3_position)
 	{
@@ -596,7 +596,7 @@ void SystemAudioMixer::handle_set_listener_r3_position_command(
 }
 
 void SystemAudioMixer::handle_set_listener_r3_orientation_command(
-	const SetListenerR3OrientationCommandParam& param) noexcept
+	const SetListenerR3OrientationCommandParam& param)
 {
 	if (listener_r3_orientation_ != param.r3_orientation)
 	{
@@ -1214,7 +1214,7 @@ bool SystemAudioMixer::is_sound_index_valid(int sound_index, SoundType sound_typ
 	}
 }
 
-int SystemAudioMixer::calculate_digitized_sample_count(int dst_sample_rate, int digitized_byte_count) noexcept
+int SystemAudioMixer::calculate_digitized_sample_count(int dst_sample_rate, int digitized_byte_count)
 {
 	BSTONE_ASSERT(dst_sample_rate >= 0);
 	BSTONE_ASSERT(digitized_byte_count >= 0);

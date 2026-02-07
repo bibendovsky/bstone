@@ -17,8 +17,8 @@ class CCmd
 public:
 	CCmd(std::string_view name, CCmdAction& action);
 
-	std::string_view get_name() const noexcept;
-	CCmdAction& get_action() const noexcept;
+	std::string_view get_name() const;
+	CCmdAction& get_action() const;
 
 private:
 	std::string_view name_{};

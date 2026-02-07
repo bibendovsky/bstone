@@ -32,12 +32,12 @@ public:
 
 	bool initialize(const AudioDecoderInitParam& param) override;
 	void uninitialize() override;
-	bool is_initialized() const noexcept override;
+	bool is_initialized() const override;
 
 	int decode(int dst_count, std::int16_t* dst_data) override;
 	bool rewind() override;
 
-	int get_dst_length_in_samples() const noexcept override;
+	int get_dst_length_in_samples() const override;
 
 	// Returns a number of calls per second of
 	// original interrupt routine.
@@ -166,12 +166,12 @@ bool AdlibSfxDecoder::rewind()
 	return true;
 }
 
-int AdlibSfxDecoder::get_dst_length_in_samples() const noexcept
+int AdlibSfxDecoder::get_dst_length_in_samples() const
 {
 	return dst_length_in_samples_;
 }
 
-bool AdlibSfxDecoder::is_initialized() const noexcept
+bool AdlibSfxDecoder::is_initialized() const
 {
 	return is_initialized_;
 }

@@ -15,7 +15,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-MemoryStream::MemoryStream() noexcept = default;
+MemoryStream::MemoryStream() = default;
 
 MemoryStream::MemoryStream(std::intptr_t capacity, std::intptr_t chunk_size)
 {
@@ -53,12 +53,12 @@ void MemoryStream::open(std::intptr_t capacity, std::intptr_t chunk_size)
 	chunk_size_ = chunk_size;
 }
 
-void MemoryStream::do_close() noexcept
+void MemoryStream::do_close()
 {
 	close_internal();
 }
 
-bool MemoryStream::do_is_open() const noexcept
+bool MemoryStream::do_is_open() const
 {
 	return is_open_;
 }
@@ -203,7 +203,7 @@ void MemoryStream::reserve(std::intptr_t capacity, std::intptr_t chunk_size)
 	storage_.swap(storage);
 }
 
-void MemoryStream::close_internal() noexcept
+void MemoryStream::close_internal()
 {
 	is_open_ = false;
 	size_ = 0;

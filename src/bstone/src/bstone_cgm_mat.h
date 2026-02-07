@@ -50,18 +50,18 @@ public:
 
 public:
 	template<typename... TArgs>
-	constexpr MatBase(TArgs&&... args) noexcept
+	constexpr MatBase(TArgs&&... args)
 		:
 		m_{std::forward<TArgs>(args)...}
 	{}
 
-	constexpr const Item& operator[](std::intptr_t index) const noexcept
+	constexpr const Item& operator[](std::intptr_t index) const
 	{
 		BSTONE_ASSERT(index >= 0 && index < item_count);
 		return m_[index];
 	}
 
-	constexpr Item& operator[](std::intptr_t index) noexcept
+	constexpr Item& operator[](std::intptr_t index)
 	{
 		return const_cast<Item&>(std::as_const(*this)[index]);
 	}

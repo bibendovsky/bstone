@@ -60,12 +60,12 @@ constexpr auto DEG180 = std::intptr_t{1800};
 constexpr auto DEG270 = std::intptr_t{2700};
 constexpr auto DEG360 = std::intptr_t{3600};
 
-double get_integral_1(double value) noexcept
+double get_integral_1(double value)
 {
 	return value < 0 ? std::floor(value) : std::trunc(value);
 }
 
-double get_fractional_1(double value) noexcept
+double get_fractional_1(double value)
 {
 	double integral;
 	return std::modf(1 + value, &integral);

@@ -10,7 +10,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-R3rVertexInput::R3rVertexInput() noexcept = default;
+R3rVertexInput::R3rVertexInput() = default;
 
 R3rVertexInput::~R3rVertexInput() = default;
 

@@ -44,7 +44,7 @@ public:
 private:
 	struct TextureDeleter
 	{
-		void operator()(GLuint gl_name) noexcept;
+		void operator()(GLuint gl_name);
 	};
 
 	using TextureResource = UniqueResource<GLuint, TextureDeleter>;
@@ -285,7 +285,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rR2TextureImpl::TextureDeleter::operator()(GLuint gl_name) noexcept
+void GlR3rR2TextureImpl::TextureDeleter::operator()(GLuint gl_name)
 {
 	glDeleteTextures(1, &gl_name);
 	GlR3rError::ensure_no_errors_assert();

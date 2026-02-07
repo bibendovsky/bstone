@@ -14,15 +14,15 @@ namespace bstone {
 class AtomicFlag
 {
 public:
-	explicit AtomicFlag(bool value = false) noexcept;
-	AtomicFlag(const AtomicFlag& rhs) noexcept;
-	AtomicFlag& operator=(bool value) noexcept;
-	AtomicFlag& operator=(const AtomicFlag& rhs) noexcept;
+	explicit AtomicFlag(bool value = false);
+	AtomicFlag(const AtomicFlag& rhs);
+	AtomicFlag& operator=(bool value);
+	AtomicFlag& operator=(const AtomicFlag& rhs);
 
-	bool get() const noexcept;
-	void set(bool value) noexcept;
+	bool get() const;
+	void set(bool value);
 
-	explicit operator bool() const noexcept;
+	explicit operator bool() const;
 
 private:
 	using Flag = std::atomic_bool;

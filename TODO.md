@@ -14,10 +14,10 @@
 - Move "mouse relative mode" code to window.
 - Handle events inside TP_SlowPrint.
 - Use endianness for samples in audio extractor.
-- Use "noexcept" only if necessary.
 - Don't alias (const) pointer (...Ptr, ...CPtr).
 - Use "auto" only if necessary.
 - Use "bit_cast" for pointer-to-function.
 - Convert methods to data-members in R3rLimits.
 - Replace "constexpr static" with "static constexpr".
 - Declare each variable or data-member on separate line.
+- Make constructor/destructor of an interface a default.

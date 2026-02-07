@@ -24,15 +24,15 @@ namespace
 class PcmAudioDecoder final : public AudioDecoder
 {
 public:
-	PcmAudioDecoder() noexcept;
+	PcmAudioDecoder();
 	~PcmAudioDecoder() override;
 
 	bool initialize(const AudioDecoderInitParam& param) override;
 	void uninitialize() override;
-	bool is_initialized() const noexcept override;
+	bool is_initialized() const override;
 	int decode(int dst_count, std::int16_t* dst_data) override;
 	bool rewind() override;
-	int get_dst_length_in_samples() const noexcept override;
+	int get_dst_length_in_samples() const override;
 
 private:
 	bool is_initialized_{};
@@ -47,7 +47,7 @@ private:
 
 // --------------------------------------------------------------------------
 
-PcmAudioDecoder::PcmAudioDecoder() noexcept = default;
+PcmAudioDecoder::PcmAudioDecoder() = default;
 
 PcmAudioDecoder::~PcmAudioDecoder() = default;
 
@@ -98,7 +98,7 @@ void PcmAudioDecoder::uninitialize()
 	sample_ = 0;
 }
 
-bool PcmAudioDecoder::is_initialized() const noexcept
+bool PcmAudioDecoder::is_initialized() const
 {
 	return is_initialized_;
 }
@@ -160,7 +160,7 @@ bool PcmAudioDecoder::rewind()
 	return true;
 }
 
-int PcmAudioDecoder::get_dst_length_in_samples() const noexcept
+int PcmAudioDecoder::get_dst_length_in_samples() const
 {
 	return dst_sample_count_;
 }

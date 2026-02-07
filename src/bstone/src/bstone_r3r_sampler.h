@@ -44,15 +44,15 @@ struct R3rSamplerUpdateParam
 class R3rSampler
 {
 public:
-	R3rSampler() noexcept;
+	R3rSampler();
 	virtual ~R3rSampler();
 
 	void update(const R3rSamplerUpdateParam& param);
-	const R3rSamplerState& get_state() const noexcept;
+	const R3rSamplerState& get_state() const;
 
 private:
 	virtual void do_update(const R3rSamplerUpdateParam& param) = 0;
-	virtual const R3rSamplerState& do_get_state() const noexcept = 0;
+	virtual const R3rSamplerState& do_get_state() const = 0;
 };
 
 // ==========================================================================

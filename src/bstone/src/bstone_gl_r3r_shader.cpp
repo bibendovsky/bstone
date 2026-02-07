@@ -32,17 +32,17 @@ public:
 	~GlR3rShaderImpl() override;
 
 private:
-	R3rShaderType do_get_type() const noexcept override;
+	R3rShaderType do_get_type() const override;
 
 public:
-	GLuint get_gl_name() const noexcept override;
+	GLuint get_gl_name() const override;
 
 	void attach_to_shader_stage(GlR3rShaderStage* shader_stage) override;
 
 private:
 	struct ShaderDeleter
 	{
-		void operator()(GLuint gl_name) noexcept;
+		void operator()(GLuint gl_name);
 	};
 
 	using ShaderResource = UniqueResource<GLuint, ShaderDeleter>;
@@ -126,18 +126,18 @@ GlR3rShaderImpl::~GlR3rShaderImpl()
 	}
 }
 
-R3rShaderType GlR3rShaderImpl::do_get_type() const noexcept
+R3rShaderType GlR3rShaderImpl::do_get_type() const
 {
 	return type_;
 }
 
-void GlR3rShaderImpl::ShaderDeleter::operator()(GLuint gl_name) noexcept
+void GlR3rShaderImpl::ShaderDeleter::operator()(GLuint gl_name)
 {
 	glDeleteShader(gl_name);
 	GlR3rError::ensure_no_errors_assert();
 }
 
-GLuint GlR3rShaderImpl::get_gl_name() const noexcept
+GLuint GlR3rShaderImpl::get_gl_name() const
 {
 	return shader_resource_.get();
 }

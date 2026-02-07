@@ -26,12 +26,12 @@ protected:
 public:
 	~GlR3rShaderStage() override {}
 
-	virtual GlR3rContext& get_context() const noexcept = 0;
+	virtual GlR3rContext& get_context() const = 0;
 
 	virtual void set() = 0;
 	virtual void detach_fragment_shader() = 0;
 	virtual void detach_vertex_shader() = 0;
-	virtual GLuint get_gl_name() const noexcept = 0;
+	virtual GLuint get_gl_name() const = 0;
 };
 
 // ==========================================================================

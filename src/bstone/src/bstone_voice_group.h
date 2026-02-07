@@ -17,7 +17,7 @@ namespace bstone {
 class VoiceGroup
 {
 public:
-	VoiceGroup() noexcept;
+	VoiceGroup();
 	virtual ~VoiceGroup();
 
 	bool is_any_playing();

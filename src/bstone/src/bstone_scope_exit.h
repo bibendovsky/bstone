@@ -47,12 +47,12 @@ public:
 		functor_();
 	}
 
-	void release() noexcept
+	void release()
 	{
 		is_released_ = true;
 	}
 
-	void swap(ScopeExit& rhs) noexcept
+	void swap(ScopeExit& rhs)
 	{
 		std::swap(functor_, rhs.functor_);
 		std::swap(is_released_, rhs.is_released_);
@@ -66,7 +66,7 @@ private:
 // ==========================================================================
 
 template<typename TFunctor>
-auto make_scope_exit(TFunctor&& functor) noexcept
+auto make_scope_exit(TFunctor&& functor)
 {
 	return ScopeExit<TFunctor>{std::forward<TFunctor>(functor)};
 }

@@ -19,7 +19,7 @@ static Version version_impl
 
 } // namespace
 
-const Version& get_version() noexcept
+const Version& get_version()
 {
 	return version_impl;
 }

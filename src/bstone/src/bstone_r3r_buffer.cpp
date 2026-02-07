@@ -11,21 +11,21 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-R3rBuffer::R3rBuffer() noexcept = default;
+R3rBuffer::R3rBuffer() = default;
 
 R3rBuffer::~R3rBuffer() = default;
 
-R3rBufferType R3rBuffer::get_type() const noexcept
+R3rBufferType R3rBuffer::get_type() const
 {
 	return do_get_type();
 }
 
-R3rBufferUsageType R3rBuffer::get_usage_type() const noexcept
+R3rBufferUsageType R3rBuffer::get_usage_type() const
 {
 	return do_get_usage_type();
 }
 
-int R3rBuffer::get_size() const noexcept
+int R3rBuffer::get_size() const
 {
 	return do_get_size();
 }

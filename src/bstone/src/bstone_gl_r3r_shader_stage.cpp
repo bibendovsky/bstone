@@ -37,7 +37,7 @@ public:
 	GlR3rShaderStageImpl(GlR3rContext& context, const R3rShaderStageInitParam& param);
 	~GlR3rShaderStageImpl() override;
 
-	GlR3rContext& get_context() const noexcept override;
+	GlR3rContext& get_context() const override;
 	void set() override;
 
 private:
@@ -53,14 +53,14 @@ private:
 	void detach_fragment_shader() override;
 	void detach_vertex_shader() override;
 
-	GLuint get_gl_name() const noexcept override;
+	GLuint get_gl_name() const override;
 
 private:
 	using NameBuffer = std::vector<char>;
 
 	struct ShaderStageDeleter
 	{
-		void operator()(GLuint gl_name) noexcept;
+		void operator()(GLuint gl_name);
 	};
 
 	using ShaderStageResource = UniqueResource<GLuint, ShaderStageDeleter>;
@@ -85,8 +85,8 @@ private:
 	int get_var_count(GLuint gl_name);
 	void get_vars(R3rShaderVarType type, GLuint gl_name, ShaderVars& shader_vars);
 	void check_input_bindings(R3rShaderStageInputBindings input_bindings);
-	R3rShaderVar* find_var_internal(const std::string& name) noexcept;
-	R3rShaderVar* find_var_internal(R3rShaderVarTypeId type_id, const char* name) noexcept;
+	R3rShaderVar* find_var_internal(const std::string& name);
+	R3rShaderVar* find_var_internal(R3rShaderVarTypeId type_id, const char* name);
 };
 
 // ==========================================================================
@@ -169,7 +169,7 @@ GlR3rShaderStageImpl::~GlR3rShaderStageImpl()
 	}
 }
 
-GlR3rContext& GlR3rShaderStageImpl::get_context() const noexcept
+GlR3rContext& GlR3rShaderStageImpl::get_context() const
 {
 	return context_;
 }
@@ -230,12 +230,12 @@ try {
 	vertex_shader_ = nullptr;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-GLuint GlR3rShaderStageImpl::get_gl_name() const noexcept
+GLuint GlR3rShaderStageImpl::get_gl_name() const
 {
 	return shader_stage_resource_.get();
 }
 
-void GlR3rShaderStageImpl::ShaderStageDeleter::operator()(GLuint gl_name) noexcept
+void GlR3rShaderStageImpl::ShaderStageDeleter::operator()(GLuint gl_name)
 {
 	glDeleteProgram(gl_name);
 	GlR3rError::ensure_no_errors_assert();
@@ -514,7 +514,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rShaderVar* GlR3rShaderStageImpl::find_var_internal(const std::string& name) noexcept
+R3rShaderVar* GlR3rShaderStageImpl::find_var_internal(const std::string& name)
 {
 	const auto end_it = shader_vars_.end();
 
@@ -534,7 +534,7 @@ R3rShaderVar* GlR3rShaderStageImpl::find_var_internal(const std::string& name) n
 	return it->get();
 }
 
-R3rShaderVar* GlR3rShaderStageImpl::find_var_internal(R3rShaderVarTypeId type_id, const char* name) noexcept
+R3rShaderVar* GlR3rShaderStageImpl::find_var_internal(R3rShaderVarTypeId type_id, const char* name)
 {
 	const auto end_it = shader_vars_.end();
 

@@ -43,7 +43,7 @@ try {
 	is_initialized_ = true;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-bool OalSource::is_initialized() const noexcept
+bool OalSource::is_initialized() const
 {
 	return is_initialized_;
 }

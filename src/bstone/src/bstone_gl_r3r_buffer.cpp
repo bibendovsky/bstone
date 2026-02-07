@@ -32,9 +32,9 @@ public:
 	~GlR3rBufferImpl() override {}
 
 private:
-	R3rBufferType do_get_type() const noexcept override;
-	R3rBufferUsageType do_get_usage_type() const noexcept override;
-	int do_get_size() const noexcept override;
+	R3rBufferType do_get_type() const override;
+	R3rBufferUsageType do_get_usage_type() const override;
+	int do_get_size() const override;
 
 	void do_update(const R3rUpdateBufferParam& param) override;
 
@@ -44,7 +44,7 @@ private:
 private:
 	struct BufferDeleter
 	{
-		void operator()(GLuint gl_name) const noexcept;
+		void operator()(GLuint gl_name) const;
 	};
 
 	using BufferResource = UniqueResource<GLuint, BufferDeleter>;
@@ -117,17 +117,17 @@ try
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rBufferType GlR3rBufferImpl::do_get_type() const noexcept
+R3rBufferType GlR3rBufferImpl::do_get_type() const
 {
 	return type_;
 }
 
-R3rBufferUsageType GlR3rBufferImpl::do_get_usage_type() const noexcept
+R3rBufferUsageType GlR3rBufferImpl::do_get_usage_type() const
 {
 	return usage_type_;
 }
 
-int GlR3rBufferImpl::do_get_size() const noexcept
+int GlR3rBufferImpl::do_get_size() const
 {
 	return size_;
 }
@@ -162,7 +162,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rBufferImpl::BufferDeleter::operator()(GLuint gl_name) const noexcept
+void GlR3rBufferImpl::BufferDeleter::operator()(GLuint gl_name) const
 {
 	glDeleteBuffers(1, &gl_name);
 	GlR3rError::ensure_no_errors_assert();

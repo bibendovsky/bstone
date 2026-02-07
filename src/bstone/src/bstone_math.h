@@ -18,33 +18,33 @@ namespace bstone
 namespace math
 {
 
-constexpr double pi() noexcept
+constexpr double pi()
 {
 	return 3.14159265358979323846;
 }
 
-constexpr double deg_to_rad(double angle_deg) noexcept
+constexpr double deg_to_rad(double angle_deg)
 {
 	return angle_deg * pi() / 180.0;
 }
 
-constexpr double rad_to_deg(double angle_rad) noexcept
+constexpr double rad_to_deg(double angle_rad)
 {
 	return angle_rad * 180.0 / pi();
 }
 
-constexpr double fixed_to_floating(int value) noexcept
+constexpr double fixed_to_floating(int value)
 {
 	return static_cast<double>(value) / static_cast<double>(1 << 16);
 }
 
-constexpr int floating_to_fixed(double value) noexcept
+constexpr int floating_to_fixed(double value)
 {
 	return static_cast<int>(value * (1 << 16));
 }
 
 template<typename T>
-inline T gcd(T a, T b) noexcept
+inline T gcd(T a, T b)
 {
 	static_assert(std::is_integral<T>::value, "Expected integral type.");
 
