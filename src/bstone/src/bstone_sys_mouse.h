@@ -20,21 +20,21 @@ enum class MouseWheelDirection
 
 struct MouseButtonIndex
 {
-	constexpr static int left = 0;
-	constexpr static int right = 1;
-	constexpr static int middle = 2;
-	constexpr static int x1 = 3;
-	constexpr static int x2 = 4;
+	static constexpr int left = 0;
+	static constexpr int right = 1;
+	static constexpr int middle = 2;
+	static constexpr int x1 = 3;
+	static constexpr int x2 = 4;
 };
 
 struct MouseButtonMask
 {
-	constexpr static unsigned int none = 0U;
-	constexpr static unsigned int left = 1U << MouseButtonIndex::left;
-	constexpr static unsigned int right = 1U << MouseButtonIndex::right;
-	constexpr static unsigned int middle = 1U << MouseButtonIndex::middle;
-	constexpr static unsigned int x1 = 1U << MouseButtonIndex::x1;
-	constexpr static unsigned int x2 = 1U << MouseButtonIndex::x2;
+	static constexpr unsigned int none = 0U;
+	static constexpr unsigned int left = 1U << MouseButtonIndex::left;
+	static constexpr unsigned int right = 1U << MouseButtonIndex::right;
+	static constexpr unsigned int middle = 1U << MouseButtonIndex::middle;
+	static constexpr unsigned int x1 = 1U << MouseButtonIndex::x1;
+	static constexpr unsigned int x2 = 1U << MouseButtonIndex::x2;
 };
 
 } // namespace bstone::sys

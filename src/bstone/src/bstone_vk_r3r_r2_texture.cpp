@@ -34,7 +34,7 @@ private:
 
 	VkImageView do_get_vk_image_view() const override;
 
-	constexpr static const VkFormat vk_default_format = VK_FORMAT_R8G8B8A8_UNORM;
+	static constexpr const VkFormat vk_default_format = VK_FORMAT_R8G8B8A8_UNORM;
 	using ImageLayouts = std::array<VkImageLayout, R3rLimits::max_mipmap_count()>;
 
 	VkR3rContext& context_;
