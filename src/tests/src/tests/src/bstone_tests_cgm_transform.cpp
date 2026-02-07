@@ -11,7 +11,7 @@ auto tester = bstone::Tester{};
 // ==========================================================================
 
 template<typename T>
-constexpr T abs(T x) noexcept
+constexpr T abs(T x)
 {
 	return x < 0 ? -x : x;
 }
@@ -19,7 +19,7 @@ constexpr T abs(T x) noexcept
 template<typename T>
 constexpr bool are_mat4_equal(
 	const bstone::cgm::Mat<4, 4, T>& a,
-	const bstone::cgm::Mat<4, 4, T>& b, T epsilon) noexcept
+	const bstone::cgm::Mat<4, 4, T>& b, T epsilon)
 {
 	for (auto i = 0; i < 16; ++i)
 	{

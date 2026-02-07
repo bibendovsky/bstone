@@ -16,7 +16,7 @@ namespace bstone
 class OalLoader
 {
 public:
-	OalLoader() noexcept;
+	OalLoader();
 	virtual ~OalLoader();
 
 	virtual void load_alc_symbols(OalAlSymbols& al_symbols) = 0;

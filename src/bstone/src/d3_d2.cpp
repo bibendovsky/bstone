@@ -26,7 +26,7 @@ namespace {
 
 struct NoShadingFunc
 {
-	std::uint8_t operator()(std::uint8_t pixel) const noexcept
+	std::uint8_t operator()(std::uint8_t pixel) const
 	{
 		return pixel;
 	}
@@ -34,7 +34,7 @@ struct NoShadingFunc
 
 struct StandardShadingFunc
 {
-	std::uint8_t operator()(std::uint8_t pixel) const noexcept
+	std::uint8_t operator()(std::uint8_t pixel) const
 	{
 		return shadingtable[pixel];
 	}
@@ -43,13 +43,13 @@ struct StandardShadingFunc
 template<typename TShadingFunc>
 struct NoDrawFunc
 {
-	void operator()(int, int) const noexcept {}
+	void operator()(int, int) const {}
 };
 
 template<typename TShadingFunc>
 struct CeilingDrawFunc
 {
-	void operator()(int xy, int i_mr) const noexcept
+	void operator()(int xy, int i_mr) const
 	{
 		const auto ceiling_index = planepics[xy % planepics_size];
 		const auto ceiling_pixel = TShadingFunc{}(ceiling_index);
@@ -60,7 +60,7 @@ struct CeilingDrawFunc
 template<typename TShadingFunc>
 struct FloorDrawFunc
 {
-	void operator()(int xy, int i_mr) const noexcept
+	void operator()(int xy, int i_mr) const
 	{
 		const auto floor_index = planepics[(xy + 1) % planepics_size];
 		const auto floor_pixel = TShadingFunc{}(floor_index);

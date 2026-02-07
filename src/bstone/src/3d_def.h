@@ -3298,7 +3298,7 @@ extern int shade_max;
 
 
 void SetupScaling(
-	int maxscaleheight) noexcept;
+	int maxscaleheight);
 
 void ScaleShape(
 	int xcenter,
@@ -3915,49 +3915,49 @@ std::uint16_t static_object_to_ui16(const statobj_t* static_object);
 doorobj_t* ui16_to_door_object(std::uint16_t value);
 std::uint16_t door_object_to_ui16(const doorobj_t* door_object);
 
-bool gp_is_flooring_solid() noexcept;
+bool gp_is_flooring_solid();
 void gp_is_flooring_solid(bool is_enable);
 
-bool gp_is_ceiling_solid() noexcept;
+bool gp_is_ceiling_solid();
 void gp_is_ceiling_solid(bool is_enable);
 
-bool gp_no_shading() noexcept;
+bool gp_no_shading();
 void gp_no_shading(bool is_enable);
 
-bool gp_hide_attacker_info() noexcept;
+bool gp_hide_attacker_info();
 void gp_hide_attacker_info(bool is_enable);
 
-bool gp_is_always_run() noexcept;
+bool gp_is_always_run();
 void gp_is_always_run(bool is_enable);
 
-bool gp_no_wall_hit_sfx() noexcept;
+bool gp_no_wall_hit_sfx();
 void gp_no_wall_hit_sfx(bool is_enable);
 
-bool gp_use_heart_beat_sfx() noexcept;
+bool gp_use_heart_beat_sfx();
 void gp_use_heart_beat_sfx(bool is_enable);
 
-bool gp_quit_on_escape() noexcept;
+bool gp_quit_on_escape();
 void gp_quit_on_escape(bool is_enable);
 
-bool gp_no_intro_outro() noexcept;
+bool gp_no_intro_outro();
 void gp_no_intro_outro(bool is_enable);
 
-bool gp_no_screens() noexcept;
+bool gp_no_screens();
 void gp_no_screens(bool is_enable);
 
-bool gp_no_fade_in_or_out() noexcept;
+bool gp_no_fade_in_or_out();
 void gp_no_fade_in_or_out(bool is_enable);
 
-bool gp_no_weapon_bobbing() noexcept;
+bool gp_no_weapon_bobbing();
 void gp_no_weapon_bobbing(bool is_enable);
 
-bool gp_vanilla_fizzle_fx() noexcept;
+bool gp_vanilla_fizzle_fx();
 void gp_vanilla_fizzle_fx(bool is_enabled);
 
-bool gp_ps_map_in_stats() noexcept;
+bool gp_ps_map_in_stats();
 void gp_ps_map_in_stats(bool is_enabled);
 
-bool am_rotatable() noexcept;
+bool am_rotatable();
 void am_rotatable(bool is_enable);
 
 extern bstone::MtTaskMgr* mt_task_manager_;
@@ -3991,7 +3991,7 @@ const std::string& get_profile_dir();
 
 const std::string& get_screenshot_dir();
 
-void update_normalshade() noexcept;
+void update_normalshade();
 
 int door_get_track_texture_id(
 	const doorobj_t& door);
@@ -4003,7 +4003,7 @@ int player_get_weapon_sprite_id();
 
 double player_get_weapon_bounce_offset();
 
-PaletteShiftInfo palette_shift_get_info() noexcept;
+PaletteShiftInfo palette_shift_get_info();
 
 void cfg_file_write_entry(
 	bstone::TextWriter& writer,
@@ -4020,10 +4020,10 @@ std::uint16_t get_start_hit_point(
 
 
 double get_integral(
-	const double value) noexcept;
+	const double value);
 
 double get_fractional(
-	const double value) noexcept;
+	const double value);
 
 void gp_initialize_cvars(bstone::CVarMgr& cvar_mgr);
 void am_initialize_cvars(bstone::CVarMgr& cvar_mgr);

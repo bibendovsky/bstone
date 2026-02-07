@@ -16,22 +16,22 @@ SPDX-License-Identifier: GPL-2.0-or-later
 namespace bstone
 {
 
-AudioMixerListenerR3Position audio_mixer_make_default_listener_r3_position() noexcept
+AudioMixerListenerR3Position audio_mixer_make_default_listener_r3_position()
 {
 	return AudioMixerListenerR3Position{};
 }
 
-AudioMixerR3Vector audio_mixer_make_default_listener_r3_orientation_at() noexcept
+AudioMixerR3Vector audio_mixer_make_default_listener_r3_orientation_at()
 {
 	return AudioMixerR3Vector{0.0, 0.0, -1.0};
 }
 
-AudioMixerR3Vector audio_mixer_make_default_listener_r3_orientation_up() noexcept
+AudioMixerR3Vector audio_mixer_make_default_listener_r3_orientation_up()
 {
 	return AudioMixerR3Vector{0.0, 1.0, 0.0};
 }
 
-AudioMixerListenerR3Orientation audio_mixer_make_default_listener_r3_orientation() noexcept
+AudioMixerListenerR3Orientation audio_mixer_make_default_listener_r3_orientation()
 {
 	auto result = AudioMixerListenerR3Orientation{};
 	result.at = audio_mixer_make_default_listener_r3_orientation_at();
@@ -39,14 +39,14 @@ AudioMixerListenerR3Orientation audio_mixer_make_default_listener_r3_orientation
 	return result;
 }
 
-AudioMixerVoiceR3Position audio_mixer_make_default_voice_r3_position() noexcept
+AudioMixerVoiceR3Position audio_mixer_make_default_voice_r3_position()
 {
 	return AudioMixerVoiceR3Position{};
 }
 
 // ==========================================================================
 
-AudioMixer::AudioMixer() noexcept = default;
+AudioMixer::AudioMixer() = default;
 
 AudioMixer::~AudioMixer() = default;
 
@@ -67,7 +67,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void AudioMixerListenerR3Position::operator=(const AudioMixerR3Vector& r3_vector) noexcept
+void AudioMixerListenerR3Position::operator=(const AudioMixerR3Vector& r3_vector)
 {
 	x = r3_vector.x;
 	y = r3_vector.y;
@@ -76,48 +76,48 @@ void AudioMixerListenerR3Position::operator=(const AudioMixerR3Vector& r3_vector
 
 // ==========================================================================
 
-bool operator==(const AudioMixerR3Vector& lhs, const AudioMixerR3Vector& rhs) noexcept
+bool operator==(const AudioMixerR3Vector& lhs, const AudioMixerR3Vector& rhs)
 {
 	return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z;
 }
 
-bool operator!=(const AudioMixerR3Vector& lhs, const AudioMixerR3Vector& rhs) noexcept
+bool operator!=(const AudioMixerR3Vector& lhs, const AudioMixerR3Vector& rhs)
 {
 	return !(lhs == rhs);
 }
 
 // --------------------------------------------------------------------------
 
-bool operator==(const AudioMixerListenerR3Orientation& lhs, const AudioMixerListenerR3Orientation& rhs) noexcept
+bool operator==(const AudioMixerListenerR3Orientation& lhs, const AudioMixerListenerR3Orientation& rhs)
 {
 	return lhs.at == rhs.at && lhs.up == rhs.up;
 }
 
-bool operator!=(const AudioMixerListenerR3Orientation& lhs, const AudioMixerListenerR3Orientation& rhs) noexcept
+bool operator!=(const AudioMixerListenerR3Orientation& lhs, const AudioMixerListenerR3Orientation& rhs)
 {
 	return !(lhs == rhs);
 }
 
 // --------------------------------------------------------------------------
 
-AudioMixerR3Vector operator*(const AudioMixerR3Vector& lhs, double rhs) noexcept
+AudioMixerR3Vector operator*(const AudioMixerR3Vector& lhs, double rhs)
 {
 	return AudioMixerR3Vector{lhs.x * rhs, lhs.y * rhs, lhs.z * rhs};
 }
 
-AudioMixerVoiceR3Position operator*(const AudioMixerVoiceR3Position& lhs, double rhs) noexcept
+AudioMixerVoiceR3Position operator*(const AudioMixerVoiceR3Position& lhs, double rhs)
 {
 	return AudioMixerVoiceR3Position{lhs.x * rhs, lhs.y * rhs, lhs.z * rhs};
 }
 
-AudioMixerListenerR3Position operator*(const AudioMixerListenerR3Position& lhs, double rhs) noexcept
+AudioMixerListenerR3Position operator*(const AudioMixerListenerR3Position& lhs, double rhs)
 {
 	return AudioMixerListenerR3Position{lhs.x * rhs, lhs.y * rhs, lhs.z * rhs};
 }
 
 // --------------------------------------------------------------------------
 
-AudioMixerR3Vector operator-(const AudioMixerVoiceR3Position& lhs, const AudioMixerListenerR3Position& rhs) noexcept
+AudioMixerR3Vector operator-(const AudioMixerVoiceR3Position& lhs, const AudioMixerListenerR3Position& rhs)
 {
 	return AudioMixerR3Vector{lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
 }

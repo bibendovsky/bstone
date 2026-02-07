@@ -10,12 +10,12 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-std::uint32_t Crc32::get_value() const noexcept
+std::uint32_t Crc32::get_value() const
 {
 	return value_;
 }
 
-void Crc32::reset() noexcept
+void Crc32::reset()
 {
 	value_ = 0;
 }

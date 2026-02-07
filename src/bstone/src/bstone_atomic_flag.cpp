@@ -8,38 +8,38 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-AtomicFlag::AtomicFlag(bool value) noexcept
+AtomicFlag::AtomicFlag(bool value)
 	:
 	flag_{value}
 {}
 
-AtomicFlag::AtomicFlag(const AtomicFlag& rhs) noexcept
+AtomicFlag::AtomicFlag(const AtomicFlag& rhs)
 	:
 	AtomicFlag{rhs.get()}
 {}
 
-AtomicFlag& AtomicFlag::operator=(bool value) noexcept
+AtomicFlag& AtomicFlag::operator=(bool value)
 {
 	set(value);
 	return *this;
 }
 
-AtomicFlag& AtomicFlag::operator=(const AtomicFlag& rhs) noexcept
+AtomicFlag& AtomicFlag::operator=(const AtomicFlag& rhs)
 {
 	return *this = rhs.get();
 }
 
-bool AtomicFlag::get() const noexcept
+bool AtomicFlag::get() const
 {
 	return flag_.load(std::memory_order_acquire);
 }
 
-void AtomicFlag::set(bool value) noexcept
+void AtomicFlag::set(bool value)
 {
 	flag_.store(value, std::memory_order_release);
 }
 
-AtomicFlag::operator bool() const noexcept
+AtomicFlag::operator bool() const
 {
 	return get();
 }

@@ -7220,7 +7220,7 @@ public:
 		}
 	}
 
-	bool is_empty() const noexcept
+	bool is_empty() const
 	{
 		return size_ == 0;
 	}
@@ -10843,13 +10843,13 @@ dirtype operator++(
 
 
 double get_integral(
-	const double value) noexcept
+	const double value)
 {
 	return std::trunc(value);
 }
 
 double get_fractional(
-	const double value) noexcept
+	const double value)
 {
 	double integral;
 	return std::modf(value, &integral);
@@ -11051,7 +11051,7 @@ void am_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 	cvar_mgr.add(am_rotatable_cvar);
 }
 
-bool gp_is_flooring_solid() noexcept
+bool gp_is_flooring_solid()
 {
 	return gp_is_flooring_solid_cvar.get_bool();
 }
@@ -11061,7 +11061,7 @@ void gp_is_flooring_solid(bool is_enable)
 	gp_is_flooring_solid_cvar.set_bool(is_enable);
 }
 
-bool gp_is_ceiling_solid() noexcept
+bool gp_is_ceiling_solid()
 {
 	return gp_is_ceiling_solid_cvar.get_bool();
 }
@@ -11071,7 +11071,7 @@ void gp_is_ceiling_solid(bool is_enable)
 	gp_is_ceiling_solid_cvar.set_bool(is_enable);
 }
 
-bool gp_no_shading() noexcept
+bool gp_no_shading()
 {
 	return gp_no_shading_cvar.get_bool();
 }
@@ -11081,7 +11081,7 @@ void gp_no_shading(bool is_enable)
 	gp_no_shading_cvar.set_bool(is_enable);
 }
 
-bool gp_hide_attacker_info() noexcept
+bool gp_hide_attacker_info()
 {
 	return gp_hide_attacker_info_cvar.get_bool();
 }
@@ -11091,7 +11091,7 @@ void gp_hide_attacker_info(bool is_enable)
 	gp_hide_attacker_info_cvar.set_bool(is_enable);
 }
 
-bool gp_is_always_run() noexcept
+bool gp_is_always_run()
 {
 	return gp_is_always_run_cvar.get_bool();
 }
@@ -11101,7 +11101,7 @@ void gp_is_always_run(bool is_enable)
 	gp_is_always_run_cvar.set_bool(is_enable);
 }
 
-bool gp_no_wall_hit_sfx() noexcept
+bool gp_no_wall_hit_sfx()
 {
 	return gp_no_wall_hit_sfx_cvar.get_bool();
 }
@@ -11111,7 +11111,7 @@ void gp_no_wall_hit_sfx(bool is_enable)
 	gp_no_wall_hit_sfx_cvar.set_bool(is_enable);
 }
 
-bool gp_use_heart_beat_sfx() noexcept
+bool gp_use_heart_beat_sfx()
 {
 	return gp_use_heart_beat_sfx_cvar.get_bool();
 }
@@ -11121,7 +11121,7 @@ void gp_use_heart_beat_sfx(bool is_enable)
 	gp_use_heart_beat_sfx_cvar.set_bool(is_enable);
 }
 
-bool gp_quit_on_escape() noexcept
+bool gp_quit_on_escape()
 {
 	return gp_quit_on_escape_cvar.get_bool();
 }
@@ -11131,7 +11131,7 @@ void gp_quit_on_escape(bool is_enable)
 	gp_quit_on_escape_cvar.set_bool(is_enable);
 }
 
-bool gp_no_intro_outro() noexcept
+bool gp_no_intro_outro()
 {
 	return gp_no_intro_outro_cvar.get_bool();
 }
@@ -11141,7 +11141,7 @@ void gp_no_intro_outro(bool is_enable)
 	gp_no_intro_outro_cvar.set_bool(is_enable);
 }
 
-bool gp_no_screens() noexcept
+bool gp_no_screens()
 {
 	return gp_no_screens_cvar.get_bool();
 }
@@ -11151,7 +11151,7 @@ void gp_no_screens(bool is_enable)
 	gp_no_screens_cvar.set_bool(is_enable);
 }
 
-bool gp_no_fade_in_or_out() noexcept
+bool gp_no_fade_in_or_out()
 {
 	return gp_no_fade_in_or_out_cvar.get_bool();
 }
@@ -11161,7 +11161,7 @@ void gp_no_fade_in_or_out(bool is_enable)
 	gp_no_fade_in_or_out_cvar.set_bool(is_enable);
 }
 
-bool gp_no_weapon_bobbing() noexcept
+bool gp_no_weapon_bobbing()
 {
 	return gp_no_weapon_bobbing_cvar.get_bool();
 }
@@ -11171,7 +11171,7 @@ void gp_no_weapon_bobbing(bool is_enable)
 	gp_no_weapon_bobbing_cvar.set_bool(is_enable);
 }
 
-bool gp_vanilla_fizzle_fx() noexcept
+bool gp_vanilla_fizzle_fx()
 {
 	return gp_vanilla_fizzle_fx_cvar.get_bool();
 }
@@ -11181,7 +11181,7 @@ void gp_vanilla_fizzle_fx(bool is_enabled)
 	gp_vanilla_fizzle_fx_cvar.set_bool(is_enabled);
 }
 
-bool gp_ps_map_in_stats() noexcept
+bool gp_ps_map_in_stats()
 {
 	return gp_ps_map_in_stats_cvar.get_bool();
 }
@@ -11191,7 +11191,7 @@ void gp_ps_map_in_stats(bool is_enabled)
 	gp_ps_map_in_stats_cvar.set_bool(is_enabled);
 }
 
-bool am_rotatable() noexcept
+bool am_rotatable()
 {
 	return am_rotatable_cvar.get_bool();
 }

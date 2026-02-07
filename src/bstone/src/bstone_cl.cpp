@@ -129,7 +129,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-ClOptions Cl::get_options() const noexcept
+ClOptions Cl::get_options() const
 {
 	return std::span{options_.data(), options_.size()};
 }
@@ -152,7 +152,7 @@ ClOption Cl::find_option(std::string_view option_name) const
 	return ClOption{};
 }
 
-std::intptr_t Cl::get_count() const noexcept
+std::intptr_t Cl::get_count() const
 {
 	return static_cast<std::intptr_t>(args_.size());
 }

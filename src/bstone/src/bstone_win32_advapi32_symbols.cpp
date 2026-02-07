@@ -21,7 +21,7 @@ class AdvApi32SymbolsImpl
 {
 public:
 	AdvApi32SymbolsImpl();
-	RegDeleteKeyExWFunc get_reg_delete_key_ex_w() const noexcept;
+	RegDeleteKeyExWFunc get_reg_delete_key_ex_w() const;
 
 	static AdvApi32SymbolsImpl& get_object();
 
@@ -38,7 +38,7 @@ AdvApi32SymbolsImpl::AdvApi32SymbolsImpl()
 	reg_delete_key_ex_w_{shared_library_.find_symbol<RegDeleteKeyExWFunc>("RegDeleteKeyExW")}
 {}
 
-RegDeleteKeyExWFunc AdvApi32SymbolsImpl::get_reg_delete_key_ex_w() const noexcept
+RegDeleteKeyExWFunc AdvApi32SymbolsImpl::get_reg_delete_key_ex_w() const
 {
 	return reg_delete_key_ex_w_;
 }
@@ -53,7 +53,7 @@ AdvApi32SymbolsImpl& AdvApi32SymbolsImpl::get_object()
 
 // ==========================================================================
 
-RegDeleteKeyExWFunc AdvApi32Symbols::get_reg_delete_key_ex_w() noexcept
+RegDeleteKeyExWFunc AdvApi32Symbols::get_reg_delete_key_ex_w()
 {
 	return AdvApi32SymbolsImpl::get_object().get_reg_delete_key_ex_w();
 }

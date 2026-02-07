@@ -109,7 +109,7 @@ private:
 
 		CacheItem();
 
-		bool is_decoded() const noexcept;
+		bool is_decoded() const;
 	}; // CacheItem
 
 	using Cache = std::deque<CacheItem>;
@@ -286,11 +286,11 @@ private:
 	std::atomic_bool is_state_suspended_{};
 	sys::PollingAudioDeviceUPtr sys_audio_device_{};
 
-	int get_min_rate() const noexcept;
-	int get_default_rate() const noexcept;
-	int get_min_mix_size_ms() const noexcept;
-	int get_default_mix_size_ms() const noexcept;
-	int get_max_channels() const noexcept;
+	int get_min_rate() const;
+	int get_default_rate() const;
+	int get_min_mix_size_ms() const;
+	int get_default_mix_size_ms() const;
+	int get_max_channels() const;
 
 	void initialize_is_mute();
 	void initialize_gain();
@@ -304,11 +304,11 @@ private:
 	void mix();
 	void mix_samples();
 
-	void handle_set_mute_command(const SetMuteCommandParam& param) noexcept;
-	void handle_set_gain_command(const SetGainCommandParam& param) noexcept;
+	void handle_set_mute_command(const SetMuteCommandParam& param);
+	void handle_set_gain_command(const SetGainCommandParam& param);
 
-	void handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param) noexcept;
-	void handle_set_listener_r3_orientation_command(const SetListenerR3OrientationCommandParam& param) noexcept;
+	void handle_set_listener_r3_position_command(const SetListenerR3PositionCommandParam& param);
+	void handle_set_listener_r3_orientation_command(const SetListenerR3OrientationCommandParam& param);
 
 	void handle_pause_voice_command(const PauseVoiceCommandParam& param);
 	void handle_resume_voice_command(const ResumeVoiceCommandParam& param);
@@ -335,7 +335,7 @@ private:
 	AudioDecoderUPtr create_decoder_by_sound_type(SoundType sound_type) const;
 	static bool is_sound_type_valid(SoundType sound_type);
 	static bool is_sound_index_valid(int sound_index, SoundType sound_type);
-	static int calculate_digitized_sample_count(int dst_sample_rate, int digitized_byte_count) noexcept;
+	static int calculate_digitized_sample_count(int dst_sample_rate, int digitized_byte_count);
 };
 
 } // bstone

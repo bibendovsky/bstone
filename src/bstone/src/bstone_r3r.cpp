@@ -11,31 +11,31 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-R3r::R3r() noexcept = default;
+R3r::R3r() = default;
 
 R3r::~R3r() = default;
 
-R3rType R3r::get_type() const noexcept
+R3rType R3r::get_type() const
 {
 	return do_get_type();
 }
 
-std::string_view R3r::get_name() const noexcept
+std::string_view R3r::get_name() const
 {
 	return do_get_name();
 }
 
-std::string_view R3r::get_description() const noexcept
+std::string_view R3r::get_description() const
 {
 	return do_get_description();
 }
 
-const R3rDeviceFeatures& R3r::get_device_features() const noexcept
+const R3rDeviceFeatures& R3r::get_device_features() const
 {
 	return do_get_device_features();
 }
 
-const R3rDeviceInfo& R3r::get_device_info() const noexcept
+const R3rDeviceInfo& R3r::get_device_info() const
 {
 	return do_get_device_info();
 }
@@ -45,7 +45,7 @@ void R3r::enable_checking_api_calls_for_errors(bool is_enable)
 	do_enable_checking_api_calls_for_errors(is_enable);
 }
 
-sys::Window& R3r::get_window() const noexcept
+sys::Window& R3r::get_window() const
 {
 	return do_get_window();
 }
@@ -55,7 +55,7 @@ try {
 	return do_handle_resize(new_size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-bool R3r::get_vsync() const noexcept
+bool R3r::get_vsync() const
 {
 	return do_get_vsync();
 }

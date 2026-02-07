@@ -28,7 +28,7 @@ class SourceException : public Exception
 public:
 	~SourceException() override;
 
-	virtual const std::source_location& get_source_location() const noexcept = 0;
+	virtual const std::source_location& get_source_location() const = 0;
 };
 
 // ==========================================================================
@@ -37,12 +37,12 @@ class StaticSourceException : public SourceException
 {
 public:
 	StaticSourceException(const std::source_location& source_location, const char* message);
-	explicit StaticSourceException(const std::source_location& source_location) noexcept;
-	StaticSourceException(const StaticSourceException& rhs) noexcept;
-	StaticSourceException& operator=(const StaticSourceException& rhs) noexcept;
+	explicit StaticSourceException(const std::source_location& source_location);
+	StaticSourceException(const StaticSourceException& rhs);
+	StaticSourceException& operator=(const StaticSourceException& rhs);
 	~StaticSourceException() override;
 
-	const std::source_location& get_source_location() const noexcept override;
+	const std::source_location& get_source_location() const override;
 	const char* what() const noexcept override;
 
 	void swap(StaticSourceException& rhs) noexcept;
@@ -65,7 +65,7 @@ public:
 	DynamicSourceException& operator=(const DynamicSourceException& rhs);
 	~DynamicSourceException() override;
 
-	const std::source_location& get_source_location() const noexcept override;
+	const std::source_location& get_source_location() const override;
 	const char* what() const noexcept override;
 
 	void swap(DynamicSourceException& rhs) noexcept;

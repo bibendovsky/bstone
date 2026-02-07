@@ -24,7 +24,7 @@ struct Version
 
 // ==========================================================================
 
-const Version& get_version() noexcept;
+const Version& get_version();
 
 } // namespace bstone
 

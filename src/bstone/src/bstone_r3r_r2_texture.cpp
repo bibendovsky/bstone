@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-R3rR2Texture::R3rR2Texture() noexcept = default;
+R3rR2Texture::R3rR2Texture() = default;
 
 R3rR2Texture::~R3rR2Texture() = default;
 

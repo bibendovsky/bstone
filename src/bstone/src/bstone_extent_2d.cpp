@@ -35,14 +35,14 @@ struct Extent2d
 
 bool operator==(
 	const Extent2d& lhs,
-	const Extent2d& rhs) noexcept
+	const Extent2d& rhs)
 {
 	return lhs.width_ == rhs.width_ && lhs.width_ == rhs.height_;
 }
 
 bool operator!=(
 	const Extent2d& lhs,
-	const Extent2d& rhs) noexcept
+	const Extent2d& rhs)
 {
 	return !(lhs == rhs);
 }

@@ -25,13 +25,13 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
-MtTask::MtTask() noexcept = default;
+MtTask::MtTask() = default;
 
 MtTask::~MtTask() = default;
 
 // ==========================================================================
 
-MtTaskMgr::MtTaskMgr() noexcept = default;
+MtTaskMgr::MtTaskMgr() = default;
 
 MtTaskMgr::~MtTaskMgr() = default;
 
@@ -65,7 +65,7 @@ public:
 		int mt_task_count);
 
 	bool pop(
-		MtTaskPtr& mt_task) noexcept;
+		MtTaskPtr& mt_task);
 
 
 private:
@@ -105,9 +105,9 @@ public:
 	~MtTaskMgrImpl() override;
 
 
-	int get_max_threads() const noexcept override;
+	int get_max_threads() const override;
 
-	int get_thread_count() const noexcept override;
+	int get_thread_count() const override;
 
 
 	void add_tasks(
@@ -278,7 +278,7 @@ void MtTaskQueue::push(
 }
 
 bool MtTaskQueue::pop(
-	MtTaskPtr& mt_task) noexcept
+	MtTaskPtr& mt_task)
 {
 	MutexLock flag_lock{mutex_};
 
@@ -330,12 +330,12 @@ MtTaskMgrImpl::~MtTaskMgrImpl()
 	uninitialize();
 }
 
-int MtTaskMgrImpl::get_max_threads() const noexcept
+int MtTaskMgrImpl::get_max_threads() const
 {
 	return max_threads_;
 }
 
-int MtTaskMgrImpl::get_thread_count() const noexcept
+int MtTaskMgrImpl::get_thread_count() const
 {
 	return thread_count_;
 }

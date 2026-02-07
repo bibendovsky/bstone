@@ -19,7 +19,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-R3rMgr::R3rMgr() noexcept = default;
+R3rMgr::R3rMgr() = default;
 
 R3rMgr::~R3rMgr() = default;
 
@@ -35,7 +35,7 @@ namespace {
 class R3rMgrImpl final : public R3rMgr
 {
 public:
-	R3rMgrImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr) noexcept;
+	R3rMgrImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr);
 	~R3rMgrImpl() override;
 
 private:
@@ -51,7 +51,7 @@ private:
 
 R3rMgrImpl::~R3rMgrImpl() = default;
 
-R3rMgrImpl::R3rMgrImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr) noexcept
+R3rMgrImpl::R3rMgrImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr)
 	:
 	video_mgr_{video_mgr},
 	window_mgr_{window_mgr}

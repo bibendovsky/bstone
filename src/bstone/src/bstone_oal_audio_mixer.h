@@ -266,10 +266,10 @@ private:
 
 	[[noreturn]] static void fail_unsupported();
 
-	int get_min_rate() const noexcept;
-	int get_min_mix_size_ms() const noexcept;
-	int get_default_mix_size_ms() const noexcept;
-	int get_max_channels() const noexcept;
+	int get_min_rate() const;
+	int get_min_mix_size_ms() const;
+	int get_default_mix_size_ms() const;
+	int get_max_channels() const;
 
 	void make_al_context_current();
 
@@ -296,12 +296,12 @@ private:
 	void log_oal_al_info();
 	void log_oal_al_extensions();
 
-	static const char* get_oal_default_library_file_name() noexcept;
+	static const char* get_oal_default_library_file_name();
 
 	void initialize_oal(const AudioMixerInitParam& param);
 	void initialize_distance_model();
-	void initialize_is_mute() noexcept;
-	void initialize_gain() noexcept;
+	void initialize_is_mute();
+	void initialize_gain();
 	void initialize_listener_r3_position();
 	void initialize_listener_r3_orientation();
 	void initialize_voice_handles();
@@ -350,8 +350,8 @@ private:
 	void initialize_thread();
 	void thread_func();
 
-	Voice* find_free_voice() noexcept;
-	Voice* find_music_voice() noexcept;
+	Voice* find_free_voice();
+	Voice* find_music_voice();
 
 	void set_al_listener_r3_position(double x, double y, double z);
 	void set_listener_r3_position();
@@ -359,7 +359,7 @@ private:
 	void set_al_listener_orientation(double at_x, double at_y, double at_z, double up_x, double up_y, double up_z);
 	void set_listener_r3_orientation();
 
-	static OalSourceSample scale_sample(OalSourceSample sample, int scalar) noexcept;
+	static OalSourceSample scale_sample(OalSourceSample sample, int scalar);
 }; // OalAudioMixer
 
 } // bstone

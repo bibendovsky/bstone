@@ -37,7 +37,7 @@ public:
 		R3rDeviceFeatures& device_features,
 		GlR3rDeviceFeatures& gl_device_features);
 
-	static int get_window_msaa_value(const sys::GlContextAttributes& gl_attributes) noexcept;
+	static int get_window_msaa_value(const sys::GlContextAttributes& gl_attributes);
 
 	static int get_max_anisotropy_degree();
 

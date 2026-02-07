@@ -155,12 +155,12 @@ struct R3rCmdBufferInitParam
 class R3rCmdBuffer
 {
 public:
-	R3rCmdBuffer() noexcept;
+	R3rCmdBuffer();
 	virtual ~R3rCmdBuffer();
 
 public:
-	int get_count() const noexcept;
-	bool is_enabled() const noexcept;
+	int get_count() const;
+	bool is_enabled() const;
 	void enable(bool is_enabled);
 
 	void begin_write();
@@ -228,8 +228,8 @@ public:
 	const R3rDrawIndexedCmd& read_draw_indexed();
 
 private:
-	virtual int do_get_count() const noexcept = 0;
-	virtual bool do_is_enabled() const noexcept = 0;
+	virtual int do_get_count() const = 0;
+	virtual bool do_is_enabled() const = 0;
 	virtual void do_enable(bool is_enabled) = 0;
 
 	virtual void do_begin_write() = 0;

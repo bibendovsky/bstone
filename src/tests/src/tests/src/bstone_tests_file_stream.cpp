@@ -76,7 +76,7 @@ void test_bfq3co9j1znbbjim()
 
 // ==========================================================================
 
-// void close() noexcept
+// void close()
 void test_wrbmfiq7r9t2bjfi()
 {
 	bstone::FileStream file(test_data_file_name, bstone::sys::FileMode::create);
@@ -87,7 +87,7 @@ void test_wrbmfiq7r9t2bjfi()
 
 // ==========================================================================
 
-// is_open() const noexcept
+// is_open() const
 void test_n0q8fvihwy1v2klm()
 {
 	const bstone::FileStream file(

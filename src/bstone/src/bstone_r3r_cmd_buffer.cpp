@@ -12,16 +12,16 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-R3rCmdBuffer::R3rCmdBuffer() noexcept = default;
+R3rCmdBuffer::R3rCmdBuffer() = default;
 
 R3rCmdBuffer::~R3rCmdBuffer() = default;
 
-int R3rCmdBuffer::get_count() const noexcept
+int R3rCmdBuffer::get_count() const
 {
 	return do_get_count();
 }
 
-bool R3rCmdBuffer::is_enabled() const noexcept
+bool R3rCmdBuffer::is_enabled() const
 {
 	return do_is_enabled();
 }
@@ -247,9 +247,9 @@ public:
 	~R3rCmdBufferImpl() override;
 
 private:
-	int do_get_count() const noexcept override;
+	int do_get_count() const override;
 
-	bool do_is_enabled() const noexcept override;
+	bool do_is_enabled() const override;
 	void do_enable(bool is_enabled) override;
 
 	void do_begin_write() override;
@@ -316,17 +316,17 @@ private:
 	const R3rDrawIndexedCmd& do_read_draw_indexed() override;
 
 private:
-	static constexpr int get_min_initial_size() noexcept
+	static constexpr int get_min_initial_size()
 	{
 		return 4096;
 	}
 
-	static constexpr int get_min_resize_delta_size() noexcept
+	static constexpr int get_min_resize_delta_size()
 	{
 		return 4096;
 	}
 
-	static constexpr int get_command_id_size() noexcept
+	static constexpr int get_command_id_size()
 	{
 		return static_cast<int>(sizeof(R3rCmdId));
 	}
@@ -414,12 +414,12 @@ try {
 
 R3rCmdBufferImpl::~R3rCmdBufferImpl() = default;
 
-int R3rCmdBufferImpl::do_get_count() const noexcept
+int R3rCmdBufferImpl::do_get_count() const
 {
 	return command_count_;
 }
 
-bool R3rCmdBufferImpl::do_is_enabled() const noexcept
+bool R3rCmdBufferImpl::do_is_enabled() const
 {
 	return is_enabled_;
 }

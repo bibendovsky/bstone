@@ -17,12 +17,12 @@ namespace bstone
 
 // ==========================================================================
 
-AudioMixerR3Vector AudioMixerUtils::make_r3_position_from_w3d_coords(double w3d_x, double w3d_y, double w3d_z) noexcept
+AudioMixerR3Vector AudioMixerUtils::make_r3_position_from_w3d_coords(double w3d_x, double w3d_y, double w3d_z)
 {
 	return AudioMixerR3Vector{w3d_x, w3d_z, w3d_y};
 }
 
-AudioMixerListenerR3Orientation AudioMixerUtils::make_listener_r3_orientation_from_w3d_view(double w3d_view_cos, double w3d_view_sin) noexcept
+AudioMixerListenerR3Orientation AudioMixerUtils::make_listener_r3_orientation_from_w3d_view(double w3d_view_cos, double w3d_view_sin)
 {
 	auto result = AudioMixerListenerR3Orientation{};
 	result.at = AudioMixerR3Vector{w3d_view_cos, 0.0, -w3d_view_sin};
@@ -30,17 +30,17 @@ AudioMixerListenerR3Orientation AudioMixerUtils::make_listener_r3_orientation_fr
 	return result;
 }
 
-double AudioMixerUtils::get_r_module(const AudioMixerR3Vector& v) noexcept
+double AudioMixerUtils::get_r_module(const AudioMixerR3Vector& v)
 {
 	return 1.0 / std::sqrt((v.x * v.x) + (v.y * v.y) + (v.z * v.z));
 }
 
-AudioMixerR3Vector AudioMixerUtils::normalize(const AudioMixerR3Vector& v) noexcept
+AudioMixerR3Vector AudioMixerUtils::normalize(const AudioMixerR3Vector& v)
 {
 	return v * get_r_module(v);
 }
 
-double AudioMixerUtils::get_distance(const AudioMixerR3Vector& a, const AudioMixerR3Vector& b) noexcept
+double AudioMixerUtils::get_distance(const AudioMixerR3Vector& a, const AudioMixerR3Vector& b)
 {
 	const auto dx = a.x - b.x;
 	const auto dy = a.y - b.y;
@@ -48,12 +48,12 @@ double AudioMixerUtils::get_distance(const AudioMixerR3Vector& a, const AudioMix
 	return std::sqrt((dx * dx) + (dy * dy) + (dz * dz));
 }
 
-double AudioMixerUtils::dot_product(const AudioMixerR3Vector& a, const AudioMixerR3Vector& b) noexcept
+double AudioMixerUtils::dot_product(const AudioMixerR3Vector& a, const AudioMixerR3Vector& b)
 {
 	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
 }
 
-AudioMixerR3Vector AudioMixerUtils::cross_product(const AudioMixerR3Vector& a, const AudioMixerR3Vector& b) noexcept
+AudioMixerR3Vector AudioMixerUtils::cross_product(const AudioMixerR3Vector& a, const AudioMixerR3Vector& b)
 {
 	return AudioMixerR3Vector{(a.y * b.z) - (a.z * b.y), (a.z * b.x) - (a.x * b.z), (a.x * b.y) - (a.y * b.x)};
 }
@@ -66,7 +66,7 @@ void AudioMixerUtils::spatialize_voice_2_0(
 	const AudioMixerListenerR3Orientation& listener_r3_orientation,
 	const AudioMixerVoiceR3Position& voice_r3_position,
 	double& left_gain,
-	double& right_gain) noexcept
+	double& right_gain)
 {
 	constexpr auto distance_epsilon = 0.000'5;
 	const auto distance = get_distance(listener_r3_position, voice_r3_position);

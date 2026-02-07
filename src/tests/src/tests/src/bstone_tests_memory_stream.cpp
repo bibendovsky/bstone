@@ -10,7 +10,7 @@ auto tester = bstone::Tester{};
 
 // ==========================================================================
 
-// MemoryStream() noexcept
+// MemoryStream()
 void test_ojtxcuz6rez2calp()
 {
 	const auto memory_stream = bstone::MemoryStream{};
@@ -90,7 +90,7 @@ void test_z0n6lao1idgwkvxf()
 
 // ==========================================================================
 
-// void close() noexcept
+// void close()
 void test_a5fcwagrrawe30nh()
 {
 	auto memory_stream = bstone::MemoryStream{};
@@ -104,7 +104,7 @@ void test_a5fcwagrrawe30nh()
 
 // ==========================================================================
 
-// is_open() const noexcept
+// is_open() const
 void test_w4fbiti2lb0dhi8c()
 {
 	auto memory_stream = bstone::MemoryStream{};

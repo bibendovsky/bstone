@@ -70,9 +70,9 @@ private:
 	RendererUPtr do_make_renderer(const RendererInitParam& param) override;
 
 	static int map_offset(WindowOffset offset);
-	static Uint32 map_flags(const WindowInitParam& param) noexcept;
+	static Uint32 map_flags(const WindowInitParam& param);
 	static SDL_GLProfile map_gl_context_profile(GlContextProfile context_profile);
-	static GlContextAttributes make_default_gl_attributes() noexcept;
+	static GlContextAttributes make_default_gl_attributes();
 	static const char* get_gl_attribute_name(SDL_GLAttr sdl_gl_attr);
 	static void set_gl_attribute(SDL_GLAttr sdl_gl_attr, int value);
 	static void set_gl_attributes(const GlContextAttributes& gl_attributes);
@@ -404,7 +404,7 @@ int WindowSdl::map_offset(WindowOffset offset)
 	}
 }
 
-Uint32 WindowSdl::map_flags(const WindowInitParam& param) noexcept
+Uint32 WindowSdl::map_flags(const WindowInitParam& param)
 {
 	Uint32 sdl_flags = 0;
 	if (param.renderer_type == WindowRendererType::open_gl)
@@ -433,7 +433,7 @@ SDL_GLProfile WindowSdl::map_gl_context_profile(GlContextProfile context_profile
 	}
 }
 
-GlContextAttributes WindowSdl::make_default_gl_attributes() noexcept
+GlContextAttributes WindowSdl::make_default_gl_attributes()
 {
 	return GlContextAttributes{
 		.is_accelerated = true,

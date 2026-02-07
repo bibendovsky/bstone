@@ -35,13 +35,13 @@ public:
 
 	void initialize(int argc, char* const* argv);
 
-	ClOptions get_options() const noexcept;
+	ClOptions get_options() const;
 
 	bool has_option(std::string_view option_name) const;
 
 	ClOption find_option(std::string_view option_name) const;
 
-	std::intptr_t get_count() const noexcept;
+	std::intptr_t get_count() const;
 	std::string_view get_argument(std::intptr_t index) const;
 	std::string_view get_option_value(std::string_view option_name) const;
 	void get_option_values(std::string_view option_name, std::string_view& value1, std::string_view& value2) const;

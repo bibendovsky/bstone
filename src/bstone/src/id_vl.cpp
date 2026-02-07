@@ -388,14 +388,14 @@ public:
 	void execute() override;
 
 
-	bool is_completed() const noexcept override;
+	bool is_completed() const override;
 
 	void set_completed() override;
 
 
-	bool is_failed() const noexcept override;
+	bool is_failed() const override;
 
-	std::exception_ptr get_exception_ptr() const noexcept override;
+	std::exception_ptr get_exception_ptr() const override;
 
 	void set_failed(
 		std::exception_ptr exception_ptr) override;
@@ -523,7 +523,7 @@ catch (...)
 	}
 }
 
-bool SaveScreenshotMtTask::is_completed() const noexcept
+bool SaveScreenshotMtTask::is_completed() const
 {
 	return is_completed_.get();
 }
@@ -533,12 +533,12 @@ void SaveScreenshotMtTask::set_completed()
 	is_completed_ = true;
 }
 
-bool SaveScreenshotMtTask::is_failed() const noexcept
+bool SaveScreenshotMtTask::is_failed() const
 {
 	return is_failed_.get();
 }
 
-std::exception_ptr SaveScreenshotMtTask::get_exception_ptr() const noexcept
+std::exception_ptr SaveScreenshotMtTask::get_exception_ptr() const
 {
 	return exception_ptr_;
 }
@@ -645,7 +645,7 @@ namespace
 bstone::sys::DisplayMode vid_display_mode_;
 
 int vid_align_dimension(
-	int dimension) noexcept
+	int dimension)
 {
 	const auto alignment = 2;
 
@@ -655,7 +655,7 @@ int vid_align_dimension(
 void vid_cfg_fix_window_dimension(
 	int& dimension,
 	int min_value,
-	int default_value) noexcept
+	int default_value)
 {
 	if (dimension <= 0)
 	{
@@ -668,7 +668,7 @@ void vid_cfg_fix_window_dimension(
 	}
 }
 
-void vid_cfg_fix_window_width() noexcept
+void vid_cfg_fix_window_width()
 {
 	auto width = vid_cfg_get_width();
 
@@ -680,7 +680,7 @@ void vid_cfg_fix_window_width() noexcept
 	vid_cfg_set_width(width);
 }
 
-void vid_cfg_fix_window_height() noexcept
+void vid_cfg_fix_window_height()
 {
 	auto height = vid_cfg_get_height();
 
@@ -709,7 +709,7 @@ void vid_cfg_adjust_window_position()
 
 void vid_calculate_window_elements_dimensions(
 	const CalculateScreenSizeInputParam& src_param,
-	VidLayout& dst_param) noexcept
+	VidLayout& dst_param)
 {
 	dst_param.width = src_param.width;
 	dst_param.height = src_param.height;
@@ -795,7 +795,7 @@ void vid_calculate_window_elements_dimensions(
 }
 
 
-CalculateScreenSizeInputParam vid_create_screen_size_param() noexcept
+CalculateScreenSizeInputParam vid_create_screen_size_param()
 {
 	int width;
 	int height;
@@ -824,7 +824,7 @@ CalculateScreenSizeInputParam vid_create_screen_size_param() noexcept
 	return result;
 }
 
-void vid_calculate_vga_dimensions() noexcept
+void vid_calculate_vga_dimensions()
 {
 	vga_width = vid_layout_.screen_viewport_width;
 	vga_height = vid_align_dimension((10 * vid_layout_.screen_height) / 12);
@@ -1776,7 +1776,7 @@ try {
 	g_video->apply_widescreen();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-bstone::RendererType vid_cfg_get_renderer_type() noexcept
+bstone::RendererType vid_cfg_get_renderer_type()
 {
 	const auto renderer_sv = vid_renderer_cvar.get_string();
 
@@ -1854,12 +1854,12 @@ void vid_cfg_set_renderer_type(bstone::RendererType renderer_type)
 	vid_renderer_cvar.set_string(renderer_sv);
 }
 
-bool vid_cfg_is_positioned() noexcept
+bool vid_cfg_is_positioned()
 {
 	return vid_is_positioned_cvar.get_bool();
 }
 
-bool vid_cfg_is_vsync() noexcept
+bool vid_cfg_is_vsync()
 {
 	return vid_is_vsync_cvar.get_bool();
 }
@@ -1869,7 +1869,7 @@ void vid_cfg_set_is_vsync(bool is_enabled)
 	vid_is_vsync_cvar.set_bool(is_enabled);
 }
 
-bool vid_cfg_is_ui_stretched() noexcept
+bool vid_cfg_is_ui_stretched()
 {
 	return vid_is_ui_stretched_cvar.get_bool();
 }
@@ -1879,7 +1879,7 @@ void vid_cfg_set_is_ui_stretched(bool is_enabled)
 	vid_is_ui_stretched_cvar.set_bool(is_enabled);
 }
 
-bool vid_cfg_is_widescreen() noexcept
+bool vid_cfg_is_widescreen()
 {
 	return vid_is_widescreen_cvar.get_bool();
 }
@@ -1889,17 +1889,17 @@ void vid_cfg_set_is_widescreen(bool is_enabled)
 	vid_is_widescreen_cvar.set_bool(is_enabled);
 }
 
-int vid_cfg_get_x() noexcept
+int vid_cfg_get_x()
 {
 	return vid_x_cvar.get_int32();
 }
 
-int vid_cfg_get_y() noexcept
+int vid_cfg_get_y()
 {
 	return vid_y_cvar.get_int32();
 }
 
-int vid_cfg_get_width() noexcept
+int vid_cfg_get_width()
 {
 	return vid_width_cvar.get_int32();
 }
@@ -1909,7 +1909,7 @@ void vid_cfg_set_width(int width)
 	vid_width_cvar.set_int32(width);
 }
 
-int vid_cfg_get_height() noexcept
+int vid_cfg_get_height()
 {
 	return vid_height_cvar.get_int32();
 }
@@ -1972,7 +1972,7 @@ void vid_cfg_set_window_mode(WindowMode window_mode)
 
 namespace {
 
-bstone::R3rFilterType vid_get_filter_type_from_sv(std::string_view filter_type_sv) noexcept
+bstone::R3rFilterType vid_get_filter_type_from_sv(std::string_view filter_type_sv)
 {
 	if (filter_type_sv == vid_linear_string)
 	{
@@ -1982,7 +1982,7 @@ bstone::R3rFilterType vid_get_filter_type_from_sv(std::string_view filter_type_s
 	return bstone::R3rFilterType::nearest;
 }
 
-std::string_view vid_get_sv_from_filter_type(bstone::R3rFilterType filter_type) noexcept
+std::string_view vid_get_sv_from_filter_type(bstone::R3rFilterType filter_type)
 {
 	if (filter_type == bstone::R3rFilterType::linear)
 	{
@@ -1994,7 +1994,7 @@ std::string_view vid_get_sv_from_filter_type(bstone::R3rFilterType filter_type) 
 
 } // namespace
 
-bstone::R3rFilterType vid_cfg_get_2d_texture_filter() noexcept
+bstone::R3rFilterType vid_cfg_get_2d_texture_filter()
 {
 	return vid_get_filter_type_from_sv(vid_2d_texture_filter_cvar.get_string());
 }
@@ -2004,7 +2004,7 @@ void vid_cfg_set_2d_texture_filter(bstone::R3rFilterType filter)
 	vid_2d_texture_filter_cvar.set_string(vid_get_sv_from_filter_type(filter));
 }
 
-bstone::R3rFilterType vid_cfg_get_3d_texture_image_filter() noexcept
+bstone::R3rFilterType vid_cfg_get_3d_texture_image_filter()
 {
 	return vid_get_filter_type_from_sv(vid_3d_texture_image_filter_cvar.get_string());
 }
@@ -2014,7 +2014,7 @@ void vid_cfg_set_3d_texture_image_filter(bstone::R3rFilterType filter)
 	vid_3d_texture_image_filter_cvar.set_string(vid_get_sv_from_filter_type(filter));
 }
 
-bstone::R3rFilterType vid_cfg_get_3d_texture_mipmap_filter() noexcept
+bstone::R3rFilterType vid_cfg_get_3d_texture_mipmap_filter()
 {
 	return vid_get_filter_type_from_sv(vid_3d_texture_mipmap_filter_cvar.get_string());
 }
@@ -2024,7 +2024,7 @@ void vid_cfg_set_3d_texture_mipmap_filter(bstone::R3rFilterType filter)
 	vid_3d_texture_mipmap_filter_cvar.set_string(vid_get_sv_from_filter_type(filter));
 }
 
-int vid_cfg_get_3d_texture_anisotropy() noexcept
+int vid_cfg_get_3d_texture_anisotropy()
 {
 	return vid_3d_texture_anisotropy_cvar.get_int32();
 }
@@ -2034,7 +2034,7 @@ void vid_cfg_set_3d_texture_anisotropy(int anisotropy)
 	vid_3d_texture_anisotropy_cvar.set_int32(anisotropy);
 }
 
-bstone::R3rAaType vid_cfg_get_aa_type() noexcept
+bstone::R3rAaType vid_cfg_get_aa_type()
 {
 	if (vid_aa_type_cvar.get_string() == vid_aa_type_cvar_msaa)
 	{
@@ -2062,7 +2062,7 @@ void vid_cfg_set_aa_type(bstone::R3rAaType aa_type)
 	vid_aa_type_cvar.set_string(aa_type_sv);
 }
 
-int vid_cfg_get_aa_degree() noexcept
+int vid_cfg_get_aa_degree()
 {
 	return vid_aa_degree_cvar.get_int32();
 }
@@ -2072,7 +2072,7 @@ void vid_cfg_set_aa_degree(int degree)
 	vid_aa_degree_cvar.set_int32(degree);
 }
 
-bstone::HwTextureMgrUpscaleFilterType vid_cfg_get_texture_upscale_type() noexcept
+bstone::HwTextureMgrUpscaleFilterType vid_cfg_get_texture_upscale_type()
 {
 	if (vid_texture_upscale_filter_cvar.get_string() == vid_texture_upscale_filter_cvar_xbrz)
 	{
@@ -2100,7 +2100,7 @@ void vid_cfg_set_texture_upscale_type(bstone::HwTextureMgrUpscaleFilterType filt
 	vid_texture_upscale_filter_cvar.set_string(filter_sv);
 }
 
-int vid_cfg_get_texture_upscale_xbrz_degree() noexcept
+int vid_cfg_get_texture_upscale_xbrz_degree()
 {
 	return vid_texture_upscale_xbrz_degree_cvar.get_int32();
 }
@@ -2110,7 +2110,7 @@ void vid_cfg_set_texture_upscale_xbrz_degree(int degree)
 	vid_texture_upscale_xbrz_degree_cvar.set_int32(degree);
 }
 
-int vid_cfg_get_filler_color_index() noexcept
+int vid_cfg_get_filler_color_index()
 {
 	return vid_filler_color_index_cvar.get_int32();
 }
@@ -2120,7 +2120,7 @@ void vid_cfg_set_filler_color_index(int index)
 	vid_filler_color_index_cvar.set_bool(index);
 }
 
-bool vid_cfg_is_external_textures_enabled() noexcept
+bool vid_cfg_is_external_textures_enabled()
 {
 	return vid_external_textures_cvar.get_bool();
 }
@@ -2130,7 +2130,7 @@ void vid_cfg_set_is_external_textures_enabled(bool is_enabled)
 	vid_external_textures_cvar.set_bool(is_enabled);
 }
 
-bool vid_check_r3_api_call_for_errors() noexcept
+bool vid_check_r3_api_call_for_errors()
 {
 	return vid_check_r3_api_call_for_errors_cvar.get_bool();
 }
@@ -2207,7 +2207,7 @@ void vid_import_ui_mask(
 	vid_mask_buffer_ = src_buffer;
 }
 
-VideoModeCfg vid_cfg_get_video_mode() noexcept
+VideoModeCfg vid_cfg_get_video_mode()
 {
 	auto cfg = VideoModeCfg{};
 	cfg.renderer_type = vid_cfg_get_renderer_type();
@@ -2605,7 +2605,7 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int vid_clamp_filler_color_index(
-	int filler_color_index) noexcept
+	int filler_color_index)
 try {
 	return std::clamp(filler_color_index, 0, 255);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -2627,7 +2627,7 @@ void vid_schedule_take_screenshot()
 
 bool operator==(
 	const VideoModeCfg& lhs,
-	const VideoModeCfg& rhs) noexcept
+	const VideoModeCfg& rhs)
 {
 	return
 		lhs.renderer_type == rhs.renderer_type &&
@@ -2642,7 +2642,7 @@ bool operator==(
 
 bool operator!=(
 	const VideoModeCfg& lhs,
-	const VideoModeCfg& rhs) noexcept
+	const VideoModeCfg& rhs)
 {
 	return !(lhs == rhs);
 }
@@ -2652,7 +2652,7 @@ bool vid_is_hw()
 	return g_video && g_video->is_hardware();
 }
 
-bool vid_is_native_mode() noexcept
+bool vid_is_native_mode()
 {
 #ifdef NDEBUG
 	return

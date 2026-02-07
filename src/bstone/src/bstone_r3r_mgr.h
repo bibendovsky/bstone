@@ -18,7 +18,7 @@ namespace bstone {
 class R3rMgr
 {
 public:
-	R3rMgr() noexcept;
+	R3rMgr();
 	virtual ~R3rMgr();
 
 	// TODO Rename to "make...".

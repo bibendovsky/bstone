@@ -33,12 +33,12 @@ public:
 
 	bool initialize(const AudioDecoderInitParam& param) override;
 	void uninitialize() override;
-	bool is_initialized() const noexcept override;
+	bool is_initialized() const override;
 
 	int decode(int dst_count, std::int16_t* dst_data) override;
 	bool rewind() override;
 
-	int get_dst_length_in_samples() const noexcept override;
+	int get_dst_length_in_samples() const override;
 
 	// Returns a number of calls per second of
 	// original interrupt routine.
@@ -128,7 +128,7 @@ bool AdlibMusicDecoder::initialize(const AudioDecoderInitParam& param)
 	return true;
 }
 
-bool AdlibMusicDecoder::is_initialized() const noexcept
+bool AdlibMusicDecoder::is_initialized() const
 {
 	return is_initialized_;
 }
@@ -153,7 +153,7 @@ bool AdlibMusicDecoder::rewind()
 	return true;
 }
 
-int AdlibMusicDecoder::get_dst_length_in_samples() const noexcept
+int AdlibMusicDecoder::get_dst_length_in_samples() const
 {
 	return dst_length_in_samples_;
 }

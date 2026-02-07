@@ -1221,13 +1221,13 @@ const std::string& AssetsInfo::get_levels_hash_string() const
 	return levels_hash_;
 }
 
-const AssetsResources& AssetsInfo::get_resources() const noexcept
+const AssetsResources& AssetsInfo::get_resources() const
 {
 	return resources_;
 }
 
 void AssetsInfo::set_resources(
-	const AssetsResources& resources) noexcept
+	const AssetsResources& resources)
 {
 	resources_ = resources;
 }
@@ -1256,7 +1256,7 @@ void AssetsInfo::set_levels_hash(
 	are_modded_levels_ = !Assets::are_official_levels(levels_hash_);
 }
 
-const std::string& AssetsInfo::get_base_path_name() const noexcept
+const std::string& AssetsInfo::get_base_path_name() const
 {
 	return base_path_name_;
 }
@@ -1361,12 +1361,12 @@ int AssetsInfo::get_total_levels() const
 	return total_levels_;
 }
 
-int AssetsInfo::get_barrier_switches_per_level() const noexcept
+int AssetsInfo::get_barrier_switches_per_level() const
 {
 	return barrier_switches_per_level_;
 }
 
-int AssetsInfo::get_max_barrier_switches_per_level_bits() const noexcept
+int AssetsInfo::get_max_barrier_switches_per_level_bits() const
 {
 	return max_barrier_switches_per_level_bits_;
 }
@@ -1421,7 +1421,7 @@ int AssetsInfo::secret_floor_get_index(
 }
 
 const char* AssetsInfo::get_resource_type_string(
-	AssetsResourceType resource_type) noexcept
+	AssetsResourceType resource_type)
 {
 	switch (resource_type)
 	{

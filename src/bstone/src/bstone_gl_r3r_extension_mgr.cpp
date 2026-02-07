@@ -35,15 +35,15 @@ public:
 	GlR3rExtensionMgrImpl(const sys::GlSymbolResolver& symbol_resolver);
 	~GlR3rExtensionMgrImpl() override {}
 
-	int get_count() const noexcept override;
-	const std::string& get_name(int extension_index) const noexcept override;
-	const GlR3rVersion& get_gl_version() const noexcept override;
-	const GlR3rVersion& get_glsl_version() const noexcept override;
+	int get_count() const override;
+	const std::string& get_name(int extension_index) const override;
+	const GlR3rVersion& get_gl_version() const override;
+	const GlR3rVersion& get_glsl_version() const override;
 
 	void probe(GlR3rExtensionId extension_id) override;
 
-	bool has(GlR3rExtensionId extension_id) const noexcept override;
-	bool operator[](GlR3rExtensionId extension_id) const noexcept override;
+	bool has(GlR3rExtensionId extension_id) const override;
+	bool operator[](GlR3rExtensionId extension_id) const override;
 
 private:
 	using ExtensionNames = std::vector<std::string>;
@@ -75,7 +75,7 @@ private:
 	static GlSymbolRegistry& get_gl_symbol_registry();
 	static void clear_gl_symbols();
 	void resolve_gl_symbols();
-	static bool has_gl_symbol(const GlSymbolPtrs& gl_symbol_ptrs) noexcept;
+	static bool has_gl_symbol(const GlSymbolPtrs& gl_symbol_ptrs);
 
 	static GlSymbolPtrs& get_essentials_gl_symbol_ptrs();
 	static GlSymbolPtrs& get_v2_0_gl_symbol_ptrs();
@@ -91,9 +91,9 @@ private:
 	static GlSymbolPtrs& get_ext_framebuffer_multisample_gl_symbol_ptrs();
 	static GlSymbolPtrs& get_ext_framebuffer_object_gl_symbol_ptrs();
 
-	static const std::string& get_empty_extension_name() noexcept;
-	static int get_registered_extension_count() noexcept;
-	static int get_extension_index(GlR3rExtensionId extension_id) noexcept;
+	static const std::string& get_empty_extension_name();
+	static int get_registered_extension_count();
+	static int get_extension_index(GlR3rExtensionId extension_id);
 
 	void initialize_registry();
 
@@ -125,12 +125,12 @@ try
 	initialize_registry();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-int GlR3rExtensionMgrImpl::get_count() const noexcept
+int GlR3rExtensionMgrImpl::get_count() const
 {
 	return static_cast<int>(extension_names_.size());
 }
 
-const std::string& GlR3rExtensionMgrImpl::get_name(int extension_index) const noexcept
+const std::string& GlR3rExtensionMgrImpl::get_name(int extension_index) const
 {
 	if (extension_index < 0 || extension_index >= get_count())
 	{
@@ -140,12 +140,12 @@ const std::string& GlR3rExtensionMgrImpl::get_name(int extension_index) const no
 	return extension_names_[extension_index];
 }
 
-const GlR3rVersion& GlR3rExtensionMgrImpl::get_gl_version() const noexcept
+const GlR3rVersion& GlR3rExtensionMgrImpl::get_gl_version() const
 {
 	return gl_version_;
 }
 
-const GlR3rVersion& GlR3rExtensionMgrImpl::get_glsl_version() const noexcept
+const GlR3rVersion& GlR3rExtensionMgrImpl::get_glsl_version() const
 {
 	return glsl_version_;
 }
@@ -155,7 +155,7 @@ try {
 	probe_generic(extension_id);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-bool GlR3rExtensionMgrImpl::has(GlR3rExtensionId extension_id) const noexcept
+bool GlR3rExtensionMgrImpl::has(GlR3rExtensionId extension_id) const
 {
 	const auto extension_index = get_extension_index(extension_id);
 
@@ -167,7 +167,7 @@ bool GlR3rExtensionMgrImpl::has(GlR3rExtensionId extension_id) const noexcept
 	return registry_[extension_index].is_available;
 }
 
-bool GlR3rExtensionMgrImpl::operator[](GlR3rExtensionId extension_id) const noexcept
+bool GlR3rExtensionMgrImpl::operator[](GlR3rExtensionId extension_id) const
 {
 	return has(extension_id);
 }
@@ -1076,7 +1076,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-bool GlR3rExtensionMgrImpl::has_gl_symbol(const GlSymbolPtrs& gl_symbol_ptrs) noexcept
+bool GlR3rExtensionMgrImpl::has_gl_symbol(const GlSymbolPtrs& gl_symbol_ptrs)
 {
 	return std::all_of(
 		gl_symbol_ptrs.cbegin(),
@@ -2413,18 +2413,18 @@ try {
 	return gl_symbols;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-const std::string& GlR3rExtensionMgrImpl::get_empty_extension_name() noexcept
+const std::string& GlR3rExtensionMgrImpl::get_empty_extension_name()
 {
 	static const auto result = std::string{};
 	return result;
 }
 
-int GlR3rExtensionMgrImpl::get_registered_extension_count() noexcept
+int GlR3rExtensionMgrImpl::get_registered_extension_count()
 {
 	return static_cast<int>(GlR3rExtensionId::count_);
 }
 
-int GlR3rExtensionMgrImpl::get_extension_index(GlR3rExtensionId extension_id) noexcept
+int GlR3rExtensionMgrImpl::get_extension_index(GlR3rExtensionId extension_id)
 {
 	const auto extension_index = static_cast<int>(extension_id);
 

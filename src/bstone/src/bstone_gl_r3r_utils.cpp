@@ -175,7 +175,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-int GlR3rUtils::get_window_msaa_value(const sys::GlContextAttributes& gl_attributes) noexcept
+int GlR3rUtils::get_window_msaa_value(const sys::GlContextAttributes& gl_attributes)
 {
 	if (gl_attributes.multisample_buffer_count <= 0)
 	{

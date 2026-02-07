@@ -19,7 +19,7 @@ struct R2ExtentT
 
 	R2ExtentT() = default;
 
-	constexpr R2ExtentT(Value width, Value height) noexcept
+	constexpr R2ExtentT(Value width, Value height)
 		:
 		width{width},
 		height{height}

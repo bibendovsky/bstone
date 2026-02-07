@@ -24,7 +24,7 @@ class AudioMixerVoiceHandleMgr
 public:
 	using Voice = TVoice;
 
-	AudioMixerVoiceHandleMgr() noexcept
+	AudioMixerVoiceHandleMgr()
 	{
 	}
 
@@ -90,7 +90,7 @@ public:
 		map_.erase(handle);
 	} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-	bool is_valid_handle(AudioMixerVoiceHandle handle) const noexcept
+	bool is_valid_handle(AudioMixerVoiceHandle handle) const
 	{
 		if (!handle.is_valid())
 		{
@@ -101,7 +101,7 @@ public:
 		return cache_.count(handle) > 0 || map_.count(handle) > 0;
 	}
 
-	void invalidate(AudioMixerVoiceHandle handle) noexcept
+	void invalidate(AudioMixerVoiceHandle handle)
 	{
 		if (!handle.is_valid())
 		{
@@ -113,7 +113,7 @@ public:
 		map_.erase(handle);
 	}
 
-	Voice* get_voice(AudioMixerVoiceHandle handle) noexcept
+	Voice* get_voice(AudioMixerVoiceHandle handle)
 	{
 		if (!handle.is_valid())
 		{
@@ -131,7 +131,7 @@ public:
 		return map_it->second;
 	}
 
-	Voice* get_voice_and_invalidate(AudioMixerVoiceHandle handle) noexcept
+	Voice* get_voice_and_invalidate(AudioMixerVoiceHandle handle)
 	{
 		if (!handle.is_valid())
 		{

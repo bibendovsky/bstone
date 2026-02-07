@@ -27,7 +27,7 @@ public:
 private:
 	void do_update(const R3rSamplerUpdateParam& param) override;
 
-	const R3rSamplerState& do_get_state() const noexcept override;
+	const R3rSamplerState& do_get_state() const override;
 
 private:
 	R3rSamplerState state_{};
@@ -43,7 +43,7 @@ NullR3rSamplerImpl::NullR3rSamplerImpl(const R3rSamplerInitParam& param)
 void NullR3rSamplerImpl::do_update([[maybe_unused]] const R3rSamplerUpdateParam& param)
 {}
 
-const R3rSamplerState& NullR3rSamplerImpl::do_get_state() const noexcept
+const R3rSamplerState& NullR3rSamplerImpl::do_get_state() const
 {
 	return state_;
 }

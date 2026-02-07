@@ -21,16 +21,16 @@ class GlR3rContext;
 class GlR3rSamplerMgr
 {
 public:
-	GlR3rSamplerMgr() noexcept {}
+	GlR3rSamplerMgr() {}
 	virtual ~GlR3rSamplerMgr() {}
 
 	virtual R3rSamplerUPtr create(const R3rSamplerInitParam& param) = 0;
 
-	virtual void notify_destroy(const R3rSampler* sampler) noexcept = 0;
+	virtual void notify_destroy(const R3rSampler* sampler) = 0;
 
 	virtual void set(R3rSampler* sampler) = 0;
 
-	virtual const R3rSamplerState& get_current_state() const noexcept = 0;
+	virtual const R3rSamplerState& get_current_state() const = 0;
 };
 
 using GlR3rSamplerMgrUPtr = std::unique_ptr<GlR3rSamplerMgr>;

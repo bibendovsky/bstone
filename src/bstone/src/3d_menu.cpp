@@ -6274,7 +6274,7 @@ void draw_filler_color_menu()
 constexpr int weight_color(
 	int r,
 	int g,
-	int b) noexcept
+	int b)
 {
 	return (r << 16) | (g << 8) | b;
 }

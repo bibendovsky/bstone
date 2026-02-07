@@ -26,9 +26,9 @@ public:
 	~VkR3rBufferImpl() override {}
 
 private:
-	R3rBufferType do_get_type() const noexcept override;
-	R3rBufferUsageType do_get_usage_type() const noexcept override;
-	int do_get_size() const noexcept override;
+	R3rBufferType do_get_type() const override;
+	R3rBufferUsageType do_get_usage_type() const override;
+	int do_get_size() const override;
 	void do_update(const R3rUpdateBufferParam& param) override;
 
 	VkBuffer do_get_vk_buffer() const override;
@@ -79,17 +79,17 @@ try :
 	mapped_memory_ = context_.map_memory(device_memory_resource_.get());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rBufferType VkR3rBufferImpl::do_get_type() const noexcept
+R3rBufferType VkR3rBufferImpl::do_get_type() const
 {
 	return type_;
 }
 
-R3rBufferUsageType VkR3rBufferImpl::do_get_usage_type() const noexcept
+R3rBufferUsageType VkR3rBufferImpl::do_get_usage_type() const
 {
 	return usage_type_;
 }
 
-int VkR3rBufferImpl::do_get_size() const noexcept
+int VkR3rBufferImpl::do_get_size() const
 {
 	return size_;
 }

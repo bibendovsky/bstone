@@ -21,12 +21,12 @@ namespace bstone
 //
 struct AudioSampleConverter
 {
-	static std::int16_t u8_to_s16(std::uint8_t u8_sample) noexcept;
-	static float u8_to_f32(std::uint8_t u8_sample) noexcept;
-	static double u8_to_f64(std::uint8_t u8_sample) noexcept;
-	static float s16_to_f32(std::int16_t s16_sample) noexcept;
-	static std::int16_t f32_to_s16(float f32_sample) noexcept;
-	static std::int16_t f64_to_s16(double f64_sample) noexcept;
+	static std::int16_t u8_to_s16(std::uint8_t u8_sample);
+	static float u8_to_f32(std::uint8_t u8_sample);
+	static double u8_to_f64(std::uint8_t u8_sample);
+	static float s16_to_f32(std::int16_t s16_sample);
+	static std::int16_t f32_to_s16(float f32_sample);
+	static std::int16_t f64_to_s16(double f64_sample);
 }; // AudioSampleConverter
 
 } // bstone

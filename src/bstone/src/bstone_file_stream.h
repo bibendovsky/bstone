@@ -31,8 +31,8 @@ private:
 	sys::File file_{};
 
 private:
-	void do_close() noexcept override;
-	bool do_is_open() const noexcept override;
+	void do_close() override;
+	bool do_is_open() const override;
 	std::intptr_t do_read(void* buffer, std::intptr_t count) override;
 	std::intptr_t do_write(const void* buffer, std::intptr_t count) override;
 	std::int64_t do_seek(std::int64_t offset, StreamOrigin origin) override;

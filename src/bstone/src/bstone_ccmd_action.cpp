@@ -8,7 +8,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-CCmdAction::CCmdAction() noexcept = default;
+CCmdAction::CCmdAction() = default;
 CCmdAction::~CCmdAction() = default;
 
 void CCmdAction::invoke(CCmdActionArgs args)

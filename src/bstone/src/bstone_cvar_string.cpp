@@ -13,7 +13,7 @@ namespace bstone {
 
 const std::intptr_t CVarString::initial_capacity = 32;
 
-CVarString::CVarString() noexcept = default;
+CVarString::CVarString() = default;
 
 CVarString::CVarString(std::string_view string_view)
 {
@@ -52,7 +52,7 @@ CVarString& CVarString::operator=(CVarString&& rhs) noexcept
 	return *this;
 }
 
-std::string_view CVarString::get() const noexcept
+std::string_view CVarString::get() const
 {
 	return std::string_view{storage_.get(), static_cast<std::size_t>(size_)};
 }
@@ -73,7 +73,7 @@ void CVarString::set(std::string_view string_view)
 	size_ = new_size;
 }
 
-void CVarString::swap(CVarString& rhs) noexcept
+void CVarString::swap(CVarString& rhs)
 {
 	storage_.swap(rhs.storage_);
 	std::swap(capacity_, rhs.capacity_);

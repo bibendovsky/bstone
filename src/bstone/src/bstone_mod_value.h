@@ -78,41 +78,41 @@ public:
 	~ModValue() = default;
 
 
-	operator const T&() const noexcept
+	operator const T&() const
 	{
 		return value_;
 	}
 
 
-	T& operator*() noexcept
+	T& operator*()
 	{
 		return value_;
 	}
 
-	const T& operator*() const noexcept
+	const T& operator*() const
 	{
 		return value_;
 	}
 
 
-	T* operator->() noexcept
+	T* operator->()
 	{
 		return &value_;
 	}
 
-	const T* operator->() const noexcept
+	const T* operator->() const
 	{
 		return &value_;
 	}
 
 
-	bool is_modified() const noexcept
+	bool is_modified() const
 	{
 		return is_modified_;
 	}
 
 	void set_is_modified(
-		const bool value) noexcept
+		const bool value)
 	{
 		is_modified_ = value;
 	}

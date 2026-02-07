@@ -31,13 +31,13 @@ public:
 	DosboxDbopl();
 	~DosboxDbopl() override;
 
-	Opl3Type get_type() const noexcept override;
+	Opl3Type get_type() const override;
 
 	void initialize(int sample_rate) override;
 	void uninitialize() override;
 
-	bool is_initialized() const noexcept override;
-	int get_sample_rate() const noexcept override;
+	bool is_initialized() const override;
+	int get_sample_rate() const override;
 
 	void write(int fm_port, int fm_value) override;
 	void write_buffered(int fm_port, int fm_value) override;
@@ -46,7 +46,7 @@ public:
 
 	bool reset() override;
 
-	int get_min_sample_rate() const noexcept override;
+	int get_min_sample_rate() const override;
 
 private:
 	struct S16Tag{};
@@ -62,7 +62,7 @@ private:
 
 	// Returns a maximum number of output samples generated at once.
 	// (Emulator dependent value)
-	static int get_max_samples_count() noexcept;
+	static int get_max_samples_count();
 
 	void generate_block(int count, std::int16_t* buffer, S16Tag);
 	void generate_block(int count, float* buffer, F32Tag);
@@ -79,7 +79,7 @@ private:
 DosboxDbopl::DosboxDbopl() = default;
 DosboxDbopl::~DosboxDbopl() = default;
 
-Opl3Type DosboxDbopl::get_type() const noexcept
+Opl3Type DosboxDbopl::get_type() const
 {
 	return Opl3Type::dbopl;
 }
@@ -103,12 +103,12 @@ void DosboxDbopl::uninitialize()
 	channel_ = {};
 }
 
-bool DosboxDbopl::is_initialized() const noexcept
+bool DosboxDbopl::is_initialized() const
 {
 	return is_initialized_;
 }
 
-int DosboxDbopl::get_sample_rate() const noexcept
+int DosboxDbopl::get_sample_rate() const
 {
 	return sample_rate_;
 }
@@ -150,12 +150,12 @@ bool DosboxDbopl::reset()
 	return true;
 }
 
-int DosboxDbopl::get_min_sample_rate() const noexcept
+int DosboxDbopl::get_min_sample_rate() const
 {
 	return 8'000;
 }
 
-int DosboxDbopl::get_max_samples_count() noexcept
+int DosboxDbopl::get_max_samples_count()
 {
 	return 512;
 }

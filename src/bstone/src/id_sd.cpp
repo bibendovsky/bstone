@@ -300,12 +300,12 @@ void sd_log_error(const std::string& message)
 }
 
 
-bool sd_is_sound_enabled() noexcept
+bool sd_is_sound_enabled()
 {
 	return snd_is_sfx_enabled_cvar.get_bool();
 }
 
-void sd_set_is_sound_enabled(bool is_enabled) noexcept
+void sd_set_is_sound_enabled(bool is_enabled)
 {
 	snd_is_sfx_enabled_cvar.set_bool(is_enabled);
 }
@@ -324,12 +324,12 @@ bool sd_enable_sound(bool enable)
 	return enable;
 }
 
-bool sd_is_music_enabled() noexcept
+bool sd_is_music_enabled()
 {
 	return snd_is_music_enabled_cvar.get_bool();
 }
 
-void sd_set_is_music_enabled(bool is_enabled) noexcept
+void sd_set_is_music_enabled(bool is_enabled)
 {
 	snd_is_music_enabled_cvar.set_bool(is_enabled);
 }
@@ -342,7 +342,7 @@ bool sd_enable_music(bool enable)
 	return enable;
 }
 
-bstone::Opl3Type sd_get_opl3_type_from_cvar() noexcept
+bstone::Opl3Type sd_get_opl3_type_from_cvar()
 {
 	const auto opl3_type_sv = snd_opl3_type_cvar.get_string();
 
@@ -423,7 +423,7 @@ try {
 	sd_scene_sfx_voice_group_.swap(scene_sfx_voice_group);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-AudioDriverType sd_get_driver_type_from_cvar() noexcept
+AudioDriverType sd_get_driver_type_from_cvar()
 {
 	const auto driver_sv = snd_driver_cvar.get_string();
 
@@ -440,7 +440,7 @@ AudioDriverType sd_get_driver_type_from_cvar() noexcept
 	return AudioDriverType::auto_detect;
 }
 
-AudioSfxType sd_get_sfx_type_from_cvar() noexcept
+AudioSfxType sd_get_sfx_type_from_cvar()
 {
 	const auto sfx_type_sv = snd_sfx_type_cvar.get_string();
 
@@ -582,7 +582,7 @@ bool sd_is_music_playing()
 	return sd_music_voice_group_->is_any_playing();
 }
 
-bool sd_has_audio() noexcept
+bool sd_has_audio()
 {
 	return !snd_is_disabled_cvar.get_bool();
 }
@@ -917,12 +917,12 @@ void sd_update_listener_r3_orientation()
 	}
 }
 
-std::string_view sd_get_oal_library() noexcept
+std::string_view sd_get_oal_library()
 {
 	return snd_oal_library_cvar.get_string();
 }
 
-std::string_view sd_get_oal_device_name() noexcept
+std::string_view sd_get_oal_device_name()
 {
 	return snd_oal_device_name_cvar.get_string();
 }
@@ -1063,7 +1063,7 @@ void sd_play_player_interrogation_sound(int sound_index)
 
 namespace {
 
-bstone::AudioMixerVoiceR3Position sd_make_door_r3_position(const doorobj_t& bs_door) noexcept
+bstone::AudioMixerVoiceR3Position sd_make_door_r3_position(const doorobj_t& bs_door)
 {
 	auto x = bs_door.tilex + 0.5;
 	auto y = bs_door.tiley + 0.5;
@@ -1110,7 +1110,7 @@ void sd_play_door_sound(int sound_index, doorobj_t& door)
 
 namespace {
 
-bstone::AudioMixerVoiceR3Position sd_make_pwall_r3_position() noexcept
+bstone::AudioMixerVoiceR3Position sd_make_pwall_r3_position()
 {
 	auto x = pwallx + 0.5;
 	auto y = pwally + 0.5;
@@ -1262,12 +1262,12 @@ bool sd_is_player_no_way_sound_playing()
 	return sd_is_player_sound_playing(sd_player_no_way_voice_);
 }
 
-int sd_get_sfx_volume() noexcept
+int sd_get_sfx_volume()
 {
 	return snd_sfx_volume_cvar.get_int32();
 }
 
-void sd_set_sfx_volume(int volume) noexcept
+void sd_set_sfx_volume(int volume)
 {
 	snd_sfx_volume_cvar.set_int32(volume);
 }
@@ -1286,12 +1286,12 @@ void sd_set_sfx_volume()
 	sd_scene_sfx_voice_group_->set_gain(gain);
 }
 
-int sd_get_music_volume() noexcept
+int sd_get_music_volume()
 {
 	return snd_music_volume_cvar.get_int32();
 }
 
-void sd_set_music_volume(int volume) noexcept
+void sd_set_music_volume(int volume)
 {
 	snd_music_volume_cvar.set_int32(volume);
 }
@@ -1363,7 +1363,7 @@ void apply_digitized_sfx()
 	audio_content_mgr->set_is_sfx_digitized(snd_is_sfx_digitized_cvar.get_bool());
 }
 
-AudioDriverType sd_get_audio_driver_type() noexcept
+AudioDriverType sd_get_audio_driver_type()
 {
 	return sd_get_driver_type_from_cvar();
 }
@@ -1386,7 +1386,7 @@ void sd_set_audio_driver_type(AudioDriverType audio_driver_type)
 	}
 }
 
-AudioSfxType sd_cfg_get_sfx_type() noexcept
+AudioSfxType sd_cfg_get_sfx_type()
 {
 	return sd_get_sfx_type_from_cvar();
 }
@@ -1415,7 +1415,7 @@ void sd_apply_sfx_type()
 	audio_content_mgr->set_sfx_type(sd_get_sfx_type_from_cvar());
 }
 
-bool sd_cfg_get_is_sfx_digitized() noexcept
+bool sd_cfg_get_is_sfx_digitized()
 {
 	return snd_is_sfx_digitized_cvar.get_bool();
 }
@@ -1425,7 +1425,7 @@ void sd_cfg_set_is_sfx_digitized(bool is_sfx_digitized)
 	snd_is_sfx_digitized_cvar.set_bool(is_sfx_digitized);
 }
 
-bstone::Opl3Type sd_get_opl3_type() noexcept
+bstone::Opl3Type sd_get_opl3_type()
 {
 	return sd_get_opl3_type_from_cvar();
 }

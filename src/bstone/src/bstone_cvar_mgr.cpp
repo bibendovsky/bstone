@@ -27,8 +27,8 @@ public:
 	CVarMgrImpl& operator=(const CVarMgrImpl&) = delete;
 	~CVarMgrImpl() override;
 
-	CVar* find(std::string_view name) const noexcept override;
-	CVarMgrCVars get_all() noexcept override;
+	CVar* find(std::string_view name) const override;
+	CVarMgrCVars get_all() override;
 
 	void add(CVar& cvar) override;
 
@@ -51,7 +51,7 @@ CVarMgrImpl::CVarMgrImpl(std::intptr_t max_cvars)
 
 CVarMgrImpl::~CVarMgrImpl() = default;
 
-CVar* CVarMgrImpl::find(std::string_view name) const noexcept
+CVar* CVarMgrImpl::find(std::string_view name) const
 {
 	const auto item_iter = name_to_index_map_.find(name);
 
@@ -63,7 +63,7 @@ CVar* CVarMgrImpl::find(std::string_view name) const noexcept
 	return cvars_[item_iter->second];
 }
 
-CVarMgrCVars CVarMgrImpl::get_all() noexcept
+CVarMgrCVars CVarMgrImpl::get_all()
 {
 	return CVarMgrCVars{cvars_.data(), cvars_.size()};
 }

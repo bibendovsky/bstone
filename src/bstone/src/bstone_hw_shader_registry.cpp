@@ -18,92 +18,92 @@ Notes:
 
 namespace bstone {
 
-int HwShaderRegistry::get_a_position_location() noexcept
+int HwShaderRegistry::get_a_position_location()
 {
 	return 0;
 }
 
-int HwShaderRegistry::get_a_color_location() noexcept
+int HwShaderRegistry::get_a_color_location()
 {
 	return 1;
 }
 
-int HwShaderRegistry::get_a_tx_coords_location() noexcept
+int HwShaderRegistry::get_a_tx_coords_location()
 {
 	return 2;
 }
 
-const char* HwShaderRegistry::get_a_position_name() noexcept
+const char* HwShaderRegistry::get_a_position_name()
 {
 	return "a_position";
 }
 
-const char* HwShaderRegistry::get_a_color_name() noexcept
+const char* HwShaderRegistry::get_a_color_name()
 {
 	return "a_color";
 }
 
-const char* HwShaderRegistry::get_a_tx_coords_name() noexcept
+const char* HwShaderRegistry::get_a_tx_coords_name()
 {
 	return "a_tx_coords";
 }
 
-const char* HwShaderRegistry::get_u_model_mat_name() noexcept
+const char* HwShaderRegistry::get_u_model_mat_name()
 {
 	return "u_model_mat";
 }
 
-const char* HwShaderRegistry::get_u_view_mat_name() noexcept
+const char* HwShaderRegistry::get_u_view_mat_name()
 {
 	return "u_view_mat";
 }
 
-const char* HwShaderRegistry::get_u_projection_mat_name() noexcept
+const char* HwShaderRegistry::get_u_projection_mat_name()
 {
 	return "u_projection_mat";
 }
 
-const char* HwShaderRegistry::get_u_sampler_name() noexcept
+const char* HwShaderRegistry::get_u_sampler_name()
 {
 	return "u_sampler";
 }
 
-const char* HwShaderRegistry::get_u_shading_mode_name() noexcept
+const char* HwShaderRegistry::get_u_shading_mode_name()
 {
 	return "u_shading_mode";
 }
 
-const char* HwShaderRegistry::get_u_shade_max_name() noexcept
+const char* HwShaderRegistry::get_u_shade_max_name()
 {
 	return "u_shade_max";
 }
 
-const char* HwShaderRegistry::get_u_normal_shade_name() noexcept
+const char* HwShaderRegistry::get_u_normal_shade_name()
 {
 	return "u_normal_shade";
 }
 
-const char* HwShaderRegistry::get_u_height_numerator_name() noexcept
+const char* HwShaderRegistry::get_u_height_numerator_name()
 {
 	return "u_height_numerator";
 }
 
-const char* HwShaderRegistry::get_u_extra_lighting_name() noexcept
+const char* HwShaderRegistry::get_u_extra_lighting_name()
 {
 	return "u_extra_lighting";
 }
 
-const char* HwShaderRegistry::get_u_view_direction_name() noexcept
+const char* HwShaderRegistry::get_u_view_direction_name()
 {
 	return "u_view_direction";
 }
 
-const char* HwShaderRegistry::get_u_view_position_name() noexcept
+const char* HwShaderRegistry::get_u_view_position_name()
 {
 	return "u_view_position";
 }
 
-const R3rShaderSource& HwShaderRegistry::get_fragment(R3rType renderer_type) noexcept
+const R3rShaderSource& HwShaderRegistry::get_fragment(R3rType renderer_type)
 {
 	switch (renderer_type)
 	{
@@ -119,7 +119,7 @@ const R3rShaderSource& HwShaderRegistry::get_fragment(R3rType renderer_type) noe
 	}
 }
 
-const R3rShaderSource& HwShaderRegistry::get_vertex(R3rType renderer_type) noexcept
+const R3rShaderSource& HwShaderRegistry::get_vertex(R3rType renderer_type)
 {
 	switch (renderer_type)
 	{
@@ -255,7 +255,7 @@ const std::span<const R3rShaderVarInfo> HwShaderRegistry::get_shader_var_infos()
 	return std::span{result};
 }
 
-R3rShaderSource HwShaderRegistry::make_r3r_shader_source(const char* source) noexcept
+R3rShaderSource HwShaderRegistry::make_r3r_shader_source(const char* source)
 {
 	auto result = R3rShaderSource{};
 	result.data = source;
@@ -263,13 +263,13 @@ R3rShaderSource HwShaderRegistry::make_r3r_shader_source(const char* source) noe
 	return result;
 }
 
-const R3rShaderSource& HwShaderRegistry::get_empty() noexcept
+const R3rShaderSource& HwShaderRegistry::get_empty()
 {
 	static const auto result = R3rShaderSource{};
 	return result;
 }
 
-const R3rShaderSource& HwShaderRegistry::get_fragment_gl() noexcept
+const R3rShaderSource& HwShaderRegistry::get_fragment_gl()
 {
 	static const auto result = make_r3r_shader_source(
 R"FRAGMENT_SHADER(
@@ -367,7 +367,7 @@ void main()
 	return result;
 }
 
-const R3rShaderSource& HwShaderRegistry::get_vertex_gl() noexcept
+const R3rShaderSource& HwShaderRegistry::get_vertex_gl()
 {
 	static const auto result = make_r3r_shader_source(
 R"VERTEX_SHADER(

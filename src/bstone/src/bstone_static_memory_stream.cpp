@@ -16,7 +16,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-StaticMemoryStream::StaticMemoryStream() noexcept = default;
+StaticMemoryStream::StaticMemoryStream() = default;
 
 StaticMemoryStream::StaticMemoryStream(void* buffer, std::intptr_t size)
 {
@@ -52,12 +52,12 @@ void StaticMemoryStream::open(void* buffer, std::intptr_t buffer_size)
 	size_ = 0;
 }
 
-void StaticMemoryStream::do_close() noexcept
+void StaticMemoryStream::do_close()
 {
 	close_internal();
 }
 
-bool StaticMemoryStream::do_is_open() const noexcept
+bool StaticMemoryStream::do_is_open() const
 {
 	return is_open_;
 }
@@ -169,7 +169,7 @@ void StaticMemoryStream::do_flush()
 	BSTONE_ASSERT(is_open_);
 }
 
-void StaticMemoryStream::close_internal() noexcept
+void StaticMemoryStream::close_internal()
 {
 	is_open_ = false;
 	buffer_ = nullptr;

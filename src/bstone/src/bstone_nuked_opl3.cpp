@@ -31,13 +31,13 @@ class NukedOpl3 final : public Opl3
 public:
 	~NukedOpl3() override;
 
-	Opl3Type get_type() const noexcept override;
+	Opl3Type get_type() const override;
 
 	void initialize(int sample_rate) override;
 	void uninitialize() override;
 
-	bool is_initialized() const noexcept override;
-	int get_sample_rate() const noexcept override;
+	bool is_initialized() const override;
+	int get_sample_rate() const override;
 
 	void write(int fm_port, int fm_value) override;
 	void write_buffered(int fm_port, int fm_value) override;
@@ -47,7 +47,7 @@ public:
 
 	bool reset() override;
 
-	int get_min_sample_rate() const noexcept override;
+	int get_min_sample_rate() const override;
 
 private:
 	struct S16Tag{};
@@ -60,7 +60,7 @@ private:
 	opl3_chip emulator_{};
 	Buffer samples_{};
 
-	static int get_max_samples_count() noexcept;
+	static int get_max_samples_count();
 
 	void generate_block(int count, std::int16_t* buffer, S16Tag);
 	void generate_block(int count, float* buffer, F32Tag);
@@ -76,7 +76,7 @@ private:
 
 NukedOpl3::~NukedOpl3() = default;
 
-Opl3Type NukedOpl3::get_type() const noexcept
+Opl3Type NukedOpl3::get_type() const
 {
 	return Opl3Type::nuked;
 }
@@ -100,12 +100,12 @@ void NukedOpl3::uninitialize()
 	emulator_ = {};
 }
 
-bool NukedOpl3::is_initialized() const noexcept
+bool NukedOpl3::is_initialized() const
 {
 	return is_initialized_;
 }
 
-int NukedOpl3::get_sample_rate() const noexcept
+int NukedOpl3::get_sample_rate() const
 {
 	return sample_rate_;
 }
@@ -147,12 +147,12 @@ bool NukedOpl3::reset()
 	return true;
 }
 
-int NukedOpl3::get_min_sample_rate() const noexcept
+int NukedOpl3::get_min_sample_rate() const
 {
 	return 8'000;
 }
 
-int NukedOpl3::get_max_samples_count() noexcept
+int NukedOpl3::get_max_samples_count()
 {
 	return OPL_WRITEBUF_SIZE;
 }

@@ -50,16 +50,16 @@ struct AudioMixerR3Vector
 struct AudioMixerListenerR3Position : AudioMixerR3Vector
 {
 	template<typename ...UArgs>
-	explicit AudioMixerListenerR3Position(UArgs&& ...args) noexcept
+	explicit AudioMixerListenerR3Position(UArgs&& ...args)
 		:
 		AudioMixerR3Vector{std::forward<UArgs>(args)...}
 	{
 	}
 
-	void operator=(const AudioMixerR3Vector& r3_vector) noexcept;
+	void operator=(const AudioMixerR3Vector& r3_vector);
 }; // AudioMixerListenerR3Position
 
-AudioMixerListenerR3Position audio_mixer_make_default_listener_r3_position() noexcept;
+AudioMixerListenerR3Position audio_mixer_make_default_listener_r3_position();
 
 struct AudioMixerListenerR3Orientation
 {
@@ -67,27 +67,27 @@ struct AudioMixerListenerR3Orientation
 	AudioMixerR3Vector up;
 }; // AudioMixerListenerR3Orientation
 
-AudioMixerR3Vector audio_mixer_make_default_listener_r3_orientation_at() noexcept;
-AudioMixerR3Vector audio_mixer_make_default_listener_r3_orientation_up() noexcept;
-AudioMixerListenerR3Orientation audio_mixer_make_default_listener_r3_orientation() noexcept;
+AudioMixerR3Vector audio_mixer_make_default_listener_r3_orientation_at();
+AudioMixerR3Vector audio_mixer_make_default_listener_r3_orientation_up();
+AudioMixerListenerR3Orientation audio_mixer_make_default_listener_r3_orientation();
 
 struct AudioMixerVoiceR3Position : AudioMixerR3Vector
 {
-	AudioMixerVoiceR3Position(const AudioMixerR3Vector& r3_vector) noexcept
+	AudioMixerVoiceR3Position(const AudioMixerR3Vector& r3_vector)
 		:
 		AudioMixerR3Vector{r3_vector}
 	{
 	}
 
 	template<typename ...UArgs>
-	explicit AudioMixerVoiceR3Position(UArgs&& ...args) noexcept
+	explicit AudioMixerVoiceR3Position(UArgs&& ...args)
 		:
 		AudioMixerR3Vector{std::forward<UArgs>(args)...}
 	{
 	}
 }; // AudioMixerVoiceR3Position
 
-AudioMixerVoiceR3Position audio_mixer_make_default_voice_r3_position() noexcept;
+AudioMixerVoiceR3Position audio_mixer_make_default_voice_r3_position();
 
 struct AudioMixerInitParam
 {
@@ -115,7 +115,7 @@ struct AudioMixerPlaySoundParam
 class AudioMixer
 {
 public:
-	AudioMixer() noexcept;
+	AudioMixer();
 	virtual ~AudioMixer();
 
 	virtual Opl3Type get_opl3_type() const = 0;
@@ -160,23 +160,23 @@ AudioMixerUPtr make_audio_mixer(const AudioMixerInitParam& param);
 
 // ==========================================================================
 
-bool operator==(const AudioMixerR3Vector& lhs, const AudioMixerR3Vector& rhs) noexcept;
-bool operator!=(const AudioMixerR3Vector& lhs, const AudioMixerR3Vector& rhs) noexcept;
+bool operator==(const AudioMixerR3Vector& lhs, const AudioMixerR3Vector& rhs);
+bool operator!=(const AudioMixerR3Vector& lhs, const AudioMixerR3Vector& rhs);
 
 // --------------------------------------------------------------------------
 
-bool operator==(const AudioMixerListenerR3Orientation& lhs, const AudioMixerListenerR3Orientation& rhs) noexcept;
-bool operator!=(const AudioMixerListenerR3Orientation& lhs, const AudioMixerListenerR3Orientation& rhs) noexcept;
+bool operator==(const AudioMixerListenerR3Orientation& lhs, const AudioMixerListenerR3Orientation& rhs);
+bool operator!=(const AudioMixerListenerR3Orientation& lhs, const AudioMixerListenerR3Orientation& rhs);
 
 // --------------------------------------------------------------------------
 
-AudioMixerR3Vector operator*(const AudioMixerR3Vector& lhs, double rhs) noexcept;
-AudioMixerVoiceR3Position operator*(const AudioMixerVoiceR3Position& lhs, double rhs) noexcept;
-AudioMixerListenerR3Position operator*(const AudioMixerListenerR3Position& lhs, double rhs) noexcept;
+AudioMixerR3Vector operator*(const AudioMixerR3Vector& lhs, double rhs);
+AudioMixerVoiceR3Position operator*(const AudioMixerVoiceR3Position& lhs, double rhs);
+AudioMixerListenerR3Position operator*(const AudioMixerListenerR3Position& lhs, double rhs);
 
 // --------------------------------------------------------------------------
 
-AudioMixerR3Vector operator-(const AudioMixerVoiceR3Position& lhs, const AudioMixerListenerR3Position& rhs) noexcept;
+AudioMixerR3Vector operator-(const AudioMixerVoiceR3Position& lhs, const AudioMixerListenerR3Position& rhs);
 
 } // bstone
 

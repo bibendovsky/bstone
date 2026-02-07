@@ -27,7 +27,7 @@ public:
 	GlR3rVertexInputMgrImpl(GlR3rContext& context);
 	~GlR3rVertexInputMgrImpl() override {}
 
-	GlR3rContext& get_context() const noexcept override;
+	GlR3rContext& get_context() const override;
 	R3rVertexInputUPtr create(const R3rCreateVertexInputParam& param) override;
 	void set(R3rVertexInput& vertex_input) override;
 	void bind_default_vao() override;
@@ -51,7 +51,7 @@ try
 	initialize_default_vertex_input();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-GlR3rContext& GlR3rVertexInputMgrImpl::get_context() const noexcept
+GlR3rContext& GlR3rVertexInputMgrImpl::get_context() const
 {
 	return context_;
 }

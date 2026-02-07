@@ -26,12 +26,12 @@ public:
 
 	bool initialize(const AudioDecoderInitParam& param) override;
 	void uninitialize() override;
-	bool is_initialized() const noexcept override;
+	bool is_initialized() const override;
 
 	int decode(int dst_count, std::int16_t* dst_data) override;
 	bool rewind() override;
 
-	int get_dst_length_in_samples() const noexcept override;
+	int get_dst_length_in_samples() const override;
 
 private:
 	static constexpr auto min_src_size = 6;
@@ -111,7 +111,7 @@ void PcSpeakerAudioDecoder::uninitialize()
 	is_finished_ = false;
 }
 
-bool PcSpeakerAudioDecoder::is_initialized() const noexcept
+bool PcSpeakerAudioDecoder::is_initialized() const
 {
 	return is_initialized_;
 }
@@ -192,7 +192,7 @@ bool PcSpeakerAudioDecoder::rewind()
 	return true;
 }
 
-int PcSpeakerAudioDecoder::get_dst_length_in_samples() const noexcept
+int PcSpeakerAudioDecoder::get_dst_length_in_samples() const
 {
 	return total_sample_count_;
 }

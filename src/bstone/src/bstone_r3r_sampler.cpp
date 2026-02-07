@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-R3rSampler::R3rSampler() noexcept = default;
+R3rSampler::R3rSampler() = default;
 
 R3rSampler::~R3rSampler() = default;
 
@@ -20,7 +20,7 @@ try {
 	do_update(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-const R3rSamplerState& R3rSampler::get_state() const noexcept
+const R3rSamplerState& R3rSampler::get_state() const
 try {
 	return do_get_state();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED

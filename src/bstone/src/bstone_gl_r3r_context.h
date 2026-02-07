@@ -42,34 +42,34 @@ class GlR3rShaderStageMgr;
 class GlR3rContext
 {
 public:
-	GlR3rContext() noexcept {}
+	GlR3rContext() {}
 	virtual ~GlR3rContext() {}
 
-	virtual const R3rDeviceFeatures& get_device_features() const noexcept = 0;
-	virtual const GlR3rDeviceFeatures& get_gl_device_features() const noexcept = 0;
+	virtual const R3rDeviceFeatures& get_device_features() const = 0;
+	virtual const GlR3rDeviceFeatures& get_gl_device_features() const = 0;
 
 	virtual GlR3rBufferUPtr create_buffer(const R3rBufferInitParam& param) = 0;
 
-	virtual GlR3rSamplerMgr& get_sampler_manager() const noexcept = 0;
-	virtual GlR3rVertexInputMgr& get_vertex_input_manager() const noexcept = 0;
+	virtual GlR3rSamplerMgr& get_sampler_manager() const = 0;
+	virtual GlR3rVertexInputMgr& get_vertex_input_manager() const = 0;
 
 	virtual GlR3rShaderUPtr create_shader(const R3rShaderInitParam& param) = 0;
 
-	virtual GlR3rSampler* get_sampler() const noexcept = 0;
-	virtual void set_sampler(GlR3rSampler* sampler) noexcept = 0;
+	virtual GlR3rSampler* get_sampler() const = 0;
+	virtual void set_sampler(GlR3rSampler* sampler) = 0;
 
 	virtual R3rR2TextureUPtr create_r2_texture(const R3rR2TextureInitParam& param) = 0;
 	virtual void bind_r2_texture(GlR3rR2Texture* r2_texture) = 0;
-	virtual GlR3rR2Texture* get_r2_texture() const noexcept = 0;
-	virtual void set_r2_texture(GlR3rR2Texture* r2_texture) noexcept = 0;
+	virtual GlR3rR2Texture* get_r2_texture() const = 0;
+	virtual void set_r2_texture(GlR3rR2Texture* r2_texture) = 0;
 
-	virtual GlR3rVertexInput* get_vertex_input() const noexcept = 0;
-	virtual void set_vertex_input(GlR3rVertexInput* vertex_input) noexcept = 0;
+	virtual GlR3rVertexInput* get_vertex_input() const = 0;
+	virtual void set_vertex_input(GlR3rVertexInput* vertex_input) = 0;
 
 	virtual R3rShaderStageUPtr create_shader_stage(const R3rShaderStageInitParam& param) = 0;
 	virtual void bind_shader_stage(R3rShaderStage* shader_stage) = 0;
-	virtual GlR3rShaderStage* get_shader_stage() const noexcept = 0;
-	virtual void set_shader_stage(GlR3rShaderStage* shader_stage) noexcept = 0;
+	virtual GlR3rShaderStage* get_shader_stage() const = 0;
+	virtual void set_shader_stage(GlR3rShaderStage* shader_stage) = 0;
 
 	virtual void clear(sys::Color color) = 0;
 

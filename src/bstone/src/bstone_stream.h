@@ -24,11 +24,11 @@ enum class StreamOrigin
 class Stream
 {
 public:
-	Stream() noexcept;
+	Stream();
 	virtual ~Stream();
 
-	void close() noexcept;
-	bool is_open() const noexcept;
+	void close();
+	bool is_open() const;
 	std::intptr_t read(void* buffer, std::intptr_t count);
 	void read_exactly(void* buffer, std::intptr_t count);
 	std::intptr_t write(const void* buffer, std::intptr_t count);
@@ -42,8 +42,8 @@ public:
 	void flush();
 
 private:
-	virtual void do_close() noexcept = 0;
-	virtual bool do_is_open() const noexcept = 0;
+	virtual void do_close() = 0;
+	virtual bool do_is_open() const = 0;
 	virtual std::intptr_t do_read(void* buffer, std::intptr_t count) = 0;
 	virtual std::intptr_t do_write(const void* buffer, std::intptr_t count) = 0;
 	virtual std::int64_t do_seek(std::int64_t offset, StreamOrigin origin) = 0;

@@ -35,11 +35,11 @@ struct Extent2d
 
 bool operator==(
 	const Extent2d& lhs,
-	const Extent2d& rhs) noexcept;
+	const Extent2d& rhs);
 
 bool operator!=(
 	const Extent2d& lhs,
-	const Extent2d& rhs) noexcept;
+	const Extent2d& rhs);
 
 
 } // bstone

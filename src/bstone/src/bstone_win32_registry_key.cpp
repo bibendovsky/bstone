@@ -129,14 +129,14 @@ RegKeyCreateOrOpenResult registry_key_open(HKEY root_key, LPCWSTR subkey_name, D
 
 // ==========================================================================
 
-void RegistryKeyHandleDeleter::operator()(RegistryKeyHandle* handle) const noexcept
+void RegistryKeyHandleDeleter::operator()(RegistryKeyHandle* handle) const
 {
 	RegCloseKey(reinterpret_cast<HKEY>(handle));
 }
 
 // ==========================================================================
 
-RegistryKey::RegistryKey() noexcept = default;
+RegistryKey::RegistryKey() = default;
 
 RegistryKey::RegistryKey(
 	const char* subkey_name,
@@ -162,12 +162,12 @@ void RegistryKey::open(
 	try_or_open(subkey_name, root_key_type, open_flags, false);
 }
 
-void RegistryKey::close() noexcept
+void RegistryKey::close()
 {
 	handle_ = nullptr;
 }
 
-bool RegistryKey::is_open() const noexcept
+bool RegistryKey::is_open() const
 {
 	return handle_ != nullptr;
 }

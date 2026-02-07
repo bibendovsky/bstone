@@ -24,7 +24,7 @@ public:
 	static constexpr auto default_chunk_size = 4096;
 
 public:
-	MemoryStream() noexcept;
+	MemoryStream();
 	explicit MemoryStream(
 		std::intptr_t capacity,
 		std::intptr_t chunk_size = default_chunk_size);
@@ -51,8 +51,8 @@ private:
 	Storage storage_{};
 
 private:
-	void do_close() noexcept override;
-	bool do_is_open() const noexcept override;
+	void do_close() override;
+	bool do_is_open() const override;
 	std::intptr_t do_read(void* buffer, std::intptr_t count) override;
 	std::intptr_t do_write(const void* buffer, std::intptr_t count) override;
 	std::int64_t do_seek(std::int64_t offset, StreamOrigin origin) override;
@@ -62,7 +62,7 @@ private:
 
 private:
 	void reserve(std::intptr_t capacity, std::intptr_t chunk_size);
-	void close_internal() noexcept;
+	void close_internal();
 };
 
 } // namespace bstone

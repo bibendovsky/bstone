@@ -29,7 +29,7 @@ namespace bstone
 {
 
 
-FizzleFX::FizzleFX() noexcept = default;
+FizzleFX::FizzleFX() = default;
 
 FizzleFX::FizzleFX(FizzleFX&& rhs) = default;
 

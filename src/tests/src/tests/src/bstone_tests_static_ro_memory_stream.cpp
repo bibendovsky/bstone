@@ -10,7 +10,7 @@ auto tester = bstone::Tester{};
 
 // ==========================================================================
 
-// StaticRoMemoryStream() noexcept
+// StaticRoMemoryStream()
 void test_wq3fi41exm6zb6x3()
 {
 	const auto memory_stream = bstone::StaticRoMemoryStream{};
@@ -27,7 +27,7 @@ void test_zj0inl335im315gs()
 	tester.check(is_open);
 }
 
-// StaticRoMemoryStream(const StaticRoMemoryStream&) noexcept
+// StaticRoMemoryStream(const StaticRoMemoryStream&)
 void test_poherfnr0k8g1yeq()
 {
 	char stream_buffer[100] = {};
@@ -56,7 +56,7 @@ void test_poherfnr0k8g1yeq()
 		data_result_2);
 }
 
-// StaticRoMemoryStream& operator=(const StaticRoMemoryStream&) noexcept
+// StaticRoMemoryStream& operator=(const StaticRoMemoryStream&)
 void test_u4n0mwpbhe0zh6dx()
 {
 	char stream_buffer[100] = {};
@@ -120,7 +120,7 @@ void test_ois2twhosp5eebex()
 
 // ==========================================================================
 
-// close() noexcept
+// close()
 void test_rief2dbpcv4xllsa()
 {
 	auto memory_stream = bstone::StaticRoMemoryStream{};
@@ -135,7 +135,7 @@ void test_rief2dbpcv4xllsa()
 
 // ==========================================================================
 
-// bool is_open() const noexcept
+// bool is_open() const
 void test_j7aq16ovijz9txgq()
 {
 	auto memory_stream = bstone::StaticRoMemoryStream{};
