@@ -98,7 +98,7 @@ R3rShaderVar* NullR3rShaderStageImpl::do_find_r2_sampler_var(const char* name)
 auto NullR3rShaderStageImpl::make_shader_vars() -> ShaderVars
 {
 	ShaderVars shader_vars{};
-	shader_vars.reserve(R3rLimits::max_shader_vars());
+	shader_vars.reserve(R3rLimits::max_shader_vars);
 	return shader_vars;
 }
 

@@ -208,8 +208,8 @@ void NullR3rImpl::initialize_window()
 	sys::WindowInitParam param{};
 	param.x = sys::WindowOffset::make_centered();
 	param.y = sys::WindowOffset::make_centered();
-	param.width = R3rLimits::min_viewport_width();
-	param.height = R3rLimits::min_viewport_height();
+	param.width = R3rLimits::min_viewport_width;
+	param.height = R3rLimits::min_viewport_height;
 	param.rounded_corner_type = sys::WindowRoundedCornerType::none;
 	param.renderer_type = sys::WindowRendererType::none;
 
