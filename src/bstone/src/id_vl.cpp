@@ -1256,7 +1256,7 @@ try {
 				is_flipped_vertically
 			);
 
-			bstone::MtTaskPtr tasks_ptr[] = {&task};
+			bstone::MtTask* tasks_ptr[] = {&task};
 
 			mt_task_manager_->add_tasks(tasks_ptr, 1);
 

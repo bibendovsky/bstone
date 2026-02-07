@@ -62,9 +62,6 @@ public:
 	void reset();
 }; // Rgba8
 
-using Rgba8Ptr = Rgba8*;
-using Rgba8CPtr = const Rgba8*;
-
 
 bool operator==(
 	const Rgba8& lhs,
