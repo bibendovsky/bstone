@@ -55,7 +55,7 @@ enum class HwTextureMgrUpscaleFilterType
 class HwTextureMgr
 {
 public:
-	HwTextureMgr() noexcept;
+	HwTextureMgr();
 
 	virtual ~HwTextureMgr();
 
@@ -66,9 +66,9 @@ public:
 	virtual int get_max_upscale_filter_degree(
 		const HwTextureMgrUpscaleFilterType upscale_filter_type) const = 0;
 
-	virtual HwTextureMgrUpscaleFilterType get_upscale_filter_type() const noexcept = 0;
+	virtual HwTextureMgrUpscaleFilterType get_upscale_filter_type() const = 0;
 
-	virtual int get_upscale_filter_degree() const noexcept = 0;
+	virtual int get_upscale_filter_degree() const = 0;
 
 	virtual void set_upscale_filter(
 		const HwTextureMgrUpscaleFilterType upscale_filter_type,
@@ -108,11 +108,11 @@ public:
 
 	virtual void update_ui() = 0;
 
-	virtual R3rR2Texture* get_ui() const noexcept = 0;
+	virtual R3rR2Texture* get_ui() const = 0;
 
 
 	virtual void try_destroy_solid_1x1(
-		const HwTextureMgrSolid1x1Id id) noexcept = 0;
+		const HwTextureMgrSolid1x1Id id) = 0;
 
 	virtual void destroy_solid_1x1(
 		const HwTextureMgrSolid1x1Id id) = 0;

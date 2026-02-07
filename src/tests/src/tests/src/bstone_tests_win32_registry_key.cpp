@@ -145,7 +145,7 @@ void test_qb43oqjdfwrjgjwq()
 
 // ==========================================================================
 
-// bool is_open() const noexcept
+// bool is_open() const
 void test_tkki906da9bi5vqm()
 {
 	auto registry_key = bstone::win32::RegistryKey

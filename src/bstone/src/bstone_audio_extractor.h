@@ -16,7 +16,7 @@ namespace bstone
 class AudioExtractor
 {
 public:
-	AudioExtractor() noexcept;
+	AudioExtractor();
 	virtual ~AudioExtractor();
 
 	virtual void extract_music(const std::string& dst_dir) = 0;

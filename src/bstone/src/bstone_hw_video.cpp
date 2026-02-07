@@ -50,7 +50,7 @@ public:
 	HwVideo();
 	~HwVideo() override;
 
-	bool is_hardware() const noexcept override;
+	bool is_hardware() const override;
 	std::string_view get_renderer_name() override;
 	void clear_vga_buffer() override;
 
@@ -64,7 +64,7 @@ public:
 	void present() override;
 
 	void get_palette(int offset, int count, std::uint8_t* vga_palette) const override;
-	void fill_palette(int r, int g, int b) noexcept override;
+	void fill_palette(int r, int g, int b) override;
 	void set_palette(int offset, int count, const std::uint8_t* vga_palette) override;
 
 	void fade_out(int start, int end, int red, int green, int blue, int step_count) override;
@@ -74,26 +74,26 @@ public:
 	void apply_window_mode() override;
 	void apply_filler_color_index() override;
 
-	const Rgba8Palette& get_default_palette() const noexcept override;
+	const Rgba8Palette& get_default_palette() const override;
 
 	void enable_fizzle_fx(bool is_enabled) override;
 	void enable_fizzle_fx_fading(bool is_fading) override;
 	void set_fizzle_fx_color_index(int color_index) override;
 	void set_fizzle_fx_ratio(float ratio) override;
 
-	void clear_wall_render_list() noexcept override;
+	void clear_wall_render_list() override;
 	void add_wall_render_item(int tile_x, int tile_y) override;
 
-	void clear_pushwall_render_list() noexcept override;
+	void clear_pushwall_render_list() override;
 	void add_pushwall_render_item(int tile_x, int tile_y) override;
 
-	void clear_door_render_list() noexcept override;
+	void clear_door_render_list() override;
 	void add_door_render_item(int tile_x, int tile_y) override;
 
-	void clear_static_render_list() noexcept override;
+	void clear_static_render_list() override;
 	void add_static_render_item(int bs_static_index) override;
 
-	void clear_actor_render_list() noexcept override;
+	void clear_actor_render_list() override;
 	void add_actor_render_item(int bs_actor_index) override;
 
 	void on_load_level() override;
@@ -113,7 +113,7 @@ public:
 
 	void update_samplers() override;
 
-	const R3rDeviceFeatures& get_device_features() const noexcept override;
+	const R3rDeviceFeatures& get_device_features() const override;
 
 private:
 	static constexpr auto log_prefix = "[VIDHW] ";
@@ -695,17 +695,17 @@ private:
 	static void convert(const cgm::Mat4D& src, R3rMat4& dst);
 
 	static R3rMipmapMode cfg_texture_mipmap_filter_to_renderer(R3rFilterType filter_type);
-	static int cfg_texture_anisotropy_to_renderer(int value) noexcept;
+	static int cfg_texture_anisotropy_to_renderer(int value);
 
-	static int get_static_index(const statobj_t& bs_static) noexcept;
-	static int get_actor_index(const objtype& bs_actor) noexcept;
+	static int get_static_index(const statobj_t& bs_static);
+	static int get_actor_index(const objtype& bs_actor);
 
-	static constexpr int encode_xy(int x, int y) noexcept;
+	static constexpr int encode_xy(int x, int y);
 
-	static VertexColor vga_color_to_rgba_8(int vga_red, int vga_green, int vga_blue) noexcept;
+	static VertexColor vga_color_to_rgba_8(int vga_red, int vga_green, int vga_blue);
 
-	static void destroy_sampler(R3rSamplerUPtr& sampler) noexcept;
-	static void destroy_index_buffer(R3rBufferUPtr& index_buffer) noexcept;
+	static void destroy_sampler(R3rSamplerUPtr& sampler);
+	static void destroy_index_buffer(R3rBufferUPtr& index_buffer);
 
 	R3rBufferUPtr create_index_buffer(R3rBufferUsageType usage_type, int byte_depth, int index_count);
 
@@ -716,7 +716,7 @@ private:
 		int index_count,
 		const TIndex* indices);
 
-	static void destroy_vertex_buffer(R3rBufferUPtr& vertex_buffer) noexcept;
+	static void destroy_vertex_buffer(R3rBufferUPtr& vertex_buffer);
 
 	template<typename TVertex>
 	R3rBufferUPtr create_vertex_buffer(R3rBufferUsageType usage_type, int vertex_count);
@@ -728,7 +728,7 @@ private:
 		int vertex_count,
 		const TVertex* vertices);
 
-	static void destroy_vertex_input(R3rVertexInputUPtr& vertex_input) noexcept;
+	static void destroy_vertex_input(R3rVertexInputUPtr& vertex_input);
 
 	template<typename TVertex, bool TIsExist = false>
 	struct VertexInputAddAttribDescr
@@ -798,67 +798,67 @@ private:
 		const R3rBufferUPtr& vertex_buffer,
 		R3rVertexInputUPtr& vertex_input);
 
-	void update_player_direction() noexcept;
-	void update_player_position() noexcept;
-	void update_player_view_position() noexcept;
-	void update_player() noexcept;
+	void update_player_direction();
+	void update_player_position();
+	void update_player_view_position();
+	void update_player();
 
 	void initialize_ui_buffer();
 
-	static void destroy_shader(R3rShaderUPtr& shader) noexcept;
+	static void destroy_shader(R3rShaderUPtr& shader);
 	void create_shader(R3rShaderType type, R3rShaderUPtr& shader);
-	void destroy_fragment_shader() noexcept;
+	void destroy_fragment_shader();
 	void create_fragment_shader();
-	void destroy_vertex_shader() noexcept;
+	void destroy_vertex_shader();
 	void create_vertex_shader();
 
-	void destroy_shader_stage() noexcept;
+	void destroy_shader_stage();
 	void create_shader_stage();
 
 	template<typename T>
-	static void uninitialize_uniform(T*& var) noexcept;
+	static void uninitialize_uniform(T*& var);
 
-	void uninitialize_model_mat_uniform() noexcept;
+	void uninitialize_model_mat_uniform();
 
 	void initialize_uniform(R3rShaderVarTypeId type_id, const char* name, R3rShaderVar*& var);
 
 	void initialize_model_mat_uniform();
-	void uninitialize_view_mat_uniform() noexcept;
+	void uninitialize_view_mat_uniform();
 	void initialize_view_mat_uniform();
-	void uninitialize_projection_mat_uniform() noexcept;
+	void uninitialize_projection_mat_uniform();
 	void initialize_projection_mat_uniform();
 
-	void uninitialize_sampler_uniform() noexcept;
+	void uninitialize_sampler_uniform();
 	void initialize_sampler_uniform();
 
-	void uninitialize_shading_mode_uniform() noexcept;
+	void uninitialize_shading_mode_uniform();
 	void initialize_shading_mode_uniform();
 
-	void uninitialize_shade_max_uniform() noexcept;
+	void uninitialize_shade_max_uniform();
 	void initialize_shade_max_uniform();
 
-	void uninitialize_normal_shade_uniform() noexcept;
+	void uninitialize_normal_shade_uniform();
 	void initialize_normal_shade_uniform();
 
-	void uninitialize_height_numerator_uniform() noexcept;
+	void uninitialize_height_numerator_uniform();
 	void initialize_height_numerator_uniform();
 
-	void uninitialize_extra_lighting_uniform() noexcept;
+	void uninitialize_extra_lighting_uniform();
 	void initialize_extra_lighting_uniform();
 
-	void uninitialize_view_direction_uniform() noexcept;
+	void uninitialize_view_direction_uniform();
 	void initialize_view_direction_uniform();
 
-	void uninitialize_view_position_uniform() noexcept;
+	void uninitialize_view_position_uniform();
 	void initialize_view_position_uniform();
 
-	void uninitialize_shading_uniforms() noexcept;
+	void uninitialize_shading_uniforms();
 	void initialize_shading_uniforms();
 
-	void uninitialize_uniforms() noexcept;
+	void uninitialize_uniforms();
 	void initialize_uniforms();
 
-	void uninitialize_program() noexcept;
+	void uninitialize_program();
 	void initialize_program();
 
 	static R3rType get_renderer_type(RendererType renderer_type);
@@ -867,196 +867,196 @@ private:
 
 	void initialize_renderer();
 
-	void destroy_ui_ib() noexcept;
+	void destroy_ui_ib();
 	void create_ui_ib();
-	void destroy_ui_vi() noexcept;
+	void destroy_ui_vi();
 	void create_ui_vi();
 
-	void fill_2d_vb(float left_f, float right_f, float width_f, int vertex_offset) noexcept;
-	void fill_2d_vb_stretched() noexcept;
-	void fill_2d_vb_non_stretched() noexcept;
+	void fill_2d_vb(float left_f, float right_f, float width_f, int vertex_offset);
+	void fill_2d_vb_stretched();
+	void fill_2d_vb_non_stretched();
 
-	void destroy_ui_vb() noexcept;
+	void destroy_ui_vb();
 	void create_ui_vb();
 
-	void destroy_2d_fillers_ib() noexcept;
+	void destroy_2d_fillers_ib();
 	void create_2d_fillers_ib();
-	void destroy_2d_fillers_vb() noexcept;
+	void destroy_2d_fillers_vb();
 	void create_2d_fillers_vb();
-	void destroy_2d_fillers_vi() noexcept;
+	void destroy_2d_fillers_vi();
 	void create_2d_fillers_vi();
 
-	void destroy_black_1x1_2d_texture() noexcept;
+	void destroy_black_1x1_2d_texture();
 	void create_black_1x1_2d_texture();
 
-	void destroy_white_1x1_2d_texture() noexcept;
+	void destroy_white_1x1_2d_texture();
 	void create_white_1x1_2d_texture();
 
-	void destroy_fade_1x1_2d_texture() noexcept;
+	void destroy_fade_1x1_2d_texture();
 	void create_fade_1x1_2d_texture();
 
-	void destroy_ui_texture() noexcept;
+	void destroy_ui_texture();
 	void create_ui_texture();
 
-	void uninitialize_2d() noexcept;
+	void uninitialize_2d();
 	void initialize_2d();
 
-	void destroy_flooring_ib() noexcept;
+	void destroy_flooring_ib();
 	void create_flooring_ib();
-	void destroy_flooring_vb() noexcept;
+	void destroy_flooring_vb();
 	void create_flooring_vb();
-	void destroy_flooring_vi() noexcept;
+	void destroy_flooring_vi();
 	void create_flooring_vi();
 
-	void destroy_solid_flooring_r2_texture() noexcept;
+	void destroy_solid_flooring_r2_texture();
 	void create_solid_flooring_r2_texture();
 
-	void uninitialize_flooring() noexcept;
+	void uninitialize_flooring();
 	void initialize_flooring();
 
-	void destroy_ceiling_ib() noexcept;
+	void destroy_ceiling_ib();
 	void create_ceiling_ib();
-	void destroy_ceiling_vb() noexcept;
+	void destroy_ceiling_vb();
 	void create_ceiling_vb();
-	void destroy_ceiling_vi() noexcept;
+	void destroy_ceiling_vi();
 	void create_ceiling_vi();
 
-	void destroy_solid_ceiling_r2_texture() noexcept;
+	void destroy_solid_ceiling_r2_texture();
 	void create_solid_ceiling_r2_texture();
 
 	void initialize_ceiling();
-	void uninitialize_ceiling() noexcept;
+	void uninitialize_ceiling();
 
 	void create_walls_ib();
-	void destroy_walls_ib() noexcept;
+	void destroy_walls_ib();
 	void create_walls_vb();
-	void destroy_walls_vi() noexcept;
+	void destroy_walls_vi();
 	void create_walls_vi();
-	void destroy_walls_vb() noexcept;
+	void destroy_walls_vb();
 	void initialize_walls();
-	void uninitialize_walls() noexcept;
+	void uninitialize_walls();
 
 	void create_pushwalls_ibi();
 	void create_pushwalls_ib();
-	void destroy_pushwalls_ibi() noexcept;
-	void destroy_pushwalls_ib() noexcept;
+	void destroy_pushwalls_ibi();
+	void destroy_pushwalls_ib();
 	void create_pushwalls_vb();
-	void destroy_pushwalls_vi() noexcept;
+	void destroy_pushwalls_vi();
 	void create_pushwalls_vi();
-	void destroy_pushwalls_vb() noexcept;
+	void destroy_pushwalls_vb();
 	void initialize_pushwalls();
-	void uninitialize_pushwalls() noexcept;
+	void uninitialize_pushwalls();
 
 	void create_door_sides_ibi();
 	void create_door_sides_ib();
-	void destroy_door_sides_ibi() noexcept;
-	void destroy_door_sides_ib() noexcept;
+	void destroy_door_sides_ibi();
+	void destroy_door_sides_ib();
 	void create_door_sides_vb();
-	void destroy_door_sides_vb() noexcept;
-	void destroy_door_sides_vi() noexcept;
+	void destroy_door_sides_vb();
+	void destroy_door_sides_vi();
 	void create_door_sides_vi();
 	void initialize_door_sides();
-	void uninitialize_door_sides() noexcept;
+	void uninitialize_door_sides();
 
-	void update_palette_from_vga(int offset, int count) noexcept;
-	void initialize_palette() noexcept;
+	void update_palette_from_vga(int offset, int count);
+	void initialize_palette();
 
-	void calculate_dimensions() noexcept;
+	void calculate_dimensions();
 
-	void build_2d_model_matrix() noexcept;
-	void build_2d_view_matrix() noexcept;
-	void build_2d_projection_matrix() noexcept;
-	void build_2d_matrices() noexcept;
+	void build_2d_model_matrix();
+	void build_2d_view_matrix();
+	void build_2d_projection_matrix();
+	void build_2d_matrices();
 
-	void calculate_camera_parameters() noexcept;
+	void calculate_camera_parameters();
 
 	void build_bs_to_ren_matrix();
-	void build_model_matrix() noexcept;
-	void build_view_matrix() noexcept;
-	void build_projection_matrix() noexcept;
-	void build_3d_matrices() noexcept;
-	void build_matrices() noexcept;
+	void build_model_matrix();
+	void build_view_matrix();
+	void build_projection_matrix();
+	void build_3d_matrices();
+	void build_matrices();
 
-	void set_ui_sampler_default_state() noexcept;
-	void update_ui_sampler_state() noexcept;
+	void set_ui_sampler_default_state();
+	void update_ui_sampler_state();
 	void update_ui_sampler();
-	void destroy_ui_sampler() noexcept;
+	void destroy_ui_sampler();
 	void create_ui_sampler();
 
-	void set_sprite_sampler_default_state() noexcept;
+	void set_sprite_sampler_default_state();
 	void update_sprite_sampler_state();
 	void update_sprite_sampler();
-	void destroy_sprite_sampler() noexcept;
+	void destroy_sprite_sampler();
 	void create_sprite_sampler();
 
-	void set_wall_sampler_default_state() noexcept;
+	void set_wall_sampler_default_state();
 	void update_wall_sampler_state();
 	void update_wall_sampler();
-	void destroy_wall_sampler() noexcept;
+	void destroy_wall_sampler();
 	void create_wall_sampler();
 
 	void update_player_weapon_vb();
-	void destroy_player_weapon_ib() noexcept;
+	void destroy_player_weapon_ib();
 	void create_player_weapon_ib();
 	void update_player_weapon_ib();
-	void destroy_player_weapon_vb() noexcept;
+	void destroy_player_weapon_vb();
 	void create_player_weapon_vb();
-	void destroy_player_weapon_vi() noexcept;
+	void destroy_player_weapon_vi();
 	void create_player_weapon_vi();
 
 	void update_player_weapon_model_matrix();
-	void update_player_weapon_view_matrix() noexcept;
-	void build_player_weapon_projection_matrix() noexcept;
+	void update_player_weapon_view_matrix();
+	void build_player_weapon_projection_matrix();
 
-	void set_player_weapon_sampler_default_state() noexcept;
-	void update_player_weapon_sampler_state() noexcept;
+	void set_player_weapon_sampler_default_state();
+	void update_player_weapon_sampler_state();
 	void update_player_weapon_sampler();
-	void destroy_player_weapon_sampler() noexcept;
+	void destroy_player_weapon_sampler();
 	void create_player_weapon_sampler();
 
-	void uninitialize_player_weapon() noexcept;
+	void uninitialize_player_weapon();
 	void initialize_player_weapon();
 
-	void destroy_fade_sampler() noexcept;
+	void destroy_fade_sampler();
 	void create_fade_sampler();
 
-	void set_samplers_default_states() noexcept;
+	void set_samplers_default_states();
 
-	void uninitialize_samplers() noexcept;
+	void uninitialize_samplers();
 	void initialize_samplers();
 
-	void destroy_command_buffers() noexcept;
-	void create_command_buffers() noexcept;
-	void destroy_common_command_buffer() noexcept;
+	void destroy_command_buffers();
+	void create_command_buffers();
+	void destroy_common_command_buffer();
 
 	void create_vsync_command_buffer();
-	void destroy_vsync_command_buffer() noexcept;
+	void destroy_vsync_command_buffer();
 	void create_common_command_buffer();
 
-	void destroy_2d_command_buffer() noexcept;
+	void destroy_2d_command_buffer();
 	void create_2d_command_buffer();
-	void destroy_3d_command_buffer() noexcept;
+	void destroy_3d_command_buffer();
 	void create_3d_command_buffer();
 
-	void uninitialize_command_buffers() noexcept;
+	void uninitialize_command_buffers();
 	void initialize_command_buffers();
 
-	void destroy_3d_fade_ib() noexcept;
+	void destroy_3d_fade_ib();
 	void create_3d_fade_ib();
-	void destroy_3d_fade_vb() noexcept;
+	void destroy_3d_fade_vb();
 	void create_3d_fade_vb();
-	void destroy_3d_fade_vi() noexcept;
+	void destroy_3d_fade_vi();
 	void create_3d_fade_vi();
 	void update_3d_fade_ib();
 	void update_3d_fade_vb();
 	void update_3d_fade_ortho();
 
-	void destroy_3d_fade_r2_texture() noexcept;
+	void destroy_3d_fade_r2_texture();
 	void create_r3_fade_r2_texture();
 
-	void uninitialize_3d_fade() noexcept;
+	void uninitialize_3d_fade();
 
-	void destroy_texture_manager() noexcept;
+	void destroy_texture_manager();
 	void create_texture_manager();
 
 	void initialize_3d_fade();
@@ -1078,12 +1078,12 @@ private:
 	void update_3d_fade();
 	void present_3d();
 
-	static bool bs_is_activated_pushwall_tile(int tile) noexcept;
-	static bool bs_is_door(int tile) noexcept;
-	static bool bs_is_door_track(int tile) noexcept;
-	static bool bs_is_solid_wall(int tile) noexcept;
-	static bool bs_is_pushwall(int x, int y) noexcept;
-	bool bs_is_solid_wall(int x, int y) const noexcept;
+	static bool bs_is_activated_pushwall_tile(int tile);
+	static bool bs_is_door(int tile);
+	static bool bs_is_door_track(int tile);
+	static bool bs_is_solid_wall(int tile);
+	static bool bs_is_pushwall(int x, int y);
+	bool bs_is_solid_wall(int x, int y) const;
 	int get_solid_wall_side_count(int x, int y) const;
 	int get_door_track_wall_id(int x, int y, controldir_t direction) const;
 
@@ -1103,56 +1103,56 @@ private:
 	template<typename TVertex, bool TIsExists = false>
 	struct UpdateVertexXyz
 	{
-		void operator()(TVertex&, const VertexPosition&) const noexcept {}
+		void operator()(TVertex&, const VertexPosition&) const {}
 	};
 
 	template<typename TVertex>
 	struct UpdateVertexXyz<TVertex, true>
 	{
-		void operator()(TVertex& vertex, const VertexPosition& xyz) const noexcept
+		void operator()(TVertex& vertex, const VertexPosition& xyz) const
 		{
 			vertex.xyz = xyz;
 		}
 	};
 
 	template<typename TVertex>
-	static void update_vertex_xyz(TVertex& vertex, const VertexPosition& xyz) noexcept;
+	static void update_vertex_xyz(TVertex& vertex, const VertexPosition& xyz);
 
 	template<typename TVertex, bool TIsExists = false>
 	struct UpdateVertexRgba
 	{
-		void operator()(TVertex&, const VertexColor&) const noexcept {}
+		void operator()(TVertex&, const VertexColor&) const {}
 	};
 
 	template<typename TVertex>
 	struct UpdateVertexRgba<TVertex, true>
 	{
-		void operator()(TVertex& vertex, const VertexColor& rgba_8) const noexcept
+		void operator()(TVertex& vertex, const VertexColor& rgba_8) const
 		{
 			vertex.rgba8 = rgba_8;
 		}
 	};
 
 	template<typename TVertex>
-	static void update_vertex_rgba(TVertex& vertex, const VertexColor& rgba_8) noexcept;
+	static void update_vertex_rgba(TVertex& vertex, const VertexColor& rgba_8);
 
 	template<typename TVertex, bool TIsExists = false>
 	struct UpdateVertexUv
 	{
-		void operator()(TVertex&, const VertexTextureCoordinates&) const noexcept {}
+		void operator()(TVertex&, const VertexTextureCoordinates&) const {}
 	};
 
 	template<typename TVertex>
 	struct UpdateVertexUv<TVertex, true>
 	{
-		void operator()(TVertex& vertex, const VertexTextureCoordinates& uv) const noexcept
+		void operator()(TVertex& vertex, const VertexTextureCoordinates& uv) const
 		{
 			vertex.uv = uv;
 		}
 	};
 
 	template<typename TVertex>
-	static void update_vertex_uv(TVertex& vertex, const VertexTextureCoordinates& uv) noexcept;
+	static void update_vertex_uv(TVertex& vertex, const VertexTextureCoordinates& uv);
 
 	template<typename TVertex>
 	void map_wall_side(
@@ -1191,29 +1191,29 @@ private:
 		const VertexPosition& origin,
 		const cgm::Vec2F& size,
 		int& vertex_index,
-		VertexBufferImageT<TVertex>& vb_buffer) noexcept;
+		VertexBufferImageT<TVertex>& vb_buffer);
 
-	static void map_door_side(DoorSide& door_side, int& vertex_index, DoorsVbi& vb_buffer) noexcept;
+	static void map_door_side(DoorSide& door_side, int& vertex_index, DoorsVbi& vb_buffer);
 	void map_xy_to_door(const doorobj_t& bs_door, int& vertex_index, DoorsVbi& vb_buffer);
 
 	void build_doors();
 
 	void initialize_sprites_ibi();
-	void uninitialize_sprites_ib() noexcept;
+	void uninitialize_sprites_ib();
 	void initialize_sprites_vb();
-	void uninitialize_sprites_vb() noexcept;
-	void uninitialize_sprites_vi() noexcept;
+	void uninitialize_sprites_vb();
+	void uninitialize_sprites_vi();
 	void initialize_sprites_vi();
 
 	void initialize_statics();
 	void initialize_actors();
 	void initialize_sprites();
-	void uninitialize_statics() noexcept;
-	void uninitialize_actors() noexcept;
-	void uninitialize_sprites() noexcept;
+	void uninitialize_statics();
+	void uninitialize_actors();
+	void uninitialize_sprites();
 
-	void map_sprite(SpriteType sprite_type, int vertex_index, Sprite& sprite) noexcept;
-	void map_static(const statobj_t& bs_static) noexcept;
+	void map_sprite(SpriteType sprite_type, int vertex_index, Sprite& sprite);
+	void map_static(const statobj_t& bs_static);
 
 	void cache_sprite(int bs_sprite_id);
 
@@ -1472,12 +1472,12 @@ private:
 	void build_actors();
 	void build_sprites();
 	void precache_resources();
-	void destroy_texture_upscale_resources() noexcept;
+	void destroy_texture_upscale_resources();
 	void create_texture_upscale_resources();
-	void destroy_external_textures_resources() noexcept;
+	void destroy_external_textures_resources();
 	void create_external_textures_resources();
 
-	void uninitialize_video() noexcept;
+	void uninitialize_video();
 	void initialize_video();
 };
 
@@ -1493,7 +1493,7 @@ HwVideo::~HwVideo()
 	uninitialize_video();
 }
 
-bool HwVideo::is_hardware() const noexcept
+bool HwVideo::is_hardware() const
 {
 	return true;
 }
@@ -1605,7 +1605,7 @@ try {
 	);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::fill_palette(int r, int g, int b) noexcept
+void HwVideo::fill_palette(int r, int g, int b)
 {
 	for (auto& vga_color : vga_palette_)
 	{
@@ -1803,7 +1803,7 @@ try {
 	create_2d_fillers_vi();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-const Rgba8Palette& HwVideo::get_default_palette() const noexcept
+const Rgba8Palette& HwVideo::get_default_palette() const
 {
 	return default_palette_;
 }
@@ -1828,7 +1828,7 @@ void HwVideo::set_fizzle_fx_ratio(float ratio)
 	fizzle_fx_ratio_ = ratio;
 }
 
-void HwVideo::clear_wall_render_list() noexcept
+void HwVideo::clear_wall_render_list()
 {
 	wall_last_xy_to_render_at_ = -1;
 	walls_to_render_.clear();
@@ -1861,7 +1861,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::clear_pushwall_render_list() noexcept
+void HwVideo::clear_pushwall_render_list()
 {
 	pushwall_last_xy_to_render_at_ = -1;
 	pushwalls_to_render_.clear();
@@ -1882,7 +1882,7 @@ try {
 	pushwalls_to_render_.insert(xy);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::clear_door_render_list() noexcept
+void HwVideo::clear_door_render_list()
 {
 	door_last_xy_to_render_at_ = -1;
 	doors_to_render_.clear();
@@ -1904,7 +1904,7 @@ try {
 	doors_to_render_.insert(xy);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::clear_static_render_list() noexcept
+void HwVideo::clear_static_render_list()
 {
 	statics_to_render_.clear();
 }
@@ -1914,7 +1914,7 @@ try {
 	statics_to_render_.insert(bs_static_index);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::clear_actor_render_list() noexcept
+void HwVideo::clear_actor_render_list()
 {
 	actors_to_render_.clear();
 }
@@ -2145,7 +2145,7 @@ try {
 	update_player_weapon_sampler();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-const R3rDeviceFeatures& HwVideo::get_device_features() const noexcept
+const R3rDeviceFeatures& HwVideo::get_device_features() const
 {
 	return device_features_;
 }
@@ -2387,7 +2387,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-int HwVideo::cfg_texture_anisotropy_to_renderer(int value) noexcept
+int HwVideo::cfg_texture_anisotropy_to_renderer(int value)
 {
 	if (value < R3rLimits::min_anisotropy_off())
 	{
@@ -2403,22 +2403,22 @@ int HwVideo::cfg_texture_anisotropy_to_renderer(int value) noexcept
 	}
 }
 
-int HwVideo::get_static_index(const statobj_t& bs_static) noexcept
+int HwVideo::get_static_index(const statobj_t& bs_static)
 {
 	return static_cast<int>(&bs_static - statobjlist.data());
 }
 
-int HwVideo::get_actor_index(const objtype& bs_actor) noexcept
+int HwVideo::get_actor_index(const objtype& bs_actor)
 {
 	return static_cast<int>(&bs_actor - objlist);
 }
 
-constexpr int HwVideo::encode_xy(int x, int y) noexcept
+constexpr int HwVideo::encode_xy(int x, int y)
 {
 	return (x << 8) | y;
 }
 
-auto HwVideo::vga_color_to_rgba_8(int vga_red, int vga_green, int vga_blue) noexcept -> VertexColor
+auto HwVideo::vga_color_to_rgba_8(int vga_red, int vga_green, int vga_blue) -> VertexColor
 {
 	return VertexColor
 	{
@@ -2429,12 +2429,12 @@ auto HwVideo::vga_color_to_rgba_8(int vga_red, int vga_green, int vga_blue) noex
 	};
 }
 
-void HwVideo::destroy_sampler(R3rSamplerUPtr& sampler) noexcept
+void HwVideo::destroy_sampler(R3rSamplerUPtr& sampler)
 {
 	sampler = nullptr;
 }
 
-void HwVideo::destroy_index_buffer(R3rBufferUPtr& index_buffer) noexcept
+void HwVideo::destroy_index_buffer(R3rBufferUPtr& index_buffer)
 {
 	index_buffer = nullptr;
 }
@@ -2470,7 +2470,7 @@ try {
 	index_buffer->update(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_vertex_buffer(R3rBufferUPtr& vertex_buffer) noexcept
+void HwVideo::destroy_vertex_buffer(R3rBufferUPtr& vertex_buffer)
 {
 	vertex_buffer = nullptr;
 }
@@ -2508,7 +2508,7 @@ try {
 	vertex_buffer->update(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_vertex_input(R3rVertexInputUPtr& vertex_input) noexcept
+void HwVideo::destroy_vertex_input(R3rVertexInputUPtr& vertex_input)
 {
 	vertex_input = nullptr;
 }
@@ -2583,27 +2583,27 @@ try {
 	vertex_input = renderer_->create_vertex_input(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::update_player_direction() noexcept
+void HwVideo::update_player_direction()
 {
 	player_angle_rad_ = math::deg_to_rad(player->angle);
 	view_direction_ = cgm::Vec2D{std::cos(player_angle_rad_), -std::sin(player_angle_rad_)};
 	bs_view_direction_ = view_direction_;
 }
 
-void HwVideo::update_player_position() noexcept
+void HwVideo::update_player_position()
 {
 	player_position_[0] = player->x;
 	player_position_[1] = player->y;
 }
 
-void HwVideo::update_player_view_position() noexcept
+void HwVideo::update_player_view_position()
 {
 	const auto pos = player_position_ - (view_direction_ * focallength);
 	view_position_ = cgm::Vec3D{pos[0], pos[1], 0.5};
 	bs_view_position_ = pos;
 }
 
-void HwVideo::update_player() noexcept
+void HwVideo::update_player()
 {
 	update_player_direction();
 	update_player_position();
@@ -2615,7 +2615,7 @@ try {
 	vid_initialize_ui_buffer();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_shader(R3rShaderUPtr& shader) noexcept
+void HwVideo::destroy_shader(R3rShaderUPtr& shader)
 {
 	shader = nullptr;
 }
@@ -2644,7 +2644,7 @@ try {
 	shader = renderer_->create_shader(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_fragment_shader() noexcept
+void HwVideo::destroy_fragment_shader()
 {
 	destroy_shader(fragment_shader_);
 }
@@ -2654,7 +2654,7 @@ try {
 	create_shader(R3rShaderType::fragment, fragment_shader_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_vertex_shader() noexcept
+void HwVideo::destroy_vertex_shader()
 {
 	destroy_shader(vertex_shader_);
 }
@@ -2664,7 +2664,7 @@ try {
 	create_shader(R3rShaderType::vertex, vertex_shader_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_shader_stage() noexcept
+void HwVideo::destroy_shader_stage()
 {
 	shader_stage_ = nullptr;
 }
@@ -2688,12 +2688,12 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 template<typename T>
-void HwVideo::uninitialize_uniform(T*& var) noexcept
+void HwVideo::uninitialize_uniform(T*& var)
 {
 	var = nullptr;
 }
 
-void HwVideo::uninitialize_model_mat_uniform() noexcept
+void HwVideo::uninitialize_model_mat_uniform()
 {
 	uninitialize_uniform(model_mat_uniform_);
 }
@@ -2744,7 +2744,7 @@ try {
 	initialize_uniform(R3rShaderVarTypeId::mat4, HwShaderRegistry::get_u_model_mat_name(), model_mat_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_view_mat_uniform() noexcept
+void HwVideo::uninitialize_view_mat_uniform()
 {
 	uninitialize_uniform(view_mat_uniform_);
 }
@@ -2754,7 +2754,7 @@ try {
 	initialize_uniform(R3rShaderVarTypeId::mat4, HwShaderRegistry::get_u_view_mat_name(), view_mat_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_projection_mat_uniform() noexcept
+void HwVideo::uninitialize_projection_mat_uniform()
 {
 	uninitialize_uniform(projection_mat_uniform_);
 }
@@ -2764,7 +2764,7 @@ try {
 	initialize_uniform(R3rShaderVarTypeId::mat4, HwShaderRegistry::get_u_projection_mat_name(), projection_mat_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_sampler_uniform() noexcept
+void HwVideo::uninitialize_sampler_uniform()
 {
 	uninitialize_uniform(sampler_uniform_);
 }
@@ -2775,7 +2775,7 @@ try {
 	initialize_uniform(R3rShaderVarTypeId::sampler2d, HwShaderRegistry::get_u_sampler_name(), sampler_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_shading_mode_uniform() noexcept
+void HwVideo::uninitialize_shading_mode_uniform()
 {
 	uninitialize_uniform(shading_mode_uniform_);
 }
@@ -2786,7 +2786,7 @@ try {
 	initialize_uniform(R3rShaderVarTypeId::int32, HwShaderRegistry::get_u_shading_mode_name(), shading_mode_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_shade_max_uniform() noexcept
+void HwVideo::uninitialize_shade_max_uniform()
 {
 	uninitialize_uniform(shade_max_uniform_);
 }
@@ -2797,7 +2797,7 @@ try {
 	initialize_uniform(R3rShaderVarTypeId::float32, HwShaderRegistry::get_u_shade_max_name(), shade_max_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_normal_shade_uniform() noexcept
+void HwVideo::uninitialize_normal_shade_uniform()
 {
 	uninitialize_uniform(normal_shade_uniform_);
 }
@@ -2808,7 +2808,7 @@ try {
 	initialize_uniform(R3rShaderVarTypeId::float32, HwShaderRegistry::get_u_normal_shade_name(), normal_shade_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_height_numerator_uniform() noexcept
+void HwVideo::uninitialize_height_numerator_uniform()
 {
 	uninitialize_uniform(height_numerator_uniform_);
 }
@@ -2819,7 +2819,7 @@ try {
 	initialize_uniform(R3rShaderVarTypeId::float32, HwShaderRegistry::get_u_height_numerator_name(), height_numerator_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_extra_lighting_uniform() noexcept
+void HwVideo::uninitialize_extra_lighting_uniform()
 {
 	uninitialize_uniform(extra_lighting_uniform_);
 }
@@ -2830,7 +2830,7 @@ try {
 	initialize_uniform(R3rShaderVarTypeId::float32, HwShaderRegistry::get_u_extra_lighting_name(), extra_lighting_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_view_direction_uniform() noexcept
+void HwVideo::uninitialize_view_direction_uniform()
 {
 	uninitialize_uniform(view_direction_uniform_);
 }
@@ -2841,7 +2841,7 @@ try {
 	initialize_uniform(R3rShaderVarTypeId::vec2, HwShaderRegistry::get_u_view_direction_name(), view_direction_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_view_position_uniform() noexcept
+void HwVideo::uninitialize_view_position_uniform()
 {
 	uninitialize_uniform(view_position_uniform_);
 }
@@ -2852,7 +2852,7 @@ try {
 	initialize_uniform(R3rShaderVarTypeId::vec2, HwShaderRegistry::get_u_view_position_name(), view_position_uniform_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_shading_uniforms() noexcept
+void HwVideo::uninitialize_shading_uniforms()
 {
 	uninitialize_sampler_uniform();
 	uninitialize_shading_mode_uniform();
@@ -2876,7 +2876,7 @@ try {
 	initialize_view_position_uniform();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_uniforms() noexcept
+void HwVideo::uninitialize_uniforms()
 {
 	uninitialize_model_mat_uniform();
 	uninitialize_view_mat_uniform();
@@ -2892,7 +2892,7 @@ try {
 	initialize_shading_uniforms();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_program() noexcept
+void HwVideo::uninitialize_program()
 {
 	uninitialize_uniforms();
 	destroy_shader_stage();
@@ -3022,7 +3022,7 @@ try {
 	window.show(true);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_ui_ib() noexcept
+void HwVideo::destroy_ui_ib()
 {
 	destroy_index_buffer(ui_ib_);
 }
@@ -3049,7 +3049,7 @@ try {
 	update_index_buffer(ui_ib_, 0, r2_index_count_, indices.data());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_ui_vi() noexcept
+void HwVideo::destroy_ui_vi()
 {
 	destroy_vertex_input(ui_vi_);
 }
@@ -3059,7 +3059,7 @@ try {
 	create_vertex_input<Vertex>(ui_ib_, ui_vb_, ui_vi_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::fill_2d_vb(float left_f, float right_f, float width_f, int vertex_offset) noexcept
+void HwVideo::fill_2d_vb(float left_f, float right_f, float width_f, int vertex_offset)
 {
 	static_cast<void>(width_f);
 
@@ -3101,7 +3101,7 @@ void HwVideo::fill_2d_vb(float left_f, float right_f, float width_f, int vertex_
 	}
 }
 
-void HwVideo::fill_2d_vb_stretched() noexcept
+void HwVideo::fill_2d_vb_stretched()
 {
 	const auto left_f = 0.0F;
 	const auto right_f = static_cast<float>(vid_layout_.screen_width);
@@ -3110,7 +3110,7 @@ void HwVideo::fill_2d_vb_stretched() noexcept
 	fill_2d_vb(left_f, right_f, width_f, r2_stretched_vertex_offset_);
 }
 
-void HwVideo::fill_2d_vb_non_stretched() noexcept
+void HwVideo::fill_2d_vb_non_stretched()
 {
 	const auto left_f = static_cast<float>(vid_layout_.screen_left_filler_width);
 	const auto right_f = static_cast<float>(vid_layout_.screen_width - vid_layout_.screen_right_filler_width);
@@ -3119,7 +3119,7 @@ void HwVideo::fill_2d_vb_non_stretched() noexcept
 	fill_2d_vb(left_f, right_f, width_f, r2_non_stretched_vertex_offset_);
 }
 
-void HwVideo::destroy_ui_vb() noexcept
+void HwVideo::destroy_ui_vb()
 {
 	destroy_vertex_buffer(ui_vb_);
 }
@@ -3132,7 +3132,7 @@ try {
 	update_vertex_buffer(ui_vb_, 0, r2_vertex_count_, r2_vertices_.data());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_2d_fillers_ib() noexcept
+void HwVideo::destroy_2d_fillers_ib()
 {
 	destroy_index_buffer(r2_fillers_ib_);
 }
@@ -3179,7 +3179,7 @@ try {
 	update_index_buffer(r2_fillers_ib_, 0, r2_fillers_index_count_, indices.data());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_2d_fillers_vb() noexcept
+void HwVideo::destroy_2d_fillers_vb()
 {
 	destroy_vertex_buffer(r2_fillers_vb_);
 }
@@ -3522,7 +3522,7 @@ try {
 	update_vertex_buffer(r2_fillers_vb_, 0, r2_fillers_vertex_count_, vertices.data());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_2d_fillers_vi() noexcept
+void HwVideo::destroy_2d_fillers_vi()
 {
 	destroy_vertex_input(r2_fillers_vi_);
 }
@@ -3532,7 +3532,7 @@ try {
 	create_vertex_input<Vertex>(r2_fillers_ib_, r2_fillers_vb_, r2_fillers_vi_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_black_1x1_2d_texture() noexcept
+void HwVideo::destroy_black_1x1_2d_texture()
 {
 	if (texture_mgr_ != nullptr)
 	{
@@ -3548,7 +3548,7 @@ try {
 	r2_black_t2d_1x1_ = texture_mgr_->get_solid_1x1(HwTextureMgrSolid1x1Id::black);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_white_1x1_2d_texture() noexcept
+void HwVideo::destroy_white_1x1_2d_texture()
 {
 	if (texture_mgr_ != nullptr)
 	{
@@ -3564,7 +3564,7 @@ try {
 	r2_white_t2d_1x1_ = texture_mgr_->get_solid_1x1(HwTextureMgrSolid1x1Id::white);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_fade_1x1_2d_texture() noexcept
+void HwVideo::destroy_fade_1x1_2d_texture()
 {
 	if (texture_mgr_ != nullptr)
 	{
@@ -3580,7 +3580,7 @@ try {
 	r2_fade_t2d_ = texture_mgr_->get_solid_1x1(HwTextureMgrSolid1x1Id::fade_2d);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_ui_texture() noexcept
+void HwVideo::destroy_ui_texture()
 {
 	if (ui_t2d_ == nullptr)
 	{
@@ -3597,7 +3597,7 @@ try {
 	ui_t2d_ = texture_mgr_->get_ui();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_2d() noexcept
+void HwVideo::uninitialize_2d()
 {
 	destroy_ui_texture();
 
@@ -3630,7 +3630,7 @@ try {
 	create_fade_1x1_2d_texture();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_flooring_ib() noexcept
+void HwVideo::destroy_flooring_ib()
 {
 	destroy_index_buffer(flooring_ib_);
 }
@@ -3652,7 +3652,7 @@ try {
 	update_index_buffer(flooring_ib_, 0, index_count, indices.data());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_flooring_vb() noexcept
+void HwVideo::destroy_flooring_vb()
 {
 	destroy_vertex_buffer(flooring_vb_);
 }
@@ -3702,7 +3702,7 @@ try {
 	update_vertex_buffer(flooring_vb_, 0, vertex_count, vertices.data());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_flooring_vi() noexcept
+void HwVideo::destroy_flooring_vi()
 {
 	destroy_vertex_input(flooring_vi_);
 }
@@ -3712,7 +3712,7 @@ try {
 	create_vertex_input<FlooringVertex>(flooring_ib_, flooring_vb_, flooring_vi_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_solid_flooring_r2_texture() noexcept
+void HwVideo::destroy_solid_flooring_r2_texture()
 {
 	if (texture_mgr_ != nullptr)
 	{
@@ -3728,7 +3728,7 @@ try {
 	flooring_solid_t2d_ = texture_mgr_->get_solid_1x1(HwTextureMgrSolid1x1Id::flooring);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_flooring() noexcept
+void HwVideo::uninitialize_flooring()
 {
 	destroy_flooring_vi();
 	destroy_flooring_ib();
@@ -3748,7 +3748,7 @@ try {
 	create_solid_flooring_r2_texture();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_ceiling_ib() noexcept
+void HwVideo::destroy_ceiling_ib()
 {
 	destroy_index_buffer(ceiling_ib_);
 }
@@ -3769,7 +3769,7 @@ try {
 	update_index_buffer(ceiling_ib_, 0, index_count, indices.data());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_ceiling_vb() noexcept
+void HwVideo::destroy_ceiling_vb()
 {
 	destroy_vertex_buffer(ceiling_vb_);
 }
@@ -3816,7 +3816,7 @@ try {
 	update_vertex_buffer(ceiling_vb_, 0, vertex_count, vertices.data());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_ceiling_vi() noexcept
+void HwVideo::destroy_ceiling_vi()
 {
 	destroy_vertex_input(ceiling_vi_);
 }
@@ -3826,7 +3826,7 @@ try {
 	create_vertex_input<CeilingVertex>(ceiling_ib_, ceiling_vb_, ceiling_vi_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_solid_ceiling_r2_texture() noexcept
+void HwVideo::destroy_solid_ceiling_r2_texture()
 {
 	if (texture_mgr_ != nullptr)
 	{
@@ -3850,7 +3850,7 @@ try {
 	create_solid_ceiling_r2_texture();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_ceiling() noexcept
+void HwVideo::uninitialize_ceiling()
 {
 	destroy_ceiling_vi();
 	destroy_ceiling_ib();
@@ -3871,7 +3871,7 @@ try {
 	wall_sides_ibi_.resize(index_count);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_walls_ib() noexcept
+void HwVideo::destroy_walls_ib()
 {
 	destroy_index_buffer(wall_sides_ib_);
 	wall_sides_ibi_.clear();
@@ -3883,7 +3883,7 @@ try {
 	wall_sides_vb_ = create_vertex_buffer<WallVertex>(R3rBufferUsageType::draw_static, vertex_count);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_walls_vi() noexcept
+void HwVideo::destroy_walls_vi()
 {
 	destroy_vertex_input(wall_sides_vi_);
 }
@@ -3893,7 +3893,7 @@ try {
 	create_vertex_input<WallVertex>(wall_sides_ib_, wall_sides_vb_, wall_sides_vi_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_walls_vb() noexcept
+void HwVideo::destroy_walls_vb()
 {
 	destroy_vertex_buffer(wall_sides_vb_);
 }
@@ -3913,7 +3913,7 @@ try {
 	create_walls_vi();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_walls() noexcept
+void HwVideo::uninitialize_walls()
 {
 	wall_count_ = 0;
 	wall_side_count_ = 0;
@@ -3941,12 +3941,12 @@ try {
 	pushwall_sides_ib_ = create_index_buffer(R3rBufferUsageType::draw_streaming, 2, index_count);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_pushwalls_ibi() noexcept
+void HwVideo::destroy_pushwalls_ibi()
 {
 	pushwall_sides_ibi_.clear();
 }
 
-void HwVideo::destroy_pushwalls_ib() noexcept
+void HwVideo::destroy_pushwalls_ib()
 {
 	destroy_index_buffer(pushwall_sides_ib_);
 }
@@ -3960,7 +3960,7 @@ try {
 		vertex_count);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_pushwalls_vi() noexcept
+void HwVideo::destroy_pushwalls_vi()
 {
 	destroy_vertex_input(pushwall_sides_vi_);
 }
@@ -3970,7 +3970,7 @@ try {
 	create_vertex_input<PushwallVertex>(pushwall_sides_ib_, pushwall_sides_vb_, pushwall_sides_vi_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_pushwalls_vb() noexcept
+void HwVideo::destroy_pushwalls_vb()
 {
 	destroy_vertex_buffer(pushwall_sides_vb_);
 }
@@ -3994,7 +3994,7 @@ try {
 	create_pushwalls_vi();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_pushwalls() noexcept
+void HwVideo::uninitialize_pushwalls()
 {
 	pushwall_count_ = 0;
 	pushwall_side_count_ = 0;
@@ -4025,12 +4025,12 @@ try {
 	door_sides_ib_ = create_index_buffer(R3rBufferUsageType::draw_streaming, 2, index_count);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_door_sides_ibi() noexcept
+void HwVideo::destroy_door_sides_ibi()
 {
 	door_sides_ibi_.clear();
 }
 
-void HwVideo::destroy_door_sides_ib() noexcept
+void HwVideo::destroy_door_sides_ib()
 {
 	destroy_index_buffer(door_sides_ib_);
 	door_sides_ibi_.clear();
@@ -4042,12 +4042,12 @@ try {
 	door_sides_vb_ = create_vertex_buffer<DoorVertex>(R3rBufferUsageType::draw_dynamic, vertex_count);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_door_sides_vb() noexcept
+void HwVideo::destroy_door_sides_vb()
 {
 	destroy_vertex_buffer(door_sides_vb_);
 }
 
-void HwVideo::destroy_door_sides_vi() noexcept
+void HwVideo::destroy_door_sides_vi()
 {
 	destroy_vertex_input(door_sides_vi_);
 }
@@ -4073,7 +4073,7 @@ try {
 	create_door_sides_vi();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_door_sides() noexcept
+void HwVideo::uninitialize_door_sides()
 {
 	xy_door_map_.clear();
 
@@ -4088,7 +4088,7 @@ void HwVideo::uninitialize_door_sides() noexcept
 	destroy_door_sides_vb();
 }
 
-void HwVideo::update_palette_from_vga(int offset, int count) noexcept
+void HwVideo::update_palette_from_vga(int offset, int count)
 {
 	for (auto i = 0; i < count; ++i)
 	{
@@ -4098,7 +4098,7 @@ void HwVideo::update_palette_from_vga(int offset, int count) noexcept
 	}
 }
 
-void HwVideo::initialize_palette() noexcept
+void HwVideo::initialize_palette()
 {
 	vga_palette_ = {};
 	palette_ = {};
@@ -4112,24 +4112,24 @@ void HwVideo::initialize_palette() noexcept
 	}
 }
 
-void HwVideo::calculate_dimensions() noexcept
+void HwVideo::calculate_dimensions()
 {
 	auto src_param = vid_create_screen_size_param();
 	vid_calculate_window_elements_dimensions(src_param, vid_layout_);
 	vid_calculate_vga_dimensions();
 }
 
-void HwVideo::build_2d_model_matrix() noexcept
+void HwVideo::build_2d_model_matrix()
 {
 	r2_matrix_model_ = cgm::Mat4D::get_identity();
 }
 
-void HwVideo::build_2d_view_matrix() noexcept
+void HwVideo::build_2d_view_matrix()
 {
 	r2_matrix_view_ = cgm::Mat4D::get_identity();
 }
 
-void HwVideo::build_2d_projection_matrix() noexcept
+void HwVideo::build_2d_projection_matrix()
 {
 	switch (renderer_->get_type())
 	{
@@ -4150,14 +4150,14 @@ void HwVideo::build_2d_projection_matrix() noexcept
 	}
 }
 
-void HwVideo::build_2d_matrices() noexcept
+void HwVideo::build_2d_matrices()
 {
 	build_2d_model_matrix();
 	build_2d_view_matrix();
 	build_2d_projection_matrix();
 }
 
-void HwVideo::calculate_camera_parameters() noexcept
+void HwVideo::calculate_camera_parameters()
 {
 	// Vertical FOV.
 	//
@@ -4209,12 +4209,12 @@ void HwVideo::build_bs_to_ren_matrix()
 	};
 }
 
-void HwVideo::build_model_matrix() noexcept
+void HwVideo::build_model_matrix()
 {
 	r3_matrix_model_ = cgm::Mat4D::get_identity();
 }
 
-void HwVideo::build_view_matrix() noexcept
+void HwVideo::build_view_matrix()
 {
 	if (player == nullptr)
 	{
@@ -4228,7 +4228,7 @@ void HwVideo::build_view_matrix() noexcept
 	r3_matrix_view_ = view_matrix;
 }
 
-void HwVideo::build_projection_matrix() noexcept
+void HwVideo::build_projection_matrix()
 {
 	switch (renderer_->get_type())
 	{
@@ -4259,7 +4259,7 @@ void HwVideo::build_projection_matrix() noexcept
 	}
 }
 
-void HwVideo::build_3d_matrices() noexcept
+void HwVideo::build_3d_matrices()
 {
 	calculate_camera_parameters();
 
@@ -4269,13 +4269,13 @@ void HwVideo::build_3d_matrices() noexcept
 	build_projection_matrix();
 }
 
-void HwVideo::build_matrices() noexcept
+void HwVideo::build_matrices()
 {
 	build_2d_matrices();
 	build_3d_matrices();
 }
 
-void HwVideo::set_ui_sampler_default_state() noexcept
+void HwVideo::set_ui_sampler_default_state()
 {
 	ui_sampler_state_.min_filter = R3rFilterType::nearest;
 	ui_sampler_state_.mag_filter = R3rFilterType::nearest;
@@ -4285,7 +4285,7 @@ void HwVideo::set_ui_sampler_default_state() noexcept
 	ui_sampler_state_.anisotropy = R3rLimits::min_anisotropy_off();
 }
 
-void HwVideo::update_ui_sampler_state() noexcept
+void HwVideo::update_ui_sampler_state()
 {
 	ui_sampler_state_.min_filter = vid_cfg_get_2d_texture_filter();
 	ui_sampler_state_.mag_filter = vid_cfg_get_2d_texture_filter();
@@ -4303,7 +4303,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_ui_sampler() noexcept
+void HwVideo::destroy_ui_sampler()
 {
 	ui_sampler_ = nullptr;
 }
@@ -4318,7 +4318,7 @@ try {
 	ui_sampler_ = renderer_->create_sampler(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::set_sprite_sampler_default_state() noexcept
+void HwVideo::set_sprite_sampler_default_state()
 {
 	sprite_sampler_state_.min_filter = R3rFilterType::nearest;
 	sprite_sampler_state_.mag_filter = R3rFilterType::nearest;
@@ -4352,7 +4352,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_sprite_sampler() noexcept
+void HwVideo::destroy_sprite_sampler()
 {
 	destroy_sampler(sprite_sampler_);
 }
@@ -4367,7 +4367,7 @@ try {
 	sprite_sampler_ = renderer_->create_sampler(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::set_wall_sampler_default_state() noexcept
+void HwVideo::set_wall_sampler_default_state()
 {
 	wall_sampler_state_.min_filter = R3rFilterType::nearest;
 	wall_sampler_state_.mag_filter = R3rFilterType::nearest;
@@ -4401,7 +4401,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_wall_sampler() noexcept
+void HwVideo::destroy_wall_sampler()
 {
 	destroy_sampler(wall_sampler_);
 }
@@ -4463,7 +4463,7 @@ try {
 	update_vertex_buffer(player_weapon_vb_, 0, vertices_per_sprite, vertices.data());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_player_weapon_ib() noexcept
+void HwVideo::destroy_player_weapon_ib()
 {
 	destroy_index_buffer(player_weapon_ib_);
 }
@@ -4486,7 +4486,7 @@ try {
 	update_index_buffer(player_weapon_ib_, 0, indices_per_sprite, indices.data());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_player_weapon_vb() noexcept
+void HwVideo::destroy_player_weapon_vb()
 {
 	destroy_vertex_buffer(player_weapon_vb_);
 }
@@ -4498,7 +4498,7 @@ try {
 		vertices_per_sprite);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_player_weapon_vi() noexcept
+void HwVideo::destroy_player_weapon_vi()
 {
 	destroy_vertex_input(player_weapon_vi_);
 }
@@ -4531,12 +4531,12 @@ try {
 	player_weapon_model_matrix_ = translate * scale;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::update_player_weapon_view_matrix() noexcept
+void HwVideo::update_player_weapon_view_matrix()
 {
 	player_weapon_view_matrix_ = cgm::Mat4D::get_identity();
 }
 
-void HwVideo::build_player_weapon_projection_matrix() noexcept
+void HwVideo::build_player_weapon_projection_matrix()
 {
 	switch (renderer_->get_type())
 	{
@@ -4561,7 +4561,7 @@ void HwVideo::build_player_weapon_projection_matrix() noexcept
 	}
 }
 
-void HwVideo::set_player_weapon_sampler_default_state() noexcept
+void HwVideo::set_player_weapon_sampler_default_state()
 {
 	player_weapon_sampler_state_.min_filter = R3rFilterType::nearest;
 	player_weapon_sampler_state_.mag_filter = R3rFilterType::nearest;
@@ -4571,7 +4571,7 @@ void HwVideo::set_player_weapon_sampler_default_state() noexcept
 	player_weapon_sampler_state_.anisotropy = R3rLimits::min_anisotropy_off();
 }
 
-void HwVideo::update_player_weapon_sampler_state() noexcept
+void HwVideo::update_player_weapon_sampler_state()
 {
 	player_weapon_sampler_state_.min_filter = vid_cfg_get_3d_texture_image_filter();
 	player_weapon_sampler_state_.mag_filter = vid_cfg_get_3d_texture_image_filter();
@@ -4589,7 +4589,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_player_weapon_sampler() noexcept
+void HwVideo::destroy_player_weapon_sampler()
 {
 	player_weapon_sampler_ = nullptr;
 }
@@ -4603,7 +4603,7 @@ try {
 	player_weapon_sampler_ = renderer_->create_sampler(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_player_weapon() noexcept
+void HwVideo::uninitialize_player_weapon()
 {
 	destroy_player_weapon_vi();
 	destroy_player_weapon_ib();
@@ -4626,7 +4626,7 @@ try {
 	build_player_weapon_projection_matrix();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_fade_sampler() noexcept
+void HwVideo::destroy_fade_sampler()
 {
 	destroy_sampler(fade_sampler_);
 }
@@ -4643,14 +4643,14 @@ try {
 	fade_sampler_ = renderer_->create_sampler(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::set_samplers_default_states() noexcept
+void HwVideo::set_samplers_default_states()
 {
 	set_ui_sampler_default_state();
 	set_sprite_sampler_default_state();
 	set_wall_sampler_default_state();
 }
 
-void HwVideo::uninitialize_samplers() noexcept
+void HwVideo::uninitialize_samplers()
 {
 	destroy_ui_sampler();
 	destroy_sprite_sampler();
@@ -4666,19 +4666,19 @@ try {
 	create_fade_sampler();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_command_buffers() noexcept
+void HwVideo::destroy_command_buffers()
 {
 	command_buffers_.fill(nullptr);
 }
 
-void HwVideo::create_command_buffers() noexcept
+void HwVideo::create_command_buffers()
 {
 	command_buffers_[0] = common_command_buffer_.get();
 	command_buffers_[1] = r3_command_buffer_.get();
 	command_buffers_[2] = r2_command_buffer_.get();
 }
 
-void HwVideo::destroy_common_command_buffer() noexcept
+void HwVideo::destroy_common_command_buffer()
 {
 	common_command_buffer_ = nullptr;
 }
@@ -4698,7 +4698,7 @@ try {
 	vsync_command_buffer_->enable(true);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_vsync_command_buffer() noexcept
+void HwVideo::destroy_vsync_command_buffer()
 {
 	vsync_command_buffer_ = nullptr;
 }
@@ -4712,7 +4712,7 @@ try {
 	common_command_buffer_ = make_r3r_cmd_buffer(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_2d_command_buffer() noexcept
+void HwVideo::destroy_2d_command_buffer()
 {
 	r2_command_buffer_ = nullptr;
 }
@@ -4726,7 +4726,7 @@ try {
 	r2_command_buffer_ = make_r3r_cmd_buffer(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_3d_command_buffer() noexcept
+void HwVideo::destroy_3d_command_buffer()
 {
 	r3_command_buffer_ = nullptr;
 }
@@ -4740,7 +4740,7 @@ try {
 	r3_command_buffer_ = make_r3r_cmd_buffer(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_command_buffers() noexcept
+void HwVideo::uninitialize_command_buffers()
 {
 	destroy_vsync_command_buffer();
 	destroy_3d_command_buffer();
@@ -4758,7 +4758,7 @@ try {
 	create_command_buffers();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_3d_fade_ib() noexcept
+void HwVideo::destroy_3d_fade_ib()
 {
 	destroy_index_buffer(r3_fade_ib_);
 }
@@ -4768,7 +4768,7 @@ try {
 	r3_fade_ib_ = create_index_buffer(R3rBufferUsageType::draw_static, 2, 6);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_3d_fade_vb() noexcept
+void HwVideo::destroy_3d_fade_vb()
 {
 	destroy_vertex_buffer(r3_fade_vb_);
 }
@@ -4778,7 +4778,7 @@ try {
 	r3_fade_vb_ = create_vertex_buffer<FadeVertex>(R3rBufferUsageType::draw_static, 4);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_3d_fade_vi() noexcept
+void HwVideo::destroy_3d_fade_vi()
 {
 	destroy_vertex_input(r3_fade_vi_);
 }
@@ -4863,7 +4863,7 @@ void HwVideo::update_3d_fade_ortho()
 	}
 }
 
-void HwVideo::destroy_3d_fade_r2_texture() noexcept
+void HwVideo::destroy_3d_fade_r2_texture()
 {
 	if (texture_mgr_ != nullptr)
 	{
@@ -4879,7 +4879,7 @@ try {
 	r3_fade_t2d_ = texture_mgr_->get_solid_1x1(HwTextureMgrSolid1x1Id::fade_3d);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_3d_fade() noexcept
+void HwVideo::uninitialize_3d_fade()
 {
 	destroy_3d_fade_vi();
 	destroy_3d_fade_vb();
@@ -4887,7 +4887,7 @@ void HwVideo::uninitialize_3d_fade() noexcept
 	destroy_3d_fade_r2_texture();
 }
 
-void HwVideo::destroy_texture_manager() noexcept
+void HwVideo::destroy_texture_manager()
 {
 	texture_mgr_ = nullptr;
 }
@@ -6710,22 +6710,22 @@ try {
 	command_buffer->end_write();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-bool HwVideo::bs_is_activated_pushwall_tile(int tile) noexcept
+bool HwVideo::bs_is_activated_pushwall_tile(int tile)
 {
 	return (tile & tilemap_door_flags) == tilemap_door_flags;
 }
 
-bool HwVideo::bs_is_door(int tile) noexcept
+bool HwVideo::bs_is_door(int tile)
 {
 	return (tile & tilemap_door_flags) == tilemap_door_flag;
 }
 
-bool HwVideo::bs_is_door_track(int tile) noexcept
+bool HwVideo::bs_is_door_track(int tile)
 {
 	return (tile & tilemap_door_flags) == tilemap_door_track_flag;
 }
 
-bool HwVideo::bs_is_solid_wall(int tile) noexcept
+bool HwVideo::bs_is_solid_wall(int tile)
 {
 	if (tile == 0)
 	{
@@ -6745,7 +6745,7 @@ bool HwVideo::bs_is_solid_wall(int tile) noexcept
 	return true;
 }
 
-bool HwVideo::bs_is_pushwall(int x, int y) noexcept
+bool HwVideo::bs_is_pushwall(int x, int y)
 {
 	if (x < 0 || x >= MAPSIZE || y < 0 || y >= MAPSIZE)
 	{
@@ -6774,7 +6774,7 @@ bool HwVideo::bs_is_pushwall(int x, int y) noexcept
 	return false;
 }
 
-bool HwVideo::bs_is_solid_wall(int x, int y) const noexcept
+bool HwVideo::bs_is_solid_wall(int x, int y) const
 {
 	if (x < 0 || x >= MAPSIZE || y < 0 || y >= MAPSIZE)
 	{
@@ -7092,21 +7092,21 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 template<typename TVertex>
-void HwVideo::update_vertex_xyz(TVertex& vertex, const VertexPosition& xyz) noexcept
+void HwVideo::update_vertex_xyz(TVertex& vertex, const VertexPosition& xyz)
 {
 	const auto traits = VertexAttributeTraits<TVertex, VertexAttribLocationId::position>{};
 	UpdateVertexXyz<TVertex, traits.is_valid>{}(vertex, xyz);
 }
 
 template<typename TVertex>
-void HwVideo::update_vertex_rgba(TVertex& vertex, const VertexColor& rgba_8) noexcept
+void HwVideo::update_vertex_rgba(TVertex& vertex, const VertexColor& rgba_8)
 {
 	const auto traits = VertexAttributeTraits<TVertex, VertexAttribLocationId::color>{};
 	UpdateVertexRgba<TVertex, traits.is_valid>{}(vertex, rgba_8);
 }
 
 template<typename TVertex>
-void HwVideo::update_vertex_uv(TVertex& vertex, const VertexTextureCoordinates& uv) noexcept
+void HwVideo::update_vertex_uv(TVertex& vertex, const VertexTextureCoordinates& uv)
 {
 	const auto traits = VertexAttributeTraits<TVertex, VertexAttribLocationId::texture_coordinates>{};
 	UpdateVertexUv<TVertex, traits.is_valid>{}(vertex, uv);
@@ -7694,7 +7694,7 @@ void HwVideo::update_quad_vertices(
 	const VertexPosition& origin,
 	const cgm::Vec2F& size,
 	int& vertex_index,
-	VertexBufferImageT<TVertex>& vb_buffer) noexcept
+	VertexBufferImageT<TVertex>& vb_buffer)
 {
 	//
 	// Front face order:
@@ -7754,7 +7754,7 @@ void HwVideo::update_quad_vertices(
 	vertex_index += 4;
 }
 
-void HwVideo::map_door_side(DoorSide& door_side, int& vertex_index, DoorsVbi& vb_buffer) noexcept
+void HwVideo::map_door_side(DoorSide& door_side, int& vertex_index, DoorsVbi& vb_buffer)
 {
 	const auto& door = *door_side.door;
 	const auto bs_door_index = door.bs_door_index;
@@ -7907,7 +7907,7 @@ try {
 	sprites_ibi_.resize(index_count);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_sprites_ib() noexcept
+void HwVideo::uninitialize_sprites_ib()
 {
 	destroy_index_buffer(sprites_ib_);
 	sprites_ibi_.clear();
@@ -7920,13 +7920,13 @@ try {
 	sprites_vbi_.resize(vertex_count);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_sprites_vb() noexcept
+void HwVideo::uninitialize_sprites_vb()
 {
 	destroy_vertex_buffer(sprites_vb_);
 	sprites_vbi_.clear();
 }
 
-void HwVideo::uninitialize_sprites_vi() noexcept
+void HwVideo::uninitialize_sprites_vi()
 {
 	destroy_vertex_input(sprites_vi_);
 }
@@ -7965,17 +7965,17 @@ try {
 	initialize_actors();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_statics() noexcept
+void HwVideo::uninitialize_statics()
 {
 	statics_.clear();
 }
 
-void HwVideo::uninitialize_actors() noexcept
+void HwVideo::uninitialize_actors()
 {
 	actors_.clear();
 }
 
-void HwVideo::uninitialize_sprites() noexcept
+void HwVideo::uninitialize_sprites()
 {
 	uninitialize_statics();
 	uninitialize_actors();
@@ -7988,7 +7988,7 @@ void HwVideo::uninitialize_sprites() noexcept
 	uninitialize_sprites_vb();
 }
 
-void HwVideo::map_sprite(SpriteType sprite_type, int vertex_index, Sprite& sprite) noexcept
+void HwVideo::map_sprite(SpriteType sprite_type, int vertex_index, Sprite& sprite)
 {
 	sprite.type = sprite_type;
 	sprite.vertex_index = vertex_index;
@@ -8026,7 +8026,7 @@ void HwVideo::map_sprite(SpriteType sprite_type, int vertex_index, Sprite& sprit
 	}
 }
 
-void HwVideo::map_static(const statobj_t& bs_static) noexcept
+void HwVideo::map_static(const statobj_t& bs_static)
 {
 	const auto bs_static_index = static_cast<int>(&bs_static - statobjlist.data());
 
@@ -10312,7 +10312,7 @@ try {
 	texture_mgr_->purge_cache();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_texture_upscale_resources() noexcept
+void HwVideo::destroy_texture_upscale_resources()
 {
 	ui_t2d_ = nullptr;
 	flooring_textured_t2d_ = nullptr;
@@ -10334,7 +10334,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::destroy_external_textures_resources() noexcept
+void HwVideo::destroy_external_textures_resources()
 {
 	flooring_textured_t2d_ = nullptr;
 	ceiling_textured_t2d_ = nullptr;
@@ -10353,7 +10353,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwVideo::uninitialize_video() noexcept
+void HwVideo::uninitialize_video()
 {
 	renderer_->wait_for_device();
 	uninitialize_command_buffers();

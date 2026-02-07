@@ -44,7 +44,7 @@ struct AudioDecoderInitParam
 class AudioDecoder
 {
 public:
-	AudioDecoder() noexcept;
+	AudioDecoder();
 	virtual ~AudioDecoder();
 
 	// Initializes the instance.
@@ -56,7 +56,7 @@ public:
 
 	// Returns true if the instance is initialized or
 	// false otherwise.
-	virtual bool is_initialized() const noexcept = 0;
+	virtual bool is_initialized() const = 0;
 
 	// Decodes specified number of samples into a provided buffer.
 	// Returns a number of decoded samples.
@@ -66,7 +66,7 @@ public:
 	virtual bool rewind() = 0;
 
 	// Returns a length of the audio data in samples.
-	virtual int get_dst_length_in_samples() const noexcept = 0;
+	virtual int get_dst_length_in_samples() const = 0;
 }; // AudioDecoder
 
 // ==========================================================================

@@ -61,18 +61,18 @@ enum class GlR3rExtensionId
 class GlR3rExtensionMgr
 {
 public:
-	GlR3rExtensionMgr() noexcept {}
+	GlR3rExtensionMgr() {}
 	virtual ~GlR3rExtensionMgr() {}
 
-	virtual int get_count() const noexcept = 0;
-	virtual const std::string& get_name(int extension_index) const noexcept = 0;
-	virtual const GlR3rVersion& get_gl_version() const noexcept = 0;
-	virtual const GlR3rVersion& get_glsl_version() const noexcept = 0;
+	virtual int get_count() const = 0;
+	virtual const std::string& get_name(int extension_index) const = 0;
+	virtual const GlR3rVersion& get_gl_version() const = 0;
+	virtual const GlR3rVersion& get_glsl_version() const = 0;
 
 	virtual void probe(GlR3rExtensionId extension_id) = 0;
 
-	virtual bool has(GlR3rExtensionId extension_id) const noexcept = 0;
-	virtual bool operator[](GlR3rExtensionId extension_id) const noexcept = 0;
+	virtual bool has(GlR3rExtensionId extension_id) const = 0;
+	virtual bool operator[](GlR3rExtensionId extension_id) const = 0;
 };
 
 // ==========================================================================

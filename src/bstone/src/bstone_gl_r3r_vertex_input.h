@@ -29,7 +29,7 @@ public:
 	virtual void bind() = 0;
 	virtual void bind_vao() = 0;
 
-	virtual R3rBuffer* get_index_buffer() const noexcept = 0;
+	virtual R3rBuffer* get_index_buffer() const = 0;
 };
 
 // =========================================================================

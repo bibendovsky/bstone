@@ -30,11 +30,11 @@ public:
 
 	R3rSamplerUPtr create(const R3rSamplerInitParam& param) override;
 
-	void notify_destroy(const R3rSampler* sampler) noexcept override;
+	void notify_destroy(const R3rSampler* sampler) override;
 
 	void set(R3rSampler* sampler) override;
 
-	const R3rSamplerState& get_current_state() const noexcept override;
+	const R3rSamplerState& get_current_state() const override;
 
 private:
 	GlR3rContext& context_;
@@ -69,7 +69,7 @@ R3rSamplerUPtr GlR3rSamplerMgrImpl::create(const R3rSamplerInitParam& param)
 	return make_gl_r3r_sampler(context_, param);
 }
 
-void GlR3rSamplerMgrImpl::notify_destroy(const R3rSampler* sampler) noexcept
+void GlR3rSamplerMgrImpl::notify_destroy(const R3rSampler* sampler)
 {
 	if (current_sampler_ == sampler)
 	{
@@ -97,7 +97,7 @@ void GlR3rSamplerMgrImpl::set(R3rSampler* sampler)
 	set();
 }
 
-const R3rSamplerState& GlR3rSamplerMgrImpl::get_current_state() const noexcept
+const R3rSamplerState& GlR3rSamplerMgrImpl::get_current_state() const
 {
 	return current_sampler_->get_state();
 }

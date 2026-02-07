@@ -21,10 +21,10 @@ class GlR3rContext;
 class GlR3rVertexInputMgr
 {
 public:
-	GlR3rVertexInputMgr() noexcept {}
+	GlR3rVertexInputMgr() {}
 	virtual ~GlR3rVertexInputMgr() {}
 
-	virtual GlR3rContext& get_context() const noexcept = 0;
+	virtual GlR3rContext& get_context() const = 0;
 	virtual R3rVertexInputUPtr create(const R3rCreateVertexInputParam& param) = 0;
 	virtual void set(R3rVertexInput& vertex_input) = 0;
 	virtual void bind_default_vao() = 0;

@@ -26,7 +26,7 @@ constexpr int window_min_height = 240;
 
 } // namespace
 
-int R3rUtils::find_nearest_pot_value(int value) noexcept
+int R3rUtils::find_nearest_pot_value(int value)
 {
 	for (auto i = 0; i < 32; ++i)
 	{
@@ -41,7 +41,7 @@ int R3rUtils::find_nearest_pot_value(int value) noexcept
 	return 0;
 }
 
-bool R3rUtils::is_pot_value(int value) noexcept
+bool R3rUtils::is_pot_value(int value)
 {
 	const auto nearest_value = find_nearest_pot_value(value);
 	return nearest_value == value;
@@ -706,7 +706,7 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // Indexed (row major, has no alpha) -> RGBA
-void R3rUtils::indexed_to_rgba_8_rm_na(const IndexedToRgba8Param& param) noexcept
+void R3rUtils::indexed_to_rgba_8_rm_na(const IndexedToRgba8Param& param)
 {
 	auto src_pixels = param.indexed_pixels;
 	const auto& src_palette = *param.indexed_palette;
@@ -720,7 +720,7 @@ void R3rUtils::indexed_to_rgba_8_rm_na(const IndexedToRgba8Param& param) noexcep
 }
 
 // Indexed (row major, has alpha) -> RGBA
-void R3rUtils::indexed_to_rgba_8_rm_ha(const IndexedToRgba8Param& param) noexcept
+void R3rUtils::indexed_to_rgba_8_rm_ha(const IndexedToRgba8Param& param)
 {
 	auto src_pixels = param.indexed_pixels;
 	const auto& src_palette = *param.indexed_palette;
@@ -744,7 +744,7 @@ void R3rUtils::indexed_to_rgba_8_rm_ha(const IndexedToRgba8Param& param) noexcep
 }
 
 // Indexed (column major, has no alpha) -> RGBA
-void R3rUtils::indexed_to_rgba_8_cm_na(const IndexedToRgba8Param& param) noexcept
+void R3rUtils::indexed_to_rgba_8_cm_na(const IndexedToRgba8Param& param)
 {
 	const auto& src_palette = *param.indexed_palette;
 	auto dst_pixels = param.rgba_8_buffer->data();
@@ -762,7 +762,7 @@ void R3rUtils::indexed_to_rgba_8_cm_na(const IndexedToRgba8Param& param) noexcep
 }
 
 // Indexed (column major, has alpha) -> RGBA
-void R3rUtils::indexed_to_rgba_8_cm_ha(const IndexedToRgba8Param& param) noexcept
+void R3rUtils::indexed_to_rgba_8_cm_ha(const IndexedToRgba8Param& param)
 {
 	const auto& src_palette = *param.indexed_palette;
 	auto dst_pixels = param.rgba_8_buffer->data();
@@ -790,7 +790,7 @@ void R3rUtils::indexed_to_rgba_8_cm_ha(const IndexedToRgba8Param& param) noexcep
 }
 
 // Indexed (row major, has no alpha) -> RGBA POT
-void R3rUtils::indexed_npot_to_rgba_8_rm_na(const IndexedToRgba8Param& param) noexcept
+void R3rUtils::indexed_npot_to_rgba_8_rm_na(const IndexedToRgba8Param& param)
 {
 	const auto src_du_f = static_cast<double>(param.width) / static_cast<double>(param.actual_width);
 	const auto src_dv_f = static_cast<double>(param.height) / static_cast<double>(param.actual_height);
@@ -829,7 +829,7 @@ void R3rUtils::indexed_npot_to_rgba_8_rm_na(const IndexedToRgba8Param& param) no
 }
 
 // Indexed (row major, has alpha) -> RGBA POT
-void R3rUtils::indexed_npot_to_rgba_8_rm_ha(const IndexedToRgba8Param& param) noexcept
+void R3rUtils::indexed_npot_to_rgba_8_rm_ha(const IndexedToRgba8Param& param)
 {
 	const auto src_du_f = static_cast<double>(param.width) / static_cast<double>(param.actual_width);
 	const auto src_dv_f = static_cast<double>(param.height) / static_cast<double>(param.actual_height);
@@ -877,7 +877,7 @@ void R3rUtils::indexed_npot_to_rgba_8_rm_ha(const IndexedToRgba8Param& param) no
 }
 
 // Indexed (column major, has no alpha) -> RGBA POT
-void R3rUtils::indexed_npot_to_rgba_8_cm_na(const IndexedToRgba8Param& param) noexcept
+void R3rUtils::indexed_npot_to_rgba_8_cm_na(const IndexedToRgba8Param& param)
 {
 	const auto src_du_f = static_cast<double>(param.width) / static_cast<double>(param.actual_width);
 	const auto src_dv_f = static_cast<double>(param.height) / static_cast<double>(param.actual_height);
@@ -913,7 +913,7 @@ void R3rUtils::indexed_npot_to_rgba_8_cm_na(const IndexedToRgba8Param& param) no
 }
 
 // Indexed (column major, has alpha) -> RGBA POT
-void R3rUtils::indexed_npot_to_rgba_8_cm_ha(const IndexedToRgba8Param& param) noexcept
+void R3rUtils::indexed_npot_to_rgba_8_cm_ha(const IndexedToRgba8Param& param)
 {
 	const auto src_du_f = static_cast<double>(param.width) / static_cast<double>(param.actual_width);
 	const auto src_dv_f = static_cast<double>(param.height) / static_cast<double>(param.actual_height);
@@ -960,7 +960,7 @@ void R3rUtils::indexed_npot_to_rgba_8_cm_ha(const IndexedToRgba8Param& param) no
 void R3rUtils::build_mipmap_1(
 	int previous_dimension,
 	Rgba8CPtr src_colors,
-	Rgba8Ptr dst_colors) noexcept
+	Rgba8Ptr dst_colors)
 {
 	const auto dimension = previous_dimension / 2;
 	auto src_colors_0 = src_colors;
@@ -973,7 +973,7 @@ void R3rUtils::build_mipmap_1(
 	}
 }
 
-Rgba8 R3rUtils::average_pa(Rgba8 color_0, Rgba8 color_1) noexcept
+Rgba8 R3rUtils::average_pa(Rgba8 color_0, Rgba8 color_1)
 {
 	constexpr auto color_count = 2;
 	constexpr auto denominator = 255 * color_count * color_count;
@@ -992,7 +992,7 @@ Rgba8 R3rUtils::average_pa(Rgba8 color_0, Rgba8 color_1) noexcept
 	};
 }
 
-Rgba8 R3rUtils::average_pa(Rgba8 color_0, Rgba8 color_1, Rgba8 color_2, Rgba8 color_3) noexcept
+Rgba8 R3rUtils::average_pa(Rgba8 color_0, Rgba8 color_1, Rgba8 color_2, Rgba8 color_3)
 {
 	constexpr auto color_count = 4;
 	constexpr auto denominator = 255 * color_count * color_count;

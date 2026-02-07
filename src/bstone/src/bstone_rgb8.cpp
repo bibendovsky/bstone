@@ -26,7 +26,7 @@ static_assert(sizeof(Rgba8) == 4, "Class size mismatch.");
 // Rgba8
 //
 
-Rgba8::Rgba8() noexcept
+Rgba8::Rgba8()
 	:
 	r_{},
 	g_{},
@@ -39,7 +39,7 @@ Rgba8::Rgba8(
 	const std::uint8_t r,
 	const std::uint8_t g,
 	const std::uint8_t b,
-	const std::uint8_t a) noexcept
+	const std::uint8_t a)
 	:
 	r_{r},
 	g_{g},
@@ -76,21 +76,21 @@ const std::uint8_t& Rgba8::operator[](
 	return get(index);
 }
 
-void Rgba8::reset() noexcept
+void Rgba8::reset()
 {
 	reinterpret_cast<std::uint32_t&>(*this) = 0;
 }
 
 bool operator==(
 	const Rgba8& lhs,
-	const Rgba8& rhs) noexcept
+	const Rgba8& rhs)
 {
 	return reinterpret_cast<const std::uint32_t&>(lhs) == reinterpret_cast<const std::uint32_t&>(rhs);
 }
 
 bool operator!=(
 	const Rgba8& lhs,
-	const Rgba8& rhs) noexcept
+	const Rgba8& rhs)
 {
 	return !(lhs == rhs);
 }

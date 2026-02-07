@@ -45,7 +45,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 namespace bstone
 {
 
-HwTextureMgr::HwTextureMgr() noexcept = default;
+HwTextureMgr::HwTextureMgr() = default;
 
 HwTextureMgr::~HwTextureMgr() = default;
 
@@ -66,14 +66,14 @@ public:
 	void execute() override;
 
 
-	bool is_completed() const noexcept override;
+	bool is_completed() const override;
 
 	void set_completed() override;
 
 
-	bool is_failed() const noexcept override;
+	bool is_failed() const override;
 
-	std::exception_ptr get_exception_ptr() const noexcept override;
+	std::exception_ptr get_exception_ptr() const override;
 
 	void set_failed(
 		std::exception_ptr exception_ptr) override;
@@ -86,7 +86,7 @@ public:
 		const int src_width,
 		const int src_height,
 		const std::uint32_t* const src_colors,
-		std::uint32_t* const dst_colors) noexcept;
+		std::uint32_t* const dst_colors);
 
 
 private:
@@ -129,7 +129,7 @@ try {
 	);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-bool HwTextureMgrXbrzTask::is_completed() const noexcept
+bool HwTextureMgrXbrzTask::is_completed() const
 {
 	return is_completed_.get();
 }
@@ -144,12 +144,12 @@ try {
 	is_completed_ = true;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-bool HwTextureMgrXbrzTask::is_failed() const noexcept
+bool HwTextureMgrXbrzTask::is_failed() const
 {
 	return is_failed_.get();
 }
 
-std::exception_ptr HwTextureMgrXbrzTask::get_exception_ptr() const noexcept
+std::exception_ptr HwTextureMgrXbrzTask::get_exception_ptr() const
 {
 	return exception_ptr_;
 }
@@ -180,7 +180,7 @@ void HwTextureMgrXbrzTask::initialize(
 	const int src_width,
 	const int src_height,
 	const std::uint32_t* const src_colors,
-	std::uint32_t* const dst_colors) noexcept
+	std::uint32_t* const dst_colors)
 {
 	factor_ = factor;
 	first_index_ = first_index;
@@ -220,9 +220,9 @@ public:
 	int get_max_upscale_filter_degree(
 		const HwTextureMgrUpscaleFilterType upscale_filter_type) const override;
 
-	HwTextureMgrUpscaleFilterType get_upscale_filter_type() const noexcept override;
+	HwTextureMgrUpscaleFilterType get_upscale_filter_type() const override;
 
-	int get_upscale_filter_degree() const noexcept override;
+	int get_upscale_filter_degree() const override;
 
 	void set_upscale_filter(
 		const HwTextureMgrUpscaleFilterType upscale_filter,
@@ -262,11 +262,11 @@ public:
 
 	void update_ui() override;
 
-	R3rR2Texture* get_ui() const noexcept override;
+	R3rR2Texture* get_ui() const override;
 
 
 	void try_destroy_solid_1x1(
-		const HwTextureMgrSolid1x1Id id) noexcept override;
+		const HwTextureMgrSolid1x1Id id) override;
 
 	void destroy_solid_1x1(
 		const HwTextureMgrSolid1x1Id id) override;
@@ -335,7 +335,7 @@ private:
 		R2TextureProperties properties_;
 		R3rR2TextureUPtr r2_texture_;
 
-		R2TextureItem() noexcept;
+		R2TextureItem();
 
 		R2TextureItem(
 			R2TextureItem&& rhs) noexcept;
@@ -353,7 +353,7 @@ private:
 		R3rR2TextureUPtr r2_texture_;
 
 
-		void clear() noexcept;
+		void clear();
 	}; // Solid1x1Item
 
 	using Solid1x1Items = std::array<Solid1x1Item, static_cast<std::size_t>(HwTextureMgrSolid1x1Id::count_)>;
@@ -446,13 +446,13 @@ private:
 
 	void recreate_sprites_and_walls();
 
-	void uninitialize() noexcept;
+	void uninitialize();
 
 	void initialize(
 		R3r* renderer,
 		SpriteCachePtr cache_sprite);
 
-	void uninitialize_internal() noexcept;
+	void uninitialize_internal();
 
 
 	void upscale_xbrz(
@@ -470,12 +470,12 @@ private:
 		const R3rR2TextureUPtr& r2_texture);
 
 
-	void destroy_missing_sprite_texture() noexcept;
+	void destroy_missing_sprite_texture();
 
 	void create_missing_sprite_texture();
 
 
-	void destroy_missing_wall_texture() noexcept;
+	void destroy_missing_wall_texture();
 
 	void create_missing_wall_texture();
 
@@ -501,12 +501,12 @@ private:
 	R3rR2Texture* get_r2_texture(
 		const ImageType image_type,
 		const int id,
-		const IdToR2TextureMap& map) const noexcept;
+		const IdToR2TextureMap& map) const;
 
-	void solid_1x1_destroy_all() noexcept;
+	void solid_1x1_destroy_all();
 
 	static int solid_1x1_try_get_index(
-		const HwTextureMgrSolid1x1Id id) noexcept;
+		const HwTextureMgrSolid1x1Id id);
 
 	static int solid_1x1_get_index(
 		const HwTextureMgrSolid1x1Id id);
@@ -531,7 +531,7 @@ private:
 using HwTextureMgrImplUPtr = std::unique_ptr<HwTextureMgrImpl>;
 
 
-HwTextureMgrImpl::R2TextureItem::R2TextureItem() noexcept
+HwTextureMgrImpl::R2TextureItem::R2TextureItem()
 	:
 	generation_id_{},
 	properties_{},
@@ -558,7 +558,7 @@ HwTextureMgrImpl::R2TextureItem& HwTextureMgrImpl::R2TextureItem::operator=(
 	return *this;
 }
 
-void HwTextureMgrImpl::Solid1x1Item::clear() noexcept
+void HwTextureMgrImpl::Solid1x1Item::clear()
 {
 	color_.reset();
 	properties_ = {};
@@ -597,7 +597,7 @@ HwTextureMgrImpl::~HwTextureMgrImpl()
 	uninitialize_internal();
 }
 
-void HwTextureMgrImpl::uninitialize() noexcept
+void HwTextureMgrImpl::uninitialize()
 {
 	uninitialize_internal();
 }
@@ -693,12 +693,12 @@ try {
 	return upscale_filter_get_max_factor_internal(upscale_filter_type);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-HwTextureMgrUpscaleFilterType HwTextureMgrImpl::get_upscale_filter_type() const noexcept
+HwTextureMgrUpscaleFilterType HwTextureMgrImpl::get_upscale_filter_type() const
 {
 	return upscale_filter_type_;
 }
 
-int HwTextureMgrImpl::get_upscale_filter_degree() const noexcept
+int HwTextureMgrImpl::get_upscale_filter_degree() const
 {
 	return upscale_filter_factor_;
 }
@@ -895,13 +895,13 @@ try {
 	update_mipmaps(ui_t2d_item_.properties_, ui_t2d_item_.r2_texture_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rR2Texture* HwTextureMgrImpl::get_ui() const noexcept
+R3rR2Texture* HwTextureMgrImpl::get_ui() const
 {
 	return ui_t2d_item_.r2_texture_.get();
 }
 
 void HwTextureMgrImpl::try_destroy_solid_1x1(
-	const HwTextureMgrSolid1x1Id id) noexcept
+	const HwTextureMgrSolid1x1Id id)
 {
 	const auto index = solid_1x1_try_get_index(id);
 
@@ -982,7 +982,7 @@ try {
 	initialize_internal(renderer, cache_sprite);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwTextureMgrImpl::uninitialize_internal() noexcept
+void HwTextureMgrImpl::uninitialize_internal()
 {
 	generation_id_ = invalid_generation_id;
 
@@ -1589,7 +1589,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwTextureMgrImpl::destroy_missing_sprite_texture() noexcept
+void HwTextureMgrImpl::destroy_missing_sprite_texture()
 {
 	missing_sprite_r2_texture_item_.r2_texture_ = nullptr;
 }
@@ -1617,7 +1617,7 @@ try {
 	update_mipmaps(missing_sprite_r2_texture_item_.properties_, missing_sprite_r2_texture_item_.r2_texture_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwTextureMgrImpl::destroy_missing_wall_texture() noexcept
+void HwTextureMgrImpl::destroy_missing_wall_texture()
 {
 	missing_wall_r2_texture_item_.r2_texture_ = nullptr;
 }
@@ -1895,7 +1895,7 @@ try {
 R3rR2Texture* HwTextureMgrImpl::get_r2_texture(
 	const ImageType image_type,
 	const int id,
-	const IdToR2TextureMap& map) const noexcept
+	const IdToR2TextureMap& map) const
 {
 	auto item_it = map.find(id);
 
@@ -1917,7 +1917,7 @@ R3rR2Texture* HwTextureMgrImpl::get_r2_texture(
 	return item_it->second.r2_texture_.get();
 }
 
-void HwTextureMgrImpl::solid_1x1_destroy_all() noexcept
+void HwTextureMgrImpl::solid_1x1_destroy_all()
 {
 	for (int i = 0; i < static_cast<int>(HwTextureMgrSolid1x1Id::count_); ++i)
 	{
@@ -1928,7 +1928,7 @@ void HwTextureMgrImpl::solid_1x1_destroy_all() noexcept
 }
 
 int HwTextureMgrImpl::solid_1x1_try_get_index(
-	const HwTextureMgrSolid1x1Id id) noexcept
+	const HwTextureMgrSolid1x1Id id)
 {
 	switch (id)
 	{

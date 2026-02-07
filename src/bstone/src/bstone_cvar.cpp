@@ -126,22 +126,22 @@ CVar& CVar::operator=(CVar&& rhs) noexcept
 	return *this;
 }
 
-CVarType CVar::get_type() const noexcept
+CVarType CVar::get_type() const
 {
 	return type_;
 }
 
-std::string_view CVar::get_name() const noexcept
+std::string_view CVar::get_name() const
 {
 	return name_;
 }
 
-CVarFlags CVar::get_flags() const noexcept
+CVarFlags CVar::get_flags() const
 {
 	return flags_;
 }
 
-bool CVar::get_bool() const noexcept
+bool CVar::get_bool() const
 {
 	return get_int32() != 0;
 }
@@ -151,7 +151,7 @@ void CVar::set_bool(bool value)
 	set_int32(value);
 }
 
-std::int32_t CVar::get_int32() const noexcept
+std::int32_t CVar::get_int32() const
 {
 	return int32_value_;
 }
@@ -197,12 +197,12 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-CVarInt32Values CVar::get_int32_values() const noexcept
+CVarInt32Values CVar::get_int32_values() const
 {
 	return int32_values_;
 }
 
-std::string_view CVar::get_string() const noexcept
+std::string_view CVar::get_string() const
 {
 	return string_value_.get();
 }
@@ -219,7 +219,7 @@ void CVar::set_string(std::string_view value)
 	set_int32_from_string();
 }
 
-CVarStringValues CVar::get_string_values() const noexcept
+CVarStringValues CVar::get_string_values() const
 {
 	return string_values_;
 }

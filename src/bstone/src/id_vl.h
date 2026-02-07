@@ -67,11 +67,11 @@ struct VideoModeCfg
 
 bool operator==(
 	const VideoModeCfg& lhs,
-	const VideoModeCfg& rhs) noexcept;
+	const VideoModeCfg& rhs);
 
 bool operator!=(
 	const VideoModeCfg& lhs,
-	const VideoModeCfg& rhs) noexcept;
+	const VideoModeCfg& rhs);
 
 
 extern std::uint8_t* vga_memory;
@@ -294,7 +294,7 @@ void VL_ScreenToMem(
 void vid_initialize_cvars(bstone::CVarMgr& cvar_mgr);
 
 
-VideoModeCfg vid_cfg_get_video_mode() noexcept;
+VideoModeCfg vid_cfg_get_video_mode();
 
 bool vid_cfg_parse_key_value(
 	const std::string& key_string,
@@ -336,27 +336,27 @@ std::uint8_t vl_get_pixel(
 void vl_update_widescreen();
 
 
-bstone::RendererType vid_cfg_get_renderer_type() noexcept;
+bstone::RendererType vid_cfg_get_renderer_type();
 void vid_cfg_set_renderer_type(bstone::RendererType renderer_type);
 
-bool vid_cfg_is_positioned() noexcept;
+bool vid_cfg_is_positioned();
 
-bool vid_cfg_is_vsync() noexcept;
+bool vid_cfg_is_vsync();
 void vid_cfg_set_is_vsync(bool is_enabled);
 
-bool vid_cfg_is_ui_stretched() noexcept;
+bool vid_cfg_is_ui_stretched();
 void vid_cfg_set_is_ui_stretched(bool is_enabled);
 
-bool vid_cfg_is_widescreen() noexcept;
+bool vid_cfg_is_widescreen();
 void vid_cfg_set_is_widescreen(bool is_enabled);
 
-int vid_cfg_get_x() noexcept;
-int vid_cfg_get_y() noexcept;
+int vid_cfg_get_x();
+int vid_cfg_get_y();
 
-int vid_cfg_get_width() noexcept;
+int vid_cfg_get_width();
 void vid_cfg_set_width(int width);
 
-int vid_cfg_get_height() noexcept;
+int vid_cfg_get_height();
 void vid_cfg_set_height(int height);
 
 int vid_cfg_get_refresh_rate();
@@ -365,37 +365,37 @@ void vid_cfg_set_refresh_rate(int refresh_rate);
 WindowMode vid_cfg_get_window_mode();
 void vid_cfg_set_window_mode(WindowMode window_mode);
 
-bstone::R3rFilterType vid_cfg_get_2d_texture_filter() noexcept;
+bstone::R3rFilterType vid_cfg_get_2d_texture_filter();
 void vid_cfg_set_2d_texture_filter(bstone::R3rFilterType filter);
 
-bstone::R3rFilterType vid_cfg_get_3d_texture_image_filter() noexcept;
+bstone::R3rFilterType vid_cfg_get_3d_texture_image_filter();
 void vid_cfg_set_3d_texture_image_filter(bstone::R3rFilterType filter);
 
-bstone::R3rFilterType vid_cfg_get_3d_texture_mipmap_filter() noexcept;
+bstone::R3rFilterType vid_cfg_get_3d_texture_mipmap_filter();
 void vid_cfg_set_3d_texture_mipmap_filter(bstone::R3rFilterType filter);
 
-int vid_cfg_get_3d_texture_anisotropy() noexcept;
+int vid_cfg_get_3d_texture_anisotropy();
 void vid_cfg_set_3d_texture_anisotropy(int anisotropy);
 
-bstone::R3rAaType vid_cfg_get_aa_type() noexcept;
+bstone::R3rAaType vid_cfg_get_aa_type();
 void vid_cfg_set_aa_type(bstone::R3rAaType aa_type);
 
-int vid_cfg_get_aa_degree() noexcept;
+int vid_cfg_get_aa_degree();
 void vid_cfg_set_aa_degree(int degree);
 
-bstone::HwTextureMgrUpscaleFilterType vid_cfg_get_texture_upscale_type() noexcept;
+bstone::HwTextureMgrUpscaleFilterType vid_cfg_get_texture_upscale_type();
 void vid_cfg_set_texture_upscale_type(bstone::HwTextureMgrUpscaleFilterType filter);
 
-int vid_cfg_get_texture_upscale_xbrz_degree() noexcept;
+int vid_cfg_get_texture_upscale_xbrz_degree();
 void vid_cfg_set_texture_upscale_xbrz_degree(int degree);
 
-int vid_cfg_get_filler_color_index() noexcept;
+int vid_cfg_get_filler_color_index();
 void vid_cfg_set_filler_color_index(int index);
 
-bool vid_cfg_is_external_textures_enabled() noexcept;
+bool vid_cfg_is_external_textures_enabled();
 void vid_cfg_set_is_external_textures_enabled(bool is_enabled);
 
-bool vid_check_r3_api_call_for_errors() noexcept;
+bool vid_check_r3_api_call_for_errors();
 void vid_check_r3_api_call_for_errors(bool is_enabled);
 
 void vid_set_ui_mask(
@@ -524,7 +524,7 @@ void vid_apply_mipmap_filter();
 void vid_apply_upscale();
 
 int vid_clamp_filler_color_index(
-	int filler_color_index) noexcept;
+	int filler_color_index);
 
 void vid_apply_filler_color();
 
@@ -551,13 +551,13 @@ std::string vid_get_window_title_for_renderer(std::string_view renderer_name);
 
 std::string vid_get_game_name_and_game_version_string();
 
-CalculateScreenSizeInputParam vid_create_screen_size_param() noexcept;
+CalculateScreenSizeInputParam vid_create_screen_size_param();
 
 void vid_calculate_window_elements_dimensions(
 	const CalculateScreenSizeInputParam& src_param,
-	VidLayout& dst_param) noexcept;
+	VidLayout& dst_param);
 
-void vid_calculate_vga_dimensions() noexcept;
+void vid_calculate_vga_dimensions();
 
 std::string vid_to_string(bool value);
 std::string vid_to_string(int value);
@@ -566,6 +566,6 @@ std::string vid_to_string(bstone::R3rType renderer_type);
 
 bool vid_is_hw();
 
-bool vid_is_native_mode() noexcept;
+bool vid_is_native_mode();
 
 #endif // BSTONE_ID_VL_INCLUDED

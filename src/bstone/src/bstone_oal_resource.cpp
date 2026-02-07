@@ -15,7 +15,7 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
-OalDeviceDeleter::OalDeviceDeleter() noexcept = default;
+OalDeviceDeleter::OalDeviceDeleter() = default;
 
 OalDeviceDeleter::OalDeviceDeleter(const OalDeviceDeleter& rhs)
 	:
@@ -23,7 +23,7 @@ OalDeviceDeleter::OalDeviceDeleter(const OalDeviceDeleter& rhs)
 {
 }
 
-OalDeviceDeleter::OalDeviceDeleter(const OalAlSymbols& al_symbols) noexcept
+OalDeviceDeleter::OalDeviceDeleter(const OalAlSymbols& al_symbols)
 	:
 	al_symbols_{&al_symbols}
 {
@@ -35,7 +35,7 @@ void OalDeviceDeleter::operator=(OalDeviceDeleter&& rhs) noexcept
 	al_symbols_ = rhs.al_symbols_;
 }
 
-void OalDeviceDeleter::operator()(ALCdevice* alc_device) const noexcept
+void OalDeviceDeleter::operator()(ALCdevice* alc_device) const
 {
 	BSTONE_ASSERT(alc_device);
 	BSTONE_ASSERT(al_symbols_);
@@ -67,15 +67,15 @@ try {
 
 // ==========================================================================
 
-OalContextDeleter::OalContextDeleter() noexcept = default;
+OalContextDeleter::OalContextDeleter() = default;
 
-OalContextDeleter::OalContextDeleter(const OalContextDeleter& rhs) noexcept
+OalContextDeleter::OalContextDeleter(const OalContextDeleter& rhs)
 	:
 	al_symbols_{rhs.al_symbols_}
 {
 }
 
-OalContextDeleter::OalContextDeleter(const OalAlSymbols& al_symbols) noexcept
+OalContextDeleter::OalContextDeleter(const OalAlSymbols& al_symbols)
 	:
 	al_symbols_{&al_symbols}
 {
@@ -90,7 +90,7 @@ void OalContextDeleter::operator=(OalContextDeleter&& rhs) noexcept
 	al_symbols_ = rhs.al_symbols_;
 }
 
-void OalContextDeleter::operator()(ALCcontext* al_context) const noexcept
+void OalContextDeleter::operator()(ALCcontext* al_context) const
 {
 	BSTONE_ASSERT(al_context);
 	BSTONE_ASSERT(al_symbols_);
@@ -124,15 +124,15 @@ try {
 
 // ==========================================================================
 
-OalBufferDeleter::OalBufferDeleter() noexcept = default;
+OalBufferDeleter::OalBufferDeleter() = default;
 
-OalBufferDeleter::OalBufferDeleter(const OalBufferDeleter& rhs) noexcept
+OalBufferDeleter::OalBufferDeleter(const OalBufferDeleter& rhs)
 	:
 	al_symbols_{rhs.al_symbols_}
 {
 }
 
-OalBufferDeleter::OalBufferDeleter(const OalAlSymbols& al_symbols) noexcept
+OalBufferDeleter::OalBufferDeleter(const OalAlSymbols& al_symbols)
 	:
 	al_symbols_{&al_symbols}
 {
@@ -144,7 +144,7 @@ void OalBufferDeleter::operator=(OalBufferDeleter&& rhs) noexcept
 	al_symbols_ = rhs.al_symbols_;
 }
 
-void OalBufferDeleter::operator()(ALuint al_buffer) const noexcept
+void OalBufferDeleter::operator()(ALuint al_buffer) const
 {
 	BSTONE_ASSERT(al_buffer != AL_NONE);
 	BSTONE_ASSERT(al_symbols_);
@@ -180,15 +180,15 @@ try {
 
 // ==========================================================================
 
-OalSourceDeleter::OalSourceDeleter() noexcept = default;
+OalSourceDeleter::OalSourceDeleter() = default;
 
-OalSourceDeleter::OalSourceDeleter(const OalSourceDeleter& rhs) noexcept
+OalSourceDeleter::OalSourceDeleter(const OalSourceDeleter& rhs)
 	:
 	al_symbols_{rhs.al_symbols_}
 {
 }
 
-OalSourceDeleter::OalSourceDeleter(const OalAlSymbols& al_symbols) noexcept
+OalSourceDeleter::OalSourceDeleter(const OalAlSymbols& al_symbols)
 	:
 	al_symbols_{&al_symbols}
 {
@@ -200,7 +200,7 @@ void OalSourceDeleter::operator=(OalSourceDeleter&& rhs) noexcept
 	al_symbols_ = rhs.al_symbols_;
 }
 
-void OalSourceDeleter::operator()(ALuint al_source) const noexcept
+void OalSourceDeleter::operator()(ALuint al_source) const
 {
 	BSTONE_ASSERT(al_source != AL_NONE);
 	BSTONE_ASSERT(al_symbols_);

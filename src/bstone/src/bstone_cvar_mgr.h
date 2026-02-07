@@ -25,8 +25,8 @@ public:
 	CVarMgr();
 	virtual ~CVarMgr();
 
-	virtual CVar* find(std::string_view name) const noexcept = 0;
-	virtual CVarMgrCVars get_all() noexcept = 0;
+	virtual CVar* find(std::string_view name) const = 0;
+	virtual CVarMgrCVars get_all() = 0;
 
 	virtual void add(CVar& cvar) = 0;
 };

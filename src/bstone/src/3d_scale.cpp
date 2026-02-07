@@ -52,7 +52,7 @@ std::uint16_t* linecmds;
 
 
 void SetupScaling(
-	int maxscaleheight) noexcept
+	int maxscaleheight)
 {
 	maxscaleheight /= 2; // one scaler every two pixels
 
@@ -350,7 +350,7 @@ void scale_player_weapon(
 		ShapeDrawMode::player_weapon);
 }
 
-void update_normalshade() noexcept
+void update_normalshade()
 {
 	normalshade = static_cast<int>(
 		(3.0 * maxscale) / (4.0 * normalshade_div) / vga_wide_scale);

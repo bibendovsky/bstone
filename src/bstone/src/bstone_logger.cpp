@@ -27,36 +27,36 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 namespace bstone {
 
-Logger::Logger() noexcept = default;
+Logger::Logger() = default;
 
 Logger::~Logger() = default;
 
-void Logger::log(LoggerMessageType message_type, std::string_view message_sv) noexcept
+void Logger::log(LoggerMessageType message_type, std::string_view message_sv)
 {
 	do_log(message_type, message_sv);
 }
 
-void Logger::log_information() noexcept
+void Logger::log_information()
 {
 	do_log(LoggerMessageType::information, std::string_view{});
 }
 
-void Logger::log_information(std::string_view message_sv) noexcept
+void Logger::log_information(std::string_view message_sv)
 {
 	do_log(LoggerMessageType::information, message_sv);
 }
 
-void Logger::log_warning(std::string_view message_sv) noexcept
+void Logger::log_warning(std::string_view message_sv)
 {
 	do_log(LoggerMessageType::warning, message_sv);
 }
 
-void Logger::log_error(std::string_view message_sv) noexcept
+void Logger::log_error(std::string_view message_sv)
 {
 	do_log(LoggerMessageType::error, message_sv);
 }
 
-void Logger::log_exception(std::exception_ptr exception_ptr) noexcept
+void Logger::log_exception(std::exception_ptr exception_ptr)
 {
 	try
 	{
@@ -84,12 +84,12 @@ void Logger::log_exception(std::exception_ptr exception_ptr) noexcept
 	}
 }
 
-void Logger::log_current_exception() noexcept
+void Logger::log_current_exception()
 {
 	log_exception(std::current_exception());
 }
 
-void Logger::flush() noexcept
+void Logger::flush()
 {
 	do_flush();
 }
@@ -145,7 +145,7 @@ public:
 
 	void set_block_size(std::intptr_t block_size);
 
-	void clear() noexcept;
+	void clear();
 	void enqueue(LoggerMessageType message_type, const char* message, std::intptr_t message_length);
 	bool dequeue(LoggerMessageType& message_type, const char*& message, std::intptr_t& message_length);
 
@@ -162,7 +162,7 @@ private:
 	Queue queue_{};
 
 private:
-	static std::intptr_t align_value(std::intptr_t value, std::intptr_t alignment) noexcept;
+	static std::intptr_t align_value(std::intptr_t value, std::intptr_t alignment);
 };
 
 // --------------------------------------------------------------------------
@@ -184,7 +184,7 @@ void LoggerImplQueue::set_block_size(std::intptr_t block_size)
 	}
 }
 
-void LoggerImplQueue::clear() noexcept
+void LoggerImplQueue::clear()
 {
 	size_ = 0;
 	index_ = 0;
@@ -227,7 +227,7 @@ bool LoggerImplQueue::dequeue(LoggerMessageType& message_type, const char*& mess
 	return true;
 }
 
-std::intptr_t LoggerImplQueue::align_value(std::intptr_t value, std::intptr_t alignment) noexcept
+std::intptr_t LoggerImplQueue::align_value(std::intptr_t value, std::intptr_t alignment)
 {
 	return ((value + alignment - 1) / alignment) * alignment;
 }
@@ -278,12 +278,12 @@ private:
 	Queues queues_{};
 
 private:
-	void do_log(LoggerMessageType message_type, std::string_view message_sv) noexcept override;
-	void do_flush() noexcept override;
+	void do_log(LoggerMessageType message_type, std::string_view message_sv) override;
+	void do_flush() override;
 
 private:
-	void log_logger_current_exception() noexcept;
-	void try_open_file() noexcept;
+	void log_logger_current_exception();
+	void try_open_file();
 	void write_internal(LoggerMessageType message_type, std::string_view message_sv);
 	void write_sync(LoggerMessageType message_type, std::string_view message_sv);
 	void write_async(LoggerMessageType message_type, std::string_view message_sv);
@@ -291,7 +291,7 @@ private:
 	void acknowledge_flush();
 	void flush_sync();
 	void flush_async();
-	void thread_main_proxy() noexcept;
+	void thread_main_proxy();
 	void thread_main();
 };
 
@@ -349,7 +349,7 @@ LoggerImpl::~LoggerImpl()
 	thread_.join();
 }
 
-void LoggerImpl::do_log(LoggerMessageType message_type, std::string_view message_sv) noexcept
+void LoggerImpl::do_log(LoggerMessageType message_type, std::string_view message_sv)
 {
 	try
 	{
@@ -361,7 +361,7 @@ void LoggerImpl::do_log(LoggerMessageType message_type, std::string_view message
 	}
 }
 
-void LoggerImpl::do_flush() noexcept
+void LoggerImpl::do_flush()
 {
 	try
 	{
@@ -373,7 +373,7 @@ void LoggerImpl::do_flush() noexcept
 	}
 }
 
-void LoggerImpl::log_logger_current_exception() noexcept
+void LoggerImpl::log_logger_current_exception()
 {
 	std::cerr << error_prefix_sv.data() << " Logger failed. ";
 
@@ -393,7 +393,7 @@ void LoggerImpl::log_logger_current_exception() noexcept
 	std::cerr << std::endl;
 }
 
-void LoggerImpl::try_open_file() noexcept
+void LoggerImpl::try_open_file()
 {
 	if (is_file_open_)
 	{
@@ -532,7 +532,7 @@ void LoggerImpl::flush_async()
 	}
 }
 
-void LoggerImpl::thread_main_proxy() noexcept
+void LoggerImpl::thread_main_proxy()
 {
 	try
 	{

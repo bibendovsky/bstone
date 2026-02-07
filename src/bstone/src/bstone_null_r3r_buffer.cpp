@@ -25,9 +25,9 @@ public:
 	~NullR3rBufferImpl() override {}
 
 private:
-	R3rBufferType do_get_type() const noexcept override;
-	R3rBufferUsageType do_get_usage_type() const noexcept override;
-	int do_get_size() const noexcept override;
+	R3rBufferType do_get_type() const override;
+	R3rBufferUsageType do_get_usage_type() const override;
+	int do_get_size() const override;
 
 	void do_update(const R3rUpdateBufferParam& param) override;
 
@@ -46,17 +46,17 @@ NullR3rBufferImpl::NullR3rBufferImpl(const R3rBufferInitParam& param)
 	size_{param.size}
 {}
 
-R3rBufferType NullR3rBufferImpl::do_get_type() const noexcept
+R3rBufferType NullR3rBufferImpl::do_get_type() const
 {
 	return type_;
 }
 
-R3rBufferUsageType NullR3rBufferImpl::do_get_usage_type() const noexcept
+R3rBufferUsageType NullR3rBufferImpl::do_get_usage_type() const
 {
 	return usage_type_;
 }
 
-int NullR3rBufferImpl::do_get_size() const noexcept
+int NullR3rBufferImpl::do_get_size() const
 {
 	return size_;
 }

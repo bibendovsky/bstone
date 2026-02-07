@@ -48,19 +48,19 @@ public:
 	~GlR3rImpl() override {}
 
 private:
-	R3rType do_get_type() const noexcept override;
-	std::string_view do_get_name() const noexcept override;
-	std::string_view do_get_description() const noexcept override;
+	R3rType do_get_type() const override;
+	std::string_view do_get_name() const override;
+	std::string_view do_get_description() const override;
 
-	const R3rDeviceFeatures& do_get_device_features() const noexcept override;
-	const R3rDeviceInfo& do_get_device_info() const noexcept override;
+	const R3rDeviceFeatures& do_get_device_features() const override;
+	const R3rDeviceInfo& do_get_device_info() const override;
 
 	void do_enable_checking_api_calls_for_errors(bool is_enable) override;
 
-	sys::Window& do_get_window() const noexcept override;
+	sys::Window& do_get_window() const override;
 	void do_handle_resize(sys::WindowSize new_size) override;
 
-	bool do_get_vsync() const noexcept override;
+	bool do_get_vsync() const override;
 	void do_enable_vsync(bool is_enabled) override;
 
 	void do_set_anti_aliasing(R3rAaType aa_type, int aa_value) override;
@@ -86,8 +86,8 @@ private:
 	{
 	public:
 		FboDeleter();
-		explicit FboDeleter(PFNGLDELETEFRAMEBUFFERSPROC gl_func) noexcept;
-		void operator()(GLuint gl_name) noexcept;
+		explicit FboDeleter(PFNGLDELETEFRAMEBUFFERSPROC gl_func);
+		void operator()(GLuint gl_name);
 
 	private:
 		PFNGLDELETEFRAMEBUFFERSPROC gl_func_{};
@@ -98,9 +98,9 @@ private:
 	class RboDeleter
 	{
 	public:
-		RboDeleter() noexcept;
-		explicit RboDeleter(PFNGLDELETERENDERBUFFERSPROC gl_func) noexcept;
-		void operator()(GLuint gl_name) noexcept;
+		RboDeleter();
+		explicit RboDeleter(PFNGLDELETERENDERBUFFERSPROC gl_func);
+		void operator()(GLuint gl_name);
 
 	private:
 		PFNGLDELETERENDERBUFFERSPROC gl_func_{};
@@ -173,16 +173,16 @@ private:
 		int dst_height,
 		bool is_linear_filter);
 
-	void destroy_msaa_color_rb() noexcept;
-	void destroy_msaa_depth_rb() noexcept;
-	void destroy_msaa_fbo() noexcept;
-	void destroy_msaa_framebuffer() noexcept;
+	void destroy_msaa_color_rb();
+	void destroy_msaa_depth_rb();
+	void destroy_msaa_fbo();
+	void destroy_msaa_framebuffer();
 	void create_msaa_color_rb(int width, int height, int sample_count);
 	void create_msaa_depth_rb(int width, int height, int sample_count);
 	void create_msaa_framebuffer();
 
-	void destroy_framebuffers() noexcept;
-	void initialize_framebuffer_funcs() noexcept;
+	void destroy_framebuffers();
+	void initialize_framebuffer_funcs();
 	void create_framebuffers();
 	void blit_framebuffers();
 	void bind_framebuffers();
@@ -386,27 +386,27 @@ try
 	present();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rType GlR3rImpl::do_get_type() const noexcept
+R3rType GlR3rImpl::do_get_type() const
 {
 	return type_;
 }
 
-std::string_view GlR3rImpl::do_get_name() const noexcept
+std::string_view GlR3rImpl::do_get_name() const
 {
 	return name_;
 }
 
-std::string_view GlR3rImpl::do_get_description() const noexcept
+std::string_view GlR3rImpl::do_get_description() const
 {
 	return description_;
 }
 
-const R3rDeviceFeatures& GlR3rImpl::do_get_device_features() const noexcept
+const R3rDeviceFeatures& GlR3rImpl::do_get_device_features() const
 {
 	return device_features_;
 }
 
-const R3rDeviceInfo& GlR3rImpl::do_get_device_info() const noexcept
+const R3rDeviceInfo& GlR3rImpl::do_get_device_info() const
 {
 	return device_info_;
 }
@@ -416,7 +416,7 @@ void GlR3rImpl::do_enable_checking_api_calls_for_errors(bool is_enable)
 	GlR3rError::enable_checking(is_enable);
 }
 
-sys::Window& GlR3rImpl::do_get_window() const noexcept
+sys::Window& GlR3rImpl::do_get_window() const
 {
 	return *window_;
 }
@@ -435,7 +435,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-bool GlR3rImpl::do_get_vsync() const noexcept
+bool GlR3rImpl::do_get_vsync() const
 {
 	if (!device_features_.is_vsync_available)
 	{
@@ -679,26 +679,26 @@ try {
 
 GlR3rImpl::FboDeleter::FboDeleter() = default;
 
-GlR3rImpl::FboDeleter::FboDeleter(PFNGLDELETEFRAMEBUFFERSPROC gl_func) noexcept
+GlR3rImpl::FboDeleter::FboDeleter(PFNGLDELETEFRAMEBUFFERSPROC gl_func)
 	:
 	gl_func_{gl_func}
 {}
 
-void GlR3rImpl::FboDeleter::operator()(GLuint gl_name) noexcept
+void GlR3rImpl::FboDeleter::operator()(GLuint gl_name)
 {
 	BSTONE_ASSERT(gl_func_ != nullptr);
 	gl_func_(1, &gl_name);
 	GlR3rError::ensure_no_errors_assert();
 }
 
-GlR3rImpl::RboDeleter::RboDeleter() noexcept = default;
+GlR3rImpl::RboDeleter::RboDeleter() = default;
 
-GlR3rImpl::RboDeleter::RboDeleter(PFNGLDELETERENDERBUFFERSPROC gl_func) noexcept
+GlR3rImpl::RboDeleter::RboDeleter(PFNGLDELETERENDERBUFFERSPROC gl_func)
 	:
 	gl_func_{gl_func}
 {}
 
-void GlR3rImpl::RboDeleter::operator()(GLuint gl_name) noexcept
+void GlR3rImpl::RboDeleter::operator()(GLuint gl_name)
 {
 	BSTONE_ASSERT(gl_func_ != nullptr);
 	gl_func_(1, &gl_name);
@@ -860,22 +860,22 @@ try {
 	return rbo_resource;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rImpl::destroy_msaa_color_rb() noexcept
+void GlR3rImpl::destroy_msaa_color_rb()
 {
 	msaa_color_rb_.reset();
 }
 
-void GlR3rImpl::destroy_msaa_depth_rb() noexcept
+void GlR3rImpl::destroy_msaa_depth_rb()
 {
 	msaa_depth_rb_.reset();
 }
 
-void GlR3rImpl::destroy_msaa_fbo() noexcept
+void GlR3rImpl::destroy_msaa_fbo()
 {
 	msaa_fbo_.reset();
 }
 
-void GlR3rImpl::destroy_msaa_framebuffer() noexcept
+void GlR3rImpl::destroy_msaa_framebuffer()
 {
 	destroy_msaa_fbo();
 	destroy_msaa_color_rb();
@@ -929,12 +929,12 @@ try {
 	bind_framebuffer(GL_FRAMEBUFFER, 0);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rImpl::destroy_framebuffers() noexcept
+void GlR3rImpl::destroy_framebuffers()
 {
 	destroy_msaa_framebuffer();
 }
 
-void GlR3rImpl::initialize_framebuffer_funcs() noexcept
+void GlR3rImpl::initialize_framebuffer_funcs()
 {
 	if (gl_device_features_.is_framebuffer_ext)
 	{

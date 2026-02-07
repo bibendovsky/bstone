@@ -28,7 +28,7 @@ namespace bstone
 class MtTask
 {
 public:
-	MtTask() noexcept;
+	MtTask();
 
 	virtual ~MtTask();
 
@@ -36,14 +36,14 @@ public:
 	virtual void execute() = 0;
 
 
-	virtual bool is_completed() const noexcept = 0;
+	virtual bool is_completed() const = 0;
 
 	virtual void set_completed() = 0;
 
 
-	virtual bool is_failed() const noexcept = 0;
+	virtual bool is_failed() const = 0;
 
-	virtual std::exception_ptr get_exception_ptr() const noexcept = 0;
+	virtual std::exception_ptr get_exception_ptr() const = 0;
 
 	virtual void set_failed(
 		std::exception_ptr exception_ptr) = 0;
@@ -63,14 +63,14 @@ using MtTaskPtr = MtTask*;
 class MtTaskMgr
 {
 public:
-	MtTaskMgr() noexcept;
+	MtTaskMgr();
 
 	virtual ~MtTaskMgr();
 
 
-	virtual int get_max_threads() const noexcept = 0;
+	virtual int get_max_threads() const = 0;
 
-	virtual int get_thread_count() const noexcept = 0;
+	virtual int get_thread_count() const = 0;
 
 
 	virtual void add_tasks(

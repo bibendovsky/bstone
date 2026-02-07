@@ -21,43 +21,43 @@ static_assert( \
 	std::is_enum<T>::value && !std::is_convertible<T, std::underlying_type_t<T>>::value, \
 		"Expected a scoped enumeration type."); \
 \
-inline constexpr T operator~(T rhs) noexcept \
+inline constexpr T operator~(T rhs) \
 { \
 	using Value = std::underlying_type_t<T>; \
 	return static_cast<T>(~static_cast<Value>(rhs)); \
 } \
 \
-inline constexpr T operator|(T lhs, T rhs) noexcept \
+inline constexpr T operator|(T lhs, T rhs) \
 { \
 	using Value = std::underlying_type_t<T>; \
 	return static_cast<T>(static_cast<Value>(lhs) | static_cast<Value>(rhs)); \
 } \
 \
-inline constexpr T operator&(T lhs, T rhs) noexcept \
+inline constexpr T operator&(T lhs, T rhs) \
 { \
 	using Value = std::underlying_type_t<T>; \
 	return static_cast<T>(static_cast<Value>(lhs) & static_cast<Value>(rhs)); \
 } \
 \
-inline constexpr T operator^(T lhs, T rhs) noexcept \
+inline constexpr T operator^(T lhs, T rhs) \
 { \
 	using Value = std::underlying_type_t<T>; \
 	return static_cast<T>(static_cast<Value>(lhs) ^ static_cast<Value>(rhs)); \
 } \
 \
-inline constexpr T& operator|=(T& lhs, T rhs) noexcept \
+inline constexpr T& operator|=(T& lhs, T rhs) \
 { \
 	lhs = lhs | rhs; \
 	return lhs; \
 } \
 \
-inline constexpr T& operator&=(T& lhs, T rhs) noexcept \
+inline constexpr T& operator&=(T& lhs, T rhs) \
 { \
 	lhs = lhs & rhs; \
 	return lhs; \
 } \
 \
-inline constexpr T& operator^=(T& lhs, T rhs) noexcept \
+inline constexpr T& operator^=(T& lhs, T rhs) \
 { \
 	lhs = lhs ^ rhs; \
 	return lhs; \

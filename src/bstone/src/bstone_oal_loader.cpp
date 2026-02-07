@@ -16,7 +16,7 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
-OalLoader::OalLoader() noexcept = default;
+OalLoader::OalLoader() = default;
 
 OalLoader::~OalLoader() = default;
 

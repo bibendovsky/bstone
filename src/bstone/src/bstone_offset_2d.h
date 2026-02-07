@@ -35,11 +35,11 @@ struct Offset2d
 
 bool operator==(
 	const Offset2d& lhs,
-	const Offset2d& rhs) noexcept;
+	const Offset2d& rhs);
 
 bool operator!=(
 	const Offset2d& lhs,
-	const Offset2d& rhs) noexcept;
+	const Offset2d& rhs);
 
 
 } // bstone

@@ -37,12 +37,12 @@ public:
 private:
 	void do_update(const R3rSamplerUpdateParam& param) override;
 
-	const R3rSamplerState& do_get_state() const noexcept override;
+	const R3rSamplerState& do_get_state() const override;
 
 private:
 	struct SamplerDeleter
 	{
-		void operator()(GLuint gl_name) noexcept;
+		void operator()(GLuint gl_name);
 	};
 
 	using SamplerResource = bstone::UniqueResource<GLuint, SamplerDeleter>;
@@ -213,12 +213,12 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-const R3rSamplerState& GlR3rSamplerImpl::do_get_state() const noexcept
+const R3rSamplerState& GlR3rSamplerImpl::do_get_state() const
 {
 	return state_;
 }
 
-void GlR3rSamplerImpl::SamplerDeleter::operator()(GLuint gl_name) noexcept
+void GlR3rSamplerImpl::SamplerDeleter::operator()(GLuint gl_name)
 {
 	glDeleteSamplers(1, &gl_name);
 	GlR3rError::ensure_no_errors_assert();

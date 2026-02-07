@@ -38,7 +38,7 @@ Returns:
 	The translation matrix.
 */
 template<typename T>
-inline constexpr Mat<4, 4, T> make_translation(const Vec<3, T>& v) noexcept
+inline constexpr Mat<4, 4, T> make_translation(const Vec<3, T>& v)
 {
 	static_assert(std::is_floating_point<T>::value, "Expected floating-point type.");
 
@@ -66,7 +66,7 @@ Returns:
 	An input matrix multiplied by the translation one.
 */
 template<typename T>
-inline constexpr Mat<4, 4, T> translate(const Mat<4, 4, T>& m, const Vec<3, T>& v) noexcept
+inline constexpr Mat<4, 4, T> translate(const Mat<4, 4, T>& m, const Vec<3, T>& v)
 {
 	static_assert(std::is_floating_point<T>::value, "Expected floating-point type.");
 
@@ -110,7 +110,7 @@ Returns:
 	The scale matrix.
 */
 template<typename T>
-inline constexpr Mat<4, 4, T> make_scale(const Vec<3, T>& v) noexcept
+inline constexpr Mat<4, 4, T> make_scale(const Vec<3, T>& v)
 {
 	static_assert(std::is_floating_point<T>::value, "Expected floating-point type.");
 
@@ -138,7 +138,7 @@ Returns:
 	An input matrix multiplied by the scale one.
 */
 template<typename T>
-inline constexpr Mat<4, 4, T> scale(const Mat<4, 4, T>& m, const Vec<3, T>& v) noexcept
+inline constexpr Mat<4, 4, T> scale(const Mat<4, 4, T>& m, const Vec<3, T>& v)
 {
 	static_assert(std::is_floating_point<T>::value, "Expected floating-point type.");
 
@@ -183,7 +183,7 @@ Returns:
 	The rotation matrix.
 */
 template<typename T>
-inline Mat<4, 4, T> make_rotation(T t, const Vec<3, T>& u) noexcept
+inline Mat<4, 4, T> make_rotation(T t, const Vec<3, T>& u)
 {
 	static_assert(std::is_floating_point<T>::value, "Expected floating-point type.");
 
@@ -236,7 +236,7 @@ Returns:
 	An input matrix multiplied by the rotation one.
 */
 template<typename T>
-inline Mat<4, 4, T> rotate(const Mat<4, 4, T>& m, T t, const Vec<3, T>& u) noexcept
+inline Mat<4, 4, T> rotate(const Mat<4, 4, T>& m, T t, const Vec<3, T>& u)
 {
 	static_assert(std::is_floating_point<T>::value, "Expected floating-point type.");
 

@@ -53,18 +53,18 @@ public:
 	Deleter deleter_{};
 
 public:
-	UniqueResourceStorage(Resource resource, Deleter deleter) noexcept
+	UniqueResourceStorage(Resource resource, Deleter deleter)
 		:
 		resource_{resource},
 		deleter_{deleter}
 	{}
 
-	const Deleter& get_deleter() const noexcept
+	const Deleter& get_deleter() const
 	{
 		return deleter_;
 	}
 
-	void destruct() noexcept
+	void destruct()
 	{
 		deleter_(resource_);
 	}
@@ -88,12 +88,12 @@ public:
 	Resource resource_{};
 
 public:
-	UniqueResourceStorage(Resource resource, Deleter) noexcept
+	UniqueResourceStorage(Resource resource, Deleter)
 		:
 		resource_{resource}
 	{}
 
-	void destruct() noexcept
+	void destruct()
 	{
 		Deleter{}(resource_);
 	}
@@ -118,7 +118,7 @@ public:
 	using Resource = TResource;
 
 public:
-	Resource operator()() const noexcept
+	Resource operator()() const
 	{
 		return Resource{};
 	}
@@ -142,7 +142,7 @@ public:
 	using Deleter = TDeleter;
 
 public:
-	static constexpr TResource get_empty_value() noexcept
+	static constexpr TResource get_empty_value()
 	{
 		return TEmptyValue{}();
 	}
@@ -150,7 +150,7 @@ public:
 	template<
 		typename UDeleter = Deleter,
 		std::enable_if_t<std::is_empty<UDeleter>::value, int> = 0>
-	UniqueResource() noexcept
+	UniqueResource()
 		:
 		storage_{get_empty_value(), Deleter{}}
 	{}
@@ -158,7 +158,7 @@ public:
 	template<
 		typename UDeleter = Deleter,
 		std::enable_if_t<!std::is_empty<UDeleter>::value, int> = 0>
-	explicit UniqueResource(Deleter deleter) noexcept
+	explicit UniqueResource(Deleter deleter)
 		:
 		storage_{get_empty_value(), deleter}
 	{}
@@ -166,7 +166,7 @@ public:
 	template<
 		typename UDeleter = Deleter,
 		std::enable_if_t<std::is_empty<UDeleter>::value, int> = 0>
-	explicit UniqueResource(Resource resource) noexcept
+	explicit UniqueResource(Resource resource)
 		:
 		storage_{resource, Deleter{}}
 	{}
@@ -174,7 +174,7 @@ public:
 	template<
 		typename UDeleter = Deleter,
 		std::enable_if_t<!std::is_empty<UDeleter>::value, int> = 0>
-	UniqueResource(Resource resource, Deleter deleter) noexcept
+	UniqueResource(Resource resource, Deleter deleter)
 		:
 		storage_{resource, deleter}
 	{}
@@ -211,17 +211,17 @@ public:
 		reset();
 	}
 
-	const Resource& get() const noexcept
+	const Resource& get() const
 	{
 		return storage_.resource_;
 	}
 
-	bool is_empty() const noexcept
+	bool is_empty() const
 	{
 		return get() == get_empty_value();
 	}
 
-	void reset() noexcept
+	void reset()
 	{
 		if (is_empty())
 		{
@@ -232,13 +232,13 @@ public:
 		storage_.resource_ = get_empty_value();
 	}
 
-	void reset(const Resource resource) noexcept
+	void reset(const Resource resource)
 	{
 		reset();
 		storage_.resource_ = resource;
 	}
 
-	Resource release() noexcept
+	Resource release()
 	{
 		auto result = get_empty_value();
 		std::swap(result, storage_.resource_);
@@ -253,7 +253,7 @@ public:
 	template<
 		typename UniqueResource = Resource,
 		std::enable_if_t<detail::UniqueResourceIsPointer<UniqueResource>::value, int> = 0>
-	typename std::add_lvalue_reference_t<std::remove_pointer_t<UniqueResource>> operator*() const noexcept
+	typename std::add_lvalue_reference_t<std::remove_pointer_t<UniqueResource>> operator*() const
 	{
 		BSTONE_ASSERT(get() != nullptr);
 		return *get();
@@ -262,7 +262,7 @@ public:
 	template<
 		typename UniqueResource = Resource,
 		std::enable_if_t<detail::UniqueResourceIsPointer<UniqueResource>::value, int> = 0>
-	Resource operator->() const noexcept
+	Resource operator->() const
 	{
 		BSTONE_ASSERT(get() != nullptr);
 		return get();
@@ -283,7 +283,7 @@ template<
 	typename TEmptyValue>
 inline bool operator==(
 	const UniqueResource<TResource, TDeleter, TEmptyValue>& lhs,
-	const UniqueResource<TResource, TDeleter, TEmptyValue>& rhs) noexcept
+	const UniqueResource<TResource, TDeleter, TEmptyValue>& rhs)
 {
 	return lhs.get() == rhs.get();
 }
@@ -294,7 +294,7 @@ template<
 	typename TEmptyValue>
 inline bool operator!=(
 	const UniqueResource<TResource, TDeleter, TEmptyValue>& lhs,
-	const UniqueResource<TResource, TDeleter, TEmptyValue>& rhs) noexcept
+	const UniqueResource<TResource, TDeleter, TEmptyValue>& rhs)
 {
 	return !(lhs == rhs);
 }
@@ -307,7 +307,7 @@ template<
 	typename TEmptyValue>
 inline bool operator==(
 	const UniqueResource<TResource, TDeleter, TEmptyValue>& lhs,
-	std::nullptr_t) noexcept
+	std::nullptr_t)
 {
 	return lhs.get() == nullptr;
 }
@@ -318,7 +318,7 @@ template<
 	typename TEmptyValue>
 inline bool operator!=(
 	const UniqueResource<TResource, TDeleter, TEmptyValue>& lhs,
-	std::nullptr_t) noexcept
+	std::nullptr_t)
 {
 	return !(lhs == nullptr);
 }
@@ -329,7 +329,7 @@ template<
 	typename TEmptyValue>
 inline bool operator==(
 	std::nullptr_t,
-	const UniqueResource<TResource, TDeleter, TEmptyValue>& rhs) noexcept
+	const UniqueResource<TResource, TDeleter, TEmptyValue>& rhs)
 {
 	return rhs == nullptr;
 }
@@ -340,7 +340,7 @@ template<
 	typename TEmptyValue>
 inline bool operator!=(
 	std::nullptr_t,
-	const UniqueResource<TResource, TDeleter, TEmptyValue>& rhs) noexcept
+	const UniqueResource<TResource, TDeleter, TEmptyValue>& rhs)
 {
 	return !(rhs == nullptr);
 }

@@ -54,19 +54,19 @@ public:
 	VkR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param);
 	~VkR3rImpl() override;
 
-	R3rType do_get_type() const noexcept override;
-	std::string_view do_get_name() const noexcept override;
-	std::string_view do_get_description() const noexcept override;
+	R3rType do_get_type() const override;
+	std::string_view do_get_name() const override;
+	std::string_view do_get_description() const override;
 
-	const R3rDeviceFeatures& do_get_device_features() const noexcept override;
-	const R3rDeviceInfo& do_get_device_info() const noexcept override;
+	const R3rDeviceFeatures& do_get_device_features() const override;
+	const R3rDeviceInfo& do_get_device_info() const override;
 
 	void do_enable_checking_api_calls_for_errors(bool is_enable) override;
 
-	sys::Window& do_get_window() const noexcept override;
+	sys::Window& do_get_window() const override;
 	void do_handle_resize(sys::WindowSize new_size) override;
 
-	bool do_get_vsync() const noexcept override;
+	bool do_get_vsync() const override;
 	void do_enable_vsync(bool is_enabled) override;
 
 	void do_set_anti_aliasing(R3rAaType aa_type, int aa_value) override;
@@ -300,27 +300,27 @@ try
 	initialize_r3r_device_features();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rType VkR3rImpl::do_get_type() const noexcept
+R3rType VkR3rImpl::do_get_type() const
 {
 	return type_;
 }
 
-std::string_view VkR3rImpl::do_get_name() const noexcept
+std::string_view VkR3rImpl::do_get_name() const
 {
 	return name_;
 }
 
-std::string_view VkR3rImpl::do_get_description() const noexcept
+std::string_view VkR3rImpl::do_get_description() const
 {
 	return description_;
 }
 
-const R3rDeviceFeatures& VkR3rImpl::do_get_device_features() const noexcept
+const R3rDeviceFeatures& VkR3rImpl::do_get_device_features() const
 {
 	return context_.r3r_device_features;
 }
 
-const R3rDeviceInfo& VkR3rImpl::do_get_device_info() const noexcept
+const R3rDeviceInfo& VkR3rImpl::do_get_device_info() const
 {
 	return device_info_;
 }
@@ -328,7 +328,7 @@ const R3rDeviceInfo& VkR3rImpl::do_get_device_info() const noexcept
 void VkR3rImpl::do_enable_checking_api_calls_for_errors([[maybe_unused]] bool is_enable)
 {}
 
-sys::Window& VkR3rImpl::do_get_window() const noexcept
+sys::Window& VkR3rImpl::do_get_window() const
 {
 	return *window_;
 }
@@ -357,7 +357,7 @@ try
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-bool VkR3rImpl::do_get_vsync() const noexcept
+bool VkR3rImpl::do_get_vsync() const
 {
 	return context_.vk_present_mode_khr == VK_PRESENT_MODE_FIFO_KHR;
 }

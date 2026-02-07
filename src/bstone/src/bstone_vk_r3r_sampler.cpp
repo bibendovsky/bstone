@@ -31,7 +31,7 @@ private:
 	static const int min_anisotropy;
 
 	void do_update(const R3rSamplerUpdateParam& param) override;
-	const R3rSamplerState& do_get_state() const noexcept override;
+	const R3rSamplerState& do_get_state() const override;
 	VkSampler do_get_vk_sampler() const override;
 
 	VkR3rContext& context_;
@@ -76,7 +76,7 @@ void VkR3rSamplerImpl::do_update(const R3rSamplerUpdateParam& param)
 	update_internal();
 }
 
-const R3rSamplerState& VkR3rSamplerImpl::do_get_state() const noexcept
+const R3rSamplerState& VkR3rSamplerImpl::do_get_state() const
 {
 	return state_;
 }

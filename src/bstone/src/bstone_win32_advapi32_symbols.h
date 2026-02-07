@@ -24,7 +24,7 @@ using RegDeleteKeyExWFunc = LSTATUS (APIENTRY *)(
 
 struct AdvApi32Symbols
 {
-	static RegDeleteKeyExWFunc get_reg_delete_key_ex_w() noexcept;
+	static RegDeleteKeyExWFunc get_reg_delete_key_ex_w();
 };
 
 } // namespace win32

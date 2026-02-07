@@ -25,8 +25,8 @@ public:
 	CCmdMgr();
 	virtual ~CCmdMgr();
 
-	virtual CCmd* find(std::string_view name) const noexcept = 0;
-	virtual CCmdMgrCCmds get_all() noexcept = 0;
+	virtual CCmd* find(std::string_view name) const = 0;
+	virtual CCmdMgrCCmds get_all() = 0;
 
 	virtual void add(CCmd& ccmd) = 0;
 };

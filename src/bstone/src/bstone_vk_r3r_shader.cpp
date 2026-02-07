@@ -25,7 +25,7 @@ public:
 	~VkR3rShaderImpl() override {}
 
 private:
-	R3rShaderType do_get_type() const noexcept override;
+	R3rShaderType do_get_type() const override;
 	VkShaderModule do_get_vk_shader_module() const override;
 
 	VkR3rContext& context_;
@@ -55,7 +55,7 @@ VkR3rShaderImpl::VkR3rShaderImpl(VkR3rContext& context, const R3rShaderInitParam
 	shader_.reset(vk_shader_module, VkR3rShaderModuleDeleter{context_});
 }
 
-R3rShaderType VkR3rShaderImpl::do_get_type() const noexcept
+R3rShaderType VkR3rShaderImpl::do_get_type() const
 {
 	return type_;
 }

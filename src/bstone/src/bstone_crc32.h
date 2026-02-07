@@ -16,9 +16,9 @@ namespace bstone {
 class Crc32
 {
 public:
-	std::uint32_t get_value() const noexcept;
+	std::uint32_t get_value() const;
 
-	void reset() noexcept;
+	void reset();
 	void update(const void* data, std::intptr_t size);
 
 private:

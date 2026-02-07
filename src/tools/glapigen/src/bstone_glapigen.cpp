@@ -40,10 +40,10 @@ using Strings = std::vector<std::string>;
 class SourceLocation
 {
 public:
-	SourceLocation(const char* function_name, int line_number) noexcept;
+	SourceLocation(const char* function_name, int line_number) ;
 
-	const char* get_function_name() const noexcept;
-	int get_line_number() const noexcept;
+	const char* get_function_name() const;
+	int get_line_number() const;
 
 private:
 	const char* function_name_{};
@@ -52,18 +52,18 @@ private:
 
 // ---------------------------------------------------------------------------
 
-SourceLocation::SourceLocation(const char* function_name, int line_number) noexcept
+SourceLocation::SourceLocation(const char* function_name, int line_number)
 	:
 	function_name_{function_name},
 	line_number_{line_number}
 {}
 
-const char* SourceLocation::get_function_name() const noexcept
+const char* SourceLocation::get_function_name() const
 {
 	return function_name_;
 }
 
-int SourceLocation::get_line_number() const noexcept
+int SourceLocation::get_line_number() const
 {
 	return line_number_;
 }
@@ -205,7 +205,7 @@ template<typename... TArgs>
 
 // ===========================================================================
 
-bool ascii_is_digit(char ch) noexcept
+bool ascii_is_digit(char ch)
 {
 	return ch >= '0' && ch <= '9';
 }
@@ -229,7 +229,7 @@ std::string ascii_to_upper(const std::string& string)
 
 // ===========================================================================
 
-bool starts_with(const std::string& string, const std::string& substring) noexcept
+bool starts_with(const std::string& string, const std::string& substring)
 {
 	if (string.size() < substring.size())
 	{
@@ -239,7 +239,7 @@ bool starts_with(const std::string& string, const std::string& substring) noexce
 	return std::equal(substring.cbegin(), substring.cend(), string.cbegin());
 }
 
-bool ends_with(const std::string& string, char ch) noexcept
+bool ends_with(const std::string& string, char ch)
 {
 	return !string.empty() && string.back() == ch;
 }
@@ -283,7 +283,7 @@ template<
 	typename THash,
 	typename TKeyEqual,
 	typename TAllocator>
-bool contains_key(const std::unordered_map<TKey, THash, TKeyEqual, TAllocator>& map, const TKey& key) noexcept
+bool contains_key(const std::unordered_map<TKey, THash, TKeyEqual, TAllocator>& map, const TKey& key)
 {
 	return map.find(key) != map.cend();
 }
@@ -293,7 +293,7 @@ bool contains_key(const std::unordered_map<TKey, THash, TKeyEqual, TAllocator>& 
 template<
 	typename T,
 	typename TAllocator>
-bool contains(const std::vector<T, TAllocator>& vector, const T& value) noexcept
+bool contains(const std::vector<T, TAllocator>& vector, const T& value)
 {
 	const auto iter_end = vector.cend();
 
@@ -322,12 +322,12 @@ struct XmlNode
 	XmlNode* child{};
 	XmlNode* parent{};
 
-	bool is_text() const noexcept;
+	bool is_text() const;
 };
 
 // ---------------------------------------------------------------------------
 
-bool XmlNode::is_text() const noexcept
+bool XmlNode::is_text() const
 {
 	return name.empty();
 }
@@ -1206,12 +1206,12 @@ struct RegistryType
 	std::string value{};
 	std::size_t apientry_offset{}; // Zero value for none.
 
-	bool has_apientry() const noexcept;
+	bool has_apientry() const;
 };
 
 // ---------------------------------------------------------------------------
 
-bool RegistryType::has_apientry() const noexcept
+bool RegistryType::has_apientry() const
 {
 	return apientry_offset != 0;
 }
@@ -1349,7 +1349,7 @@ class RegistryParser
 public:
 	explicit RegistryParser(const std::string& xml_path);
 
-	Registry& get_registry() noexcept;
+	Registry& get_registry();
 
 private:
 	static constexpr auto max_file_size = 4'000'000;
@@ -1435,7 +1435,7 @@ RegistryParser::RegistryParser(const std::string& xml_path)
 	parse();
 }
 
-Registry& RegistryParser::get_registry() noexcept
+Registry& RegistryParser::get_registry()
 {
 	return registry_;
 }
@@ -2553,12 +2553,12 @@ struct GeneratorParam
 	std::string symbols_name;
 	std::string header_guard;
 
-	bool has_namespaces() const noexcept;
+	bool has_namespaces() const;
 };
 
 // ---------------------------------------------------------------------------
 
-bool GeneratorParam::has_namespaces() const noexcept
+bool GeneratorParam::has_namespaces() const
 {
 	return !namespaces.empty();
 }

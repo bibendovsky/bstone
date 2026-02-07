@@ -27,8 +27,8 @@ public:
 	CCmdMgrImpl& operator=(const CCmdMgrImpl&) = delete;
 	~CCmdMgrImpl() override;
 
-	CCmd* find(std::string_view name) const noexcept override;
-	CCmdMgrCCmds get_all() noexcept override;
+	CCmd* find(std::string_view name) const override;
+	CCmdMgrCCmds get_all() override;
 
 	void add(CCmd& ccmd) override;
 
@@ -51,7 +51,7 @@ CCmdMgrImpl::CCmdMgrImpl(std::intptr_t max_ccmds)
 
 CCmdMgrImpl::~CCmdMgrImpl() = default;
 
-CCmd* CCmdMgrImpl::find(std::string_view name) const noexcept
+CCmd* CCmdMgrImpl::find(std::string_view name) const
 {
 	const auto item_iter = name_to_index_map_.find(name);
 
@@ -63,7 +63,7 @@ CCmd* CCmdMgrImpl::find(std::string_view name) const noexcept
 	return ccmds_[item_iter->second];
 }
 
-CCmdMgrCCmds CCmdMgrImpl::get_all() noexcept
+CCmdMgrCCmds CCmdMgrImpl::get_all()
 {
 	return CCmdMgrCCmds{ccmds_.data(), ccmds_.size()};
 }

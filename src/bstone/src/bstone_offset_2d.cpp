@@ -19,14 +19,14 @@ namespace bstone
 
 bool operator==(
 	const Offset2d& lhs,
-	const Offset2d& rhs) noexcept
+	const Offset2d& rhs)
 {
 	return lhs.x == rhs.x && lhs.y == rhs.y;
 }
 
 bool operator!=(
 	const Offset2d& lhs,
-	const Offset2d& rhs) noexcept
+	const Offset2d& rhs)
 {
 	return !(lhs == rhs);
 }

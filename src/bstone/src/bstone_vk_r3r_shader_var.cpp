@@ -29,10 +29,10 @@ public:
 	~VkR3rShaderVarImpl() override {}
 
 private:
-	R3rShaderVarType do_get_type() const noexcept override;
-	R3rShaderVarTypeId do_get_type_id() const noexcept override;
-	int do_get_index() const noexcept override;
-	const std::string& do_get_name() const noexcept override;
+	R3rShaderVarType do_get_type() const override;
+	R3rShaderVarTypeId do_get_type_id() const override;
+	int do_get_index() const override;
+	const std::string& do_get_name() const override;
 
 	void do_set_int32(std::int32_t value) override;
 	void do_set_float32(float value) override;
@@ -67,22 +67,22 @@ VkR3rShaderVarImpl::VkR3rShaderVarImpl(
 	mapped_memory_{mapped_memory}
 {}
 
-R3rShaderVarType VkR3rShaderVarImpl::do_get_type() const noexcept
+R3rShaderVarType VkR3rShaderVarImpl::do_get_type() const
 {
 	return type_;
 }
 
-R3rShaderVarTypeId VkR3rShaderVarImpl::do_get_type_id() const noexcept
+R3rShaderVarTypeId VkR3rShaderVarImpl::do_get_type_id() const
 {
 	return type_id_;
 }
 
-int VkR3rShaderVarImpl::do_get_index() const noexcept
+int VkR3rShaderVarImpl::do_get_index() const
 {
 	return index_;
 }
 
-const std::string& VkR3rShaderVarImpl::do_get_name() const noexcept
+const std::string& VkR3rShaderVarImpl::do_get_name() const
 {
 	return name_;
 }

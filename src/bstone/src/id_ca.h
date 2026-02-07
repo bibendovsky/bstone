@@ -104,10 +104,10 @@ public:
 		const AssetsVersion version);
 
 
-	const AssetsResources& get_resources() const noexcept;
+	const AssetsResources& get_resources() const;
 
 	void set_resources(
-		const AssetsResources& resources) noexcept;
+		const AssetsResources& resources);
 
 	const AssetsResource& find_resource(
 		AssetsResourceType resource_type) const;
@@ -119,7 +119,7 @@ public:
 		const std::string& levels_hash);
 
 
-	const std::string& get_base_path_name() const noexcept;
+	const std::string& get_base_path_name() const;
 
 
 	int get_gfx_header_offset_count() const;
@@ -163,9 +163,9 @@ public:
 
 	int get_total_levels() const;
 
-	int get_barrier_switches_per_level() const noexcept;
+	int get_barrier_switches_per_level() const;
 
-	int get_max_barrier_switches_per_level_bits() const noexcept;
+	int get_max_barrier_switches_per_level_bits() const;
 
 	bool is_secret_level(
 		const int level_number) const;
@@ -176,7 +176,7 @@ public:
 
 private:
 	static const char* get_resource_type_string(
-		AssetsResourceType resource_type) noexcept;
+		AssetsResourceType resource_type);
 
 
 	AssetsVersion version_{};

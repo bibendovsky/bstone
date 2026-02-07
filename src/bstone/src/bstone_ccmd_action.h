@@ -20,7 +20,7 @@ using CCmdActionArgs = std::span<const std::string_view>;
 class CCmdAction
 {
 public:
-	CCmdAction() noexcept;
+	CCmdAction();
 	virtual ~CCmdAction();
 
 	void invoke(CCmdActionArgs args);

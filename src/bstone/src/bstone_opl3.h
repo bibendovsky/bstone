@@ -38,10 +38,10 @@ enum class Opl3Type
 class Opl3
 {
 public:
-	Opl3() noexcept;
+	Opl3();
 	virtual ~Opl3();
 
-	virtual Opl3Type get_type() const noexcept = 0;
+	virtual Opl3Type get_type() const = 0;
 
 	// Initializes the emulator with a specified output sample rate.
 	virtual void initialize(int sample_rate) = 0;
@@ -50,10 +50,10 @@ public:
 	virtual void uninitialize() = 0;
 
 	// Returns true if the wrapper initialized or false otherwise.
-	virtual bool is_initialized() const noexcept = 0;
+	virtual bool is_initialized() const = 0;
 
 	// Returns an output sample rate.
-	virtual int get_sample_rate() const noexcept = 0;
+	virtual int get_sample_rate() const = 0;
 
 	// Writes a value into a register.
 	virtual void write(int port, int value) = 0;
@@ -71,7 +71,7 @@ public:
 
 	// Returns a minimum output sample rate.
 	// (Emulator dependant value)
-	virtual int get_min_sample_rate() const noexcept = 0;
+	virtual int get_min_sample_rate() const = 0;
 }; // Opl3
 
 // ==========================================================================

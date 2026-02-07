@@ -24,7 +24,7 @@ namespace {
 class GlR3rErrorImpl
 {
 public:
-	void enable_checking(bool is_enable) noexcept;
+	void enable_checking(bool is_enable);
 	void check_optionally();
 	void ensure_no_errors();
 
@@ -32,14 +32,14 @@ private:
 	bool is_checking_enabled_{};
 
 private:
-	static const char* get_code_name(GLenum gl_error_code) noexcept;
+	static const char* get_code_name(GLenum gl_error_code);
 	static void append_code(GLenum gl_code, std::string& chars);
 	void ensure_no_errors_internal();
 };
 
 // --------------------------------------------------------------------------
 
-void GlR3rErrorImpl::enable_checking(bool is_enable) noexcept
+void GlR3rErrorImpl::enable_checking(bool is_enable)
 {
 	is_checking_enabled_ = is_enable;
 }
@@ -59,7 +59,7 @@ try {
 	ensure_no_errors_internal();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-const char* GlR3rErrorImpl::get_code_name(GLenum gl_error_code) noexcept
+const char* GlR3rErrorImpl::get_code_name(GLenum gl_error_code)
 {
 	switch (gl_error_code)
 	{

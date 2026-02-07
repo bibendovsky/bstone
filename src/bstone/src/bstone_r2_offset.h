@@ -19,7 +19,7 @@ struct R2OffsetT
 
 	R2OffsetT() = default;
 
-	constexpr R2OffsetT(Value x, Value y) noexcept
+	constexpr R2OffsetT(Value x, Value y)
 		:
 		x{x},
 		y{y}

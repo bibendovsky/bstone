@@ -51,7 +51,7 @@ struct RegistryKeyHandle {};
 
 struct RegistryKeyHandleDeleter
 {
-	void operator()(RegistryKeyHandle* handle) const noexcept;
+	void operator()(RegistryKeyHandle* handle) const;
 };
 
 using RegistryKeyHandleUPtr = std::unique_ptr<RegistryKeyHandle, RegistryKeyHandleDeleter>;
@@ -67,7 +67,7 @@ public:
 	static constexpr auto max_string_length = 16'383;
 
 public:
-	RegistryKey() noexcept;
+	RegistryKey();
 
 	RegistryKey(
 		const char* subkey_name,
@@ -84,8 +84,8 @@ public:
 		RegistryRootKeyType root_key_type,
 		RegistryOpenFlags open_flags);
 
-	void close() noexcept;
-	bool is_open() const noexcept;
+	void close();
+	bool is_open() const;
 
 	// Retreives a null-terminated string value into the provided buffer.
 	//

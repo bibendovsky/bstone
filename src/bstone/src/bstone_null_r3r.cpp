@@ -31,19 +31,19 @@ public:
 	~NullR3rImpl() override;
 
 private:
-	R3rType do_get_type() const noexcept override;
-	std::string_view do_get_name() const noexcept override;
-	std::string_view do_get_description() const noexcept override;
+	R3rType do_get_type() const override;
+	std::string_view do_get_name() const override;
+	std::string_view do_get_description() const override;
 
-	const R3rDeviceFeatures& do_get_device_features() const noexcept override;
-	const R3rDeviceInfo& do_get_device_info() const noexcept override;
+	const R3rDeviceFeatures& do_get_device_features() const override;
+	const R3rDeviceInfo& do_get_device_info() const override;
 
 	void do_enable_checking_api_calls_for_errors(bool is_enable) override;
 
-	sys::Window& do_get_window() const noexcept override;
+	sys::Window& do_get_window() const override;
 	void do_handle_resize(sys::WindowSize new_size) override;
 
-	bool do_get_vsync() const noexcept override;
+	bool do_get_vsync() const override;
 	void do_enable_vsync(bool is_enabled) override;
 
 	void do_set_anti_aliasing(R3rAaType aa_type, int aa_value) override;
@@ -99,27 +99,27 @@ try
 	initialize_window();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rType NullR3rImpl::do_get_type() const noexcept
+R3rType NullR3rImpl::do_get_type() const
 {
 	return type_;
 }
 
-std::string_view NullR3rImpl::do_get_name() const noexcept
+std::string_view NullR3rImpl::do_get_name() const
 {
 	return name_;
 }
 
-std::string_view NullR3rImpl::do_get_description() const noexcept
+std::string_view NullR3rImpl::do_get_description() const
 {
 	return description_;
 }
 
-const R3rDeviceFeatures& NullR3rImpl::do_get_device_features() const noexcept
+const R3rDeviceFeatures& NullR3rImpl::do_get_device_features() const
 {
 	return r3r_device_features_;
 }
 
-const R3rDeviceInfo& NullR3rImpl::do_get_device_info() const noexcept
+const R3rDeviceInfo& NullR3rImpl::do_get_device_info() const
 {
 	return device_info_;
 }
@@ -127,7 +127,7 @@ const R3rDeviceInfo& NullR3rImpl::do_get_device_info() const noexcept
 void NullR3rImpl::do_enable_checking_api_calls_for_errors([[maybe_unused]] bool is_enable)
 {}
 
-sys::Window& NullR3rImpl::do_get_window() const noexcept
+sys::Window& NullR3rImpl::do_get_window() const
 {
 	return *window_;
 }
@@ -135,7 +135,7 @@ sys::Window& NullR3rImpl::do_get_window() const noexcept
 void NullR3rImpl::do_handle_resize([[maybe_unused]] sys::WindowSize new_size)
 {}
 
-bool NullR3rImpl::do_get_vsync() const noexcept
+bool NullR3rImpl::do_get_vsync() const
 {
 	return false;
 }

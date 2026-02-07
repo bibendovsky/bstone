@@ -81,20 +81,20 @@ public:
 	CVar& operator=(const CVar& rhs) = delete;
 	CVar& operator=(CVar&& rhs) noexcept;
 
-	CVarType get_type() const noexcept;
-	std::string_view get_name() const noexcept;
-	CVarFlags get_flags() const noexcept;
+	CVarType get_type() const;
+	std::string_view get_name() const;
+	CVarFlags get_flags() const;
 
-	bool get_bool() const noexcept;
+	bool get_bool() const;
 	void set_bool(bool value);
 
-	std::int32_t get_int32() const noexcept;
+	std::int32_t get_int32() const;
 	void set_int32(std::int32_t value);
-	CVarInt32Values get_int32_values() const noexcept;
+	CVarInt32Values get_int32_values() const;
 
-	std::string_view get_string() const noexcept;
+	std::string_view get_string() const;
 	void set_string(std::string_view value);
-	CVarStringValues get_string_values() const noexcept;
+	CVarStringValues get_string_values() const;
 
 	void swap(CVar& rhs);
 

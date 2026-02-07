@@ -11,19 +11,19 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
-AudioMixerVoiceHandle::AudioMixerVoiceHandle() noexcept = default;
+AudioMixerVoiceHandle::AudioMixerVoiceHandle() = default;
 
-AudioMixerVoiceHandleValue AudioMixerVoiceHandle::get() const noexcept
+AudioMixerVoiceHandleValue AudioMixerVoiceHandle::get() const
 {
 	return value_;
 }
 
-bool AudioMixerVoiceHandle::is_valid() const noexcept
+bool AudioMixerVoiceHandle::is_valid() const
 {
 	return get() != audio_mixer_voice_invalid_handle_value;
 }
 
-void AudioMixerVoiceHandle::reset() noexcept
+void AudioMixerVoiceHandle::reset()
 {
 	value_ = audio_mixer_voice_invalid_handle_value;
 }
@@ -44,19 +44,19 @@ try {
 
 // ==========================================================================
 
-std::size_t AudioMixerVoiceHandleStdHasher::operator()(AudioMixerVoiceHandle key) const noexcept
+std::size_t AudioMixerVoiceHandleStdHasher::operator()(AudioMixerVoiceHandle key) const
 {
 	return static_cast<std::size_t>(key.get());
 }
 
 // ==========================================================================
 
-bool operator==(const AudioMixerVoiceHandle& lhs, const AudioMixerVoiceHandle& rhs) noexcept
+bool operator==(const AudioMixerVoiceHandle& lhs, const AudioMixerVoiceHandle& rhs)
 {
 	return lhs.get() == rhs.get();
 }
 
-bool operator!=(const AudioMixerVoiceHandle& lhs, const AudioMixerVoiceHandle& rhs) noexcept
+bool operator!=(const AudioMixerVoiceHandle& lhs, const AudioMixerVoiceHandle& rhs)
 {
 	return !(lhs == rhs);
 }

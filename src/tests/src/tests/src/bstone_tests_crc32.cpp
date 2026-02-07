@@ -56,7 +56,7 @@ void test_k7fbenfapzozmb5x()
 
 // ==========================================================================
 
-// Crc32Value get_value() const noexcept
+// Crc32Value get_value() const
 void test_2drajpurv3igoumo()
 {
 	const auto crc32 = bstone::Crc32{};
@@ -65,7 +65,7 @@ void test_2drajpurv3igoumo()
 
 // ==========================================================================
 
-// void reset() noexcept
+// void reset()
 void test_kujcosz33c9owex3()
 {
 	auto crc32 = bstone::Crc32{};

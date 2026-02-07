@@ -39,7 +39,7 @@ public:
 
 	~SwVideo() override;
 
-	bool is_hardware() const noexcept override;
+	bool is_hardware() const override;
 	std::string_view get_renderer_name() override;
 	void clear_vga_buffer() override;
 	void take_screenshot(
@@ -51,7 +51,7 @@ public:
 	void present() override;
 
 	void get_palette(int offset, int count, std::uint8_t* vga_palette) const override;
-	void fill_palette(int r, int g, int b) noexcept override;
+	void fill_palette(int r, int g, int b) override;
 	void set_palette(int offset, int count, const std::uint8_t* vga_palette) override;
 
 	void apply_widescreen() override;
@@ -64,26 +64,26 @@ public:
 	// HW
 	//
 
-	const Rgba8Palette& get_default_palette() const noexcept override;
+	const Rgba8Palette& get_default_palette() const override;
 
 	void enable_fizzle_fx(bool is_enabled) override;
 	void enable_fizzle_fx_fading(bool is_fading) override;
 	void set_fizzle_fx_color_index(int color_index) override;
 	void set_fizzle_fx_ratio(float ratio) override;
 
-	void clear_wall_render_list() noexcept override;
+	void clear_wall_render_list() override;
 	void add_wall_render_item(int tile_x, int tile_y) override;
 
-	void clear_pushwall_render_list() noexcept override;
+	void clear_pushwall_render_list() override;
 	void add_pushwall_render_item(int tile_x, int tile_y) override;
 
-	void clear_door_render_list() noexcept override;
+	void clear_door_render_list() override;
 	void add_door_render_item(int tile_x, int tile_y) override;
 
-	void clear_static_render_list() noexcept override;
+	void clear_static_render_list() override;
 	void add_static_render_item(int bs_static_index) override;
 
-	void clear_actor_render_list() noexcept override;
+	void clear_actor_render_list() override;
 	void add_actor_render_item(int bs_actor_index) override;
 
 	void on_load_level() override;
@@ -102,7 +102,7 @@ public:
 	void apply_external_textures() override;
 	void update_samplers() override;
 
-	const R3rDeviceFeatures& get_device_features() const noexcept override;
+	const R3rDeviceFeatures& get_device_features() const override;
 
 	//
 	// HW
@@ -128,7 +128,7 @@ private:
 	void initialize_textures();
 	void initialize_palette();
 	void calculate_dimensions();
-	void uninitialize_vga_buffer() noexcept;
+	void uninitialize_vga_buffer();
 	void update_palette_from_vga(int offset, int count);
 
 private:
@@ -194,7 +194,7 @@ SwVideo::~SwVideo()
 	uninitialize_vga_buffer();
 }
 
-bool SwVideo::is_hardware() const noexcept
+bool SwVideo::is_hardware() const
 {
 	return false;
 }
@@ -423,7 +423,7 @@ try {
 	);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void SwVideo::fill_palette(int r, int g, int b) noexcept
+void SwVideo::fill_palette(int r, int g, int b)
 {
 	for (auto& vga_color : vga_palette_)
 	{
@@ -598,7 +598,7 @@ try {
 // HW
 //
 
-const Rgba8Palette& SwVideo::get_default_palette() const noexcept
+const Rgba8Palette& SwVideo::get_default_palette() const
 {
 	return default_palette_;
 }
@@ -611,23 +611,23 @@ void SwVideo::set_fizzle_fx_color_index(int) {}
 
 void SwVideo::set_fizzle_fx_ratio(float) {}
 
-void SwVideo::clear_wall_render_list() noexcept {}
+void SwVideo::clear_wall_render_list() {}
 
 void SwVideo::add_wall_render_item(int, int) {}
 
-void SwVideo::clear_pushwall_render_list() noexcept {}
+void SwVideo::clear_pushwall_render_list() {}
 
 void SwVideo::add_pushwall_render_item(int, int) {}
 
-void SwVideo::clear_door_render_list() noexcept {}
+void SwVideo::clear_door_render_list() {}
 
 void SwVideo::add_door_render_item(int, int) {}
 
-void SwVideo::clear_static_render_list() noexcept {}
+void SwVideo::clear_static_render_list() {}
 
 void SwVideo::add_static_render_item(int) {}
 
-void SwVideo::clear_actor_render_list() noexcept {}
+void SwVideo::clear_actor_render_list() {}
 
 void SwVideo::add_actor_render_item(int) {}
 
@@ -659,7 +659,7 @@ void SwVideo::apply_external_textures() {}
 
 void SwVideo::update_samplers() {}
 
-const R3rDeviceFeatures& SwVideo::get_device_features() const noexcept
+const R3rDeviceFeatures& SwVideo::get_device_features() const
 {
 	return device_features_;
 }
@@ -962,7 +962,7 @@ void SwVideo::calculate_dimensions()
 	};
 }
 
-void SwVideo::uninitialize_vga_buffer() noexcept
+void SwVideo::uninitialize_vga_buffer()
 {
 	sw_vga_buffer_.clear();
 	vga_memory = nullptr;

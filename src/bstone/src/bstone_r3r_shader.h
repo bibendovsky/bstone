@@ -39,13 +39,13 @@ struct R3rShaderInitParam
 class R3rShader
 {
 public:
-	R3rShader() noexcept;
+	R3rShader();
 	virtual ~R3rShader();
 
-	R3rShaderType get_type() const noexcept;
+	R3rShaderType get_type() const;
 
 private:
-	virtual R3rShaderType do_get_type() const noexcept = 0;
+	virtual R3rShaderType do_get_type() const = 0;
 };
 
 // ==========================================================================
