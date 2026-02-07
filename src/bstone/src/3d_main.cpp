@@ -10411,11 +10411,6 @@ void levelinfo::unarchive(
 	pangle = archiver.read_int16();
 }
 
-fargametype::fargametype()
-	:
-	level{}
-{}
-
 void fargametype::initialize()
 {
 	const auto& assets_info = get_assets_info();

@@ -2433,8 +2433,6 @@ struct fargametype
 
 	LevelInfos level;
 
-	fargametype();
-
 	void initialize();
 
 	void clear();
