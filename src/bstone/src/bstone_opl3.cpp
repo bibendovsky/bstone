@@ -15,12 +15,6 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
-Opl3::Opl3() = default;
-
-Opl3::~Opl3() = default;
-
-// ==========================================================================
-
 Opl3UPtr make_opl3(Opl3Type opl3_type)
 {
 	switch (opl3_type)

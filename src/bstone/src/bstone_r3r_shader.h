@@ -39,8 +39,8 @@ struct R3rShaderInitParam
 class R3rShader
 {
 public:
-	R3rShader();
-	virtual ~R3rShader();
+	R3rShader() = default;
+	virtual ~R3rShader() = default;
 
 	R3rShaderType get_type() const;
 

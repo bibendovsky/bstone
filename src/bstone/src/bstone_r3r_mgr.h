@@ -18,8 +18,8 @@ namespace bstone {
 class R3rMgr
 {
 public:
-	R3rMgr();
-	virtual ~R3rMgr();
+	R3rMgr() = default;
+	virtual ~R3rMgr() = default;
 
 	// TODO Rename to "make...".
 	R3r* renderer_initialize(const R3rInitParam& param);

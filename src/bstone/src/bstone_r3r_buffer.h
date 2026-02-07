@@ -55,8 +55,8 @@ struct R3rUpdateBufferParam
 class R3rBuffer
 {
 public:
-	R3rBuffer();
-	virtual ~R3rBuffer();
+	R3rBuffer() = default;
+	virtual ~R3rBuffer() = default;
 
 public:
 	R3rBufferType get_type() const;

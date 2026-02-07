@@ -22,8 +22,8 @@ using CCmdMgrCCmds = std::span<CCmd*>;
 class CCmdMgr
 {
 public:
-	CCmdMgr();
-	virtual ~CCmdMgr();
+	CCmdMgr() = default;
+	virtual ~CCmdMgr() = default;
 
 	virtual CCmd* find(std::string_view name) const = 0;
 	virtual CCmdMgrCCmds get_all() = 0;

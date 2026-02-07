@@ -13,12 +13,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-CCmdMgr::CCmdMgr() = default;
-
-CCmdMgr::~CCmdMgr() = default;
-
-// ==========================================================================
-
 class CCmdMgrImpl final : public CCmdMgr
 {
 public:

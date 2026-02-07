@@ -12,10 +12,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-R3rCmdBuffer::R3rCmdBuffer() = default;
-
-R3rCmdBuffer::~R3rCmdBuffer() = default;
-
 int R3rCmdBuffer::get_count() const
 {
 	return do_get_count();

@@ -53,9 +53,9 @@ enum class HwTextureMgrUpscaleFilterType
 class HwTextureMgr
 {
 public:
-	HwTextureMgr();
+	HwTextureMgr() = default;
 
-	virtual ~HwTextureMgr();
+	virtual ~HwTextureMgr() = default;
 
 
 	virtual int get_min_upscale_filter_degree(

@@ -27,9 +27,9 @@ namespace bstone
 class Video
 {
 public:
-	Video();
+	Video() = default;
 
-	virtual ~Video();
+	virtual ~Video() = default;
 
 
 	virtual bool is_hardware() const = 0;

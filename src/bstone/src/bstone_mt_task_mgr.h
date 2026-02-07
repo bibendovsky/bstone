@@ -28,9 +28,9 @@ namespace bstone
 class MtTask
 {
 public:
-	MtTask();
+	MtTask() = default;
 
-	virtual ~MtTask();
+	virtual ~MtTask() = default;
 
 
 	virtual void execute() = 0;
@@ -61,9 +61,9 @@ public:
 class MtTaskMgr
 {
 public:
-	MtTaskMgr();
+	MtTaskMgr() = default;
 
-	virtual ~MtTaskMgr();
+	virtual ~MtTaskMgr() = default;
 
 
 	virtual int get_max_threads() const = 0;

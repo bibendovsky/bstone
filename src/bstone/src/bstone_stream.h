@@ -24,8 +24,8 @@ enum class StreamOrigin
 class Stream
 {
 public:
-	Stream();
-	virtual ~Stream();
+	Stream() = default;
+	virtual ~Stream() = default;
 
 	void close();
 	bool is_open() const;

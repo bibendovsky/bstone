@@ -21,8 +21,8 @@ class VkR3rPipeline;
 class VkR3rPipelineMgr
 {
 public:
-	VkR3rPipelineMgr() {}
-	virtual ~VkR3rPipelineMgr() {}
+	VkR3rPipelineMgr() = default;
+	virtual ~VkR3rPipelineMgr() = default;
 
 	void clear();
 	VkR3rPipeline* acquire_pipeline();

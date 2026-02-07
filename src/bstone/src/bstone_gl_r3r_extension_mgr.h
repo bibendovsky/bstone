@@ -61,8 +61,8 @@ enum class GlR3rExtensionId
 class GlR3rExtensionMgr
 {
 public:
-	GlR3rExtensionMgr() {}
-	virtual ~GlR3rExtensionMgr() {}
+	GlR3rExtensionMgr() = default;
+	virtual ~GlR3rExtensionMgr() = default;
 
 	virtual int get_count() const = 0;
 	virtual const std::string& get_name(int extension_index) const = 0;

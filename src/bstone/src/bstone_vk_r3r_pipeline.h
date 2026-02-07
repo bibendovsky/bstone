@@ -30,8 +30,8 @@ struct VkR3rPipelineDrawIndexedParam
 class VkR3rPipeline
 {
 public:
-	VkR3rPipeline() {}
-	virtual ~VkR3rPipeline() {}
+	VkR3rPipeline() = default;
+	virtual ~VkR3rPipeline() = default;
 
 	void draw_indexed(const VkR3rPipelineDrawIndexedParam& param);
 
