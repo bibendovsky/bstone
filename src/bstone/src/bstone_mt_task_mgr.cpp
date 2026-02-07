@@ -58,18 +58,18 @@ public:
 
 
 	void push(
-		MtTaskPtr mt_task);
+		MtTask* mt_task);
 
 	void push(
-		MtTaskPtr* mt_tasks,
+		MtTask** mt_tasks,
 		int mt_task_count);
 
 	bool pop(
-		MtTaskPtr& mt_task);
+		MtTask*& mt_task);
 
 
 private:
-	using Items = std::vector<MtTaskPtr>;
+	using Items = std::vector<MtTask*>;
 	using Index = unsigned int;
 	using MtIndex = std::atomic<Index>;
 	using Mutex = std::mutex;
@@ -111,11 +111,11 @@ public:
 
 
 	void add_tasks(
-		MtTaskPtr* mt_tasks,
+		MtTask** mt_tasks,
 		int mt_task_count) override;
 
 	void add_tasks_and_wait_for_added(
-		MtTaskPtr* mt_tasks,
+		MtTask** mt_tasks,
 		int mt_task_count) override;
 
 
@@ -127,8 +127,6 @@ private:
 
 		std::thread thread_;
 	}; // MtThread
-
-	using MtThreadPtr = MtThread*;
 
 	using MtThreads = std::vector<MtThread>;
 
@@ -164,7 +162,6 @@ private:
 		MtThread* mt_thread);
 }; // MtTaskMgr
 
-using MtTaskMgrImplPtr = MtTaskMgrImpl*;
 using MtTaskMgrImplUPtr = std::unique_ptr<MtTaskMgrImpl>;
 
 //
@@ -199,7 +196,7 @@ MtTaskQueue::MtTaskQueue(
 }
 
 void MtTaskQueue::push(
-	MtTaskPtr mt_task)
+	MtTask* mt_task)
 {
 	if (!mt_task)
 	{
@@ -224,7 +221,7 @@ void MtTaskQueue::push(
 }
 
 void MtTaskQueue::push(
-	MtTaskPtr* mt_tasks,
+	MtTask** mt_tasks,
 	int mt_task_count)
 {
 	if (!mt_tasks)
@@ -278,7 +275,7 @@ void MtTaskQueue::push(
 }
 
 bool MtTaskQueue::pop(
-	MtTaskPtr& mt_task)
+	MtTask*& mt_task)
 {
 	MutexLock flag_lock{mutex_};
 
@@ -341,14 +338,14 @@ int MtTaskMgrImpl::get_thread_count() const
 }
 
 void MtTaskMgrImpl::add_tasks(
-	MtTaskPtr* mt_tasks,
+	MtTask** mt_tasks,
 	int mt_task_count)
 {
 	mt_task_queue_.push(mt_tasks, mt_task_count);
 }
 
 void MtTaskMgrImpl::add_tasks_and_wait_for_added(
-	MtTaskPtr* mt_tasks,
+	MtTask** mt_tasks,
 	int mt_task_count)
 {
 	add_tasks(mt_tasks, mt_task_count);
@@ -452,7 +449,7 @@ bool MtTaskMgrImpl::mt_is_quit()
 
 bool MtTaskMgrImpl::try_pick_and_execute()
 {
-	auto mt_task = MtTaskPtr{};
+	MtTask* mt_task = nullptr;
 
 	if (!mt_task_queue_.pop(mt_task))
 	{

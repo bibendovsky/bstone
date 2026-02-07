@@ -26,10 +26,8 @@ namespace bstone
 
 
 class SpriteCache;
-using SpriteCachePtr = SpriteCache*;
 
 class MtTaskMgr;
-using MtTaskMgrPtr = MtTaskMgr*;
 
 
 enum class HwTextureMgrSolid1x1Id
@@ -104,7 +102,7 @@ public:
 	virtual void create_ui(
 		const std::uint8_t* const indexed_pixels,
 		const bool* const indexed_alphas,
-		const Rgba8PaletteCPtr indexed_palette) = 0;
+		const Rgba8Palette* indexed_palette) = 0;
 
 	virtual void update_ui() = 0;
 
@@ -133,8 +131,8 @@ using HwTextureMgrUPtr = std::unique_ptr<HwTextureMgr>;
 
 HwTextureMgrUPtr make_hw_texture_mgr(
 	R3r* renderer_3d,
-	const SpriteCachePtr sprite_cache,
-	const MtTaskMgrPtr task_manager);
+	SpriteCache* sprite_cache,
+	MtTaskMgr* task_manager);
 
 
 } // bstone

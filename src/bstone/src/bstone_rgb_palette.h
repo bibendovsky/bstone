@@ -34,8 +34,6 @@ struct RgbPalette
 
 
 using Rgba8Palette = std::array<Rgba8, RgbPalette::get_max_color_count()>;
-using Rgba8PalettePtr = Rgba8Palette*;
-using Rgba8PaletteCPtr = const Rgba8Palette*;
 
 
 } // bstone

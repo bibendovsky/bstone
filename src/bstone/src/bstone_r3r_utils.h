@@ -48,7 +48,6 @@ public:
 	static constexpr int absolute_max_viewport_dimension = 1 << 16;
 
 	using Rgba8Buffer = std::vector<Rgba8>;
-	using Rgba8BufferPtr = Rgba8Buffer*;
 
 	struct IndexedToRgba8Param
 	{
@@ -58,9 +57,9 @@ public:
 		int actual_height;
 		bool indexed_is_column_major;
 		const std::uint8_t* indexed_pixels;
-		Rgba8PaletteCPtr indexed_palette;
+		const Rgba8Palette* indexed_palette;
 		const bool* indexed_alphas;
-		Rgba8BufferPtr rgba_8_buffer;
+		Rgba8Buffer* rgba_8_buffer;
 	};
 
 public:
@@ -116,8 +115,8 @@ public:
 	static void build_mipmap(
 		int previous_width,
 		int previous_height,
-		Rgba8CPtr src_colors,
-		Rgba8Ptr dst_colors);
+		const Rgba8* src_colors,
+		Rgba8* dst_colors);
 
 private:
 	static sys::GlContextAttributes create_window_make_gl_context_attributes(
@@ -149,8 +148,8 @@ private:
 
 	static void build_mipmap_1(
 		int previous_dimension,
-		Rgba8CPtr src_colors,
-		Rgba8Ptr dst_colors);
+		const Rgba8* src_colors,
+		Rgba8* dst_colors);
 
 	// Averages two colors and premultiplies alpha.
 	static Rgba8 average_pa(Rgba8 color_0, Rgba8 color_1);
