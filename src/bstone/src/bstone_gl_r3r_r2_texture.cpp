@@ -321,7 +321,7 @@ try {
 void GlR3rR2TextureImpl::validate(const R3rR2TextureUpdateParam& param)
 try {
 	if (param.mipmap_level < 0 ||
-		param.mipmap_level >= R3rLimits::max_mipmap_count())
+		param.mipmap_level >= R3rLimits::max_mipmap_count)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Mipmap level out of range.");
 	}
@@ -456,9 +456,9 @@ try {
 
 	auto anisotropy = sampler_state_.anisotropy;
 
-	if (anisotropy < R3rLimits::min_anisotropy_off())
+	if (anisotropy < R3rLimits::min_anisotropy_off)
 	{
-		anisotropy = R3rLimits::min_anisotropy_off();
+		anisotropy = R3rLimits::min_anisotropy_off;
 	}
 	else if (anisotropy > device_features_.max_anisotropy_degree)
 	{
@@ -594,7 +594,7 @@ try {
 	sampler_state_.address_mode_v = R3rAddressMode::clamp;
 	set_address_mode_v();
 
-	sampler_state_.anisotropy = R3rLimits::min_anisotropy_off();
+	sampler_state_.anisotropy = R3rLimits::min_anisotropy_off;
 	set_anisotropy();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 

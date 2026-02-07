@@ -130,11 +130,11 @@ VkR3rShaderStageImpl::VkR3rShaderStageImpl(VkR3rContext& context, const R3rShade
 	{
 		BSTONE_THROW_STATIC_SOURCE("No vertex shader.");
 	}
-	if (param.input_bindings.size() > R3rLimits::max_vertex_inputs())
+	if (param.input_bindings.size() > R3rLimits::max_vertex_inputs)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Too many input bindings.");
 	}
-	if (param.shader_var_infos.size() > R3rLimits::max_shader_vars())
+	if (param.shader_var_infos.size() > R3rLimits::max_shader_vars)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Too many shader varaible layouts.");
 	}

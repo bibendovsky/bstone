@@ -17,6 +17,5 @@
 - Don't alias (const) pointer (...Ptr, ...CPtr).
 - Use "auto" only if necessary.
 - Use "bit_cast" for pointer-to-function.
-- Convert methods to data-members in R3rLimits.
 - Declare each variable or data-member on separate line.
 - Make constructor/destructor of an interface a default.
