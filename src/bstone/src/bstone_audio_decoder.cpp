@@ -20,10 +20,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 namespace bstone
 {
 
-AudioDecoder::AudioDecoder() = default;
-
-AudioDecoder::~AudioDecoder() = default;
-
 AudioDecoderUPtr make_audio_decoder(const AudioDecoderType audio_decoder_type, const Opl3Type opl3_type)
 {
 	switch (audio_decoder_type)

@@ -46,12 +46,6 @@ AudioMixerVoiceR3Position audio_mixer_make_default_voice_r3_position()
 
 // ==========================================================================
 
-AudioMixer::AudioMixer() = default;
-
-AudioMixer::~AudioMixer() = default;
-
-// ==========================================================================
-
 AudioMixerUPtr make_audio_mixer(const AudioMixerInitParam& param)
 try {
 	switch (param.audio_driver_type)

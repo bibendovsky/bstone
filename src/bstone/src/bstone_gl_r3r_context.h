@@ -42,8 +42,8 @@ class GlR3rShaderStageMgr;
 class GlR3rContext
 {
 public:
-	GlR3rContext() {}
-	virtual ~GlR3rContext() {}
+	GlR3rContext() = default;
+	virtual ~GlR3rContext() = default;
 
 	virtual const R3rDeviceFeatures& get_device_features() const = 0;
 	virtual const GlR3rDeviceFeatures& get_gl_device_features() const = 0;

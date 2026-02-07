@@ -46,8 +46,8 @@ struct LoggerLimits
 class Logger
 {
 public:
-	Logger();
-	virtual ~Logger();
+	Logger() = default;
+	virtual ~Logger() = default;
 
 	// Writes a message of the specified type.
 	void log(LoggerMessageType message_type, std::string_view message_sv);

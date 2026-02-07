@@ -17,8 +17,8 @@ namespace bstone {
 class VoiceGroup
 {
 public:
-	VoiceGroup();
-	virtual ~VoiceGroup();
+	VoiceGroup() = default;
+	virtual ~VoiceGroup() = default;
 
 	bool is_any_playing();
 	void set_gain(double gain);

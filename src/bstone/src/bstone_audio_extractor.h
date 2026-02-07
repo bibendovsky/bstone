@@ -16,8 +16,8 @@ namespace bstone
 class AudioExtractor
 {
 public:
-	AudioExtractor();
-	virtual ~AudioExtractor();
+	AudioExtractor() = default;
+	virtual ~AudioExtractor() = default;
 
 	virtual void extract_music(const std::string& dst_dir) = 0;
 	virtual void extract_sfx(const std::string& dst_dir) = 0;

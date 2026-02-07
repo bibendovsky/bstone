@@ -44,8 +44,8 @@ struct AudioDecoderInitParam
 class AudioDecoder
 {
 public:
-	AudioDecoder();
-	virtual ~AudioDecoder();
+	AudioDecoder() = default;
+	virtual ~AudioDecoder() = default;
 
 	// Initializes the instance.
 	// Returns false on error.

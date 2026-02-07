@@ -44,8 +44,8 @@ struct R3rSamplerUpdateParam
 class R3rSampler
 {
 public:
-	R3rSampler();
-	virtual ~R3rSampler();
+	R3rSampler() = default;
+	virtual ~R3rSampler() = default;
 
 	void update(const R3rSamplerUpdateParam& param);
 	const R3rSamplerState& get_state() const;

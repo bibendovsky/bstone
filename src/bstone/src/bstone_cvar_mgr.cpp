@@ -13,12 +13,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-CVarMgr::CVarMgr() = default;
-
-CVarMgr::~CVarMgr() = default;
-
-// ==========================================================================
-
 class CVarMgrImpl final : public CVarMgr
 {
 public:

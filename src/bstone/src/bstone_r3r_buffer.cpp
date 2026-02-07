@@ -11,10 +11,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-R3rBuffer::R3rBuffer() = default;
-
-R3rBuffer::~R3rBuffer() = default;
-
 R3rBufferType R3rBuffer::get_type() const
 {
 	return do_get_type();

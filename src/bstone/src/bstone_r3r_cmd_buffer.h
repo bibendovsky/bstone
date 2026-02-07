@@ -155,8 +155,8 @@ struct R3rCmdBufferInitParam
 class R3rCmdBuffer
 {
 public:
-	R3rCmdBuffer();
-	virtual ~R3rCmdBuffer();
+	R3rCmdBuffer() = default;
+	virtual ~R3rCmdBuffer() = default;
 
 public:
 	int get_count() const;

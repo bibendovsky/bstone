@@ -7,11 +7,3 @@ SPDX-License-Identifier: MIT
 // 3D Renderer: Vertex Input
 
 #include "bstone_r3r_vertex_input.h"
-
-namespace bstone {
-
-R3rVertexInput::R3rVertexInput() = default;
-
-R3rVertexInput::~R3rVertexInput() = default;
-
-} // namespace bstone

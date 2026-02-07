@@ -28,12 +28,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 namespace bstone
 {
 
-AudioExtractor::AudioExtractor() = default;
-
-AudioExtractor::~AudioExtractor() = default;
-
-// ==========================================================================
-
 class AudioExtractorImpl final : public AudioExtractor
 {
 public:

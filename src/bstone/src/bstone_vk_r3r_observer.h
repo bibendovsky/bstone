@@ -14,7 +14,7 @@ template<typename TContext>
 class VkR3rObserver
 {
 public:
-	virtual ~VkR3rObserver() {}
+	virtual ~VkR3rObserver() = default;
 
 	void update(TContext& context)
 	{
@@ -31,7 +31,7 @@ template<>
 class VkR3rObserver<void>
 {
 public:
-	virtual ~VkR3rObserver() {}
+	virtual ~VkR3rObserver() = default;
 
 	void update()
 	{
@@ -51,7 +51,7 @@ public:
 	using Observer = VkR3rObserver<TContext>;
 
 public:
-	virtual ~VkR3rSubject() {}
+	virtual ~VkR3rSubject() = default;
 
 	void attach(Observer& observer)
 	{
@@ -83,7 +83,7 @@ public:
 	using Observer = VkR3rObserver<void>;
 
 public:
-	virtual ~VkR3rSubject() {}
+	virtual ~VkR3rSubject() = default;
 
 	void attach(Observer& observer)
 	{

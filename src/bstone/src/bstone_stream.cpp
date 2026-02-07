@@ -12,10 +12,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-Stream::Stream() = default;
-
-Stream::~Stream() = default;
-
 void Stream::close()
 {
 	do_close();

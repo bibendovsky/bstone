@@ -55,8 +55,8 @@ struct R3rShaderVarInfo
 class R3rShaderVar
 {
 public:
-	R3rShaderVar() {};
-	virtual ~R3rShaderVar() {};
+	R3rShaderVar() = default;
+	virtual ~R3rShaderVar() = default;
 
 	R3rShaderVarType get_type() const;
 	R3rShaderVarTypeId get_type_id() const;

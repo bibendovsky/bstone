@@ -20,8 +20,8 @@ using CCmdActionArgs = std::span<const std::string_view>;
 class CCmdAction
 {
 public:
-	CCmdAction();
-	virtual ~CCmdAction();
+	CCmdAction() = default;
+	virtual ~CCmdAction() = default;
 
 	void invoke(CCmdActionArgs args);
 	void operator()(CCmdActionArgs args);

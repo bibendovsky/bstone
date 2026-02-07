@@ -10,10 +10,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-R3rShader::R3rShader() = default;
-
-R3rShader::~R3rShader() = default;
-
 R3rShaderType R3rShader::get_type() const
 {
 	return do_get_type();

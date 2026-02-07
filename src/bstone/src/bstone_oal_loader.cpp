@@ -16,12 +16,6 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
-OalLoader::OalLoader() = default;
-
-OalLoader::~OalLoader() = default;
-
-// ==========================================================================
-
 class OalLoaderImpl final : public OalLoader
 {
 public:

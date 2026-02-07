@@ -22,8 +22,8 @@ using CVarMgrCVars = std::span<CVar*>;
 class CVarMgr
 {
 public:
-	CVarMgr();
-	virtual ~CVarMgr();
+	CVarMgr() = default;
+	virtual ~CVarMgr() = default;
 
 	virtual CVar* find(std::string_view name) const = 0;
 	virtual CVarMgrCVars get_all() = 0;
