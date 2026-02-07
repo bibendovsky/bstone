@@ -104,10 +104,8 @@ private:
 	std::uint32_t* dst_colors_{};
 }; // HwTextureMgrXbrzTask
 
-using XbrzTaskPtr = HwTextureMgrXbrzTask*;
-
 using XbrzTasks = std::vector<HwTextureMgrXbrzTask>;
-using XbrzTaskPtrs = std::vector<MtTaskPtr>;
+using XbrzTaskPtrs = std::vector<MtTask*>;
 
 
 HwTextureMgrXbrzTask::~HwTextureMgrXbrzTask() = default;
@@ -208,8 +206,8 @@ class HwTextureMgrImpl final :
 public:
 	HwTextureMgrImpl(
 		R3r* renderer,
-		const SpriteCachePtr cache_sprite,
-		const MtTaskMgrPtr mt_task_manager);
+		SpriteCache* cache_sprite,
+		MtTaskMgr* mt_task_manager);
 
 	~HwTextureMgrImpl() override;
 
@@ -258,7 +256,7 @@ public:
 	void create_ui(
 		const std::uint8_t* const indexed_pixels,
 		const bool* const indexed_alphas,
-		const Rgba8PaletteCPtr indexed_palette) override;
+		const Rgba8Palette* indexed_palette) override;
 
 	void update_ui() override;
 
@@ -321,12 +319,12 @@ private:
 
 		bool indexed_is_column_major;
 		const std::uint8_t* indexed_pixels_;
-		Rgba8PaletteCPtr indexed_palette_;
+		const Rgba8Palette* indexed_palette_;
 		const bool* indexed_alphas_;
 
 		const Sprite* indexed_sprite_;
 
-		Rgba8CPtr rgba_8_pixels_;
+		const Rgba8* rgba_8_pixels_;
 	}; // R2TextureProperties
 
 	struct R2TextureItem
@@ -368,8 +366,8 @@ private:
 
 
 	R3r* renderer_;
-	SpriteCachePtr sprite_cache_;
-	MtTaskMgrPtr mt_task_manager_;
+	SpriteCache* sprite_cache_;
+	MtTaskMgr* mt_task_manager_;
 
 	HwTextureMgrUpscaleFilterType upscale_filter_type_;
 	int upscale_filter_factor_;
@@ -450,7 +448,7 @@ private:
 
 	void initialize(
 		R3r* renderer,
-		SpriteCachePtr cache_sprite);
+		SpriteCache* cache_sprite);
 
 	void uninitialize_internal();
 
@@ -493,7 +491,7 @@ private:
 
 	void initialize_internal(
 		R3r* renderer,
-		SpriteCachePtr cache_sprite);
+		SpriteCache* cache_sprite);
 
 	void purge_cache(
 		IdToR2TextureMap& map);
@@ -567,8 +565,8 @@ void HwTextureMgrImpl::Solid1x1Item::clear()
 
 HwTextureMgrImpl::HwTextureMgrImpl(
 	R3r* renderer,
-	const SpriteCachePtr cache_sprite,
-	const MtTaskMgrPtr mt_task_manager)
+	SpriteCache* cache_sprite,
+	MtTaskMgr* mt_task_manager)
 try
 	:
 	renderer_{},
@@ -853,7 +851,7 @@ void HwTextureMgrImpl::destroy_ui()
 void HwTextureMgrImpl::create_ui(
 	const std::uint8_t* const indexed_pixels,
 	const bool* const indexed_alphas,
-	const Rgba8PaletteCPtr indexed_palette)
+	const Rgba8Palette* indexed_palette)
 try {
 	if (ui_t2d_item_.r2_texture_)
 	{
@@ -977,7 +975,7 @@ try {
 
 void HwTextureMgrImpl::initialize(
 	R3r* renderer,
-	SpriteCachePtr cache_sprite)
+	SpriteCache* cache_sprite)
 try {
 	initialize_internal(renderer, cache_sprite);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -1454,7 +1452,7 @@ try {
 	}
 
 	auto texture_subbuffer_0 = &mipmap_buffer_[0];
-	auto texture_subbuffer_1 = Rgba8Ptr{};
+	Rgba8* texture_subbuffer_1 = nullptr;
 
 	if (is_manual_mipmaps)
 	{
@@ -1504,7 +1502,7 @@ try {
 
 			is_set_subbuffer_0 = true;
 
-			texture_subbuffer_0 = const_cast<Rgba8Ptr>(properties.rgba_8_pixels_);
+			texture_subbuffer_0 = const_cast<Rgba8*>(properties.rgba_8_pixels_);
 		}
 	}
 	else if (properties.indexed_pixels_)
@@ -1832,7 +1830,7 @@ try {
 
 void HwTextureMgrImpl::initialize_internal(
 	R3r* renderer,
-	SpriteCachePtr cache_sprite)
+	SpriteCache* cache_sprite)
 try {
 	if (!renderer)
 	{
@@ -2067,8 +2065,8 @@ try {
 
 HwTextureMgrUPtr make_hw_texture_mgr(
 	R3r* renderer,
-	const SpriteCachePtr cache_sprite,
-	const MtTaskMgrPtr mt_task_manager)
+	SpriteCache* cache_sprite,
+	MtTaskMgr* mt_task_manager)
 {
 	return std::make_unique<HwTextureMgrImpl>(renderer, cache_sprite, mt_task_manager);
 }

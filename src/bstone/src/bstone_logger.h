@@ -91,7 +91,6 @@ struct LoggerOpenParam
 	const char* file_path{};
 };
 
-using LoggerPtr = Logger*;
 using LoggerUPtr = std::unique_ptr<Logger>;
 
 LoggerUPtr make_logger(const LoggerOpenParam& param);

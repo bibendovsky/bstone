@@ -581,8 +581,8 @@ try {
 void R3rUtils::build_mipmap(
 	int previous_width,
 	int previous_height,
-	Rgba8CPtr src_colors,
-	Rgba8Ptr dst_colors)
+	const Rgba8* src_colors,
+	Rgba8* dst_colors)
 try {
 	if (previous_width <= 0)
 	{
@@ -959,8 +959,8 @@ void R3rUtils::indexed_npot_to_rgba_8_cm_ha(const IndexedToRgba8Param& param)
 
 void R3rUtils::build_mipmap_1(
 	int previous_dimension,
-	Rgba8CPtr src_colors,
-	Rgba8Ptr dst_colors)
+	const Rgba8* src_colors,
+	Rgba8* dst_colors)
 {
 	const auto dimension = previous_dimension / 2;
 	auto src_colors_0 = src_colors;

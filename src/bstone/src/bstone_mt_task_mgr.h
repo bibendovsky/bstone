@@ -49,8 +49,6 @@ public:
 		std::exception_ptr exception_ptr) = 0;
 }; // MtTask
 
-using MtTaskPtr = MtTask*;
-
 //
 // MtTask
 // ==========================================================================
@@ -74,11 +72,11 @@ public:
 
 
 	virtual void add_tasks(
-		MtTaskPtr* tasks,
+		MtTask** tasks,
 		int task_count) = 0;
 
 	virtual void add_tasks_and_wait_for_added(
-		MtTaskPtr* tasks,
+		MtTask** tasks,
 		int task_count) = 0;
 }; // MtTaskMgr
 

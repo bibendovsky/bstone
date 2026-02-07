@@ -342,11 +342,10 @@ private:
 	};
 
 	struct Door;
-	using DoorPtr = Door*;
 
 	struct DoorSide
 	{
-		DoorPtr door;
+		Door* door;
 
 		bool is_back_face;
 		int texture_id;
