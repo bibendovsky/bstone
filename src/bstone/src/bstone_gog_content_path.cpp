@@ -27,7 +27,7 @@ namespace detail
 AssetPath make_gog_content_path()
 {
 	auto result = AssetPath{};
-	result.provider_ = ContentPathProvider::gog;
+	result.provider = ContentPathProvider::gog;
 
 #ifdef _WIN32
 	const auto open_registry_key = [](
@@ -93,7 +93,7 @@ AssetPath make_gog_content_path()
 		{
 			if (get_registry_string(registry_key, value_name, value))
 			{
-				result.aog_ = value;
+				result.aog = value;
 			}
 		}
 	}
@@ -104,7 +104,7 @@ AssetPath make_gog_content_path()
 		{
 			if (get_registry_string(registry_key, value_name, value))
 			{
-				result.ps_ = value;
+				result.ps = value;
 			}
 		}
 	}

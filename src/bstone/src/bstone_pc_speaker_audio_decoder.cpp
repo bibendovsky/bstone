@@ -64,24 +64,24 @@ PcSpeakerAudioDecoder::~PcSpeakerAudioDecoder() = default;
 
 bool PcSpeakerAudioDecoder::initialize(const AudioDecoderInitParam& param)
 {
-	if (!param.src_raw_data_)
+	if (!param.src_raw_data)
 	{
 		return false;
 	}
 
-	if (param.src_raw_size_ < min_src_size)
+	if (param.src_raw_size < min_src_size)
 	{
 		return false;
 	}
 
-	if (param.dst_rate_ <= command_rate)
+	if (param.dst_rate <= command_rate)
 	{
 		return false;
 	}
 
-	const auto data_size = static_cast<int>(*reinterpret_cast<const std::uint32_t*>(param.src_raw_data_));
-	dst_sample_rate_ = param.dst_rate_;
-	commands_ = static_cast<const std::uint8_t*>(param.src_raw_data_) + min_src_size;
+	const auto data_size = static_cast<int>(*reinterpret_cast<const std::uint32_t*>(param.src_raw_data));
+	dst_sample_rate_ = param.dst_rate;
+	commands_ = static_cast<const std::uint8_t*>(param.src_raw_data) + min_src_size;
 	commands_size_ = data_size;
 	total_sample_count_ = static_cast<int>(((static_cast<long long>(commands_size_) * dst_sample_rate_) + command_rate - 1) / command_rate);
 	command_offset_ = 0;

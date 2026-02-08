@@ -60,9 +60,9 @@ struct VideoModeCfg
 	int height;
 	int refresh_rate;
 	WindowMode window_mode;
-	bool is_vsync_;
+	bool is_vsync;
 	bstone::R3rAaType aa_type;
-	int aa_degree_;
+	int aa_degree;
 }; // VideoModeCfg
 
 bool operator==(

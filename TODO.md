@@ -2,7 +2,6 @@
 - Revise AOG compatibility.
 - Remove `const` before non-pointer or non-reference function parameter.
 - Namespace `detail` to anonymous one.
-- Remove underscore suffix for public fields.
 - Make some player's sounds positional (interacting with switches, .etc).
 - Play `got weapon` sound on separate voice?
 - Rename `R3rDeviceFeatures::is_mipmap_available` (i.e. can_generate_mipmap).
@@ -17,3 +16,4 @@
 - Use "auto" only if necessary.
 - Use "bit_cast" for pointer-to-function.
 - Declare each variable or data-member on separate line.
+- Mark data members used in saved game with custom attribute.

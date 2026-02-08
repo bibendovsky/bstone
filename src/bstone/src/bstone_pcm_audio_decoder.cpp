@@ -55,28 +55,28 @@ bool PcmAudioDecoder::initialize(const AudioDecoderInitParam& param)
 {
 	uninitialize();
 
-	if (!param.src_raw_data_)
+	if (!param.src_raw_data)
 	{
 		BSTONE_ASSERT(false && "Null data.");
 		return false;
 	}
 
-	if (param.src_raw_size_ < 0)
+	if (param.src_raw_size < 0)
 	{
 		BSTONE_ASSERT(false && "Data size out of range.");
 		return false;
 	}
 
-	if (param.dst_rate_ < 11'025)
+	if (param.dst_rate < 11'025)
 	{
 		BSTONE_ASSERT(false && "Destination rate out of range.");
 		return false;
 	}
 
 	is_initialized_ = true;
-	src_data_ = static_cast<const unsigned char*>(param.src_raw_data_);
-	src_size_ = param.src_raw_size_;
-	dst_rate_ = param.dst_rate_;
+	src_data_ = static_cast<const unsigned char*>(param.src_raw_data);
+	src_size_ = param.src_raw_size;
+	dst_rate_ = param.dst_rate;
 	const auto src_size_ll = static_cast<long long>(src_size_);
 	const auto dst_rate_ll = static_cast<long long>(dst_rate_);
 	const auto audio_decoder_w3d_pcm_frequency_ll = static_cast<long long>(audio_decoder_w3d_pcm_frequency);

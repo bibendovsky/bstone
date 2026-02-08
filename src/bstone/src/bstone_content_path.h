@@ -32,10 +32,10 @@ enum class ContentPathProvider
 
 struct AssetPath
 {
-	ContentPathProvider provider_;
+	ContentPathProvider provider;
 
-	std::string aog_;
-	std::string ps_;
+	std::string aog;
+	std::string ps;
 }; // AssetProvider
 
 

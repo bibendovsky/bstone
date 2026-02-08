@@ -110,10 +110,10 @@ public:
 private:
 	struct MtThread
 	{
-		bool is_failed_{};
-		std::exception_ptr exception_;
+		bool is_failed{};
+		std::exception_ptr exception;
 
-		std::thread thread_;
+		std::thread thread;
 	}; // MtThread
 
 	using MtThreads = std::vector<MtThread>;
@@ -359,9 +359,9 @@ void MtTaskMgrImpl::add_tasks_and_wait_for_added(
 
 	for (auto& mt_thread : mt_threads_)
 	{
-		if (mt_thread.is_failed_)
+		if (mt_thread.is_failed)
 		{
-			std::rethrow_exception(mt_thread.exception_);
+			std::rethrow_exception(mt_thread.exception);
 		}
 	}
 
@@ -404,10 +404,10 @@ void MtTaskMgrImpl::initialize_threads()
 
 	for (auto& mt_thread : mt_threads_)
 	{
-		mt_thread.is_failed_ = false;
-		mt_thread.exception_ = nullptr;
+		mt_thread.is_failed = false;
+		mt_thread.exception = nullptr;
 
-		mt_thread.thread_ = std::thread{&MtTaskMgrImpl::mt_thread_func, this, &mt_thread};
+		mt_thread.thread = std::thread{&MtTaskMgrImpl::mt_thread_func, this, &mt_thread};
 	}
 }
 
@@ -423,9 +423,9 @@ void MtTaskMgrImpl::uninitialize()
 
 	for (auto& mt_thread : mt_threads_)
 	{
-		if (mt_thread.thread_.joinable())
+		if (mt_thread.thread.joinable())
 		{
-			mt_thread.thread_.join();
+			mt_thread.thread.join();
 		}
 	}
 }
@@ -474,8 +474,8 @@ void MtTaskMgrImpl::mt_thread_func(
 	}
 	catch (...)
 	{
-		mt_thread->is_failed_ = true;
-		mt_thread->exception_ = std::current_exception();
+		mt_thread->is_failed = true;
+		mt_thread->exception = std::current_exception();
 	}
 }
 

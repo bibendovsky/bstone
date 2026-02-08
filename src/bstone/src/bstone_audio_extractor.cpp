@@ -171,9 +171,9 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 	}
 
 	auto param = bstone::AudioDecoderInitParam{};
-	param.src_raw_data_ = audio_chunk.data;
-	param.src_raw_size_ = audio_chunk.data_size;
-	param.dst_rate_ = dst_rate;
+	param.src_raw_data = audio_chunk.data;
+	param.src_raw_size = audio_chunk.data_size;
+	param.dst_rate = dst_rate;
 
 	if (!audio_decoder->initialize(param))
 	{

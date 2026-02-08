@@ -24,8 +24,8 @@ namespace bstone
 
 struct Extent2d
 {
-	int width_;
-	int height_;
+	int width;
+	int height;
 }; // Extent2d
 
 //

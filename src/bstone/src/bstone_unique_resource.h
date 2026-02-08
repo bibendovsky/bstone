@@ -49,30 +49,30 @@ public:
 	using Deleter = TDeleter;
 
 public:
-	Resource resource_{};
-	Deleter deleter_{};
+	Resource resource{};
+	Deleter deleter{};
 
 public:
 	UniqueResourceStorage(Resource resource, Deleter deleter)
 		:
-		resource_{resource},
-		deleter_{deleter}
+		resource{resource},
+		deleter{deleter}
 	{}
 
 	const Deleter& get_deleter() const
 	{
-		return deleter_;
+		return deleter;
 	}
 
 	void destruct()
 	{
-		deleter_(resource_);
+		deleter(resource);
 	}
 
 	void swap(UniqueResourceStorage& rhs) noexcept
 	{
-		std::swap(resource_, rhs.resource_);
-		std::swap(deleter_, rhs.deleter_);
+		std::swap(resource, rhs.resource);
+		std::swap(deleter, rhs.deleter);
 	}
 };
 
@@ -85,22 +85,22 @@ public:
 	using Deleter = TDeleter;
 
 public:
-	Resource resource_{};
+	Resource resource{};
 
 public:
 	UniqueResourceStorage(Resource resource, Deleter)
 		:
-		resource_{resource}
+		resource{resource}
 	{}
 
 	void destruct()
 	{
-		Deleter{}(resource_);
+		Deleter{}(resource);
 	}
 
 	void swap(UniqueResourceStorage& rhs) noexcept
 	{
-		std::swap(resource_, rhs.resource_);
+		std::swap(resource, rhs.resource);
 	}
 };
 
@@ -213,7 +213,7 @@ public:
 
 	const Resource& get() const
 	{
-		return storage_.resource_;
+		return storage_.resource;
 	}
 
 	bool is_empty() const
@@ -229,19 +229,19 @@ public:
 		}
 
 		storage_.destruct();
-		storage_.resource_ = get_empty_value();
+		storage_.resource = get_empty_value();
 	}
 
 	void reset(const Resource resource)
 	{
 		reset();
-		storage_.resource_ = resource;
+		storage_.resource = resource;
 	}
 
 	Resource release()
 	{
 		auto result = get_empty_value();
-		std::swap(result, storage_.resource_);
+		std::swap(result, storage_.resource);
 		return result;
 	}
 
