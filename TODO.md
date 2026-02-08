@@ -6,8 +6,6 @@
 - Play `got weapon` sound on separate voice?
 - HDR support.
 - Move "mouse relative mode" code to window.
-- Use endianness for samples in audio extractor.
 - Use "auto" only if necessary.
 - Use "bit_cast" for pointer-to-function.
 - Declare each variable or data-member on separate line.
-- Mark data members used in saved game with custom attribute.
