@@ -2932,8 +2932,8 @@ try {
 	log("Anisotropy: " + vid_to_string(device_features.is_anisotropy_available));
 	log("Anisotropy max degree: " + vid_to_string(device_features.max_anisotropy_degree));
 	log("Non-power-of-two textures: " + vid_to_string(device_features.is_npot_available));
-	log("Mipmap auto-generation: " + vid_to_string(device_features.is_mipmap_available));
-	log("Samplers: " + vid_to_string(device_features.is_mipmap_available));
+	log("Mipmap auto-generation: " + vid_to_string(device_features.can_generate_mipmap));
+	log("Samplers: " + vid_to_string(device_features.can_generate_mipmap));
 	log("MSAA: " + vid_to_string(device_features.is_msaa_available));
 	log("MSAA (render-to-window): " + vid_to_string(device_features.is_msaa_render_to_window));
 	log("MSAA requires restart: " + vid_to_string(device_features.is_msaa_requires_restart));

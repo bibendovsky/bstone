@@ -310,8 +310,8 @@ private:
 		int actual_width;
 		int actual_height;
 
-		bool is_generate_mipmaps;
-		int mipmap_count;
+		bool is_generate_mipmap;
+		int mip_level_count;
 
 		bool indexed_is_column_major;
 		const std::uint8_t* indexed_pixels;
@@ -379,7 +379,7 @@ private:
 
 	R2TextureItem ui_t2d_item_;
 
-	R3rUtils::Rgba8Buffer mipmap_buffer_;
+	R3rUtils::Rgba8Buffer mip_buffer_;
 	R3rUtils::Rgba8Buffer upscale_buffer_;
 
 	Solid1x1Items solid_1x1_items_;
@@ -459,7 +459,7 @@ private:
 	R2TextureItem create_texture(
 		const R2TextureProperties& properties);
 
-	void update_mipmaps(
+	void update_mipmap(
 		const R2TextureProperties& properties,
 		const R3rR2TextureUPtr& r2_texture);
 
@@ -577,7 +577,7 @@ try
 	missing_sprite_r2_texture_item_{},
 	missing_wall_r2_texture_item_{},
 	ui_t2d_item_{},
-	mipmap_buffer_{},
+	mip_buffer_{},
 	upscale_buffer_{},
 	solid_1x1_items_{},
 	xbrz_tasks_{},
@@ -873,20 +873,20 @@ try {
 	param.image_pixel_format = R3rPixelFormat::rgba_8_unorm;
 	param.width = vga_ref_width;
 	param.height = vga_ref_height;
-	param.mipmap_count = 1;
+	param.mip_level_count = 1;
 	param.indexed_pixels = indexed_pixels;
 	param.indexed_palette = indexed_palette;
 	param.indexed_alphas = indexed_alphas;
 
 	auto r2_texture_item = create_texture(param);
-	update_mipmaps(r2_texture_item.properties, r2_texture_item.r2_texture);
+	update_mipmap(r2_texture_item.properties, r2_texture_item.r2_texture);
 
 	ui_t2d_item_ = std::move(r2_texture_item);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::update_ui()
 try {
-	update_mipmaps(ui_t2d_item_.properties, ui_t2d_item_.r2_texture);
+	update_mipmap(ui_t2d_item_.properties, ui_t2d_item_.r2_texture);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rR2Texture* HwTextureMgrImpl::get_ui() const
@@ -928,7 +928,7 @@ try {
 	param.image_pixel_format = bstone::R3rPixelFormat::rgba_8_unorm;
 	param.width = 1;
 	param.height = 1;
-	param.mipmap_count = 1;
+	param.mip_level_count = 1;
 	param.rgba_8_pixels = &default_color;
 
 	auto r2_texture_item = create_texture(param);
@@ -938,7 +938,7 @@ try {
 	item.properties = r2_texture_item.properties;
 	item.r2_texture = std::move(r2_texture_item.r2_texture);
 
-	update_mipmaps(item.properties, item.r2_texture);
+	update_mipmap(item.properties, item.r2_texture);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::update_solid_1x1(
@@ -1003,7 +1003,7 @@ void HwTextureMgrImpl::uninitialize_internal()
 
 	renderer_ = nullptr;
 	sprite_cache_ = nullptr;
-	mipmap_buffer_.clear();
+	mip_buffer_.clear();
 }
 
 void HwTextureMgrImpl::validate_upscale_filter(
@@ -1091,10 +1091,10 @@ try {
 void HwTextureMgrImpl::validate_mipmap_r2_texture_properties(
 	const R2TextureProperties& properties)
 try {
-	if (properties.mipmap_count <= 0 ||
-		properties.mipmap_count > R3rLimits::max_mipmap_count)
+	if (properties.mip_level_count <= 0 ||
+		properties.mip_level_count > R3rLimits::max_mip_levels)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Mipmap count out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Mip level count out of range.");
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -1225,9 +1225,9 @@ try {
 
 	properties.is_npot = is_npot;
 
-	if (properties.mipmap_count > 1)
+	if (properties.mip_level_count > 1)
 	{
-		properties.mipmap_count = R3rUtils::calculate_mipmap_count(
+		properties.mip_level_count = R3rUtils::calculate_mip_level_count(
 			properties.upscale_width,
 			properties.upscale_height
 		);
@@ -1239,10 +1239,10 @@ void HwTextureMgrImpl::upscale_xbrz(
 try {
 	const auto area = properties.width * properties.height;
 
-	if (mipmap_buffer_.size() < static_cast<std::size_t>(area))
+	if (mip_buffer_.size() < static_cast<std::size_t>(area))
 	{
-		mipmap_buffer_.clear();
-		mipmap_buffer_.resize(area);
+		mip_buffer_.clear();
+		mip_buffer_.resize(area);
 	}
 
 	const auto upscale_area = properties.upscale_width * properties.upscale_height;
@@ -1262,7 +1262,7 @@ try {
 		param.indexed_pixels = properties.indexed_pixels;
 		param.indexed_palette = properties.indexed_palette;
 		param.indexed_alphas = properties.indexed_alphas;
-		param.rgba_8_buffer = &mipmap_buffer_;
+		param.rgba_8_buffer = &mip_buffer_;
 
 		R3rUtils::indexed_to_rgba_8(param);
 	}
@@ -1271,7 +1271,7 @@ try {
 		R3rUtils::indexed_sprite_to_rgba_8_pot(
 			*properties.indexed_sprite,
 			*properties.indexed_palette,
-			mipmap_buffer_
+			mip_buffer_
 		);
 	}
 	else
@@ -1300,7 +1300,7 @@ try {
 
 		auto line_index = 0;
 
-		const auto src_lines = reinterpret_cast<const std::uint32_t*>(mipmap_buffer_.data());
+		const auto src_lines = reinterpret_cast<const std::uint32_t*>(mip_buffer_.data());
 		const auto dst_lines = reinterpret_cast<std::uint32_t*>(upscale_buffer_.data());
 
 		for (int i = 0; i < slice_count; ++i)
@@ -1350,7 +1350,7 @@ try {
 	{
 		xbrz::scale(
 			static_cast<std::size_t>(upscale_filter_factor_),
-			reinterpret_cast<const std::uint32_t*>(mipmap_buffer_.data()),
+			reinterpret_cast<const std::uint32_t*>(mip_buffer_.data()),
 			reinterpret_cast<std::uint32_t*>(upscale_buffer_.data()),
 			properties.width,
 			properties.height,
@@ -1397,11 +1397,11 @@ try {
 	param.pixel_format = new_properties.image_pixel_format;
 	param.width = new_properties.actual_width;
 	param.height = new_properties.actual_height;
-	param.mipmap_count = new_properties.mipmap_count;
+	param.mip_level_count = new_properties.mip_level_count;
 
 	auto r2_texture = renderer_->create_r2_texture(param);
 
-	update_mipmaps(new_properties, r2_texture);
+	update_mipmap(new_properties, r2_texture);
 
 	// Return the result.
 	//
@@ -1413,7 +1413,7 @@ try {
 	return result;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void HwTextureMgrImpl::update_mipmaps(
+void HwTextureMgrImpl::update_mipmap(
 	const R2TextureProperties& properties,
 	const R3rR2TextureUPtr& r2_texture)
 try {
@@ -1431,28 +1431,28 @@ try {
 
 	auto max_buffer_size = max_subbuffer_size;
 
-	const auto is_manual_mipmaps =
-		properties.is_generate_mipmaps &&
-		properties.mipmap_count > 1 &&
-		!device_features.is_mipmap_available;
+	const auto is_manual_mipmap =
+		properties.is_generate_mipmap &&
+		properties.mip_level_count > 1 &&
+		!device_features.can_generate_mipmap;
 
-	if (is_manual_mipmaps)
+	if (is_manual_mipmap)
 	{
 		max_buffer_size *= 2;
 	}
 
-	if (static_cast<int>(mipmap_buffer_.size()) < max_buffer_size)
+	if (static_cast<int>(mip_buffer_.size()) < max_buffer_size)
 	{
-		mipmap_buffer_.clear();
-		mipmap_buffer_.resize(max_buffer_size);
+		mip_buffer_.clear();
+		mip_buffer_.resize(max_buffer_size);
 	}
 
-	auto texture_subbuffer_0 = &mipmap_buffer_[0];
+	auto texture_subbuffer_0 = &mip_buffer_[0];
 	Rgba8* texture_subbuffer_1 = nullptr;
 
-	if (is_manual_mipmaps)
+	if (is_manual_mipmap)
 	{
-		texture_subbuffer_1 = &mipmap_buffer_[max_subbuffer_size];
+		texture_subbuffer_1 = &mip_buffer_[max_subbuffer_size];
 	}
 
 	auto is_set_subbuffer_0 = false;
@@ -1467,12 +1467,12 @@ try {
 				properties.actual_width,
 				properties.actual_height,
 				upscale_buffer_.data(),
-				mipmap_buffer_
+				mip_buffer_
 			);
 		}
 		else
 		{
-			// Don't copy the base mipmap into a buffer.
+			// Don't copy the base mip into a buffer.
 
 			is_set_subbuffer_0 = true;
 
@@ -1489,12 +1489,12 @@ try {
 				properties.actual_width,
 				properties.actual_height,
 				properties.rgba_8_pixels,
-				mipmap_buffer_
+				mip_buffer_
 			);
 		}
 		else
 		{
-			// Don't copy the base mipmap into a buffer.
+			// Don't copy the base mip into a buffer.
 
 			is_set_subbuffer_0 = true;
 
@@ -1513,7 +1513,7 @@ try {
 		param.indexed_pixels = properties.indexed_pixels;
 		param.indexed_palette = properties.indexed_palette;
 		param.indexed_alphas = properties.indexed_alphas;
-		param.rgba_8_buffer = &mipmap_buffer_;
+		param.rgba_8_buffer = &mip_buffer_;
 
 		R3rUtils::indexed_to_rgba_8_pot(param);
 	}
@@ -1522,64 +1522,64 @@ try {
 		R3rUtils::indexed_sprite_to_rgba_8_pot(
 			*properties.indexed_sprite,
 			*properties.indexed_palette,
-			mipmap_buffer_
+			mip_buffer_
 		);
 	}
 
-	auto mipmap_width = properties.actual_width;
-	auto mipmap_height = properties.actual_height;
+	auto mip_width = properties.actual_width;
+	auto mip_height = properties.actual_height;
 
-	auto mipmap_count = properties.mipmap_count;
+	auto mip_level_count = properties.mip_level_count;
 
-	if (properties.is_generate_mipmaps &&
-		properties.mipmap_count > 1 &&
-		device_features.is_mipmap_available)
+	if (properties.is_generate_mipmap &&
+		properties.mip_level_count > 1 &&
+		device_features.can_generate_mipmap)
 	{
-		mipmap_count = 1;
+		mip_level_count = 1;
 	}
 
-	for (int i_mipmap = 0; i_mipmap < mipmap_count; ++i_mipmap)
+	for (int i_mip = 0; i_mip < mip_level_count; ++i_mip)
 	{
-		if (i_mipmap > 0)
+		if (i_mip > 0)
 		{
-			R3rUtils::build_mipmap(
-				mipmap_width,
-				mipmap_height,
+			R3rUtils::build_mip(
+				mip_width,
+				mip_height,
 				texture_subbuffer_0,
 				texture_subbuffer_1);
 
-			if (mipmap_width > 1)
+			if (mip_width > 1)
 			{
-				mipmap_width /= 2;
+				mip_width /= 2;
 			}
 
-			if (mipmap_height > 1)
+			if (mip_height > 1)
 			{
-				mipmap_height /= 2;
+				mip_height /= 2;
 			}
 
 			if (is_set_subbuffer_0)
 			{
 				is_set_subbuffer_0 = false;
 
-				texture_subbuffer_0 = &mipmap_buffer_[0];
+				texture_subbuffer_0 = &mip_buffer_[0];
 			}
 
 			std::swap(texture_subbuffer_0, texture_subbuffer_1);
 		}
 
 		auto param = R3rR2TextureUpdateParam{};
-		param.mipmap_level = i_mipmap;
+		param.mip_level = i_mip;
 		param.image = texture_subbuffer_0;
 
 		r2_texture->update(param);
 	}
 
-	if (properties.is_generate_mipmaps &&
-		properties.mipmap_count > 1 &&
-		device_features.is_mipmap_available)
+	if (properties.is_generate_mipmap &&
+		properties.mip_level_count > 1 &&
+		device_features.can_generate_mipmap)
 	{
-		r2_texture->generate_mipmaps();
+		r2_texture->generate_mipmap();
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -1599,8 +1599,8 @@ try {
 	param.image_pixel_format = R3rPixelFormat::rgba_8_unorm;
 	param.width = Sprite::dimension;
 	param.height = Sprite::dimension;
-	param.is_generate_mipmaps = true;
-	param.mipmap_count = R3rUtils::calculate_mipmap_count(Sprite::dimension, Sprite::dimension);
+	param.is_generate_mipmap = true;
+	param.mip_level_count = R3rUtils::calculate_mip_level_count(Sprite::dimension, Sprite::dimension);
 	param.rgba_8_pixels = rgba_8_image;
 
 	auto r2_texture_item = create_texture(param);
@@ -1608,7 +1608,7 @@ try {
 	missing_sprite_r2_texture_item_.properties = r2_texture_item.properties;
 	missing_sprite_r2_texture_item_.r2_texture = std::move(r2_texture_item.r2_texture);
 
-	update_mipmaps(missing_sprite_r2_texture_item_.properties, missing_sprite_r2_texture_item_.r2_texture);
+	update_mipmap(missing_sprite_r2_texture_item_.properties, missing_sprite_r2_texture_item_.r2_texture);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::destroy_missing_wall_texture()
@@ -1627,13 +1627,13 @@ try {
 	param.image_pixel_format = R3rPixelFormat::rgba_8_unorm;
 	param.width = wall_dimension;
 	param.height = wall_dimension;
-	param.is_generate_mipmaps = true;
-	param.mipmap_count = R3rUtils::calculate_mipmap_count(param.width, param.height);
+	param.is_generate_mipmap = true;
+	param.mip_level_count = R3rUtils::calculate_mip_level_count(param.width, param.height);
 	param.rgba_8_pixels = rgba_8_image;
 
 	auto r2_texture_item = create_texture(param);
 
-	update_mipmaps(r2_texture_item.properties, r2_texture_item.r2_texture);
+	update_mipmap(r2_texture_item.properties, r2_texture_item.r2_texture);
 
 	missing_wall_r2_texture_item_ = std::move(r2_texture_item);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -1727,13 +1727,13 @@ try {
 			param.image_pixel_format = R3rPixelFormat::rgba_8_unorm;
 			param.width = width;
 			param.height = height;
-			param.is_generate_mipmaps = true;
-			param.mipmap_count = R3rUtils::calculate_mipmap_count(param.width, param.height);
+			param.is_generate_mipmap = true;
+			param.mip_level_count = R3rUtils::calculate_mip_level_count(param.width, param.height);
 			param.rgba_8_pixels = image_buffer_rgba8_.data();
 
 			auto r2_texture_item = create_texture(param);
 
-			update_mipmaps(r2_texture_item.properties, r2_texture_item.r2_texture);
+			update_mipmap(r2_texture_item.properties, r2_texture_item.r2_texture);
 
 			return r2_texture_item;
 		}
@@ -1770,15 +1770,15 @@ try {
 	param.image_pixel_format = R3rPixelFormat::rgba_8_unorm;
 	param.width = wall_dimension;
 	param.height = wall_dimension;
-	param.is_generate_mipmaps = true;
-	param.mipmap_count = R3rUtils::calculate_mipmap_count(param.width, param.height);
+	param.is_generate_mipmap = true;
+	param.mip_level_count = R3rUtils::calculate_mip_level_count(param.width, param.height);
 	param.indexed_is_column_major = true;
 	param.indexed_pixels = indexed_pixels;
 	param.indexed_palette = &vid_hw_get_default_palette();
 
 	auto r2_texture_item = create_texture(param);
 
-	update_mipmaps(r2_texture_item.properties, r2_texture_item.r2_texture);
+	update_mipmap(r2_texture_item.properties, r2_texture_item.r2_texture);
 
 	return r2_texture_item;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -1812,14 +1812,14 @@ try {
 	param.image_pixel_format = R3rPixelFormat::rgba_8_unorm;
 	param.width = Sprite::dimension;
 	param.height = Sprite::dimension;
-	param.is_generate_mipmaps = true;
-	param.mipmap_count = R3rUtils::calculate_mipmap_count(param.width, param.height);
+	param.is_generate_mipmap = true;
+	param.mip_level_count = R3rUtils::calculate_mip_level_count(param.width, param.height);
 	param.indexed_sprite = sprite;
 	param.indexed_palette = &vid_hw_get_default_palette();
 
 	auto r2_texture_item = create_texture(param);
 
-	update_mipmaps(r2_texture_item.properties, r2_texture_item.r2_texture);
+	update_mipmap(r2_texture_item.properties, r2_texture_item.r2_texture);
 
 	return r2_texture_item;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED

@@ -2010,7 +2010,7 @@ void VkR3rImpl::initialize_r3r_device_features()
 	//
 	r3r_features.is_npot_available = true;
 	//
-	r3r_features.is_mipmap_available = true;
+	r3r_features.can_generate_mipmap = true;
 	//
 	r3r_features.is_sampler_available = true;
 	//

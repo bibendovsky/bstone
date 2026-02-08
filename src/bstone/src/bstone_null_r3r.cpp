@@ -198,7 +198,7 @@ void NullR3rImpl::initialize_device_features()
 	r3r_device_features_.max_viewport_height = 8192;
 	r3r_device_features_.is_anisotropy_available = false;
 	r3r_device_features_.is_npot_available = true;
-	r3r_device_features_.is_mipmap_available = true;
+	r3r_device_features_.can_generate_mipmap = true;
 	r3r_device_features_.is_sampler_available = true;
 	r3r_device_features_.max_vertex_input_locations = 16;
 }

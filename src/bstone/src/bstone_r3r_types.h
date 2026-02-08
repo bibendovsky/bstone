@@ -126,7 +126,7 @@ struct R3rDeviceFeatures
 
 	bool is_npot_available;
 
-	bool is_mipmap_available;
+	bool can_generate_mipmap;
 
 	bool is_sampler_available;
 

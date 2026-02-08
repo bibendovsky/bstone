@@ -21,12 +21,12 @@ struct R3rR2TextureInitParam
 	int width;
 	int height;
 
-	int mipmap_count;
+	int mip_level_count;
 };
 
 struct R3rR2TextureUpdateParam
 {
-	int mipmap_level;
+	int mip_level;
 
 	const void* image;
 };
@@ -40,11 +40,11 @@ public:
 	virtual ~R3rR2Texture() = default;
 
 	void update(const R3rR2TextureUpdateParam& param);
-	void generate_mipmaps();
+	void generate_mipmap();
 
 private:
 	virtual void do_update(const R3rR2TextureUpdateParam& param) = 0;
-	virtual void do_generate_mipmaps() = 0;
+	virtual void do_generate_mipmap() = 0;
 };
 
 // ==========================================================================

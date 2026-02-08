@@ -56,7 +56,7 @@ public:
 		GlR3rExtensionMgr* extension_manager,
 		R3rDeviceFeatures& device_features);
 
-	static void probe_mipmap(
+	static void probe_mipmap_generation(
 		GlR3rExtensionMgr* extension_manager,
 		R3rDeviceFeatures& device_features,
 		GlR3rDeviceFeatures& gl_device_features);

@@ -17,7 +17,7 @@ struct GlR3rDeviceFeatures
 {
 	sys::GlContextProfile context_profile;
 
-	bool is_mipmap_ext;
+	bool has_mipmap_generation_ext;
 	bool is_framebuffer_available;
 	bool is_framebuffer_ext;
 	bool is_vao_available;
