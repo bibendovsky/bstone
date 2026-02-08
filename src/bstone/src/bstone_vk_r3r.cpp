@@ -32,7 +32,6 @@ SPDX-License-Identifier: MIT
 #include <cstring>
 #include <algorithm>
 #include <array>
-#include <bit>
 #include <memory>
 #include <string>
 #include <type_traits>
@@ -136,7 +135,7 @@ public:
 			BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 		}
 
-		symbol = std::bit_cast<T>(symbol_void);
+		symbol = reinterpret_cast<T>(symbol_void);
 	}
 
 	template<typename T>
@@ -1077,7 +1076,7 @@ void VkR3rImpl::initialize_window()
 
 void VkR3rImpl::initialize_global_symbols()
 {
-	context_.vkGetInstanceProcAddr = std::bit_cast<PFN_vkGetInstanceProcAddr>(video_mgr_.get_vulkan_mgr().get_instance_proc_addr());
+	context_.vkGetInstanceProcAddr = reinterpret_cast<PFN_vkGetInstanceProcAddr>(video_mgr_.get_vulkan_mgr().get_instance_proc_addr());
 	if (context_.vkGetInstanceProcAddr == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Symbol \"vkGetInstanceProcAddr\" not found.");
