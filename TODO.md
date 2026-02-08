@@ -7,5 +7,4 @@
 - HDR support.
 - Move "mouse relative mode" code to window.
 - Use "auto" only if necessary.
-- Use "bit_cast" for pointer-to-function.
 - Declare each variable or data-member on separate line.
