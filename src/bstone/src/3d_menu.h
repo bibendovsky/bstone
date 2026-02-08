@@ -101,7 +101,7 @@ struct CP_itemtype
 	std::uint8_t fontnumber{}; // Font to print text in
 	std::uint8_t height{}; // Hight of text (Y_Offset from previous line)
 
-	CarouselFunc carousel_func_{};
+	CarouselFunc carousel_func{};
 }; // CP_itemtype
 
 struct CustomCtrls

@@ -2215,9 +2215,9 @@ VideoModeCfg vid_cfg_get_video_mode()
 	cfg.height = vid_cfg_get_height();
 	cfg.refresh_rate = vid_cfg_get_refresh_rate();
 	cfg.window_mode = vid_cfg_get_window_mode();
-	cfg.is_vsync_ = vid_cfg_is_vsync();
+	cfg.is_vsync = vid_cfg_is_vsync();
 	cfg.aa_type = vid_cfg_get_aa_type();
-	cfg.aa_degree_ = vid_cfg_get_aa_degree();
+	cfg.aa_degree = vid_cfg_get_aa_degree();
 	return cfg;
 }
 
@@ -2515,7 +2515,7 @@ try {
 	}
 
 	if (!is_restart &&
-		vid_cfg_is_vsync() != video_mode_cfg.is_vsync_ &&
+		vid_cfg_is_vsync() != video_mode_cfg.is_vsync &&
 		g_video->get_device_features().is_vsync_available &&
 			g_video->get_device_features().is_vsync_requires_restart)
 	{
@@ -2524,7 +2524,7 @@ try {
 
 	if (!is_restart &&
 		(vid_cfg_get_aa_type() != video_mode_cfg.aa_type ||
-			vid_cfg_get_aa_degree() != video_mode_cfg.aa_degree_) &&
+			vid_cfg_get_aa_degree() != video_mode_cfg.aa_degree) &&
 		video_mode_cfg.aa_type == bstone::R3rAaType::ms &&
 		g_video->get_device_features().is_msaa_available &&
 		g_video->get_device_features().is_msaa_requires_restart)
@@ -2538,20 +2538,20 @@ try {
 		vid_cfg_get_refresh_rate() != video_mode_cfg.refresh_rate ||
 		vid_cfg_get_window_mode() != video_mode_cfg.window_mode;
 
-	const auto is_vsync_modified = (vid_cfg_is_vsync() != video_mode_cfg.is_vsync_);
+	const auto is_vsync_modified = (vid_cfg_is_vsync() != video_mode_cfg.is_vsync);
 
 	const auto is_aa_modified = (
 		vid_cfg_get_aa_type() != video_mode_cfg.aa_type ||
-		vid_cfg_get_aa_degree() != video_mode_cfg.aa_degree_);
+		vid_cfg_get_aa_degree() != video_mode_cfg.aa_degree);
 
 	vid_cfg_set_renderer_type(video_mode_cfg.renderer_type);
 	vid_cfg_set_width(video_mode_cfg.width);
 	vid_cfg_set_height(video_mode_cfg.height);
 	vid_cfg_set_refresh_rate(video_mode_cfg.refresh_rate);
 	vid_cfg_set_window_mode(video_mode_cfg.window_mode);
-	vid_cfg_set_is_vsync(video_mode_cfg.is_vsync_);
+	vid_cfg_set_is_vsync(video_mode_cfg.is_vsync);
 	vid_cfg_set_aa_type(video_mode_cfg.aa_type);
-	vid_cfg_set_aa_degree(video_mode_cfg.aa_degree_);
+	vid_cfg_set_aa_degree(video_mode_cfg.aa_degree);
 
 	if (is_restart)
 	{
@@ -2635,9 +2635,9 @@ bool operator==(
 		lhs.height == rhs.height &&
 		lhs.refresh_rate == rhs.refresh_rate &&
 		lhs.window_mode == rhs.window_mode &&
-		lhs.is_vsync_ == rhs.is_vsync_ &&
+		lhs.is_vsync == rhs.is_vsync &&
 		lhs.aa_type == rhs.aa_type &&
-		lhs.aa_degree_ == rhs.aa_degree_;
+		lhs.aa_degree == rhs.aa_degree;
 }
 
 bool operator!=(

@@ -292,7 +292,6 @@ private:
 	};
 
 	struct Wall;
-	using WallCPtr = const Wall*;
 
 	struct WallSideFlags
 	{
@@ -305,14 +304,12 @@ private:
 
 	struct WallSide
 	{
-		WallCPtr wall;
+		const Wall* wall;
 
 		WallSideFlags flags;
 		int vertex_index;
 		int texture_id;
 	};
-
-	using WallSideCPtr = const WallSide*;
 
 	struct Wall
 	{
@@ -338,7 +335,7 @@ private:
 	struct WallSideDrawItem
 	{
 		int texture_id;
-		WallSideCPtr wall_side;
+		const WallSide* wall_side;
 	};
 
 	struct Door;
@@ -350,8 +347,6 @@ private:
 		bool is_back_face;
 		int texture_id;
 	};
-
-	using DoorSideCPtr = const DoorSide*;
 
 	struct Door
 	{
@@ -365,7 +360,7 @@ private:
 	struct DoorDrawItem
 	{
 		int texture_id;
-		DoorSideCPtr door_side;
+		const DoorSide* door_side;
 	};
 
 	using XyDoorMap = std::unordered_map<int, Door>;
@@ -6259,24 +6254,24 @@ try {
 		b_f = static_cast<float>(color_32.b_) / 255.0F;
 		a_f = ratio;
 	}
-	else if (palette_shift_info.is_bonus_shifted_ || palette_shift_info.is_damage_shifted_)
+	else if (palette_shift_info.is_bonus_shifted || palette_shift_info.is_damage_shifted)
 	{
 		r3_fade_is_enabled_ = true;
 
-		if (palette_shift_info.is_bonus_shifted_)
+		if (palette_shift_info.is_bonus_shifted)
 		{
-			r_f *= palette_shift_info.bonus_r_ / 255.0F;
-			g_f *= palette_shift_info.bonus_g_ / 255.0F;
-			b_f *= palette_shift_info.bonus_b_ / 255.0F;
-			a_f *= palette_shift_info.bonus_a_ / 255.0F;
+			r_f *= palette_shift_info.bonus_r / 255.0F;
+			g_f *= palette_shift_info.bonus_g / 255.0F;
+			b_f *= palette_shift_info.bonus_b / 255.0F;
+			a_f *= palette_shift_info.bonus_a / 255.0F;
 		}
 
-		if (palette_shift_info.is_damage_shifted_)
+		if (palette_shift_info.is_damage_shifted)
 		{
-			r_f *= palette_shift_info.damage_r_ / 255.0F;
-			g_f *= palette_shift_info.damage_g_ / 255.0F;
-			b_f *= palette_shift_info.damage_b_ / 255.0F;
-			a_f *= palette_shift_info.damage_a_ / 255.0F;
+			r_f *= palette_shift_info.damage_r / 255.0F;
+			g_f *= palette_shift_info.damage_g / 255.0F;
+			b_f *= palette_shift_info.damage_b / 255.0F;
+			a_f *= palette_shift_info.damage_a / 255.0F;
 		}
 	}
 

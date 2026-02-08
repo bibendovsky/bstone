@@ -2844,9 +2844,9 @@ void CP_Sound(
 {
 	initialize_sound_driver_index();
 	initialize_sound_opl3_type_index();
-	SndMenu[1].carousel_func_ = digitized_sfx_carousel;
-	SndMenu[4].carousel_func_ = sound_driver_carousel;
-	SndMenu[5].carousel_func_ = sound_opl3_type_carousel;
+	SndMenu[1].carousel_func = digitized_sfx_carousel;
+	SndMenu[4].carousel_func = sound_driver_carousel;
+	SndMenu[5].carousel_func = sound_opl3_type_carousel;
 
 	std::int16_t which;
 
@@ -3967,7 +3967,7 @@ std::int16_t HandleMenu(
 			//
 			case dir_West:
 			{
-				auto carousel_func = items[which].carousel_func_;
+				auto carousel_func = items[which].carousel_func;
 
 				if (carousel_func)
 				{
@@ -3981,7 +3981,7 @@ std::int16_t HandleMenu(
 			//
 			case dir_East:
 			{
-				auto carousel_func = items[which].carousel_func_;
+				auto carousel_func = items[which].carousel_func;
 
 				if (carousel_func)
 				{
@@ -5207,7 +5207,7 @@ void video_mode_draw_menu()
 		}
 	}
 
-	menu_video_mode_cfg_.aa_degree_ = menu_video_mode_aa_factor_adjust(menu_video_mode_cfg_.aa_degree_);
+	menu_video_mode_cfg_.aa_degree = menu_video_mode_aa_factor_adjust(menu_video_mode_cfg_.aa_degree);
 	menu_video_mode_cfg_saved_ = menu_video_mode_cfg_;
 }
 
@@ -5233,7 +5233,7 @@ void video_mode_draw_switch(
 	const auto& window_mode_string = menu_video_mode_get_window_mode_string(menu_video_mode_cfg_.window_mode);
 
 	const auto aa_type_string = menu_video_mode_aa_type_get_string(menu_video_mode_cfg_.aa_type);
-	const auto aa_factor_string = menu_video_mode_aa_factor_get_string(menu_video_mode_cfg_.aa_degree_);
+	const auto aa_factor_string = menu_video_mode_aa_factor_get_string(menu_video_mode_cfg_.aa_degree);
 
 	for (int i = 0; i < video_mode_items.amount; ++i)
 	{
@@ -5276,7 +5276,7 @@ void video_mode_draw_switch(
 					continue;
 
 				case 3:
-					if (menu_video_mode_cfg_.is_vsync_)
+					if (menu_video_mode_cfg_.is_vsync)
 					{
 						++Shape;
 					}
@@ -5465,7 +5465,7 @@ void video_menu_mode_window_aa_factor_carousel(
 	const bool is_left,
 	const bool is_right)
 {
-	auto aa_factor = menu_video_mode_cfg_.aa_degree_;
+	auto aa_factor = menu_video_mode_cfg_.aa_degree;
 
 	if (is_left)
 	{
@@ -5485,7 +5485,7 @@ void video_menu_mode_window_aa_factor_carousel(
 		aa_factor = bstone::R3rLimits::min_aa_on;
 	}
 
-	menu_video_mode_cfg_.aa_degree_ = aa_factor;
+	menu_video_mode_cfg_.aa_degree = aa_factor;
 
 	menu_video_mode_update_apply_button();
 
@@ -5505,11 +5505,11 @@ void video_menu_mode_routine(
 	MenuFadeIn();
 	WaitKeyUp();
 
-	video_mode_menu[0].carousel_func_ = video_menu_mode_renderer_carousel;
-	video_mode_menu[1].carousel_func_ = video_menu_mode_display_mode_carousel;
-	video_mode_menu[2].carousel_func_ = video_menu_mode_window_mode_carousel;
-	video_mode_menu[4].carousel_func_ = video_menu_mode_window_aa_type_carousel;
-	video_mode_menu[5].carousel_func_ = video_menu_mode_window_aa_factor_carousel;
+	video_mode_menu[0].carousel_func = video_menu_mode_renderer_carousel;
+	video_mode_menu[1].carousel_func = video_menu_mode_display_mode_carousel;
+	video_mode_menu[2].carousel_func = video_menu_mode_window_mode_carousel;
+	video_mode_menu[4].carousel_func = video_menu_mode_window_aa_type_carousel;
+	video_mode_menu[5].carousel_func = video_menu_mode_window_aa_factor_carousel;
 
 	do
 	{
@@ -5518,7 +5518,7 @@ void video_menu_mode_routine(
 		switch (which)
 		{
 			case 3:
-				menu_video_mode_cfg_.is_vsync_ = !menu_video_mode_cfg_.is_vsync_;
+				menu_video_mode_cfg_.is_vsync = !menu_video_mode_cfg_.is_vsync;
 				menu_video_mode_update_apply_button();
 				video_mode_update_menu();
 				break;
@@ -5991,19 +5991,19 @@ void texturing_routine(
 	MenuFadeIn();
 	WaitKeyUp();
 
-	texturing_menu[static_cast<int>(TexturingMenuIndices::anisotropy)].carousel_func_ =
+	texturing_menu[static_cast<int>(TexturingMenuIndices::anisotropy)].carousel_func =
 		texturing_anisotropy_carousel;
-	texturing_menu[static_cast<int>(TexturingMenuIndices::image_2d_filter)].carousel_func_ =
+	texturing_menu[static_cast<int>(TexturingMenuIndices::image_2d_filter)].carousel_func =
 		texturing_2d_image_filter_carousel;
-	texturing_menu[static_cast<int>(TexturingMenuIndices::image_3d_filter)].carousel_func_ =
+	texturing_menu[static_cast<int>(TexturingMenuIndices::image_3d_filter)].carousel_func =
 		texturing_3d_image_filter_carousel;
-	texturing_menu[static_cast<int>(TexturingMenuIndices::mipmap_3d_filter)].carousel_func_ =
+	texturing_menu[static_cast<int>(TexturingMenuIndices::mipmap_3d_filter)].carousel_func =
 		texturing_3d_mipmap_filter_carousel;
-	texturing_menu[static_cast<int>(TexturingMenuIndices::upscale_filter)].carousel_func_ =
+	texturing_menu[static_cast<int>(TexturingMenuIndices::upscale_filter)].carousel_func =
 		texturing_upscale_filter_carousel;
-	texturing_menu[static_cast<int>(TexturingMenuIndices::upscale_degree)].carousel_func_ =
+	texturing_menu[static_cast<int>(TexturingMenuIndices::upscale_degree)].carousel_func =
 		texturing_upscale_degree_carousel;
-	texturing_menu[static_cast<int>(TexturingMenuIndices::external_textures)].carousel_func_ =
+	texturing_menu[static_cast<int>(TexturingMenuIndices::external_textures)].carousel_func =
 		texturing_external_textures_carousel;
 
 	do

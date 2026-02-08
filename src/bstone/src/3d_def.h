@@ -3894,17 +3894,17 @@ using Buffer = std::vector<unsigned char>;
 
 struct PaletteShiftInfo
 {
-	bool is_bonus_shifted_;
-	std::uint8_t bonus_r_;
-	std::uint8_t bonus_g_;
-	std::uint8_t bonus_b_;
-	std::uint8_t bonus_a_;
+	bool is_bonus_shifted;
+	std::uint8_t bonus_r;
+	std::uint8_t bonus_g;
+	std::uint8_t bonus_b;
+	std::uint8_t bonus_a;
 
-	bool is_damage_shifted_;
-	std::uint8_t damage_r_;
-	std::uint8_t damage_g_;
-	std::uint8_t damage_b_;
-	std::uint8_t damage_a_;
+	bool is_damage_shifted;
+	std::uint8_t damage_r;
+	std::uint8_t damage_g;
+	std::uint8_t damage_b;
+	std::uint8_t damage_a;
 }; // PaletteShiftInfo
 
 

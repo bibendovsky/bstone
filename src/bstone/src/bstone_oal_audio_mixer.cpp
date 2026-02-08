@@ -991,9 +991,9 @@ void OalAudioMixer::handle_play_music_command(const PlayMusicCommandParam& param
 	}
 
 	auto audio_decoder_param = AudioDecoderInitParam{};
-	audio_decoder_param.src_raw_data_ = param.data;
-	audio_decoder_param.src_raw_size_ = param.data_size;
-	audio_decoder_param.dst_rate_ = dst_rate_;
+	audio_decoder_param.src_raw_data = param.data;
+	audio_decoder_param.src_raw_size = param.data_size;
+	audio_decoder_param.dst_rate = dst_rate_;
 
 	if (!music_adlib_sound_.audio_decoder->initialize(audio_decoder_param))
 	{
@@ -1040,9 +1040,9 @@ void OalAudioMixer::handle_play_sfx_command(const PlaySfxCommandParam& param)
 	if (!sfx_sound.is_initialized)
 	{
 		auto audio_decoder_param = AudioDecoderInitParam{};
-		audio_decoder_param.src_raw_data_ = param.data;
-		audio_decoder_param.src_raw_size_ = param.data_size;
-		audio_decoder_param.dst_rate_ = dst_rate_;
+		audio_decoder_param.src_raw_data = param.data;
+		audio_decoder_param.src_raw_size = param.data_size;
+		audio_decoder_param.dst_rate = dst_rate_;
 		auto audio_decoder = sfx_sound.audio_decoder.get();
 
 		if (!audio_decoder->initialize(audio_decoder_param))

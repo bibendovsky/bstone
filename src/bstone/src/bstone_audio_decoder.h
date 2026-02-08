@@ -31,9 +31,9 @@ enum class AudioDecoderType
 
 struct AudioDecoderInitParam
 {
-	const void* src_raw_data_;
-	int src_raw_size_;
-	int dst_rate_;
+	const void* src_raw_data;
+	int src_raw_size;
+	int dst_rate;
 }; // AudioDecoderInitParam
 
 // ==========================================================================

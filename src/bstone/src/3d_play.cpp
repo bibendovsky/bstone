@@ -1700,36 +1700,36 @@ void UpdatePaletteShifts()
 
 	if (vid_is_hw())
 	{
-		palette_shift_info_.is_bonus_shifted_ = false;
+		palette_shift_info_.is_bonus_shifted = false;
 
 		if (white > 0)
 		{
 			const auto alpha = static_cast<std::uint8_t>((0x80 * white) / NUMWHITESHIFTS);
 
-			palette_shift_info_.is_bonus_shifted_ = true;
+			palette_shift_info_.is_bonus_shifted = true;
 
-			palette_shift_info_.bonus_r_ = bonus_color_r;
-			palette_shift_info_.bonus_g_ = bonus_color_g;
-			palette_shift_info_.bonus_b_ = bonus_color_b;
-			palette_shift_info_.bonus_a_ = alpha;
+			palette_shift_info_.bonus_r = bonus_color_r;
+			palette_shift_info_.bonus_g = bonus_color_g;
+			palette_shift_info_.bonus_b = bonus_color_b;
+			palette_shift_info_.bonus_a = alpha;
 		}
 
 
-		palette_shift_info_.is_damage_shifted_ = false;
+		palette_shift_info_.is_damage_shifted = false;
 
 		if (red > 0)
 		{
 			const auto alpha = static_cast<std::uint8_t>((0xFF * red) / NUMREDSHIFTS);
 
-			palette_shift_info_.is_damage_shifted_ = true;
+			palette_shift_info_.is_damage_shifted = true;
 
-			palette_shift_info_.damage_r_ = damage_color_r;
-			palette_shift_info_.damage_g_ = damage_color_g;
-			palette_shift_info_.damage_b_ = damage_color_b;
-			palette_shift_info_.damage_a_ = alpha;
+			palette_shift_info_.damage_r = damage_color_r;
+			palette_shift_info_.damage_g = damage_color_g;
+			palette_shift_info_.damage_b = damage_color_b;
+			palette_shift_info_.damage_a = alpha;
 		}
 
-		palshifted = (palette_shift_info_.is_bonus_shifted_ || palette_shift_info_.is_damage_shifted_);
+		palshifted = (palette_shift_info_.is_bonus_shifted || palette_shift_info_.is_damage_shifted);
 
 		return;
 	}
@@ -1767,8 +1767,8 @@ void FinishPaletteShifts()
 {
 	if (vid_is_hw())
 	{
-		palette_shift_info_.is_bonus_shifted_ = false;
-		palette_shift_info_.is_damage_shifted_ = false;
+		palette_shift_info_.is_bonus_shifted = false;
+		palette_shift_info_.is_damage_shifted = false;
 
 		return;
 	}
@@ -1777,8 +1777,8 @@ void FinishPaletteShifts()
 	{
 		palshifted = false;
 
-		palette_shift_info_.is_bonus_shifted_ = false;
-		palette_shift_info_.is_damage_shifted_ = false;
+		palette_shift_info_.is_bonus_shifted = false;
+		palette_shift_info_.is_damage_shifted = false;
 
 		// BBi
 #if 0
