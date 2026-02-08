@@ -351,7 +351,7 @@ try
 
 	GlR3rUtils::probe_anisotropy(extension_manager_.get(), device_features_);
 	GlR3rUtils::probe_npot(extension_manager_.get(), device_features_);
-	GlR3rUtils::probe_mipmap(extension_manager_.get(), device_features_, gl_device_features_);
+	GlR3rUtils::probe_mipmap_generation(extension_manager_.get(), device_features_, gl_device_features_);
 	GlR3rUtils::probe_framebuffer(extension_manager_.get(), gl_device_features_ );
 	GlR3rUtils::probe_sampler(extension_manager_.get(), device_features_);
 	GlR3rUtils::probe_max_vertex_arrays(device_features_);

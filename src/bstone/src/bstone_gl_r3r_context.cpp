@@ -150,7 +150,7 @@ try
 
 void GlR3rContextImpl::set_max_mipmap_quality()
 try {
-	if (!device_features_.is_mipmap_available)
+	if (!device_features_.can_generate_mipmap)
 	{
 		return;
 	}

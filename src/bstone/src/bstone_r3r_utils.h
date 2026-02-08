@@ -65,7 +65,7 @@ public:
 public:
 	static int find_nearest_pot_value(int value);
 	static bool is_pot_value(int value);
-	static int calculate_mipmap_count(int width, int height);
+	static int calculate_mip_level_count(int width, int height);
 
 	static sys::WindowFullscreenType get_fullscreen_mode_from_cvar();
 	static void set_fullscreen_mode_cvar_from_window(sys::Window& window);
@@ -111,8 +111,8 @@ public:
 		const Rgba8* rgba_8_pixels,
 		Rgba8Buffer& texture_buffer);
 
-	// Builds mipmap with premultiplied alpha.
-	static void build_mipmap(
+	// Builds mip with premultiplied alpha.
+	static void build_mip(
 		int previous_width,
 		int previous_height,
 		const Rgba8* src_colors,
@@ -146,7 +146,7 @@ private:
 	// Indexed (column major, has alpha) -> RGBA POT
 	static void indexed_npot_to_rgba_8_cm_ha(const IndexedToRgba8Param& param);
 
-	static void build_mipmap_1(
+	static void build_mip_1(
 		int previous_dimension,
 		const Rgba8* src_colors,
 		Rgba8* dst_colors);
