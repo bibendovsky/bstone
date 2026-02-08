@@ -132,8 +132,8 @@ bool check_vgahead_offset_count()
 
 struct SearchPath
 {
-	std::string source_name_;
-	std::string path_;
+	std::string source_name;
+	std::string path;
 }; // SearchPath
 
 using SearchPaths = std::vector<SearchPath>;
@@ -142,9 +142,9 @@ using Games = std::vector<Game>;
 
 struct FoundContent
 {
-	Game game_;
-	AssetsVersion version_;
-	const SearchPath* search_path_;
+	Game game;
+	AssetsVersion version;
+	const SearchPath* search_path;
 }; // FoundContent
 
 using FoundContents = std::vector<FoundContent>;
@@ -167,8 +167,8 @@ try {
 
 	search_paths.emplace_back();
 	auto& search_path = search_paths.back();
-	search_path.source_name_ = source_name;
-	search_path.path_ = path;
+	search_path.source_name = source_name;
+	search_path.path = path;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool has_resources(
@@ -180,7 +180,7 @@ bool has_resources(
 	for (const auto& assets_resource : assets_resources)
 	{
 		const auto is_resource_open = ca_open_resource_non_fatal(
-			search_path.path_,
+			search_path.path,
 			assets_resource.file_name,
 			file_stream
 		);
@@ -206,7 +206,7 @@ bool has_content(
 	for (const auto& assets_resource : assets_resources)
 	{
 		const auto& hash = ca_calculate_hash(
-			search_path.path_,
+			search_path.path,
 			assets_resource.file_name
 		);
 
@@ -225,8 +225,8 @@ FoundContent find_aog_content(
 	const auto& assets = Assets{};
 
 	auto result = FoundContent{};
-	result.game_ = Game::aog;
-	result.search_path_ = &search_path;
+	result.game = Game::aog;
+	result.search_path = &search_path;
 
 	// v2.1
 	{
@@ -237,7 +237,7 @@ FoundContent find_aog_content(
 
 		if (is_match)
 		{
-			result.version_ = AssetsVersion::aog_full_v2_1;
+			result.version = AssetsVersion::aog_full_v2_1;
 			return result;
 		}
 	}
@@ -251,7 +251,7 @@ FoundContent find_aog_content(
 
 		if (is_match)
 		{
-			result.version_ = AssetsVersion::aog_full_v3_0;
+			result.version = AssetsVersion::aog_full_v3_0;
 			return result;
 		}
 	}
@@ -265,7 +265,7 @@ FoundContent find_aog_content(
 
 		if (is_match)
 		{
-			result.version_ = AssetsVersion::aog_full_v2_0;
+			result.version = AssetsVersion::aog_full_v2_0;
 			return result;
 		}
 	}
@@ -279,7 +279,7 @@ FoundContent find_aog_content(
 
 		if (is_match)
 		{
-			result.version_ = AssetsVersion::aog_full_v1_0;
+			result.version = AssetsVersion::aog_full_v1_0;
 			return result;
 		}
 	}
@@ -293,8 +293,8 @@ FoundContent find_aog_sw_content(
 	const auto& assets = Assets{};
 
 	auto result = FoundContent{};
-	result.game_ = Game::aog_sw;
-	result.search_path_ = &search_path;
+	result.game = Game::aog_sw;
+	result.search_path = &search_path;
 
 	// v2.1
 	{
@@ -305,7 +305,7 @@ FoundContent find_aog_sw_content(
 
 		if (is_match)
 		{
-			result.version_ = AssetsVersion::aog_sw_v2_1;
+			result.version = AssetsVersion::aog_sw_v2_1;
 			return result;
 		}
 	}
@@ -319,7 +319,7 @@ FoundContent find_aog_sw_content(
 
 		if (is_match)
 		{
-			result.version_ = AssetsVersion::aog_sw_v3_0;
+			result.version = AssetsVersion::aog_sw_v3_0;
 			return result;
 		}
 	}
@@ -333,7 +333,7 @@ FoundContent find_aog_sw_content(
 
 		if (is_match)
 		{
-			result.version_ = AssetsVersion::aog_sw_v2_0;
+			result.version = AssetsVersion::aog_sw_v2_0;
 			return result;
 		}
 	}
@@ -347,7 +347,7 @@ FoundContent find_aog_sw_content(
 
 		if (is_match)
 		{
-			result.version_ = AssetsVersion::aog_sw_v1_0;
+			result.version = AssetsVersion::aog_sw_v1_0;
 			return result;
 		}
 	}
@@ -361,8 +361,8 @@ FoundContent find_ps_content(
 	const auto& assets = Assets{};
 
 	auto result = FoundContent{};
-	result.game_ = Game::ps;
-	result.search_path_ = &search_path;
+	result.game = Game::ps;
+	result.search_path = &search_path;
 
 	{
 		const auto is_match = has_content(
@@ -372,7 +372,7 @@ FoundContent find_ps_content(
 
 		if (is_match)
 		{
-			result.version_ = AssetsVersion::ps;
+			result.version = AssetsVersion::ps;
 			return result;
 		}
 	}
@@ -448,7 +448,7 @@ const FoundContent* choose_content(
 		buttons.emplace_back();
 		auto& button = buttons.back();
 		button.id = button_id++;
-		button.text = get_content_acronym(found_content.game_);
+		button.text = get_content_acronym(found_content.game);
 	}
 
 	{
@@ -482,10 +482,10 @@ void set_assets_info(
 	const auto& assets = Assets{};
 	auto& assets_info = get_assets_info();
 
-	switch (found_content.game_)
+	switch (found_content.game)
 	{
 		case Game::aog:
-			switch (found_content.version_)
+			switch (found_content.version)
 			{
 				case AssetsVersion::aog_full_v1_0:
 					assets_info.set_resources(assets.get_aog_full_v1_0_resources());
@@ -510,7 +510,7 @@ void set_assets_info(
 			break;
 
 		case Game::aog_sw:
-			switch (found_content.version_)
+			switch (found_content.version)
 			{
 				case AssetsVersion::aog_sw_v1_0:
 					assets_info.set_resources(assets.get_aog_sw_v1_0_resources());
@@ -541,7 +541,7 @@ void set_assets_info(
 			BSTONE_THROW_STATIC_SOURCE("Unsupported game.");
 	}
 
-	assets_info.set_version(found_content.version_);
+	assets_info.set_version(found_content.version);
 }
 
 void log_found_content(
@@ -559,7 +559,7 @@ void log_found_content(
 	auto title = std::string{};
 	auto version = std::string{};
 
-	switch (found_content.version_)
+	switch (found_content.version)
 	{
 		case AssetsVersion::aog_sw_v1_0:
 			title = aog_sw_title;
@@ -620,7 +620,7 @@ void log_found_content(
 	}
 
 	bstone::globals::logger->log_information(("Found " + name_and_version + '.').c_str());
-	bstone::globals::logger->log_information(("Content source: " + found_content.search_path_->source_name_).c_str());
+	bstone::globals::logger->log_information(("Content source: " + found_content.search_path->source_name).c_str());
 }
 
 void find_contents()
@@ -689,14 +689,14 @@ void find_contents()
 		const auto source_name = std::string{"GOG"};
 		const auto content_path = bstone::make_content_path(bstone::ContentPathProvider::gog);
 
-		if (!content_path.aog_.empty())
+		if (!content_path.aog.empty())
 		{
-			add_search_path(source_name, content_path.aog_, search_paths);
+			add_search_path(source_name, content_path.aog, search_paths);
 		}
 
-		if (!content_path.ps_.empty())
+		if (!content_path.ps.empty())
 		{
-			add_search_path(source_name, content_path.ps_, search_paths);
+			add_search_path(source_name, content_path.ps, search_paths);
 		}
 	}
 
@@ -704,14 +704,14 @@ void find_contents()
 		const auto source_name = std::string{"Steam"};
 		const auto content_path = bstone::make_content_path(bstone::ContentPathProvider::steam);
 
-		if (!content_path.aog_.empty())
+		if (!content_path.aog.empty())
 		{
-			add_search_path(source_name, content_path.aog_, search_paths);
+			add_search_path(source_name, content_path.aog, search_paths);
 		}
 
-		if (!content_path.ps_.empty())
+		if (!content_path.ps.empty())
 		{
-			add_search_path(source_name, content_path.ps_, search_paths);
+			add_search_path(source_name, content_path.ps, search_paths);
 		}
 	}
 
@@ -729,7 +729,7 @@ void find_contents()
 				found_contents.cend(),
 				[game](const auto& item)
 				{
-					return item.game_ == game;
+					return item.game == game;
 				}
 			);
 
@@ -740,9 +740,9 @@ void find_contents()
 
 			const auto& found_content = find_assets(game, search_path);
 
-			if (found_content.game_ != Game::none &&
-				found_content.search_path_ != nullptr &&
-				found_content.version_ != AssetsVersion::none)
+			if (found_content.game != Game::none &&
+				found_content.search_path != nullptr &&
+				found_content.version != AssetsVersion::none)
 			{
 				found_contents.push_back(found_content);
 			}
@@ -767,7 +767,7 @@ void find_contents()
 
 	data_dir_ = bstone::fs_utils::normalize_path(
 		bstone::fs_utils::append_path_separator(
-			content->search_path_->path_));
+			content->search_path->path));
 
 	log_found_content(*content);
 }

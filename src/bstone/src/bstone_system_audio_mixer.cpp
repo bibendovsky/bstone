@@ -894,9 +894,9 @@ bool SystemAudioMixer::initialize_cache_item(const Command& command, CacheItem& 
 	}
 
 	auto param = AudioDecoderInitParam{};
-	param.src_raw_data_ = command.param.play_sound.data;
-	param.src_raw_size_ = command.param.play_sound.data_size;
-	param.dst_rate_ = dst_rate_;
+	param.src_raw_data = command.param.play_sound.data;
+	param.src_raw_size = command.param.play_sound.data_size;
+	param.dst_rate = dst_rate_;
 
 	if (!decoder->initialize(param))
 	{

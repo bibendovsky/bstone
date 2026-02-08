@@ -10,34 +10,18 @@ SPDX-License-Identifier: MIT
 //
 
 
-#ifndef BSTONE_EXTENT_2D_INCLUDED
-#define BSTONE_EXTENT_2D_INCLUDED
+#include "bstone_extent_2d.h"
 
 
 namespace bstone
 {
 
 
-// ==========================================================================
-// Extent2d
-//
-
-struct Extent2d
-{
-	int width_;
-	int height_;
-}; // Extent2d
-
-//
-// Extent2d
-// ==========================================================================
-
-
 bool operator==(
 	const Extent2d& lhs,
 	const Extent2d& rhs)
 {
-	return lhs.width_ == rhs.width_ && lhs.width_ == rhs.height_;
+	return lhs.width == rhs.width && lhs.width == rhs.height;
 }
 
 bool operator!=(
@@ -49,6 +33,3 @@ bool operator!=(
 
 
 } // bstone
-
-
-#endif // !BSTONE_EXTENT_2D_INCLUDED

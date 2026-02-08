@@ -29,7 +29,7 @@ namespace detail
 AssetPath make_steam_content_path()
 {
 	auto result = AssetPath{};
-	result.provider_ = ContentPathProvider::steam;
+	result.provider = ContentPathProvider::steam;
 
 #ifdef _WIN32
 	const auto open_registry_key = [](
@@ -99,7 +99,7 @@ AssetPath make_steam_content_path()
 			if (get_registry_string(registry_key, value_name, value))
 			{
 				static const auto aog_sub_dir = std::string{"Blake Stone - Aliens of Gold"};
-				result.aog_ = bstone::fs_utils::append_path(value, aog_sub_dir);
+				result.aog = bstone::fs_utils::append_path(value, aog_sub_dir);
 			}
 		}
 	}
@@ -111,7 +111,7 @@ AssetPath make_steam_content_path()
 			if (get_registry_string(registry_key, value_name, value))
 			{
 				static const auto ps_sub_dir = std::string{"Blake Stone - Planet Strike"};
-				result.ps_ = bstone::fs_utils::append_path(value, ps_sub_dir);
+				result.ps = bstone::fs_utils::append_path(value, ps_sub_dir);
 			}
 		}
 	}
@@ -122,16 +122,16 @@ AssetPath make_steam_content_path()
 		{
 			if (get_registry_string(registry_key, value_name, value))
 			{
-				if (result.aog_.empty())
+				if (result.aog.empty())
 				{
 					static const auto aog_dir = std::string{"Blake Stone"};
-					result.aog_ = fs_utils::append_path(value, aog_dir);
+					result.aog = fs_utils::append_path(value, aog_dir);
 				}
 
-				if (result.ps_.empty())
+				if (result.ps.empty())
 				{
 					static const auto ps_dir = std::string{"Planet Strike"};
-					result.ps_ = fs_utils::append_path(value, ps_dir);
+					result.ps = fs_utils::append_path(value, ps_dir);
 				}
 			}
 		}

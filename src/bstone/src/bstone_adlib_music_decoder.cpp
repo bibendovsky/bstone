@@ -78,23 +78,23 @@ bool AdlibMusicDecoder::initialize(const AudioDecoderInitParam& param)
 		return false;
 	}
 
-	if (!param.src_raw_data_)
+	if (!param.src_raw_data)
 	{
 		return false;
 	}
 
-	if (param.src_raw_size_ < 0)
+	if (param.src_raw_size < 0)
 	{
 		return false;
 	}
 
-	if (param.dst_rate_ < 1)
+	if (param.dst_rate < 1)
 	{
 		return false;
 	}
 
-	emulator_->initialize(param.dst_rate_);
-	reader_ = MemoryBinaryReader{param.src_raw_data_, param.src_raw_size_};
+	emulator_->initialize(param.dst_rate);
+	reader_ = MemoryBinaryReader{param.src_raw_data, param.src_raw_size};
 	if (!reader_.can_read_x16())
 	{
 		return false;

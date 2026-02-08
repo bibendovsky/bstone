@@ -27,8 +27,8 @@ private:
 private:
 	struct TextNumber
 	{
-		bool is_compressed_;
-		int number_;
+		bool is_compressed;
+		int number;
 	};
 
 	using TextNumbers = std::vector<TextNumber>;

@@ -297,37 +297,37 @@ private:
 
 	struct R2TextureProperties
 	{
-		R3rPixelFormat image_pixel_format_;
+		R3rPixelFormat image_pixel_format;
 
-		bool is_npot_;
+		bool is_npot;
 
-		int width_;
-		int height_;
+		int width;
+		int height;
 
-		int upscale_width_;
-		int upscale_height_;
+		int upscale_width;
+		int upscale_height;
 
-		int actual_width_;
-		int actual_height_;
+		int actual_width;
+		int actual_height;
 
-		bool is_generate_mipmaps_;
-		int mipmap_count_;
+		bool is_generate_mipmaps;
+		int mipmap_count;
 
 		bool indexed_is_column_major;
-		const std::uint8_t* indexed_pixels_;
-		const Rgba8Palette* indexed_palette_;
-		const bool* indexed_alphas_;
+		const std::uint8_t* indexed_pixels;
+		const Rgba8Palette* indexed_palette;
+		const bool* indexed_alphas;
 
-		const Sprite* indexed_sprite_;
+		const Sprite* indexed_sprite;
 
-		const Rgba8* rgba_8_pixels_;
+		const Rgba8* rgba_8_pixels;
 	}; // R2TextureProperties
 
 	struct R2TextureItem
 	{
-		GenerationId generation_id_;
-		R2TextureProperties properties_;
-		R3rR2TextureUPtr r2_texture_;
+		GenerationId generation_id;
+		R2TextureProperties properties;
+		R3rR2TextureUPtr r2_texture;
 
 		R2TextureItem();
 
@@ -342,9 +342,9 @@ private:
 
 	struct Solid1x1Item
 	{
-		Rgba8 color_;
-		R2TextureProperties properties_{};
-		R3rR2TextureUPtr r2_texture_;
+		Rgba8 color;
+		R2TextureProperties properties{};
+		R3rR2TextureUPtr r2_texture;
 
 
 		void clear();
@@ -527,36 +527,36 @@ using HwTextureMgrImplUPtr = std::unique_ptr<HwTextureMgrImpl>;
 
 HwTextureMgrImpl::R2TextureItem::R2TextureItem()
 	:
-	generation_id_{},
-	properties_{},
-	r2_texture_{}
+	generation_id{},
+	properties{},
+	r2_texture{}
 {
 }
 
 HwTextureMgrImpl::R2TextureItem::R2TextureItem(
 	R2TextureItem&& rhs) noexcept
 	:
-	generation_id_{std::move(rhs.generation_id_)},
-	properties_{std::move(rhs.properties_)},
-	r2_texture_{std::move(rhs.r2_texture_)}
+	generation_id{std::move(rhs.generation_id)},
+	properties{std::move(rhs.properties)},
+	r2_texture{std::move(rhs.r2_texture)}
 {
 }
 
 HwTextureMgrImpl::R2TextureItem& HwTextureMgrImpl::R2TextureItem::operator=(
 	R2TextureItem&& rhs) noexcept
 {
-	std::swap(generation_id_, rhs.generation_id_);
-	std::swap(properties_, rhs.properties_);
-	std::swap(r2_texture_, rhs.r2_texture_);
+	std::swap(generation_id, rhs.generation_id);
+	std::swap(properties, rhs.properties);
+	std::swap(r2_texture, rhs.r2_texture);
 
 	return *this;
 }
 
 void HwTextureMgrImpl::Solid1x1Item::clear()
 {
-	color_.reset();
-	properties_ = {};
-	r2_texture_ = nullptr;
+	color.reset();
+	properties = {};
+	r2_texture = nullptr;
 }
 
 HwTextureMgrImpl::HwTextureMgrImpl(
@@ -605,13 +605,13 @@ try {
 		const auto sprite_id = sprite_item.first;
 		auto& r2_texture_item = sprite_item.second;
 
-		if (r2_texture_item.properties_.rgba_8_pixels_)
+		if (r2_texture_item.properties.rgba_8_pixels)
 		{
 			continue;
 		}
 
 		auto new_r2_texture_item = sprite_create_texture(sprite_id);
-		new_r2_texture_item.generation_id_ = generation_id_;
+		new_r2_texture_item.generation_id = generation_id_;
 
 		r2_texture_item = std::move(new_r2_texture_item);
 	}
@@ -623,13 +623,13 @@ try {
 		const auto wall_id = wall_item.first;
 		auto& r2_texture_item = wall_item.second;
 
-		if (r2_texture_item.properties_.rgba_8_pixels_)
+		if (r2_texture_item.properties.rgba_8_pixels)
 		{
 			continue;
 		}
 
 		auto new_r2_texture_item = wall_create_texture(wall_id);
-		new_r2_texture_item.generation_id_ = generation_id_;
+		new_r2_texture_item.generation_id = generation_id_;
 
 		r2_texture_item = std::move(new_r2_texture_item);
 	}
@@ -640,9 +640,9 @@ try {
 		destroy_ui();
 
 		create_ui(
-			ui_t2d_item_.properties_.indexed_pixels_,
-			ui_t2d_item_.properties_.indexed_alphas_,
-			ui_t2d_item_.properties_.indexed_palette_);
+			ui_t2d_item_.properties.indexed_pixels,
+			ui_t2d_item_.properties.indexed_alphas,
+			ui_t2d_item_.properties.indexed_palette);
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -656,7 +656,7 @@ try {
 		auto& r2_texture_item = sprite_item.second;
 
 		auto new_r2_texture_item = sprite_create_texture(sprite_id);
-		new_r2_texture_item.generation_id_ = generation_id_;
+		new_r2_texture_item.generation_id = generation_id_;
 
 		r2_texture_item = std::move(new_r2_texture_item);
 	}
@@ -669,7 +669,7 @@ try {
 		auto& r2_texture_item = wall_item.second;
 
 		auto new_r2_texture_item = wall_create_texture(wall_id);
-		new_r2_texture_item.generation_id_ = generation_id_;
+		new_r2_texture_item.generation_id = generation_id_;
 
 		r2_texture_item = std::move(new_r2_texture_item);
 	}
@@ -783,13 +783,13 @@ try {
 
 	if (wall_it != wall_map_.end())
 	{
-		wall_it->second.generation_id_ = generation_id_;
+		wall_it->second.generation_id = generation_id_;
 
 		return;
 	}
 
 	auto r2_texture_item = wall_create_texture(id);
-	r2_texture_item.generation_id_ = generation_id_;
+	r2_texture_item.generation_id = generation_id_;
 
 	wall_map_[id] = std::move(r2_texture_item);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -817,13 +817,13 @@ try {
 
 	if (sprite_it != sprite_map_.end())
 	{
-		sprite_it->second.generation_id_ = generation_id_;
+		sprite_it->second.generation_id = generation_id_;
 
 		return;
 	}
 
 	auto r2_texture_item = sprite_create_texture(id);
-	r2_texture_item.generation_id_ = generation_id_;
+	r2_texture_item.generation_id = generation_id_;
 
 	sprite_map_[id] = std::move(r2_texture_item);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -841,7 +841,7 @@ try {
 
 void HwTextureMgrImpl::destroy_ui()
 {
-	ui_t2d_item_.r2_texture_ = nullptr;
+	ui_t2d_item_.r2_texture = nullptr;
 }
 
 void HwTextureMgrImpl::create_ui(
@@ -849,7 +849,7 @@ void HwTextureMgrImpl::create_ui(
 	const bool* const indexed_alphas,
 	const Rgba8Palette* indexed_palette)
 try {
-	if (ui_t2d_item_.r2_texture_)
+	if (ui_t2d_item_.r2_texture)
 	{
 		BSTONE_THROW_STATIC_SOURCE("UI texture already created.");
 	}
@@ -870,28 +870,28 @@ try {
 	}
 
 	auto param = R2TextureProperties{};
-	param.image_pixel_format_ = R3rPixelFormat::rgba_8_unorm;
-	param.width_ = vga_ref_width;
-	param.height_ = vga_ref_height;
-	param.mipmap_count_ = 1;
-	param.indexed_pixels_ = indexed_pixels;
-	param.indexed_palette_ = indexed_palette;
-	param.indexed_alphas_ = indexed_alphas;
+	param.image_pixel_format = R3rPixelFormat::rgba_8_unorm;
+	param.width = vga_ref_width;
+	param.height = vga_ref_height;
+	param.mipmap_count = 1;
+	param.indexed_pixels = indexed_pixels;
+	param.indexed_palette = indexed_palette;
+	param.indexed_alphas = indexed_alphas;
 
 	auto r2_texture_item = create_texture(param);
-	update_mipmaps(r2_texture_item.properties_, r2_texture_item.r2_texture_);
+	update_mipmaps(r2_texture_item.properties, r2_texture_item.r2_texture);
 
 	ui_t2d_item_ = std::move(r2_texture_item);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::update_ui()
 try {
-	update_mipmaps(ui_t2d_item_.properties_, ui_t2d_item_.r2_texture_);
+	update_mipmaps(ui_t2d_item_.properties, ui_t2d_item_.r2_texture);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rR2Texture* HwTextureMgrImpl::get_ui() const
 {
-	return ui_t2d_item_.r2_texture_.get();
+	return ui_t2d_item_.r2_texture.get();
 }
 
 void HwTextureMgrImpl::try_destroy_solid_1x1(
@@ -925,20 +925,20 @@ try {
 	const auto default_color = solid_1x1_get_default_color(id);
 
 	auto param = R2TextureProperties{};
-	param.image_pixel_format_ = bstone::R3rPixelFormat::rgba_8_unorm;
-	param.width_ = 1;
-	param.height_ = 1;
-	param.mipmap_count_ = 1;
-	param.rgba_8_pixels_ = &default_color;
+	param.image_pixel_format = bstone::R3rPixelFormat::rgba_8_unorm;
+	param.width = 1;
+	param.height = 1;
+	param.mipmap_count = 1;
+	param.rgba_8_pixels = &default_color;
 
 	auto r2_texture_item = create_texture(param);
 
 	auto& item = solid_1x1_items_[index];
-	item.color_ = default_color;
-	item.properties_ = r2_texture_item.properties_;
-	item.r2_texture_ = std::move(r2_texture_item.r2_texture_);
+	item.color = default_color;
+	item.properties = r2_texture_item.properties;
+	item.r2_texture = std::move(r2_texture_item.r2_texture);
 
-	update_mipmaps(item.properties_, item.r2_texture_);
+	update_mipmaps(item.properties, item.r2_texture);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::update_solid_1x1(
@@ -948,12 +948,12 @@ try {
 	const auto index = solid_1x1_get_updateable_index(id);
 
 	auto& item = solid_1x1_items_[index];
-	item.color_ = color;
+	item.color = color;
 
 	auto param = R3rR2TextureUpdateParam{};
-	param.image = &item.color_;
+	param.image = &item.color;
 
-	item.r2_texture_->update(param);
+	item.r2_texture->update(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rR2Texture* HwTextureMgrImpl::get_solid_1x1(
@@ -966,7 +966,7 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Invalid solid 1x1 2D-texture id.");
 	}
 
-	return solid_1x1_items_[index].r2_texture_.get();
+	return solid_1x1_items_[index].r2_texture.get();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::initialize(
@@ -1035,17 +1035,17 @@ void HwTextureMgrImpl::validate_image_source_r2_texture_properties(
 try {
 	auto source_count = 0;
 
-	if (properties.indexed_pixels_ != nullptr)
+	if (properties.indexed_pixels != nullptr)
 	{
 		++source_count;
 	}
 
-	if (properties.indexed_sprite_ != nullptr)
+	if (properties.indexed_sprite != nullptr)
 	{
 		++source_count;
 	}
 
-	if (properties.rgba_8_pixels_ != nullptr)
+	if (properties.rgba_8_pixels != nullptr)
 	{
 		++source_count;
 	}
@@ -1064,7 +1064,7 @@ try {
 void HwTextureMgrImpl::validate_image_pixel_format_r2_texture_properties(
 	const R2TextureProperties& properties)
 try {
-	switch (properties.image_pixel_format_)
+	switch (properties.image_pixel_format)
 	{
 		case R3rPixelFormat::rgba_8_unorm:
 			return;
@@ -1077,12 +1077,12 @@ try {
 void HwTextureMgrImpl::validate_dimensions_r2_texture_properties(
 	const R2TextureProperties& properties)
 try {
-	if (properties.width_ <= 0)
+	if (properties.width <= 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Invalid width.");
 	}
 
-	if (properties.height_ <= 0)
+	if (properties.height <= 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Invalid height.");
 	}
@@ -1091,8 +1091,8 @@ try {
 void HwTextureMgrImpl::validate_mipmap_r2_texture_properties(
 	const R2TextureProperties& properties)
 try {
-	if (properties.mipmap_count_ <= 0 ||
-		properties.mipmap_count_ > R3rLimits::max_mipmap_count)
+	if (properties.mipmap_count <= 0 ||
+		properties.mipmap_count > R3rLimits::max_mipmap_count)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Mipmap count out of range.");
 	}
@@ -1110,12 +1110,12 @@ try {
 void HwTextureMgrImpl::validate_indexed_r2_texture_properties(
 	const R2TextureProperties& properties)
 try {
-	if (properties.indexed_pixels_ == nullptr)
+	if (properties.indexed_pixels == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null indexed image source.");
 	}
 
-	if (properties.indexed_palette_ == nullptr)
+	if (properties.indexed_palette == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null indexed palette.");
 	}
@@ -1124,12 +1124,12 @@ try {
 void HwTextureMgrImpl::validate_indexed_sprite_r2_texture_properties(
 	const R2TextureProperties& properties)
 try {
-	if (properties.indexed_sprite_ == nullptr)
+	if (properties.indexed_sprite == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null indexed sprite.");
 	}
 
-	if (properties.indexed_palette_ == nullptr)
+	if (properties.indexed_palette == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null indexed palette.");
 	}
@@ -1138,7 +1138,7 @@ try {
 void HwTextureMgrImpl::validate_rgba_8_r2_texture_properties(
 	const R2TextureProperties& properties)
 try {
-	if (properties.rgba_8_pixels_ == nullptr)
+	if (properties.rgba_8_pixels == nullptr)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null RGBA image.");
 	}
@@ -1147,15 +1147,15 @@ try {
 void HwTextureMgrImpl::validate_source_r2_texture_properties(
 	const R2TextureProperties& properties)
 try {
-	if (properties.indexed_pixels_ != nullptr)
+	if (properties.indexed_pixels != nullptr)
 	{
 		validate_indexed_r2_texture_properties(properties);
 	}
-	else if (properties.indexed_sprite_ != nullptr)
+	else if (properties.indexed_sprite != nullptr)
 	{
 		validate_indexed_sprite_r2_texture_properties(properties);
 	}
-	else if (properties.rgba_8_pixels_ != nullptr)
+	else if (properties.rgba_8_pixels != nullptr)
 	{
 		validate_rgba_8_r2_texture_properties(properties);
 	}
@@ -1177,10 +1177,10 @@ void HwTextureMgrImpl::set_common_r2_texture_properties(
 try {
 	const auto& device_features = renderer_->get_device_features();
 
-	auto upscale_width = properties.width_;
-	auto upscale_height = properties.height_;
+	auto upscale_width = properties.width;
+	auto upscale_height = properties.height;
 
-	if (properties.indexed_pixels_ || properties.indexed_sprite_)
+	if (properties.indexed_pixels || properties.indexed_sprite)
 	{
 		switch (upscale_filter_type_)
 		{
@@ -1217,19 +1217,19 @@ try {
 		actual_height = std::min(actual_height, device_features.max_texture_dimension);
 	}
 
-	properties.upscale_width_ = upscale_width;
-	properties.upscale_height_ = upscale_height;
+	properties.upscale_width = upscale_width;
+	properties.upscale_height = upscale_height;
 
-	properties.actual_width_ = actual_width;
-	properties.actual_height_ = actual_height;
+	properties.actual_width = actual_width;
+	properties.actual_height = actual_height;
 
-	properties.is_npot_ = is_npot;
+	properties.is_npot = is_npot;
 
-	if (properties.mipmap_count_ > 1)
+	if (properties.mipmap_count > 1)
 	{
-		properties.mipmap_count_ = R3rUtils::calculate_mipmap_count(
-			properties.upscale_width_,
-			properties.upscale_height_
+		properties.mipmap_count = R3rUtils::calculate_mipmap_count(
+			properties.upscale_width,
+			properties.upscale_height
 		);
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -1237,7 +1237,7 @@ try {
 void HwTextureMgrImpl::upscale_xbrz(
 	const R2TextureProperties& properties)
 try {
-	const auto area = properties.width_ * properties.height_;
+	const auto area = properties.width * properties.height;
 
 	if (mipmap_buffer_.size() < static_cast<std::size_t>(area))
 	{
@@ -1245,7 +1245,7 @@ try {
 		mipmap_buffer_.resize(area);
 	}
 
-	const auto upscale_area = properties.upscale_width_ * properties.upscale_height_;
+	const auto upscale_area = properties.upscale_width * properties.upscale_height;
 
 	if (upscale_buffer_.size() < static_cast<std::size_t>(upscale_area))
 	{
@@ -1253,24 +1253,24 @@ try {
 		upscale_buffer_.resize(upscale_area);
 	}
 
-	if (properties.indexed_pixels_)
+	if (properties.indexed_pixels)
 	{
 		auto param = R3rUtils::IndexedToRgba8Param{};
-		param.width = properties.width_;
-		param.height = properties.height_;
+		param.width = properties.width;
+		param.height = properties.height;
 		param.indexed_is_column_major = properties.indexed_is_column_major;
-		param.indexed_pixels = properties.indexed_pixels_;
-		param.indexed_palette = properties.indexed_palette_;
-		param.indexed_alphas = properties.indexed_alphas_;
+		param.indexed_pixels = properties.indexed_pixels;
+		param.indexed_palette = properties.indexed_palette;
+		param.indexed_alphas = properties.indexed_alphas;
 		param.rgba_8_buffer = &mipmap_buffer_;
 
 		R3rUtils::indexed_to_rgba_8(param);
 	}
-	else if (properties.indexed_sprite_)
+	else if (properties.indexed_sprite)
 	{
 		R3rUtils::indexed_sprite_to_rgba_8_pot(
-			*properties.indexed_sprite_,
-			*properties.indexed_palette_,
+			*properties.indexed_sprite,
+			*properties.indexed_palette,
 			mipmap_buffer_
 		);
 	}
@@ -1281,8 +1281,8 @@ try {
 
 	const auto lines_per_slice = 16;
 
-	auto slice_count = properties.height_ / lines_per_slice;
-	auto lines_remain = properties.height_ % lines_per_slice;
+	auto slice_count = properties.height / lines_per_slice;
+	auto lines_remain = properties.height % lines_per_slice;
 
 	if (slice_count > 0 && lines_remain > 0 && lines_remain < 8)
 	{
@@ -1314,8 +1314,8 @@ try {
 				upscale_filter_factor_,
 				line_index,
 				line_index + lines_per_slice,
-				properties.width_,
-				properties.height_,
+				properties.width,
+				properties.height,
 				src_lines,
 				dst_lines
 			);
@@ -1333,9 +1333,9 @@ try {
 			xbrz_task.initialize(
 				upscale_filter_factor_,
 				line_index,
-				properties.height_,
-				properties.width_,
-				properties.height_,
+				properties.height,
+				properties.width,
+				properties.height,
 				src_lines,
 				dst_lines
 			);
@@ -1352,8 +1352,8 @@ try {
 			static_cast<std::size_t>(upscale_filter_factor_),
 			reinterpret_cast<const std::uint32_t*>(mipmap_buffer_.data()),
 			reinterpret_cast<std::uint32_t*>(upscale_buffer_.data()),
-			properties.width_,
-			properties.height_,
+			properties.width,
+			properties.height,
 			xbrz::ColorFormat::ARGB
 		);
 	}
@@ -1362,8 +1362,8 @@ try {
 void HwTextureMgrImpl::upscale(
 	const R2TextureProperties& properties)
 try {
-	if (properties.upscale_width_ == properties.width_ &&
-		properties.upscale_height_ == properties.height_)
+	if (properties.upscale_width == properties.width &&
+		properties.upscale_height == properties.height)
 	{
 		return;
 	}
@@ -1394,10 +1394,10 @@ try {
 	// Create texture object.
 	//
 	auto param = R3rR2TextureInitParam{};
-	param.pixel_format = new_properties.image_pixel_format_;
-	param.width = new_properties.actual_width_;
-	param.height = new_properties.actual_height_;
-	param.mipmap_count = new_properties.mipmap_count_;
+	param.pixel_format = new_properties.image_pixel_format;
+	param.width = new_properties.actual_width;
+	param.height = new_properties.actual_height;
+	param.mipmap_count = new_properties.mipmap_count;
 
 	auto r2_texture = renderer_->create_r2_texture(param);
 
@@ -1407,8 +1407,8 @@ try {
 	//
 	auto result = R2TextureItem{};
 
-	result.properties_ = new_properties;
-	result.r2_texture_ = std::move(r2_texture);
+	result.properties = new_properties;
+	result.r2_texture = std::move(r2_texture);
 
 	return result;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -1420,20 +1420,20 @@ try {
 	upscale(properties);
 
 	const auto is_upscale = (
-		properties.upscale_width_ != properties.width_ &&
-		properties.upscale_height_ != properties.height_);
+		properties.upscale_width != properties.width &&
+		properties.upscale_height != properties.height);
 
 	const auto& device_features = renderer_->get_device_features();
 
 	const auto npot_is_available = device_features.is_npot_available;
 
-	const auto max_subbuffer_size = properties.actual_width_ * properties.actual_height_;
+	const auto max_subbuffer_size = properties.actual_width * properties.actual_height;
 
 	auto max_buffer_size = max_subbuffer_size;
 
 	const auto is_manual_mipmaps =
-		properties.is_generate_mipmaps_ &&
-		properties.mipmap_count_ > 1 &&
+		properties.is_generate_mipmaps &&
+		properties.mipmap_count > 1 &&
 		!device_features.is_mipmap_available;
 
 	if (is_manual_mipmaps)
@@ -1459,13 +1459,13 @@ try {
 
 	if (is_upscale)
 	{
-		if (properties.is_npot_ && !npot_is_available)
+		if (properties.is_npot && !npot_is_available)
 		{
 			R3rUtils::rgba_8_npot_to_rgba_8_pot(
-				properties.upscale_width_,
-				properties.upscale_height_,
-				properties.actual_width_,
-				properties.actual_height_,
+				properties.upscale_width,
+				properties.upscale_height,
+				properties.actual_width,
+				properties.actual_height,
 				upscale_buffer_.data(),
 				mipmap_buffer_
 			);
@@ -1479,16 +1479,16 @@ try {
 			texture_subbuffer_0 = upscale_buffer_.data();
 		}
 	}
-	else if (properties.rgba_8_pixels_)
+	else if (properties.rgba_8_pixels)
 	{
-		if (properties.is_npot_ && !npot_is_available)
+		if (properties.is_npot && !npot_is_available)
 		{
 			R3rUtils::rgba_8_npot_to_rgba_8_pot(
-				properties.width_,
-				properties.height_,
-				properties.actual_width_,
-				properties.actual_height_,
-				properties.rgba_8_pixels_,
+				properties.width,
+				properties.height,
+				properties.actual_width,
+				properties.actual_height,
+				properties.rgba_8_pixels,
 				mipmap_buffer_
 			);
 		}
@@ -1498,41 +1498,41 @@ try {
 
 			is_set_subbuffer_0 = true;
 
-			texture_subbuffer_0 = const_cast<Rgba8*>(properties.rgba_8_pixels_);
+			texture_subbuffer_0 = const_cast<Rgba8*>(properties.rgba_8_pixels);
 		}
 	}
-	else if (properties.indexed_pixels_)
+	else if (properties.indexed_pixels)
 	{
 		auto param = R3rUtils::IndexedToRgba8Param{};
 
-		param.width = properties.width_;
-		param.height = properties.height_;
-		param.actual_width = properties.actual_width_;
-		param.actual_height = properties.actual_height_;
+		param.width = properties.width;
+		param.height = properties.height;
+		param.actual_width = properties.actual_width;
+		param.actual_height = properties.actual_height;
 		param.indexed_is_column_major = properties.indexed_is_column_major;
-		param.indexed_pixels = properties.indexed_pixels_;
-		param.indexed_palette = properties.indexed_palette_;
-		param.indexed_alphas = properties.indexed_alphas_;
+		param.indexed_pixels = properties.indexed_pixels;
+		param.indexed_palette = properties.indexed_palette;
+		param.indexed_alphas = properties.indexed_alphas;
 		param.rgba_8_buffer = &mipmap_buffer_;
 
 		R3rUtils::indexed_to_rgba_8_pot(param);
 	}
-	else if (properties.indexed_sprite_)
+	else if (properties.indexed_sprite)
 	{
 		R3rUtils::indexed_sprite_to_rgba_8_pot(
-			*properties.indexed_sprite_,
-			*properties.indexed_palette_,
+			*properties.indexed_sprite,
+			*properties.indexed_palette,
 			mipmap_buffer_
 		);
 	}
 
-	auto mipmap_width = properties.actual_width_;
-	auto mipmap_height = properties.actual_height_;
+	auto mipmap_width = properties.actual_width;
+	auto mipmap_height = properties.actual_height;
 
-	auto mipmap_count = properties.mipmap_count_;
+	auto mipmap_count = properties.mipmap_count;
 
-	if (properties.is_generate_mipmaps_ &&
-		properties.mipmap_count_ > 1 &&
+	if (properties.is_generate_mipmaps &&
+		properties.mipmap_count > 1 &&
 		device_features.is_mipmap_available)
 	{
 		mipmap_count = 1;
@@ -1575,8 +1575,8 @@ try {
 		r2_texture->update(param);
 	}
 
-	if (properties.is_generate_mipmaps_ &&
-		properties.mipmap_count_ > 1 &&
+	if (properties.is_generate_mipmaps &&
+		properties.mipmap_count > 1 &&
 		device_features.is_mipmap_available)
 	{
 		r2_texture->generate_mipmaps();
@@ -1585,7 +1585,7 @@ try {
 
 void HwTextureMgrImpl::destroy_missing_sprite_texture()
 {
-	missing_sprite_r2_texture_item_.r2_texture_ = nullptr;
+	missing_sprite_r2_texture_item_.r2_texture = nullptr;
 }
 
 void HwTextureMgrImpl::create_missing_sprite_texture()
@@ -1596,24 +1596,24 @@ try {
 	const auto rgba_8_image = reinterpret_cast<const Rgba8*>(raw_image.data());
 
 	auto param = R2TextureProperties{};
-	param.image_pixel_format_ = R3rPixelFormat::rgba_8_unorm;
-	param.width_ = Sprite::dimension;
-	param.height_ = Sprite::dimension;
-	param.is_generate_mipmaps_ = true;
-	param.mipmap_count_ = R3rUtils::calculate_mipmap_count(Sprite::dimension, Sprite::dimension);
-	param.rgba_8_pixels_ = rgba_8_image;
+	param.image_pixel_format = R3rPixelFormat::rgba_8_unorm;
+	param.width = Sprite::dimension;
+	param.height = Sprite::dimension;
+	param.is_generate_mipmaps = true;
+	param.mipmap_count = R3rUtils::calculate_mipmap_count(Sprite::dimension, Sprite::dimension);
+	param.rgba_8_pixels = rgba_8_image;
 
 	auto r2_texture_item = create_texture(param);
 
-	missing_sprite_r2_texture_item_.properties_ = r2_texture_item.properties_;
-	missing_sprite_r2_texture_item_.r2_texture_ = std::move(r2_texture_item.r2_texture_);
+	missing_sprite_r2_texture_item_.properties = r2_texture_item.properties;
+	missing_sprite_r2_texture_item_.r2_texture = std::move(r2_texture_item.r2_texture);
 
-	update_mipmaps(missing_sprite_r2_texture_item_.properties_, missing_sprite_r2_texture_item_.r2_texture_);
+	update_mipmaps(missing_sprite_r2_texture_item_.properties, missing_sprite_r2_texture_item_.r2_texture);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::destroy_missing_wall_texture()
 {
-	missing_wall_r2_texture_item_.r2_texture_ = nullptr;
+	missing_wall_r2_texture_item_.r2_texture = nullptr;
 }
 
 void HwTextureMgrImpl::create_missing_wall_texture()
@@ -1624,16 +1624,16 @@ try {
 	const auto rgba_8_image = reinterpret_cast<const Rgba8*>(raw_image.data());
 
 	auto param = R2TextureProperties{};
-	param.image_pixel_format_ = R3rPixelFormat::rgba_8_unorm;
-	param.width_ = wall_dimension;
-	param.height_ = wall_dimension;
-	param.is_generate_mipmaps_ = true;
-	param.mipmap_count_ = R3rUtils::calculate_mipmap_count(param.width_, param.height_);
-	param.rgba_8_pixels_ = rgba_8_image;
+	param.image_pixel_format = R3rPixelFormat::rgba_8_unorm;
+	param.width = wall_dimension;
+	param.height = wall_dimension;
+	param.is_generate_mipmaps = true;
+	param.mipmap_count = R3rUtils::calculate_mipmap_count(param.width, param.height);
+	param.rgba_8_pixels = rgba_8_image;
 
 	auto r2_texture_item = create_texture(param);
 
-	update_mipmaps(r2_texture_item.properties_, r2_texture_item.r2_texture_);
+	update_mipmaps(r2_texture_item.properties, r2_texture_item.r2_texture);
 
 	missing_wall_r2_texture_item_ = std::move(r2_texture_item);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -1724,16 +1724,16 @@ try {
 			);
 
 			auto param = R2TextureProperties{};
-			param.image_pixel_format_ = R3rPixelFormat::rgba_8_unorm;
-			param.width_ = width;
-			param.height_ = height;
-			param.is_generate_mipmaps_ = true;
-			param.mipmap_count_ = R3rUtils::calculate_mipmap_count(param.width_, param.height_);
-			param.rgba_8_pixels_ = image_buffer_rgba8_.data();
+			param.image_pixel_format = R3rPixelFormat::rgba_8_unorm;
+			param.width = width;
+			param.height = height;
+			param.is_generate_mipmaps = true;
+			param.mipmap_count = R3rUtils::calculate_mipmap_count(param.width, param.height);
+			param.rgba_8_pixels = image_buffer_rgba8_.data();
 
 			auto r2_texture_item = create_texture(param);
 
-			update_mipmaps(r2_texture_item.properties_, r2_texture_item.r2_texture_);
+			update_mipmaps(r2_texture_item.properties, r2_texture_item.r2_texture);
 
 			return r2_texture_item;
 		}
@@ -1760,25 +1760,25 @@ try {
 	{
 		auto external_r2_texture_item = create_from_external_image(wall_id, ImageType::wall);
 
-		if (external_r2_texture_item.r2_texture_)
+		if (external_r2_texture_item.r2_texture)
 		{
 			return external_r2_texture_item;
 		}
 	}
 
 	auto param = R2TextureProperties{};
-	param.image_pixel_format_ = R3rPixelFormat::rgba_8_unorm;
-	param.width_ = wall_dimension;
-	param.height_ = wall_dimension;
-	param.is_generate_mipmaps_ = true;
-	param.mipmap_count_ = R3rUtils::calculate_mipmap_count(param.width_, param.height_);
+	param.image_pixel_format = R3rPixelFormat::rgba_8_unorm;
+	param.width = wall_dimension;
+	param.height = wall_dimension;
+	param.is_generate_mipmaps = true;
+	param.mipmap_count = R3rUtils::calculate_mipmap_count(param.width, param.height);
 	param.indexed_is_column_major = true;
-	param.indexed_pixels_ = indexed_pixels;
-	param.indexed_palette_ = &vid_hw_get_default_palette();
+	param.indexed_pixels = indexed_pixels;
+	param.indexed_palette = &vid_hw_get_default_palette();
 
 	auto r2_texture_item = create_texture(param);
 
-	update_mipmaps(r2_texture_item.properties_, r2_texture_item.r2_texture_);
+	update_mipmaps(r2_texture_item.properties, r2_texture_item.r2_texture);
 
 	return r2_texture_item;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -1802,24 +1802,24 @@ try {
 	{
 		auto external_r2_texture_item = create_from_external_image(sprite_id, ImageType::sprite);
 
-		if (external_r2_texture_item.r2_texture_)
+		if (external_r2_texture_item.r2_texture)
 		{
 			return external_r2_texture_item;
 		}
 	}
 
 	auto param = R2TextureProperties{};
-	param.image_pixel_format_ = R3rPixelFormat::rgba_8_unorm;
-	param.width_ = Sprite::dimension;
-	param.height_ = Sprite::dimension;
-	param.is_generate_mipmaps_ = true;
-	param.mipmap_count_ = R3rUtils::calculate_mipmap_count(param.width_, param.height_);
-	param.indexed_sprite_ = sprite;
-	param.indexed_palette_ = &vid_hw_get_default_palette();
+	param.image_pixel_format = R3rPixelFormat::rgba_8_unorm;
+	param.width = Sprite::dimension;
+	param.height = Sprite::dimension;
+	param.is_generate_mipmaps = true;
+	param.mipmap_count = R3rUtils::calculate_mipmap_count(param.width, param.height);
+	param.indexed_sprite = sprite;
+	param.indexed_palette = &vid_hw_get_default_palette();
 
 	auto r2_texture_item = create_texture(param);
 
-	update_mipmaps(r2_texture_item.properties_, r2_texture_item.r2_texture_);
+	update_mipmaps(r2_texture_item.properties, r2_texture_item.r2_texture);
 
 	return r2_texture_item;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -1873,9 +1873,9 @@ try {
 	{
 		auto& r2_texture_item = map_it->second;
 
-		if (r2_texture_item.generation_id_ != generation_id_)
+		if (r2_texture_item.generation_id != generation_id_)
 		{
-			r2_texture_item.r2_texture_ = nullptr;
+			r2_texture_item.r2_texture = nullptr;
 
 			map_it = map.erase(map_it);
 		}
@@ -1898,17 +1898,17 @@ R3rR2Texture* HwTextureMgrImpl::get_r2_texture(
 		switch (image_type)
 		{
 		case ImageType::sprite:
-			return missing_sprite_r2_texture_item_.r2_texture_.get();
+			return missing_sprite_r2_texture_item_.r2_texture.get();
 
 		case ImageType::wall:
-			return missing_wall_r2_texture_item_.r2_texture_.get();
+			return missing_wall_r2_texture_item_.r2_texture.get();
 
 		default:
 			return nullptr;
 		}
 	}
 
-	return item_it->second.r2_texture_.get();
+	return item_it->second.r2_texture.get();
 }
 
 void HwTextureMgrImpl::solid_1x1_destroy_all()

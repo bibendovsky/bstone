@@ -97,7 +97,7 @@ void TextExtractor::initialize_text()
 		text_numbers_.end(),
 		[](const auto& lhs, const auto& rhs)
 		{
-			return lhs.number_ < rhs.number_;
+			return lhs.number < rhs.number;
 		});
 
 	const auto non_zero_number_it = std::find_if(
@@ -105,7 +105,7 @@ void TextExtractor::initialize_text()
 		text_numbers_.end(),
 		[](const auto item)
 		{
-			return item.number_ != 0;
+			return item.number != 0;
 		});
 
 	if (non_zero_number_it == text_numbers_.end())
@@ -133,14 +133,14 @@ CompHeader_t TextExtractor::deserialize_header(int number, const std::uint8_t* d
 
 void TextExtractor::extract_text(const std::string& dst_dir, const TextNumber& text_number)
 {
-	const auto number = text_number.number_;
+	const auto number = text_number.number;
 
 	CA_CacheGrChunk(static_cast<std::int16_t>(number));
 
 	auto text_data = grsegs[number].data();
 	auto text_size = grsegs_sizes_[number];
 
-	if (text_number.is_compressed_)
+	if (text_number.is_compressed)
 	{
 		constexpr auto header_size = CompHeader_t::class_size;
 
