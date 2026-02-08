@@ -3456,6 +3456,7 @@ bool TP_SlowPrint(
 	long long tc;
 	bool aborted = false;
 
+	IN_StartAck();
 	while (*string)
 	{
 		if (pi->flags & TPF_SHOW_CURSOR)
@@ -3513,20 +3514,16 @@ bool TP_SlowPrint(
 		//
 		if (!aborted)
 		{
-			LastScan = ScanCode::sc_none;
 			constexpr long long one_second_ns = 1'000'000'000;
 			tc = sys_get_time_ns();
 			while ((TickBase * (sys_get_time_ns() - tc)) / one_second_ns < delay)
 			{
 				VW_WaitVBL(1);
 				CycleColors();
-				if (pi->flags & TPF_ABORTABLE)
+				if ((pi->flags & TPF_ABORTABLE) != 0 && IN_CheckAck())
 				{
-					if ((pi->flags & TPF_ABORTABLE) && LastScan != ScanCode::sc_none)
-					{
-						aborted = true;
-						break;
-					}
+					aborted = true;
+					break;
 				}
 			}
 		}

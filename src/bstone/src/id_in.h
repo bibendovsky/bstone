@@ -350,6 +350,8 @@ void IN_ReadCursor(CursorInfo*);
 void IN_ReadControl(std::int16_t, ControlInfo*);
 void IN_SetControlType(std::int16_t, ControlType);
 
+void IN_StartAck();
+bool IN_CheckAck();
 void IN_Ack();
 
 extern bool IN_UserInput(int delay);
