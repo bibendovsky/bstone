@@ -16,9 +16,9 @@ try {
 	do_update(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void R3rR2Texture::generate_mipmaps()
+void R3rR2Texture::generate_mipmap()
 try {
-	do_generate_mipmaps();
+	do_generate_mipmap();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

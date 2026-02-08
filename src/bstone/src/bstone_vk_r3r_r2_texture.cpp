@@ -30,12 +30,12 @@ public:
 
 private:
 	void do_update(const R3rR2TextureUpdateParam& param) override;
-	void do_generate_mipmaps() override;
+	void do_generate_mipmap() override;
 
 	VkImageView do_get_vk_image_view() const override;
 
 	static constexpr const VkFormat vk_default_format = VK_FORMAT_R8G8B8A8_UNORM;
-	using ImageLayouts = std::array<VkImageLayout, R3rLimits::max_mipmap_count>;
+	using ImageLayouts = std::array<VkImageLayout, R3rLimits::max_mip_levels>;
 
 	VkR3rContext& context_;
 	VkR3rDeviceMemoryResource image_device_memory_resource_{};
@@ -46,7 +46,7 @@ private:
 	void* staging_buffer_mapped_memory_{};
 	int width_{};
 	int height_{};
-	int mip_count_{};
+	int mip_level_count_{};
 	ImageLayouts image_layouts_{};
 
 	void transition_image_layout(VkCommandBuffer vk_command_buffer, int mip_level, VkImageLayout new_vk_image_layout);
@@ -67,9 +67,9 @@ VkR3rR2TextureImpl::VkR3rR2TextureImpl(VkR3rContext& context, const R3rR2Texture
 	{
 		BSTONE_THROW_STATIC_SOURCE("Height out of range.");
 	}
-	if (param.mipmap_count < 1 || param.mipmap_count > R3rLimits::max_mipmap_count)
+	if (param.mip_level_count < 1 || param.mip_level_count > R3rLimits::max_mip_levels)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Mipmap count out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Mip level count out of range.");
 	}
 	switch (param.pixel_format)
 	{
@@ -83,7 +83,7 @@ VkR3rR2TextureImpl::VkR3rR2TextureImpl(VkR3rContext& context, const R3rR2Texture
 		vk_default_format,
 		vk_width,
 		vk_height,
-		static_cast<std::uint32_t>(param.mipmap_count),
+		static_cast<std::uint32_t>(param.mip_level_count),
 		VK_SAMPLE_COUNT_1_BIT,
 		VK_IMAGE_TILING_OPTIMAL,
 		VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
@@ -101,7 +101,7 @@ VkR3rR2TextureImpl::VkR3rR2TextureImpl(VkR3rContext& context, const R3rR2Texture
 		image_resource_.get(), vk_default_format, VK_IMAGE_ASPECT_COLOR_BIT);
 	width_ = param.width;
 	height_ = param.height;
-	mip_count_ = param.mipmap_count;
+	mip_level_count_ = param.mip_level_count;
 	image_layouts_.fill(VK_IMAGE_LAYOUT_UNDEFINED);
 }
 
@@ -111,14 +111,14 @@ void VkR3rR2TextureImpl::do_update(const R3rR2TextureUpdateParam& param)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Null image data.");
 	}
-	if (param.mipmap_level < 0 || param.mipmap_level >= mip_count_)
+	if (param.mip_level < 0 || param.mip_level >= mip_level_count_)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Mip level out of range.");
 	}
 	VkR3rCommandBufferResource command_buffer_resource = context_.cmd_begin_single_time_commands();
-	transition_image_layout(command_buffer_resource.get(), param.mipmap_level, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-	const std::uint32_t mip_width = static_cast<std::uint32_t>(std::max(width_ >> param.mipmap_level, 1));
-	const std::uint32_t mip_height = static_cast<std::uint32_t>(std::max(height_ >> param.mipmap_level, 1));
+	transition_image_layout(command_buffer_resource.get(), param.mip_level, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+	const std::uint32_t mip_width = static_cast<std::uint32_t>(std::max(width_ >> param.mip_level, 1));
+	const std::uint32_t mip_height = static_cast<std::uint32_t>(std::max(height_ >> param.mip_level, 1));
 	const std::size_t mip_data_size = std::size_t{4} * mip_width * mip_height;
 	std::memcpy(staging_buffer_mapped_memory_, param.image, mip_data_size);
 	context_.cmd_copy_buffer_to_image(
@@ -127,25 +127,25 @@ void VkR3rR2TextureImpl::do_update(const R3rR2TextureUpdateParam& param)
 		image_resource_.get(),
 		mip_width,
 		mip_height,
-		param.mipmap_level);
-	transition_image_layout(command_buffer_resource.get(), param.mipmap_level, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		param.mip_level);
+	transition_image_layout(command_buffer_resource.get(), param.mip_level, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	context_.cmd_end_single_time_commands(command_buffer_resource.get());
 }
 
-void VkR3rR2TextureImpl::do_generate_mipmaps()
+void VkR3rR2TextureImpl::do_generate_mipmap()
 {
-	if (!context_.r3r_device_features.is_mipmap_available)
+	if (!context_.r3r_device_features.can_generate_mipmap)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Mipmap generation not supported.");
 	}
-	if (mip_count_ == 1)
+	if (mip_level_count_ == 1)
 	{
 		return;
 	}
 	VkR3rCommandBufferResource command_buffer_resource = context_.cmd_begin_single_time_commands();
 	int prev_mip_width = width_;
 	int prev_mip_height = height_;
-	for (int mip_level = 1; mip_level < mip_count_; ++mip_level)
+	for (int mip_level = 1; mip_level < mip_level_count_; ++mip_level)
 	{
 		const int mip_width = std::max(prev_mip_width / 2, 1);
 		const int mip_height = std::max(prev_mip_height / 2, 1);
@@ -200,11 +200,11 @@ void VkR3rR2TextureImpl::transition_image_layout(
 
 void VkR3rR2TextureImpl::transition_image_layouts(VkCommandBuffer vk_command_buffer, VkImageLayout new_vk_image_layout)
 {
-	for (int mip_level = 0; mip_level < mip_count_; )
+	for (int mip_level = 0; mip_level < mip_level_count_; )
 	{
 		const VkImageLayout& run_image_layout = image_layouts_[mip_level];
 		int run_length = 0;
-		for (int run_mip_level = mip_level; run_mip_level < mip_count_; ++run_mip_level)
+		for (int run_mip_level = mip_level; run_mip_level < mip_level_count_; ++run_mip_level)
 		{
 			const VkImageLayout& current_image_layout = image_layouts_[run_mip_level];
 			if (current_image_layout != run_image_layout)

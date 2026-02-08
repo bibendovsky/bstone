@@ -21,7 +21,7 @@ struct R3rLimits
 	static constexpr int min_aa_on = 2;
 	static constexpr int max_aa = 32;
 
-	static constexpr int max_mipmap_count = 31;
+	static constexpr int max_mip_levels = 31;
 
 	static constexpr int max_buffers = 32;
 

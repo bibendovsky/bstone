@@ -35,7 +35,7 @@ public:
 
 private:
 	void do_update(const R3rR2TextureUpdateParam& param) override;
-	void do_generate_mipmaps() override;
+	void do_generate_mipmap() override;
 
 public:
 	void set() override;
@@ -62,7 +62,7 @@ private:
 	int width_{};
 	int height_{};
 
-	int mipmap_count_{};
+	int mip_level_count_{};
 
 	R3rSamplerState sampler_state_{};
 
@@ -74,7 +74,7 @@ private:
 
 	void bind() override;
 
-	void upload_mipmap(int mipmap_level, int width, int height, const void* src_data);
+	void upload_mip(int mip_level, int width, int height, const void* src_data);
 
 	void set_mag_filter();
 	void set_min_filter();
@@ -117,20 +117,20 @@ try
 
 	width_ = param.width;
 	height_ = param.height;
-	mipmap_count_ = param.mipmap_count;
+	mip_level_count_ = param.mip_level_count;
 
-	const auto max_mipmap_count = R3rUtils::calculate_mipmap_count(width_, height_);
+	const auto max_mip_levels = R3rUtils::calculate_mip_level_count(width_, height_);
 
-	if (mipmap_count_ > max_mipmap_count)
+	if (mip_level_count_ > max_mip_levels)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Mipmap count out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Mip level count out of range.");
 	}
 
 // TODO Disable when OpenGL ES 2.0 won't be supported.
 #if 1
-	if (mipmap_count_ > 1 && mipmap_count_ != max_mipmap_count)
+	if (mip_level_count_ > 1 && mip_level_count_ != max_mip_levels)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Mismatch mipmap count.");
+		BSTONE_THROW_STATIC_SOURCE("Mismatch mip level count.");
 	}
 #endif
 
@@ -166,7 +166,7 @@ try
 		glTextureParameteri(texture_resource_.get(), GL_TEXTURE_BASE_LEVEL, 0);
 		GlR3rError::check_optionally();
 
-		glTextureParameteri(texture_resource_.get(), GL_TEXTURE_MAX_LEVEL, mipmap_count_ - 1);
+		glTextureParameteri(texture_resource_.get(), GL_TEXTURE_MAX_LEVEL, mip_level_count_ - 1);
 		GlR3rError::check_optionally();
 	}
 	else
@@ -176,7 +176,7 @@ try
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
 		GlR3rError::check_optionally();
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mipmap_count_ - 1);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, mip_level_count_ - 1);
 		GlR3rError::check_optionally();
 	}
 #endif
@@ -187,7 +187,7 @@ try
 	{
 		glTextureStorage2D(
 			texture_resource_.get(),
-			mipmap_count_,
+			mip_level_count_,
 			gl_internal_format_,
 			width_,
 			height_);
@@ -196,17 +196,17 @@ try
 	}
 	else
 	{
-		auto mipmap_width = width_;
-		auto mipmap_height = height_;
+		auto mip_width = width_;
+		auto mip_height = height_;
 
-		for (auto i_mipmap = 0; i_mipmap < mipmap_count_; ++i_mipmap)
+		for (auto i_mip = 0; i_mip < mip_level_count_; ++i_mip)
 		{
 			glTexImage2D(
 				GL_TEXTURE_2D, // target
-				i_mipmap, // level
+				i_mip, // level
 				gl_internal_format_, // internal format
-				mipmap_width, // width
-				mipmap_height, // height
+				mip_width, // width
+				mip_height, // height
 				0, // border
 				gl_format_, // format
 				gl_type_, // type
@@ -215,14 +215,14 @@ try
 
 			GlR3rError::check_optionally();
 
-			if (mipmap_width > 1)
+			if (mip_width > 1)
 			{
-				mipmap_width /= 2;
+				mip_width /= 2;
 			}
 
-			if (mipmap_height > 1)
+			if (mip_height > 1)
 			{
-				mipmap_height /= 2;
+				mip_height /= 2;
 			}
 		}
 	}
@@ -232,9 +232,9 @@ void GlR3rR2TextureImpl::do_update(const R3rR2TextureUpdateParam& param)
 try {
 	validate(param);
 
-	if (param.mipmap_level >= mipmap_count_)
+	if (param.mip_level >= mip_level_count_)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Mipmap level out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Mip level out of range.");
 	}
 
 	if (!gl_device_features_.is_dsa_available)
@@ -242,33 +242,33 @@ try {
 		context_.bind_r2_texture(this);
 	}
 
-	auto mipmap_width = width_;
-	auto mipmap_height = height_;
+	auto mip_width = width_;
+	auto mip_height = height_;
 
-	for (auto i = 0; i < param.mipmap_level; ++i)
+	for (auto i = 0; i < param.mip_level; ++i)
 	{
-		if (mipmap_width > 1)
+		if (mip_width > 1)
 		{
-			mipmap_width /= 2;
+			mip_width /= 2;
 		}
 
-		if (mipmap_height > 1)
+		if (mip_height > 1)
 		{
-			mipmap_height /= 2;
+			mip_height /= 2;
 		}
 	}
 
-	upload_mipmap(param.mipmap_level, mipmap_width, mipmap_height, param.image);
+	upload_mip(param.mip_level, mip_width, mip_height, param.image);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rR2TextureImpl::do_generate_mipmaps()
+void GlR3rR2TextureImpl::do_generate_mipmap()
 try {
-	if (mipmap_count_ <= 1)
+	if (mip_level_count_ <= 1)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Base mipmap.");
 	}
 
-	if (!device_features_.is_mipmap_available)
+	if (!device_features_.can_generate_mipmap)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Mipmap generation not available.");
 	}
@@ -312,18 +312,18 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Invalid height.");
 	}
 
-	if (param.mipmap_count <= 0)
+	if (param.mip_level_count <= 0)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Invalid mipmap count.");
+		BSTONE_THROW_STATIC_SOURCE("Invalid mip level count.");
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rR2TextureImpl::validate(const R3rR2TextureUpdateParam& param)
 try {
-	if (param.mipmap_level < 0 ||
-		param.mipmap_level >= R3rLimits::max_mipmap_count)
+	if (param.mip_level < 0 ||
+		param.mip_level >= R3rLimits::max_mip_levels)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Mipmap level out of range.");
+		BSTONE_THROW_STATIC_SOURCE("Mip level out of range.");
 	}
 
 	if (param.image == nullptr)
@@ -338,13 +338,13 @@ try {
 	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rR2TextureImpl::upload_mipmap(int mipmap_level, int width, int height, const void* src_data)
+void GlR3rR2TextureImpl::upload_mip(int mip_level, int width, int height, const void* src_data)
 try {
 	if (gl_device_features_.is_dsa_available)
 	{
 		glTextureSubImage2D(
 			texture_resource_.get(), // target
-			mipmap_level, // level
+			mip_level, // level
 			0, // xoffset
 			0, // yoffset
 			width, // width
@@ -360,7 +360,7 @@ try {
 	{
 		glTexSubImage2D(
 			GL_TEXTURE_2D, // target
-			mipmap_level, // level
+			mip_level, // level
 			0, // xoffset
 			0, // yoffset
 			width, // width

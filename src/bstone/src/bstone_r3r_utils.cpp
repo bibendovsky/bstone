@@ -47,10 +47,10 @@ bool R3rUtils::is_pot_value(int value)
 	return nearest_value == value;
 }
 
-int R3rUtils::calculate_mipmap_count(int width, int height)
+int R3rUtils::calculate_mip_level_count(int width, int height)
 try {
 	//
-	// mipmap_count = [log2(max(width, height))] + 1
+	// mip_level_count = [log2(max(width, height))] + 1
 	//
 
 	if (width <= 0)
@@ -578,7 +578,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void R3rUtils::build_mipmap(
+void R3rUtils::build_mip(
 	int previous_width,
 	int previous_height,
 	const Rgba8* src_colors,
@@ -596,7 +596,7 @@ try {
 
 	if (previous_width == 1 && previous_height == 1)
 	{
-		BSTONE_THROW_STATIC_SOURCE("No more mipmap to build.");
+		BSTONE_THROW_STATIC_SOURCE("No more mip to build.");
 	}
 
 	if (!src_colors)
@@ -611,13 +611,13 @@ try {
 
 	if (previous_width == 1)
 	{
-		build_mipmap_1(previous_height, src_colors, dst_colors);
+		build_mip_1(previous_height, src_colors, dst_colors);
 		return;
 	}
 
 	if (previous_height == 1)
 	{
-		build_mipmap_1(previous_width, src_colors, dst_colors);
+		build_mip_1(previous_width, src_colors, dst_colors);
 		return;
 	}
 
@@ -957,7 +957,7 @@ void R3rUtils::indexed_npot_to_rgba_8_cm_ha(const IndexedToRgba8Param& param)
 	}
 }
 
-void R3rUtils::build_mipmap_1(
+void R3rUtils::build_mip_1(
 	int previous_dimension,
 	const Rgba8* src_colors,
 	Rgba8* dst_colors)

@@ -278,38 +278,38 @@ try {
 #endif // BSTONE_R3R_TEST_POT_ONLY
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rUtils::probe_mipmap(
+void GlR3rUtils::probe_mipmap_generation(
 	GlR3rExtensionMgr* extension_manager,
 	R3rDeviceFeatures& device_features,
 	GlR3rDeviceFeatures& gl_device_features)
 try {
-	device_features.is_mipmap_available = false;
-	gl_device_features.is_mipmap_ext = false;
+	device_features.can_generate_mipmap = false;
+	gl_device_features.has_mipmap_generation_ext = false;
 
 #ifndef BSTONE_R3R_TEST_SW_MIPMAP
 	if (gl_device_features.context_profile == sys::GlContextProfile::es)
 	{
-		device_features.is_mipmap_available = true;
+		device_features.can_generate_mipmap = true;
 	}
 
-	if (!device_features.is_mipmap_available)
+	if (!device_features.can_generate_mipmap)
 	{
 		extension_manager->probe(GlR3rExtensionId::arb_framebuffer_object);
 
 		if (extension_manager->has(GlR3rExtensionId::arb_framebuffer_object))
 		{
-			device_features.is_mipmap_available = true;
+			device_features.can_generate_mipmap = true;
 		}
 	}
 
-	if (!device_features.is_mipmap_available)
+	if (!device_features.can_generate_mipmap)
 	{
 		extension_manager->probe(GlR3rExtensionId::ext_framebuffer_object);
 
 		if (extension_manager->has(GlR3rExtensionId::ext_framebuffer_object))
 		{
-			device_features.is_mipmap_available = true;
-			gl_device_features.is_mipmap_ext = true;
+			device_features.can_generate_mipmap = true;
+			gl_device_features.has_mipmap_generation_ext = true;
 		}
 	}
 #endif // BSTONE_R3R_TEST_SW_MIPMAP
@@ -320,7 +320,7 @@ void GlR3rUtils::generate_mipmap(
 	const R3rDeviceFeatures& device_features,
 	const GlR3rDeviceFeatures& gl_device_features)
 try {
-	if (!device_features.is_mipmap_available)
+	if (!device_features.can_generate_mipmap)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Not available.");
 	}
@@ -331,7 +331,7 @@ try {
 		default: BSTONE_THROW_STATIC_SOURCE("Unsupported texture target.");
 	}
 
-	const auto gl_function = (gl_device_features.is_mipmap_ext ? glGenerateMipmapEXT : glGenerateMipmap);
+	const auto gl_function = (gl_device_features.has_mipmap_generation_ext ? glGenerateMipmapEXT : glGenerateMipmap);
 
 	gl_function(gl_target);
 	GlR3rError::check_optionally();
