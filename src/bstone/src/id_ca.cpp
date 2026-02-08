@@ -159,19 +159,7 @@ void CloseGrFile()
 
 void OpenMapFile()
 {
-	// TODO Remove or fix
-#ifdef CARMACIZED
-	strcpy(fname, "GAMEMAPS.");
-	strcat(fname, extension);
-
-	if ((maphandle = open(fname,
-		O_RDONLY | O_BINARY, S_IREAD)) == -1)
-	{
-		CA_CannotOpen(fname);
-	}
-#else
 	ca_open_resource(AssetsResourceType::maptemp, maphandle);
-#endif
 }
 
 void CloseMapFile()
@@ -327,86 +315,6 @@ void ca_huff_expand_on_screen(
 		}
 	}
 }
-
-#ifdef CARMACIZED
-/*
-======================
-=
-= CAL_CarmackExpand
-=
-= Length is the length of the EXPANDED data
-=
-======================
-*/
-void CAL_CarmackExpand(
-	std::uint16_t* source,
-	std::uint16_t* dest,
-	std::uint16_t length)
-{
-#define NEARTAG 0xa7
-#define FARTAG 0xa8
-
-	std::uint16_t ch, chhigh, count, offset;
-	std::uint16_t* copyptr, *inptr, *outptr;
-
-	length /= 2;
-
-	inptr = source;
-	outptr = dest;
-
-	while (length)
-	{
-		ch = *inptr++;
-		chhigh = ch >> 8;
-		if (chhigh == NEARTAG)
-		{
-			count = ch & 0xff;
-			if (!count)
-			{ // have to insert a word containing the tag byte
-				ch |= *((std::uint8_t*)inptr)++;
-				*outptr++ = ch;
-				length--;
-			}
-			else
-			{
-				offset = *((std::uint8_t*)inptr)++;
-				copyptr = outptr - offset;
-				length -= count;
-				while (count--)
-				{
-					*outptr++ = *copyptr++;
-				}
-			}
-		}
-		else if (chhigh == FARTAG)
-		{
-			count = ch & 0xff;
-			if (!count)
-			{ // have to insert a word containing the tag byte
-				ch |= *((std::uint8_t*)inptr)++;
-				*outptr++ = ch;
-				length--;
-			}
-			else
-			{
-				offset = *inptr++;
-				copyptr = dest + offset;
-				length -= count;
-				while (count--)
-				{
-					*outptr++ = *copyptr++;
-				}
-			}
-		}
-		else
-		{
-			*outptr++ = ch;
-			length--;
-		}
-	}
-}
-
-#endif
 
 /*
 ======================
