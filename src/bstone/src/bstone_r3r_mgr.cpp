@@ -19,9 +19,9 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-R3r* R3rMgr::renderer_initialize(const R3rInitParam& param)
+R3r* R3rMgr::make_renderer(const R3rInitParam& param)
 try {
-	return do_renderer_initialize(param);
+	return do_make_renderer(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
@@ -35,12 +35,12 @@ public:
 	~R3rMgrImpl() override;
 
 private:
-	R3r* do_renderer_initialize(const R3rInitParam& param) override;
+	R3r* do_make_renderer(const R3rInitParam& param) override;
 
 private:
 	sys::VideoMgr& video_mgr_;
 	sys::WindowMgr& window_mgr_;
-	R3rUPtr gl_renderer_{}; // TODO Rename.
+	R3rUPtr r3r_{};
 };
 
 // --------------------------------------------------------------------------
@@ -53,9 +53,9 @@ R3rMgrImpl::R3rMgrImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr)
 	window_mgr_{window_mgr}
 {}
 
-R3r* R3rMgrImpl::do_renderer_initialize(const R3rInitParam& param)
+R3r* R3rMgrImpl::do_make_renderer(const R3rInitParam& param)
 try {
-	gl_renderer_ = nullptr;
+	r3r_ = nullptr;
 
 	R3rUtils::validate_initialize_param(param);
 
@@ -63,8 +63,8 @@ try {
 	{
 #ifndef NDEBUG
 		case R3rType::null:
-			gl_renderer_ = make_null_r3r(video_mgr_, window_mgr_, param);
-			return gl_renderer_.get();
+			r3r_ = make_null_r3r(video_mgr_, window_mgr_, param);
+			return r3r_.get();
 #endif // NDEBUG
 
 #ifndef BSTONE_R3R_TEST_NO_GL
@@ -81,13 +81,13 @@ try {
 		case R3rType::gles_2_0:
 #endif
 
-			gl_renderer_ = make_gl_r3r(video_mgr_, window_mgr_, param);
-			return gl_renderer_.get();
+			r3r_ = make_gl_r3r(video_mgr_, window_mgr_, param);
+			return r3r_.get();
 #endif // BSTONE_R3R_TEST_NO_GL
 
 		case R3rType::vulkan:
-			gl_renderer_ = make_vk_r3r(video_mgr_, window_mgr_, param);
-			return gl_renderer_.get();
+			r3r_ = make_vk_r3r(video_mgr_, window_mgr_, param);
+			return r3r_.get();
 
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported renderer type.");
