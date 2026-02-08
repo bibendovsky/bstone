@@ -2991,7 +2991,7 @@ try {
 
 		try
 		{
-			renderer_ = renderer_mgr_->renderer_initialize(param);
+			renderer_ = renderer_mgr_->make_renderer(param);
 			break;
 		}
 		catch (...)

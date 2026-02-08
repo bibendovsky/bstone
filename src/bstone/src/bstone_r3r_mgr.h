@@ -21,11 +21,10 @@ public:
 	R3rMgr() = default;
 	virtual ~R3rMgr() = default;
 
-	// TODO Rename to "make...".
-	R3r* renderer_initialize(const R3rInitParam& param);
+	R3r* make_renderer(const R3rInitParam& param);
 
 private:
-	virtual R3r* do_renderer_initialize(const R3rInitParam& param) = 0;
+	virtual R3r* do_make_renderer(const R3rInitParam& param) = 0;
 };
 
 // ==========================================================================
