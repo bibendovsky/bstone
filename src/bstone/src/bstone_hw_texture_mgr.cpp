@@ -45,8 +45,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 namespace bstone
 {
 
-namespace detail
-{
+namespace {
 
 
 // ==========================================================================
@@ -189,7 +188,7 @@ void HwTextureMgrXbrzTask::initialize(
 // HwTextureMgrXbrzTask
 // ==========================================================================
 
-} // detail
+} // namespace
 
 
 // ==========================================================================
@@ -384,8 +383,8 @@ private:
 
 	Solid1x1Items solid_1x1_items_;
 
-	detail::XbrzTasks xbrz_tasks_;
-	detail::XbrzTaskPtrs xbrz_task_ptrs_;
+	XbrzTasks xbrz_tasks_;
+	XbrzTaskPtrs xbrz_task_ptrs_;
 
 	bool is_external_textures_enabled_{};
 	Buffer image_buffer_;

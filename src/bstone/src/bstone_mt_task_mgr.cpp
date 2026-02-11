@@ -25,8 +25,7 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
-namespace detail
-{
+namespace {
 
 // ==========================================================================
 // MtTaskQueue
@@ -75,7 +74,7 @@ private:
 // ==========================================================================
 
 
-} // detail
+} // namespace
 
 
 // ==========================================================================
@@ -125,7 +124,7 @@ private:
 
 	std::atomic_bool mt_is_quit_;
 
-	detail::MtTaskQueue mt_task_queue_;
+	MtTaskQueue mt_task_queue_;
 	MtThreads mt_threads_;
 
 
@@ -157,8 +156,7 @@ using MtTaskMgrImplUPtr = std::unique_ptr<MtTaskMgrImpl>;
 // ==========================================================================
 
 
-namespace detail
-{
+namespace {
 
 
 // ==========================================================================
@@ -289,7 +287,7 @@ bool MtTaskQueue::pop(
 // ==========================================================================
 
 
-} // detail
+} // namespace
 
 
 // ==========================================================================

@@ -20,16 +20,9 @@ namespace bstone
 {
 
 
-namespace detail
-{
-
-
 AssetPath make_gog_content_path();
 
 AssetPath make_steam_content_path();
-
-
-} // detail
 
 
 AssetPath make_content_path(
@@ -38,10 +31,10 @@ try {
 	switch (type)
 	{
 		case ContentPathProvider::gog:
-			return detail::make_gog_content_path();
+			return make_gog_content_path();
 
 		case ContentPathProvider::steam:
-			return detail::make_steam_content_path();
+			return make_steam_content_path();
 
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported provider.");
