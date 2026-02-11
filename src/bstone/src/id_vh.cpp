@@ -204,11 +204,11 @@ void VWB_Vlin(
 }
 
 void vwb_rect(
-	const int x,
-	const int y,
-	const int width,
-	const int height,
-	const int color)
+	int x,
+	int y,
+	int width,
+	int height,
+	int color)
 {
 	VWB_Bar(x, y, width, 1, static_cast<std::uint8_t>(color));
 	VWB_Bar(x, y + height - 1, width, 1, static_cast<std::uint8_t>(color));
@@ -325,7 +325,7 @@ void VW_Bar(
 	int width,
 	int height,
 	std::uint8_t color,
-	const bool is_transparent)
+	bool is_transparent)
 {
 	VL_Bar(x, y, width, height, color, is_transparent);
 }
@@ -334,7 +334,7 @@ void VW_Plot(
 	int x,
 	int y,
 	std::uint8_t color,
-	const bool is_transparent)
+	bool is_transparent)
 {
 	VL_Plot(x, y, color, is_transparent);
 }

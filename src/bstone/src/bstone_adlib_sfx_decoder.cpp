@@ -266,7 +266,7 @@ int AdlibSfxDecoder::get_header_size()
 
 // ==========================================================================
 
-AudioDecoderUPtr make_adlib_sfx_audio_decoder(const Opl3Type opl3_type)
+AudioDecoderUPtr make_adlib_sfx_audio_decoder(Opl3Type opl3_type)
 {
 	return std::make_unique<AdlibSfxDecoder>(opl3_type);
 }

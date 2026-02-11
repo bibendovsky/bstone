@@ -59,18 +59,18 @@ public:
 
 
 	virtual int get_min_upscale_filter_degree(
-		const HwTextureMgrUpscaleFilterType upscale_filter_type) const = 0;
+		HwTextureMgrUpscaleFilterType upscale_filter_type) const = 0;
 
 	virtual int get_max_upscale_filter_degree(
-		const HwTextureMgrUpscaleFilterType upscale_filter_type) const = 0;
+		HwTextureMgrUpscaleFilterType upscale_filter_type) const = 0;
 
 	virtual HwTextureMgrUpscaleFilterType get_upscale_filter_type() const = 0;
 
 	virtual int get_upscale_filter_degree() const = 0;
 
 	virtual void set_upscale_filter(
-		const HwTextureMgrUpscaleFilterType upscale_filter_type,
-		const int upscale_filter_degree) = 0;
+		HwTextureMgrUpscaleFilterType upscale_filter_type,
+		int upscale_filter_degree) = 0;
 
 	virtual void enable_external_textures(
 		bool is_enable) = 0;
@@ -84,24 +84,24 @@ public:
 
 
 	virtual void cache_wall(
-		const int id) = 0;
+		int id) = 0;
 
 	virtual R3rR2Texture* get_wall(
-		const int id) const = 0;
+		int id) const = 0;
 
 
 	virtual void cache_sprite(
-		const int id) = 0;
+		int id) = 0;
 
 	virtual R3rR2Texture* get_sprite(
-		const int id) const = 0;
+		int id) const = 0;
 
 
 	virtual void destroy_ui() = 0;
 
 	virtual void create_ui(
-		const std::uint8_t* const indexed_pixels,
-		const bool* const indexed_alphas,
+		const std::uint8_t* indexed_pixels,
+		const bool* indexed_alphas,
 		const Rgba8Palette* indexed_palette) = 0;
 
 	virtual void update_ui() = 0;
@@ -110,20 +110,20 @@ public:
 
 
 	virtual void try_destroy_solid_1x1(
-		const HwTextureMgrSolid1x1Id id) = 0;
+		HwTextureMgrSolid1x1Id id) = 0;
 
 	virtual void destroy_solid_1x1(
-		const HwTextureMgrSolid1x1Id id) = 0;
+		HwTextureMgrSolid1x1Id id) = 0;
 
 	virtual void create_solid_1x1(
-		const HwTextureMgrSolid1x1Id id) = 0;
+		HwTextureMgrSolid1x1Id id) = 0;
 
 	virtual void update_solid_1x1(
-		const HwTextureMgrSolid1x1Id id,
-		const Rgba8 color) = 0;
+		HwTextureMgrSolid1x1Id id,
+		Rgba8 color) = 0;
 
 	virtual R3rR2Texture* get_solid_1x1(
-		const HwTextureMgrSolid1x1Id id) const = 0;
+		HwTextureMgrSolid1x1Id id) const = 0;
 }; // HwTextureMgr
 
 using HwTextureMgrUPtr = std::unique_ptr<HwTextureMgr>;

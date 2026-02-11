@@ -588,8 +588,8 @@ void HitHorizWall()
 }
 
 static int get_door_page_number(
-	const int door_index,
-	const bool is_vertical)
+	int door_index,
+	bool is_vertical)
 {
 	auto doorpage = DOORWALL + is_vertical;
 	auto lockable = true;
@@ -1712,9 +1712,9 @@ void DrawRadar()
 std::uint16_t tc_time;
 
 static bool show_pwalls_on_automap(
-	const int x,
-	const int y,
-	const bool is_show_all)
+	int x,
+	int y,
+	bool is_show_all)
 {
 	if (tilemap[x][y] == 0)
 	{

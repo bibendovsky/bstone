@@ -132,7 +132,7 @@ enum MenuVideoLables
 
 
 void draw_carousel(
-	const int item_index,
+	int item_index,
 	CP_iteminfo* item_i,
 	CP_itemtype* items,
 	const std::string& text);
@@ -584,13 +584,13 @@ CP_itemtype texturing_menu[] =
 };
 
 void video_menu_mode_routine(
-	const std::int16_t index);
+	std::int16_t index);
 
 void texturing_routine(
-	const std::int16_t index);
+	std::int16_t index);
 
 void filler_color_routine(
-	const std::int16_t index);
+	std::int16_t index);
 
 CP_itemtype video_menu[] =
 {
@@ -2768,9 +2768,9 @@ void initialize_sound_driver_index()
 }
 
 void sound_driver_carousel(
-	const int item_index,
-	const bool is_left,
-	const bool is_right)
+	int item_index,
+	bool is_left,
+	bool is_right)
 {
 	const auto delta = (is_left ? -1 : (is_right ? 1 : 0));
 
@@ -2813,9 +2813,9 @@ void initialize_sound_opl3_type_index()
 }
 
 void sound_opl3_type_carousel(
-	const int item_index,
-	const bool is_left,
-	const bool is_right)
+	int item_index,
+	bool is_left,
+	bool is_right)
 {
 	const auto delta = (is_left ? -1 : (is_right ? 1 : 0));
 
@@ -4915,7 +4915,7 @@ void video_draw_switch(
 
 ///
 void draw_carousel(
-	const int item_index,
+	int item_index,
 	CP_iteminfo* item_i,
 	CP_itemtype* items,
 	const std::string& text)
@@ -5009,7 +5009,7 @@ void menu_video_mode_update_apply_button()
 }
 
 int menu_video_mode_aa_factor_adjust(
-	const int aa_factor)
+	int aa_factor)
 {
 	auto current_aa_factor = aa_factor;
 
@@ -5103,7 +5103,7 @@ std::string menu_video_mode_size_get_string(
 }
 
 const std::string& menu_video_mode_aa_type_get_string(
-	const bstone::R3rAaType aa_type)
+	bstone::R3rAaType aa_type)
 {
 	static const auto none_string = std::string{"NONE"};
 	static const auto msaa_string = std::string{"MSAA"};
@@ -5122,7 +5122,7 @@ const std::string& menu_video_mode_aa_type_get_string(
 }
 
 std::string menu_video_mode_aa_factor_get_string(
-	const int aa_factor)
+	int aa_factor)
 {
 	return std::to_string(aa_factor);
 }
@@ -5335,9 +5335,9 @@ void video_mode_draw_switch(
 }
 
 void video_menu_mode_renderer_carousel(
-	const int item_index,
-	const bool is_left,
-	const bool is_right)
+	int item_index,
+	bool is_left,
+	bool is_right)
 {
 	const auto max_index = static_cast<int>(menu_video_mode_renderer_types_.size());
 
@@ -5364,9 +5364,9 @@ void video_menu_mode_renderer_carousel(
 }
 
 void video_menu_mode_display_mode_carousel(
-	const int item_index,
-	const bool is_left,
-	const bool is_right)
+	int item_index,
+	bool is_left,
+	bool is_right)
 {
 	const auto max_index = static_cast<int>(menu_video_mode_sizes_.size());
 
@@ -5438,9 +5438,9 @@ void video_menu_mode_window_mode_carousel(int item_index, bool is_left, bool is_
 }
 
 void video_menu_mode_window_aa_type_carousel(
-	const int item_index,
-	const bool is_left,
-	const bool is_right)
+	int item_index,
+	bool is_left,
+	bool is_right)
 {
 	switch (menu_video_mode_cfg_.aa_type)
 	{
@@ -5478,9 +5478,9 @@ void video_menu_mode_window_aa_type_carousel(
 }
 
 void video_menu_mode_window_aa_factor_carousel(
-	const int item_index,
-	const bool is_left,
-	const bool is_right)
+	int item_index,
+	bool is_left,
+	bool is_right)
 {
 	auto aa_factor = menu_video_mode_cfg_.aa_degree;
 
@@ -5513,7 +5513,7 @@ void video_menu_mode_window_aa_factor_carousel(
 }
 
 void video_menu_mode_routine(
-	const std::int16_t)
+	std::int16_t)
 {
 	std::int16_t which;
 
@@ -5561,7 +5561,7 @@ void video_menu_mode_routine(
 
 ///
 const std::string& texturing_filter_to_string(
-	const bstone::R3rFilterType filter)
+	bstone::R3rFilterType filter)
 {
 	static const auto nearest_string = std::string{"NEAREST"};
 	static const auto linear_string = std::string{"LINEAR"};
@@ -5580,7 +5580,7 @@ const std::string& texturing_filter_to_string(
 }
 
 int texturing_anisotropy_to_pot(
-	const int anisotropy)
+	int anisotropy)
 {
 	auto pot_anisotropy = anisotropy;
 
@@ -5604,7 +5604,7 @@ int texturing_anisotropy_to_pot(
 }
 
 int texturing_normalize_upscale_degree(
-	const int upscale_degree)
+	int upscale_degree)
 {
 	if (upscale_degree < vid_upscale_min_degree)
 	{
@@ -5824,9 +5824,9 @@ void texturing_draw_switch(
 }
 
 void texturing_anisotropy_carousel(
-	const int item_index,
-	const bool is_left,
-	const bool is_right)
+	int item_index,
+	bool is_left,
+	bool is_right)
 {
 	auto anisotropy = texturing_anisotropy_to_pot(vid_cfg_get_3d_texture_anisotropy());
 
@@ -5878,9 +5878,9 @@ void texturing_filter_carousel(
 }
 
 void texturing_2d_image_filter_carousel(
-	const int item_index,
-	const bool,
-	const bool)
+	int item_index,
+	bool,
+	bool)
 {
 	auto filter = vid_cfg_get_2d_texture_filter();
 	texturing_filter_carousel(filter);
@@ -5894,9 +5894,9 @@ void texturing_2d_image_filter_carousel(
 }
 
 void texturing_3d_image_filter_carousel(
-	const int item_index,
-	const bool,
-	const bool)
+	int item_index,
+	bool,
+	bool)
 {
 	auto filter = vid_cfg_get_3d_texture_image_filter();
 	texturing_filter_carousel(filter);
@@ -5910,9 +5910,9 @@ void texturing_3d_image_filter_carousel(
 }
 
 void texturing_3d_mipmap_filter_carousel(
-	const int item_index,
-	const bool,
-	const bool)
+	int item_index,
+	bool,
+	bool)
 {
 	auto filter = vid_cfg_get_3d_texture_mipmap_filter();
 	texturing_filter_carousel(filter);
@@ -5926,9 +5926,9 @@ void texturing_3d_mipmap_filter_carousel(
 }
 
 void texturing_upscale_filter_carousel(
-	const int item_index,
-	const bool,
-	const bool)
+	int item_index,
+	bool,
+	bool)
 {
 	if (vid_cfg_get_texture_upscale_type() == bstone::HwTextureMgrUpscaleFilterType::none)
 	{
@@ -5948,9 +5948,9 @@ void texturing_upscale_filter_carousel(
 }
 
 void texturing_upscale_degree_carousel(
-	const int item_index,
-	const bool is_left,
-	const bool is_right)
+	int item_index,
+	bool is_left,
+	bool is_right)
 {
 	auto xbrz_degree = texturing_normalize_upscale_degree(vid_cfg_get_texture_upscale_xbrz_degree());
 
@@ -5984,9 +5984,9 @@ void texturing_upscale_degree_carousel(
 }
 
 void texturing_external_textures_carousel(
-	const int item_index,
-	const bool,
-	const bool)
+	int item_index,
+	bool,
+	bool)
 {
 	vid_cfg_set_is_external_textures_enabled(!vid_cfg_is_external_textures_enabled());
 
@@ -5999,7 +5999,7 @@ void texturing_external_textures_carousel(
 }
 
 void texturing_routine(
-	const std::int16_t)
+	std::int16_t)
 {
 	std::int16_t which;
 
@@ -6367,7 +6367,7 @@ void draw_filler_color_cell(
 }
 
 void filler_color_routine(
-	const std::int16_t)
+	std::int16_t)
 {
 	VL_SetPalette(0, 256, vgapal);
 	draw_filler_color_menu();

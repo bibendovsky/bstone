@@ -1832,7 +1832,7 @@ enum classtype
 // BBi
 classtype operator++(
 	classtype& value,
-	const int);
+	int);
 // BBi
 
 //
@@ -1920,23 +1920,23 @@ enum dirtype
 // BBi
 dirtype operator+=(
 	dirtype& lhs,
-	const int rhs);
+	int rhs);
 
 dirtype operator-=(
 	dirtype& lhs,
-	const int rhs);
+	int rhs);
 
 dirtype operator|=(
 	dirtype& lhs,
-	const int rhs);
+	int rhs);
 
 dirtype operator--(
 	dirtype& value,
-	const int);
+	int);
 
 dirtype operator++(
 	dirtype& value,
-	const int);
+	int);
 
 enum enemy_t
 {
@@ -2569,17 +2569,17 @@ struct gametype
 
 
 	int get_barrier_group_offset(
-		const int level) const;
+		int level) const;
 
 	int get_barrier_index(
-		const int code) const;
+		int code) const;
 
 	int encode_barrier_index(
-		const int level,
-		const int index) const;
+		int level,
+		int index) const;
 
 	void decode_barrier_index(
-		const int code,
+		int code,
 		int& level,
 		int& index) const;
 }; // gametype
@@ -2940,8 +2940,8 @@ void SetPlaneViewSize();
 void NewViewSize();
 
 bool DoMovie(
-	const bstone::MovieId movie,
-	const void* const raw_palette = nullptr);
+	bstone::MovieId movie,
+	const void* raw_palette = nullptr);
 
 bool CheckDiskSpace(
 	std::int32_t needed,
@@ -3261,7 +3261,7 @@ void SelectDodgeDir(
 
 void MoveObj(
 	objtype* ob,
-	const double move);
+	double move);
 
 void KillActor(
 	objtype* ob);
@@ -3307,8 +3307,8 @@ void ScaleShape(
 
 // BBi
 void scale_player_weapon(
-	const int sprite_id,
-	const int height);
+	int sprite_id,
+	int height);
 
 
 /*
@@ -3406,15 +3406,15 @@ void ActivateWallSwitch(
 
 // AOG
 std::uint16_t UpdateBarrierTable(
-	const int level,
-	const int x,
-	const int y);
+	int level,
+	int x,
+	int y);
 
 // PS
 std::uint16_t UpdateBarrierTable(
-	const int x,
-	const int y,
-	const bool on_off);
+	int x,
+	int y,
+	bool on_off);
 
 std::uint16_t ScanBarrierTable(
 	std::uint8_t x,
@@ -3717,8 +3717,8 @@ void SpawnOffsetObj(
 	std::int16_t tiley);
 
 void SpawnCusExplosion(
-	const double x,
-	const double y,
+	double x,
+	double y,
 	std::uint16_t StartFrame,
 	std::uint16_t NumFrames,
 	std::uint16_t Delay,
@@ -3756,8 +3756,8 @@ void SpawnHiddenOfs(
 objtype* MoveHiddenOfs(
 	classtype which_class,
 	classtype new1,
-	const double x,
-	const double y);
+	double x,
+	double y);
 
 void DropCargo(
 	objtype* obj);
@@ -4016,14 +4016,14 @@ void cfg_file_write_entry(
 	const std::string& value_string);
 
 std::uint16_t get_start_hit_point(
-	const int index);
+	int index);
 
 
 double get_integral(
-	const double value);
+	double value);
 
 double get_fractional(
-	const double value);
+	double value);
 
 void gp_initialize_cvars(bstone::CVarMgr& cvar_mgr);
 void am_initialize_cvars(bstone::CVarMgr& cvar_mgr);

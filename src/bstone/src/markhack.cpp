@@ -153,8 +153,8 @@ void DrawLSPost()
 
 // BBi Draws a wall for UI (text presenter, etc.)
 void draw_wall_ui(
-	const int x,
-	const int y,
+	int x,
+	int y,
 	const void* raw_wall)
 {
 	const int wall_side = 64;

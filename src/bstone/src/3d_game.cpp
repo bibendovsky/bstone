@@ -196,8 +196,8 @@ void ClearMemory()
 }
 
 void INVALID_ACTOR_ERR(
-	const int x,
-	const int y)
+	int x,
+	int y)
 {
 	BSTONE_THROW_DYNAMIC_SOURCE(
 		("Invalid actor at (" + std::to_string(x) + ", " + std::to_string(y) + ").").c_str());
@@ -3693,8 +3693,8 @@ restartgame:
 
 // BBi
 std::string xy_to_string(
-	const int x,
-	const int y)
+	int x,
+	int y)
 {
 	return '(' + std::to_string(x) + ", " + std::to_string(y) + ')';
 }

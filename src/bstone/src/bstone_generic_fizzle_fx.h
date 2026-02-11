@@ -31,8 +31,8 @@ class GenericFizzleFX final :
 {
 public:
 	GenericFizzleFX(
-		const std::uint8_t plot_color,
-		const bool is_transparent);
+		std::uint8_t plot_color,
+		bool is_transparent);
 
 	GenericFizzleFX(
 		GenericFizzleFX&& rhs) noexcept;
@@ -71,8 +71,8 @@ protected:
 
 	// Performs operation on one pixel.
 	void plot(
-		const int x,
-		const int y) override;
+		int x,
+		int y) override;
 
 	// Presents the final stage of the effect.
 	void skip_to_the_end() override;

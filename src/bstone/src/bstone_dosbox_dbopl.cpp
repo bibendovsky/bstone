@@ -41,7 +41,7 @@ public:
 
 	void write(int fm_port, int fm_value) override;
 	bool generate(int count, std::int16_t* buffer) override;
-	bool generate(const int count, float* buffer) override;
+	bool generate(int count, float* buffer) override;
 
 	bool reset() override;
 

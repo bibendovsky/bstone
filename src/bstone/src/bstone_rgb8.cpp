@@ -36,10 +36,10 @@ Rgba8::Rgba8()
 }
 
 Rgba8::Rgba8(
-	const std::uint8_t r,
-	const std::uint8_t g,
-	const std::uint8_t b,
-	const std::uint8_t a)
+	std::uint8_t r,
+	std::uint8_t g,
+	std::uint8_t b,
+	std::uint8_t a)
 	:
 	r_{r},
 	g_{g},
@@ -49,7 +49,7 @@ Rgba8::Rgba8(
 }
 
 std::uint8_t& Rgba8::get(
-	const int index)
+	int index)
 {
 	BSTONE_ASSERT(index >= 0 && index < 4);
 
@@ -57,7 +57,7 @@ std::uint8_t& Rgba8::get(
 }
 
 const std::uint8_t& Rgba8::get(
-	const int index) const
+	int index) const
 {
 	BSTONE_ASSERT(index >= 0 && index < 4);
 
@@ -65,13 +65,13 @@ const std::uint8_t& Rgba8::get(
 }
 
 std::uint8_t& Rgba8::operator[](
-	const int index)
+	int index)
 {
 	return get(index);
 }
 
 const std::uint8_t& Rgba8::operator[](
-	const int index) const
+	int index) const
 {
 	return get(index);
 }

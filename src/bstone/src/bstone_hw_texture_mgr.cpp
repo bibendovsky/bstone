@@ -76,13 +76,13 @@ public:
 
 
 	void initialize(
-		const int factor,
-		const int first_index,
-		const int last_index,
-		const int src_width,
-		const int src_height,
-		const std::uint32_t* const src_colors,
-		std::uint32_t* const dst_colors);
+		int factor,
+		int first_index,
+		int last_index,
+		int src_width,
+		int src_height,
+		const std::uint32_t* src_colors,
+		std::uint32_t* dst_colors);
 
 
 private:
@@ -168,13 +168,13 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrXbrzTask::initialize(
-	const int factor,
-	const int first_index,
-	const int last_index,
-	const int src_width,
-	const int src_height,
-	const std::uint32_t* const src_colors,
-	std::uint32_t* const dst_colors)
+	int factor,
+	int first_index,
+	int last_index,
+	int src_width,
+	int src_height,
+	const std::uint32_t* src_colors,
+	std::uint32_t* dst_colors)
 {
 	factor_ = factor;
 	first_index_ = first_index;
@@ -209,18 +209,18 @@ public:
 
 
 	int get_min_upscale_filter_degree(
-		const HwTextureMgrUpscaleFilterType upscale_filter_type) const override;
+		HwTextureMgrUpscaleFilterType upscale_filter_type) const override;
 
 	int get_max_upscale_filter_degree(
-		const HwTextureMgrUpscaleFilterType upscale_filter_type) const override;
+		HwTextureMgrUpscaleFilterType upscale_filter_type) const override;
 
 	HwTextureMgrUpscaleFilterType get_upscale_filter_type() const override;
 
 	int get_upscale_filter_degree() const override;
 
 	void set_upscale_filter(
-		const HwTextureMgrUpscaleFilterType upscale_filter,
-		const int upscale_filter_factor) override;
+		HwTextureMgrUpscaleFilterType upscale_filter,
+		int upscale_filter_factor) override;
 
 	void enable_external_textures(
 		bool is_enable) override;
@@ -234,24 +234,24 @@ public:
 
 
 	void cache_wall(
-		const int id) override;
+		int id) override;
 
 	R3rR2Texture* get_wall(
-		const int id) const override;
+		int id) const override;
 
 
 	void cache_sprite(
-		const int id) override;
+		int id) override;
 
 	R3rR2Texture* get_sprite(
-		const int id) const override;
+		int id) const override;
 
 
 	void destroy_ui() override;
 
 	void create_ui(
-		const std::uint8_t* const indexed_pixels,
-		const bool* const indexed_alphas,
+		const std::uint8_t* indexed_pixels,
+		const bool* indexed_alphas,
 		const Rgba8Palette* indexed_palette) override;
 
 	void update_ui() override;
@@ -260,20 +260,20 @@ public:
 
 
 	void try_destroy_solid_1x1(
-		const HwTextureMgrSolid1x1Id id) override;
+		HwTextureMgrSolid1x1Id id) override;
 
 	void destroy_solid_1x1(
-		const HwTextureMgrSolid1x1Id id) override;
+		HwTextureMgrSolid1x1Id id) override;
 
 	void create_solid_1x1(
-		const HwTextureMgrSolid1x1Id id) override;
+		HwTextureMgrSolid1x1Id id) override;
 
 	void update_solid_1x1(
-		const HwTextureMgrSolid1x1Id id,
-		const Rgba8 color) override;
+		HwTextureMgrSolid1x1Id id,
+		Rgba8 color) override;
 
 	R3rR2Texture* get_solid_1x1(
-		const HwTextureMgrSolid1x1Id id) const override;
+		HwTextureMgrSolid1x1Id id) const override;
 
 
 private:
@@ -398,8 +398,8 @@ private:
 
 
 	static void validate_upscale_filter(
-		const HwTextureMgrUpscaleFilterType upscale_filter_type,
-		const int upscale_filter_factor);
+		HwTextureMgrUpscaleFilterType upscale_filter_type,
+		int upscale_filter_factor);
 
 
 	void validate_image_source_r2_texture_properties(
@@ -479,10 +479,10 @@ private:
 		ImageType type);
 
 	R2TextureItem wall_create_texture(
-		const int wall_id);
+		int wall_id);
 
 	R2TextureItem sprite_create_texture(
-		const int sprite_id);
+		int sprite_id);
 
 
 	void initialize_internal(
@@ -493,33 +493,33 @@ private:
 		IdToR2TextureMap& map);
 
 	R3rR2Texture* get_r2_texture(
-		const ImageType image_type,
-		const int id,
+		ImageType image_type,
+		int id,
 		const IdToR2TextureMap& map) const;
 
 	void solid_1x1_destroy_all();
 
 	static int solid_1x1_try_get_index(
-		const HwTextureMgrSolid1x1Id id);
+		HwTextureMgrSolid1x1Id id);
 
 	static int solid_1x1_get_index(
-		const HwTextureMgrSolid1x1Id id);
+		HwTextureMgrSolid1x1Id id);
 
 	static int solid_1x1_get_updateable_index(
-		const HwTextureMgrSolid1x1Id id);
+		HwTextureMgrSolid1x1Id id);
 
 	static Rgba8 solid_1x1_get_default_color(
-		const HwTextureMgrSolid1x1Id id);
+		HwTextureMgrSolid1x1Id id);
 
 	static int upscale_filter_get_min_factor_internal(
-		const HwTextureMgrUpscaleFilterType upscale_filter_type);
+		HwTextureMgrUpscaleFilterType upscale_filter_type);
 
 	static int upscale_filter_get_max_factor_internal(
-		const HwTextureMgrUpscaleFilterType upscale_filter_type);
+		HwTextureMgrUpscaleFilterType upscale_filter_type);
 
 	static int upscale_filter_clamp_factor(
-		const HwTextureMgrUpscaleFilterType upscale_filter_type,
-		const int upscale_filter_factor);
+		HwTextureMgrUpscaleFilterType upscale_filter_type,
+		int upscale_filter_factor);
 }; // Detail
 
 using HwTextureMgrImplUPtr = std::unique_ptr<HwTextureMgrImpl>;
@@ -676,13 +676,13 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int HwTextureMgrImpl::get_min_upscale_filter_degree(
-	const HwTextureMgrUpscaleFilterType upscale_filter_type) const
+	HwTextureMgrUpscaleFilterType upscale_filter_type) const
 try {
 	return upscale_filter_get_min_factor_internal(upscale_filter_type);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int HwTextureMgrImpl::get_max_upscale_filter_degree(
-	const HwTextureMgrUpscaleFilterType upscale_filter_type) const
+	HwTextureMgrUpscaleFilterType upscale_filter_type) const
 try {
 	return upscale_filter_get_max_factor_internal(upscale_filter_type);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -698,8 +698,8 @@ int HwTextureMgrImpl::get_upscale_filter_degree() const
 }
 
 void HwTextureMgrImpl::set_upscale_filter(
-	const HwTextureMgrUpscaleFilterType upscale_filter_type,
-	const int upscale_filter_factor)
+	HwTextureMgrUpscaleFilterType upscale_filter_type,
+	int upscale_filter_factor)
 try {
 	const auto clamped_upscale_filter_factor = upscale_filter_clamp_factor(
 		upscale_filter_type,
@@ -772,7 +772,7 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::cache_wall(
-	const int id)
+	int id)
 try {
 	if (id < 0 || id >= max_walls)
 	{
@@ -795,7 +795,7 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rR2Texture* HwTextureMgrImpl::get_wall(
-	const int id) const
+	int id) const
 try {
 	if (id < 0 || id >= max_walls)
 	{
@@ -806,7 +806,7 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::cache_sprite(
-	const int id)
+	int id)
 try {
 	if (id <= 0 || id >= max_sprites)
 	{
@@ -829,7 +829,7 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rR2Texture* HwTextureMgrImpl::get_sprite(
-	const int id) const
+	int id) const
 try {
 	if (id <= 0 || id >= max_sprites)
 	{
@@ -845,8 +845,8 @@ void HwTextureMgrImpl::destroy_ui()
 }
 
 void HwTextureMgrImpl::create_ui(
-	const std::uint8_t* const indexed_pixels,
-	const bool* const indexed_alphas,
+	const std::uint8_t* indexed_pixels,
+	const bool* indexed_alphas,
 	const Rgba8Palette* indexed_palette)
 try {
 	if (ui_t2d_item_.r2_texture)
@@ -895,7 +895,7 @@ R3rR2Texture* HwTextureMgrImpl::get_ui() const
 }
 
 void HwTextureMgrImpl::try_destroy_solid_1x1(
-	const HwTextureMgrSolid1x1Id id)
+	HwTextureMgrSolid1x1Id id)
 {
 	const auto index = solid_1x1_try_get_index(id);
 
@@ -909,7 +909,7 @@ void HwTextureMgrImpl::try_destroy_solid_1x1(
 }
 
 void HwTextureMgrImpl::destroy_solid_1x1(
-	const HwTextureMgrSolid1x1Id id)
+	HwTextureMgrSolid1x1Id id)
 try {
 	const auto index = solid_1x1_get_index(id);
 
@@ -918,7 +918,7 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::create_solid_1x1(
-	const HwTextureMgrSolid1x1Id id)
+	HwTextureMgrSolid1x1Id id)
 try {
 	const auto index = solid_1x1_get_index(id);
 
@@ -942,8 +942,8 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::update_solid_1x1(
-	const HwTextureMgrSolid1x1Id id,
-	const Rgba8 color)
+	HwTextureMgrSolid1x1Id id,
+	Rgba8 color)
 try {
 	const auto index = solid_1x1_get_updateable_index(id);
 
@@ -957,7 +957,7 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rR2Texture* HwTextureMgrImpl::get_solid_1x1(
-	const HwTextureMgrSolid1x1Id id) const
+	HwTextureMgrSolid1x1Id id) const
 try {
 	const auto index = solid_1x1_get_index(id);
 
@@ -1007,8 +1007,8 @@ void HwTextureMgrImpl::uninitialize_internal()
 }
 
 void HwTextureMgrImpl::validate_upscale_filter(
-	const HwTextureMgrUpscaleFilterType upscale_filter_type,
-	const int upscale_filter_factor)
+	HwTextureMgrUpscaleFilterType upscale_filter_type,
+	int upscale_filter_factor)
 try {
 	switch (upscale_filter_type)
 	{
@@ -1747,7 +1747,7 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 HwTextureMgrImpl::R2TextureItem HwTextureMgrImpl::wall_create_texture(
-	const int wall_id)
+	int wall_id)
 try {
 	const auto indexed_pixels = bstone::globals::vswap->get_wall_data(wall_id);
 
@@ -1784,7 +1784,7 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 HwTextureMgrImpl::R2TextureItem HwTextureMgrImpl::sprite_create_texture(
-	const int sprite_id)
+	int sprite_id)
 try {
 	auto sprite = sprite_cache_->cache(sprite_id);
 
@@ -1887,8 +1887,8 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rR2Texture* HwTextureMgrImpl::get_r2_texture(
-	const ImageType image_type,
-	const int id,
+	ImageType image_type,
+	int id,
 	const IdToR2TextureMap& map) const
 {
 	auto item_it = map.find(id);
@@ -1922,7 +1922,7 @@ void HwTextureMgrImpl::solid_1x1_destroy_all()
 }
 
 int HwTextureMgrImpl::solid_1x1_try_get_index(
-	const HwTextureMgrSolid1x1Id id)
+	HwTextureMgrSolid1x1Id id)
 {
 	switch (id)
 	{
@@ -1999,7 +1999,7 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int HwTextureMgrImpl::upscale_filter_get_min_factor_internal(
-	const HwTextureMgrUpscaleFilterType upscale_filter_type)
+	HwTextureMgrUpscaleFilterType upscale_filter_type)
 try {
 	switch (upscale_filter_type)
 	{
@@ -2015,7 +2015,7 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int HwTextureMgrImpl::upscale_filter_get_max_factor_internal(
-	const HwTextureMgrUpscaleFilterType upscale_filter_type)
+	HwTextureMgrUpscaleFilterType upscale_filter_type)
 try {
 	switch (upscale_filter_type)
 	{
@@ -2031,8 +2031,8 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int HwTextureMgrImpl::upscale_filter_clamp_factor(
-	const HwTextureMgrUpscaleFilterType upscale_filter_type,
-	const int upscale_filter_factor)
+	HwTextureMgrUpscaleFilterType upscale_filter_type,
+	int upscale_filter_factor)
 try {
 	auto result = upscale_filter_factor;
 

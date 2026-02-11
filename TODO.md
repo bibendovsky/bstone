@@ -1,6 +1,5 @@
 - [HWR] Fix Z-fighting.
 - Revise AOG compatibility.
-- Remove `const` before non-pointer or non-reference function parameter.
 - Namespace `detail` to anonymous one.
 - Make some player's sounds positional (interacting with switches, .etc).
 - Play `got weapon` sound on separate voice?

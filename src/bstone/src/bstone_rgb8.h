@@ -39,24 +39,24 @@ public:
 	Rgba8();
 
 	Rgba8(
-		const std::uint8_t r,
-		const std::uint8_t g,
-		const std::uint8_t b,
-		const std::uint8_t a);
+		std::uint8_t r,
+		std::uint8_t g,
+		std::uint8_t b,
+		std::uint8_t a);
 
 
 	std::uint8_t& get(
-		const int index);
+		int index);
 
 	const std::uint8_t& get(
-		const int index) const;
+		int index) const;
 
 
 	std::uint8_t& operator[](
-		const int index);
+		int index);
 
 	const std::uint8_t& operator[](
-		const int index) const;
+		int index) const;
 
 
 	void reset();

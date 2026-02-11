@@ -59,14 +59,14 @@ public:
 	}
 
 	template<typename... TArgs>
-	void add(const std::format_string<TArgs...> format_string, TArgs&&... args)
+	void add(std::format_string<TArgs...> format_string, TArgs&&... args)
 		requires (sizeof...(args) > 0)
 	{
 		std::format_to(std::back_inserter(message_), format_string, std::forward<TArgs>(args)...);
 	}
 
 	template<typename... TArgs>
-	void add_line(const std::format_string<TArgs...> format_string, TArgs&&... args)
+	void add_line(std::format_string<TArgs...> format_string, TArgs&&... args)
 		requires (sizeof...(args) > 0)
 	{
 		add(format_string, std::forward<TArgs>(args)...);
@@ -74,7 +74,7 @@ public:
 	}
 
 	template<typename... TArgs>
-	void add_indented(const std::format_string<TArgs...> format_string, TArgs&&... args)
+	void add_indented(std::format_string<TArgs...> format_string, TArgs&&... args)
 		requires (sizeof...(args) > 0)
 	{
 		add_indent();
@@ -82,7 +82,7 @@ public:
 	}
 	
 	template<typename... TArgs>
-	void add_indented_line(const std::format_string<TArgs...> format_string, TArgs&&... args)
+	void add_indented_line(std::format_string<TArgs...> format_string, TArgs&&... args)
 		requires (sizeof...(args) > 0)
 	{
 		add_indent();

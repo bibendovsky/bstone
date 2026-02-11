@@ -74,10 +74,10 @@ void sd_music_on(bool is_looping);
 void sd_music_off();
 bool sd_is_sound_enabled();
 void sd_set_is_sound_enabled(bool is_enabled);
-bool sd_enable_sound(const bool enable);
+bool sd_enable_sound(bool enable);
 bool sd_is_music_enabled();
 void sd_set_is_music_enabled(bool is_enabled);
-bool sd_enable_music(const bool enable);
+bool sd_enable_music(bool enable);
 bool sd_is_playing_any_ui_sound();
 bool sd_is_music_playing();
 
