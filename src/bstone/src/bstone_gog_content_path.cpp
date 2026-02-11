@@ -20,8 +20,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 namespace bstone
 {
-namespace detail
-{
 
 
 AssetPath make_gog_content_path()
@@ -114,5 +112,4 @@ AssetPath make_gog_content_path()
 }
 
 
-} // detail
 } // bstone
