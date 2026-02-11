@@ -157,7 +157,8 @@ struct piAnimInfo
 	std::int16_t maxdelay{};
 	piaType animtype{pia_grabscript};
 	pidType dirtype{pid_cycle};
-	std::int16_t x{}, y{};
+	std::int16_t x{};
+	std::int16_t y{};
 	std::int8_t diradd{};
 }; // piAnimInfo
 

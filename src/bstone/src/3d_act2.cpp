@@ -1419,7 +1419,9 @@ void T_OfsThink(
 {
 	const auto& assets_info = get_assets_info();
 
-	std::int8_t dx, dy, dist;
+	std::int8_t dx;
+	std::int8_t dy;
+	std::int8_t dist;
 
 	switch (obj->obclass)
 	{
@@ -2411,7 +2413,9 @@ void T_SmartThought(
 				case doorexplodeobj:
 					if (!obj->temp2)
 					{
-						std::int16_t avail, total, i;
+						std::int16_t avail;
+						std::int16_t total;
+						std::int16_t i;
 
 						// Make sure that there are at least DR_MIN_STATICS
 
@@ -3963,7 +3967,9 @@ void T_Solid(
 void T_LiquidMove(
 	objtype* obj)
 {
-	std::int16_t dx, dy, dist;
+	std::int16_t dx;
+	std::int16_t dy;
+	std::int16_t dist;
 
 
 	//
@@ -3990,7 +3996,8 @@ void T_LiquidMove(
 void T_LiquidStand(
 	objtype* obj)
 {
-	std::int16_t dx, dy;
+	std::int16_t dx;
+	std::int16_t dy;
 
 	obj->flags |= FL_SHOOTABLE | FL_SOLID;
 
@@ -4200,7 +4207,8 @@ void CheckForSpecialTile(
 	std::uint16_t tilex,
 	std::uint16_t tiley)
 {
-	std::uint16_t* map, *map1;
+	std::uint16_t* map;
+	std::uint16_t* map1;
 	objtype* old_new;
 	bool getarea = false;
 
@@ -4872,7 +4880,9 @@ void ChangeShootMode(
 void DoAttack(
 	objtype* ob)
 {
-	std::int16_t dx, dy, dist;
+	std::int16_t dx;
+	std::int16_t dy;
+	std::int16_t dist;
 
 	dx = static_cast<std::int16_t>(abs(ob->tilex - player->tilex));
 	dy = static_cast<std::int16_t>(abs(ob->tiley - player->tiley));
@@ -5169,8 +5179,11 @@ std::int16_t morph_angle_adj = 0;
 void T_Shoot(
 	objtype* ob)
 {
-	std::int16_t dx, dy, dist;
-	std::int16_t hitchance, damage;
+	std::int16_t dx;
+	std::int16_t dy;
+	std::int16_t dist;
+	std::int16_t hitchance;
+	std::int16_t damage;
 	std::int16_t chance;
 
 	switch (ob->obclass)
@@ -6038,7 +6051,10 @@ void T_Seek(
 {
 	const std::int16_t MAX_VIS_DIST = 15;
 
-	std::int16_t dx, dy, dist, chance;
+	std::int16_t dx;
+	std::int16_t dy;
+	std::int16_t dist;
+	std::int16_t chance;
 	bool target_found;
 
 	target_found = false;

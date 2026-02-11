@@ -43,7 +43,8 @@ struct maptype
 
 struct huffnode
 {
-	std::uint16_t bit0, bit1; // 0-255 is a character, > is a pointer to a node
+	std::uint16_t bit0; // 0-255 is a character, > is a pointer to a node
+	std::uint16_t bit1; // 0-255 is a character, > is a pointer to a node
 }; // huffnode
 
 struct mapfiletype

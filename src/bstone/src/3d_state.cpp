@@ -260,7 +260,8 @@ bool TryWalk(
 	objtype* ob,
 	bool moveit)
 {
-	std::uint8_t old_tilex = ob->tilex, old_tiley = ob->tiley;
+	std::uint8_t old_tilex = ob->tilex;
+	std::uint8_t old_tiley = ob->tiley;
 
 	if (ElevatorFloor(ob->tilex, ob->tiley))
 	{
@@ -527,10 +528,14 @@ bool ElevatorFloor(
 void SelectDodgeDir(
 	objtype* ob)
 {
-	std::int16_t deltax = 0, deltay = 0, i;
-	std::uint16_t absdx, absdy;
+	std::int16_t deltax = 0;
+	std::int16_t deltay = 0;
+	std::int16_t i;
+	std::uint16_t absdx;
+	std::uint16_t absdy;
 	dirtype dirtry[5]{};
-	dirtype turnaround, tdir;
+	dirtype turnaround;
+	dirtype tdir;
 
 	if (ob->flags & FL_FIRSTATTACK)
 	{
@@ -654,9 +659,12 @@ void SelectDodgeDir(
 void SelectChaseDir(
 	objtype* ob)
 {
-	std::int16_t deltax = 0, deltay = 0;
+	std::int16_t deltax = 0;
+	std::int16_t deltay = 0;
 	dirtype d[3]{};
-	dirtype tdir, olddir, turnaround;
+	dirtype tdir;
+	dirtype olddir;
+	dirtype turnaround;
 
 
 	olddir = ob->dir;
@@ -974,7 +982,8 @@ objtype* CheckAndReserve()
 void KillActor(
 	objtype* ob)
 {
-	std::int16_t tilex, tiley;
+	std::int16_t tilex;
+	std::int16_t tiley;
 	bool KeepSolid = false;
 	bool givepoints = true;
 	bool deadguy = true;
@@ -1406,7 +1415,10 @@ void DamageActor(
 	std::uint16_t damage,
 	objtype* attacker)
 {
-	std::int16_t old_hp = ob->hitpoints, wound_mod, mod_before = 0, mod_after = 1;
+	std::int16_t old_hp = ob->hitpoints;
+	std::int16_t wound_mod;
+	std::int16_t mod_before = 0;
+	std::int16_t mod_after = 1;
 
 	if (!(ob->flags & FL_SHOOTABLE))
 	{

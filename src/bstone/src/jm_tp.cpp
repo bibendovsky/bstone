@@ -2160,7 +2160,8 @@ void TP_WrapText()
 
 	if ((justify_mode == jm_right) && (!(flags & fl_center)))
 	{
-		int width, height;
+		int width;
+		int height;
 
 		VWL_MeasureString(first_ch, &width, &height, font);
 		cur_x = static_cast<std::int16_t>(xh - width + 1);
@@ -3173,7 +3174,8 @@ std::int16_t TP_BoxAroundShape(
 	std::uint16_t shapenum,
 	pisType shapetype)
 {
-	std::int16_t x2 = 0, y2 = 0;
+	std::int16_t x2 = 0;
+	std::int16_t y2 = 0;
 
 	switch (shapetype)
 	{
@@ -3452,7 +3454,8 @@ bool TP_SlowPrint(
 	std::int8_t delay)
 {
 	auto old_color = fontcolor;
-	std::int16_t old_x, old_y;
+	std::int16_t old_x;
+	std::int16_t old_y;
 	long long tc;
 	bool aborted = false;
 
@@ -3646,7 +3649,8 @@ void TP_CacheIn(
 	std::int16_t chunk)
 {
 	std::int16_t first_ch_offset = static_cast<std::int16_t>(first_ch - pi->script[0]);
-	std::int16_t loop, offset[TP_MAX_PAGES]{};
+	std::int16_t loop;
+	std::int16_t offset[TP_MAX_PAGES]{};
 
 	// Cache graphics and re-assign pointers
 	//

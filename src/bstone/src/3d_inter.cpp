@@ -57,7 +57,9 @@ void ShPrint(
 	std::int8_t shadow_color,
 	bool single_char)
 {
-	std::uint16_t old_color = fontcolor, old_x = px, old_y = py;
+	std::uint16_t old_color = fontcolor;
+	std::uint16_t old_x = px;
+	std::uint16_t old_y = py;
 	const char* string;
 	char buf[2] = {0, 0};
 
@@ -249,7 +251,8 @@ void CheckHighScore(
 	std::int32_t score,
 	std::uint16_t other)
 {
-	std::uint16_t i, j;
+	std::uint16_t i;
+	std::uint16_t j;
 	std::int16_t n;
 	auto myscore = HighScore{};
 	US_CursorStruct TermCursor = {'@', 0, HIGHLIGHT_TEXT_COLOR, 2};

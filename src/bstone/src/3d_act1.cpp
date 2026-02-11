@@ -549,7 +549,8 @@ void PlaceReservedItemNearTile(
 
 	for (loop = 0; loop < 8; loop++)
 	{
-		std::int8_t x = static_cast<std::int8_t>(tilex + pint_xy[static_cast<int>(loop)][1]), y = static_cast<std::int8_t>(tiley + pint_xy[static_cast<int>(loop)][0]);
+		std::int8_t x = static_cast<std::int8_t>(tilex + pint_xy[static_cast<int>(loop)][1]);
+		std::int8_t y = static_cast<std::int8_t>(tiley + pint_xy[static_cast<int>(loop)][0]);
 
 		if (!tilemap[static_cast<int>(x)][static_cast<int>(y)])
 		{
@@ -635,7 +636,8 @@ void PlaceItemNearTile(
 
 	for (loop = 0; loop < 8; loop++)
 	{
-		std::int8_t x = static_cast<std::int8_t>(tilex + pint_xy[static_cast<int>(loop)][1]), y = static_cast<std::int8_t>(tiley + pint_xy[static_cast<int>(loop)][0]);
+		std::int8_t x = static_cast<std::int8_t>(tilex + pint_xy[static_cast<int>(loop)][1]);
+		std::int8_t y = static_cast<std::int8_t>(tiley + pint_xy[static_cast<int>(loop)][0]);
 
 		if (!tilemap[static_cast<int>(x)][static_cast<int>(y)])
 		{
@@ -670,7 +672,8 @@ void ExplodeStatics(
 	}
 
 	statobj_t* spot;
-	std::int16_t y_diff, x_diff;
+	std::int16_t y_diff;
+	std::int16_t x_diff;
 	bool remove;
 
 	for (spot = &statobjlist[0]; spot != laststatobj; spot++)
@@ -1002,7 +1005,9 @@ objtype* get_actor_near_door(
 void CloseDoor(
 	std::int16_t door)
 {
-	std::int16_t tilex, tiley, area;
+	std::int16_t tilex;
+	std::int16_t tiley;
+	std::int16_t area;
 	objtype* check;
 
 	if (doorobjlist[door].action == dr_jammed)
@@ -1343,7 +1348,8 @@ void BlastNearDoors(
 {
 	std::uint8_t door;
 	char* doorptr;
-	std::int16_t x, y;
+	std::int16_t x;
+	std::int16_t y;
 
 	doorptr = (char*)&tilemap[tilex][tiley];
 
@@ -1391,7 +1397,9 @@ void TryDropPlasmaDetonator()
 	const std::int16_t MAX_RANGE_DIST = 2;
 
 	objtype* obj;
-	std::int16_t distx, disty, distance;
+	std::int16_t distx;
+	std::int16_t disty;
+	std::int16_t distance;
 
 
 	if (!gamestuff.level[gamestate.mapon + 1].locked)
@@ -1465,8 +1473,10 @@ std::int16_t TransformAreas(
 	std::int8_t tiley,
 	std::int8_t xform)
 {
-	std::int16_t xofs = 0, yofs = 0;
-	std::uint8_t area1, area2;
+	std::int16_t xofs = 0;
+	std::int16_t yofs = 0;
+	std::uint8_t area1;
+	std::uint8_t area2;
 
 	// Is this walkway:  Horizontal?   Vertical?   Error?
 	//
@@ -1950,7 +1960,8 @@ std::int16_t LoadMsg(
 {
 	const auto msg_xx = "^XX";
 
-	char* Message, *EndOfMsg;
+	char* Message;
+	char* EndOfMsg;
 	std::int16_t pos = 0;
 
 	CA_CacheGrChunk(SegNum);
@@ -2191,8 +2202,12 @@ std::int8_t xy_offset[8][2] = {
 
 void CheckSpawnEA()
 {
-	objtype temp, *ob;
-	std::int8_t loop, ofs, x_diff, y_diff;
+	objtype temp;
+	objtype* ob;
+	std::int8_t loop;
+	std::int8_t ofs;
+	std::int8_t x_diff;
+	std::int8_t y_diff;
 
 	if (objcount > MAXACTORS - 8)
 	{
@@ -2340,7 +2355,8 @@ void CheckSpawnGoldstern()
 
 		if (GoldsternInfo.flags == GS_COORDFOUND)
 		{
-			std::uint16_t tilex, tiley;
+			std::uint16_t tilex;
+			std::uint16_t tiley;
 
 			// See if we can spawn Dr. Goldstern...
 

@@ -500,7 +500,8 @@ void CAL_ExpandGrChunk(
 void CA_CacheGrChunk(
 	std::int16_t chunk)
 {
-	std::int32_t pos, compressed;
+	std::int32_t pos;
+	std::int32_t compressed;
 	std::uint8_t* source;
 	std::int16_t next;
 
@@ -553,7 +554,8 @@ void CA_CacheGrChunk(
 void CA_CacheScreen(
 	std::int16_t chunk)
 {
-	std::int32_t pos, compressed;
+	std::int32_t pos;
+	std::int32_t compressed;
 	std::uint8_t* source;
 	std::int16_t next;
 

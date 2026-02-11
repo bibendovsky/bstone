@@ -310,7 +310,8 @@ static void USL_XORICursor(int x, int y, char* s, int cursor)
 	static bool status; // VGA doesn't XOR...
 	char buf[MaxString];
 	int temp;
-	int w, h;
+	int w;
+	int h;
 
 	strcpy(buf, s);
 	buf[cursor] = '\0';

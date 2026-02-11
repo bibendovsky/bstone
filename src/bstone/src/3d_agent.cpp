@@ -346,7 +346,8 @@ std::int8_t LitAmmo[2][22] = {
 
 struct InfoArea_Struct
 {
-	std::int16_t x, y;
+	std::int16_t x;
+	std::int16_t y;
 	std::int16_t text_color;
 	std::int16_t backgr_color;
 	std::int16_t left_margin;
@@ -1109,7 +1110,8 @@ void DrawScoreNum()
 
 void UpdateScore()
 {
-	std::int32_t score_diff, temp_tics;
+	std::int32_t score_diff;
+	std::int32_t temp_tics;
 
 	score_diff = gamestate.score - gamestate.tic_score;
 
@@ -1345,7 +1347,8 @@ void DrawAmmo(
 	bool ForceRefresh)
 {
 	std::int16_t temp;
-	std::uint16_t ammo, max_ammo;
+	std::uint16_t ammo;
+	std::uint16_t max_ammo;
 
 	ComputeAvailWeapons();
 
@@ -2019,7 +2022,8 @@ void DrawInfoArea()
 	const std::int16_t IA_FONT_HEIGHT = 6;
 
 	char* first_ch;
-	char* scan_ch, temp;
+	char* scan_ch;
+	char temp;
 
 	DrawInfoArea_COUNT--;
 
@@ -4395,7 +4399,14 @@ std::int16_t ShowStats(
 	ss_type type,
 	statsInfoType* stats)
 {
-	std::int16_t floor, total = 0, mission = 0, p1, p2, p3, loop, maxPerFloor;
+	std::int16_t floor;
+	std::int16_t total = 0;
+	std::int16_t mission = 0;
+	std::int16_t p1;
+	std::int16_t p2;
+	std::int16_t p3;
+	std::int16_t loop;
+	std::int16_t maxPerFloor;
 
 	// Define max points per floor...
 	//
@@ -4482,7 +4493,8 @@ std::uint8_t ShowRatio(
 {
 	std::int8_t numbars;
 	std::int8_t maxperc;
-	std::int8_t percentage = 1, loop;
+	std::int8_t percentage = 1;
+	std::int8_t loop;
 
 	// Catch those nasty divide-by-zeros!
 	//
@@ -5611,7 +5623,8 @@ bool OperateSmartSwitch(
 	what_is_it WhatItIs;
 	objtype* obj;
 	statobj_t* stat = nullptr;
-	std::uint8_t tile, DoorNum = 0;
+	std::uint8_t tile;
+	std::uint8_t DoorNum = 0;
 	std::uint16_t iconnum;
 
 	//
