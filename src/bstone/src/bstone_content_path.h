@@ -40,7 +40,7 @@ struct AssetPath
 
 
 AssetPath make_content_path(
-	const ContentPathProvider type);
+	ContentPathProvider type);
 
 
 } // bstone

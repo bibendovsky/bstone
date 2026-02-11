@@ -282,7 +282,7 @@ void sd_log()
 	bstone::globals::logger->log_information();
 }
 
-void sd_log(const bstone::LoggerMessageType message_type, const std::string& message)
+void sd_log(bstone::LoggerMessageType message_type, const std::string& message)
 {
 	bstone::globals::logger->log(message_type, (sd_get_snd_string() + ' ' + message).c_str());
 }
@@ -359,7 +359,7 @@ bstone::Opl3Type sd_get_opl3_type_from_cvar()
 	return bstone::Opl3Type::none;
 }
 
-const std::string& sd_get_opl3_long_name(const bstone::Opl3Type opl3_type)
+const std::string& sd_get_opl3_long_name(bstone::Opl3Type opl3_type)
 {
 	static const auto unknown = std::string{"???"};
 	static const auto dosbox_dbopl = std::string{"DBOPL"};

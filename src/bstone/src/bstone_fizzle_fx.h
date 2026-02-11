@@ -65,8 +65,8 @@ protected:
 
 	// Performs operation on one pixel.
 	virtual void plot(
-		const int x,
-		const int y) = 0;
+		int x,
+		int y) = 0;
 
 	// Presents the final stage of the effect.
 	virtual void skip_to_the_end() = 0;

@@ -160,8 +160,8 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void FizzleFX::plot(
-	const int x,
-	const int y)
+	int x,
+	int y)
 try {
 	static_cast<void>(x);
 	static_cast<void>(y);

@@ -47,8 +47,8 @@ extern std::uint8_t fontcolor;
 extern std::uint8_t backcolor;
 
 void SETFONTCOLOR(
-	const int foreground_color,
-	const int background_color);
+	int foreground_color,
+	int background_color);
 
 const int UPDATESIZE = UPDATEWIDE * UPDATEHIGH;
 using Update = std::array<std::uint8_t, UPDATESIZE>;

@@ -382,7 +382,7 @@ FoundContent find_ps_content(
 }
 
 FoundContent find_assets(
-	const Game game,
+	Game game,
 	const SearchPath& search_path)
 {
 	switch (game)
@@ -402,7 +402,7 @@ FoundContent find_assets(
 }
 
 const char* get_content_acronym(
-	const Game game)
+	Game game)
 {
 	switch (game)
 	{

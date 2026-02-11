@@ -31,7 +31,7 @@ public:
 		sys::GlContextUPtr& gl_context);
 
 	static void probe_msaa(
-		const R3rType renderer_type,
+		R3rType renderer_type,
 		const sys::GlSymbolResolver& symbol_resolver,
 		sys::WindowMgr& window_mgr,
 		R3rDeviceFeatures& device_features,
@@ -44,9 +44,9 @@ public:
 	static int clamp_anisotropy_degree(int anisotropy_value, const R3rDeviceFeatures& device_features);
 
 	static void set_anisotropy_degree(
-		const GLenum gl_target,
+		GLenum gl_target,
 		const R3rDeviceFeatures& device_features,
-		const int anisotropy_value);
+		int anisotropy_value);
 
 	static void probe_anisotropy(
 		GlR3rExtensionMgr* extension_manager,
@@ -62,7 +62,7 @@ public:
 		GlR3rDeviceFeatures& gl_device_features);
 
 	static void generate_mipmap(
-		const GLenum gl_target,
+		GLenum gl_target,
 		const R3rDeviceFeatures& device_features,
 		const GlR3rDeviceFeatures& gl_device_features);
 
@@ -75,9 +75,9 @@ public:
 		R3rDeviceFeatures& device_features);
 
 	static void set_sampler_anisotropy(
-		const GLenum gl_sampler,
+		GLenum gl_sampler,
 		const R3rDeviceFeatures& device_features,
-		const int anisotropy_value);
+		int anisotropy_value);
 
 	static void probe_vao(
 		GlR3rExtensionMgr* extension_manager,

@@ -561,7 +561,7 @@ void vid_calculate_vga_dimensions();
 
 std::string vid_to_string(bool value);
 std::string vid_to_string(int value);
-std::string vid_to_string(const bstone::R3rFilterType filter_type);
+std::string vid_to_string(bstone::R3rFilterType filter_type);
 std::string vid_to_string(bstone::R3rType renderer_type);
 
 bool vid_is_hw();

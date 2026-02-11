@@ -40,7 +40,7 @@ public:
 
 
 	static std::string octet_to_hex_string(
-		const int octet);
+		int octet);
 
 
 	template<

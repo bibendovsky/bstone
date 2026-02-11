@@ -316,7 +316,7 @@ const int RUNMOVE = 70;
 
 
 void cycle_weapon(
-	const int direction)
+	int direction)
 {
 	auto weapon_index = gamestate.weapon;
 

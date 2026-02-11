@@ -73,7 +73,7 @@ public:
 
 using AudioDecoderUPtr = std::unique_ptr<AudioDecoder>;
 
-AudioDecoderUPtr make_audio_decoder(const AudioDecoderType audio_decoder_type, const Opl3Type opl3_type);
+AudioDecoderUPtr make_audio_decoder(AudioDecoderType audio_decoder_type, Opl3Type opl3_type);
 
 } // bstone
 

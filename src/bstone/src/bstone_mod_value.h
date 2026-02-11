@@ -112,7 +112,7 @@ public:
 	}
 
 	void set_is_modified(
-		const bool value)
+		bool value)
 	{
 		is_modified_ = value;
 	}
