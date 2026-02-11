@@ -33,7 +33,7 @@ AssetPath make_steam_content_path();
 
 
 AssetPath make_content_path(
-	const ContentPathProvider type)
+	ContentPathProvider type)
 try {
 	switch (type)
 	{

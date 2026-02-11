@@ -86,7 +86,7 @@ catch (const std::exception&)
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 int GlR3rUtils::get_fbo_max_msaa(
-	const R3rType renderer_type,
+	R3rType renderer_type,
 	const sys::GlSymbolResolver& symbol_resolver,
 	sys::WindowMgr& window_mgr,
 	GlR3rDeviceFeatures& gl_device_features)
@@ -129,7 +129,7 @@ catch (const std::exception&)
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::probe_msaa(
-	const R3rType renderer_type,
+	R3rType renderer_type,
 	const sys::GlSymbolResolver& symbol_resolver,
 	sys::WindowMgr& window_mgr,
 	R3rDeviceFeatures& device_features,
@@ -201,9 +201,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::set_anisotropy_degree(
-	const GLenum gl_target,
+	GLenum gl_target,
 	const R3rDeviceFeatures& device_features,
-	const int anisotropy_value)
+	int anisotropy_value)
 try {
 	if (!device_features.is_anisotropy_available)
 	{
@@ -316,7 +316,7 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::generate_mipmap(
-	const GLenum gl_target,
+	GLenum gl_target,
 	const R3rDeviceFeatures& device_features,
 	const GlR3rDeviceFeatures& gl_device_features)
 try {
@@ -391,9 +391,9 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rUtils::set_sampler_anisotropy(
-	const GLenum gl_sampler,
+	GLenum gl_sampler,
 	const R3rDeviceFeatures& device_features,
-	const int anisotropy_value)
+	int anisotropy_value)
 try {
 	if (!device_features.is_sampler_available ||
 		!device_features.is_anisotropy_available)

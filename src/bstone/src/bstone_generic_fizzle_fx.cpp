@@ -34,8 +34,8 @@ public:
 
 
 GenericFizzleFX::GenericFizzleFX(
-	const std::uint8_t plot_color,
-	const bool is_transparent)
+	std::uint8_t plot_color,
+	bool is_transparent)
 	:
 	impl_{std::make_unique<Impl>()}
 {
@@ -109,8 +109,8 @@ int GenericFizzleFX::get_height() const
 }
 
 void GenericFizzleFX::plot(
-	const int x,
-	const int y)
+	int x,
+	int y)
 {
 	if (!has_vanilla_appearence() && !is_vanilla_only())
 	{

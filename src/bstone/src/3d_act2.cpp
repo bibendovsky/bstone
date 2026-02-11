@@ -56,7 +56,7 @@ struct ofs_anim_t
 
 	template<int TOffset, int TSize>
 	static void set(
-		const std::uint16_t value,
+		std::uint16_t value,
 		objtype* o)
 	{
 		o->temp3 &= ~(((1 << TSize) - 1) << TOffset);
@@ -70,7 +70,7 @@ struct ofs_anim_t
 	}
 
 	static void set_animtype(
-		const std::uint16_t value,
+		std::uint16_t value,
 		objtype* o)
 	{
 		set<animtype_offset, animtype_size>(value, o);
@@ -84,7 +84,7 @@ struct ofs_anim_t
 	}
 
 	static void set_curframe(
-		const std::uint16_t value,
+		std::uint16_t value,
 		objtype* o)
 	{
 		set<curframe_offset, curframe_size>(value, o);
@@ -98,7 +98,7 @@ struct ofs_anim_t
 	}
 
 	static void set_maxframe(
-		const std::uint16_t value,
+		std::uint16_t value,
 		objtype* o)
 	{
 		set<maxframe_offset, maxframe_size>(value, o);
@@ -112,7 +112,7 @@ struct ofs_anim_t
 	}
 
 	static void set_animdir(
-		const std::uint16_t value,
+		std::uint16_t value,
 		objtype* o)
 	{
 		set<animdir_offset, animdir_size>(value, o);
@@ -121,29 +121,29 @@ struct ofs_anim_t
 
 
 std::uint16_t MAPSPOT(
-	const std::uint8_t x,
-	const std::uint8_t y,
-	const std::uint8_t plane)
+	std::uint8_t x,
+	std::uint8_t y,
+	std::uint8_t plane)
 {
 	return mapsegs[plane][farmapylookup[y] + x];
 }
 
 objtype* SLIDE_TEMP(
-	const objtype* const obj)
+	const objtype* obj)
 {
 	return ui16_to_actor(obj->hitpoints);
 }
 
 void SpawnExplosion(
-	const double x,
-	const double y)
+	double x,
+	double y)
 {
 	SpawnCusExplosion(x, y, SPR_EXPLOSION_1, 4, 5, explosionobj);
 }
 
 void SpawnFlash(
-	const double x,
-	const double y)
+	double x,
+	double y)
 {
 	SpawnCusExplosion(x, y, SPR_EXPLOSION_1, 4, 5, deadobj);
 }
@@ -175,8 +175,8 @@ std::int16_t CalcAngle(
 
 bool ClipMove(
 	objtype* ob,
-	const double xmove,
-	const double ymove);
+	double xmove,
+	double ymove);
 
 void DisplaySwitchOperateMsg(
 	int coords);
@@ -736,7 +736,7 @@ void initialize_hit_point_table()
 }
 
 std::uint16_t get_start_hit_point(
-	const int index)
+	int index)
 {
 	if (index >= NUMHITENEMIES)
 	{
@@ -994,8 +994,8 @@ void T_SmartThought(
 
 bool ProjectileTryMove(
 	objtype* ob,
-	const double deltax,
-	const double deltay);
+	double deltax,
+	double deltay);
 
 void T_Projectile(
 	objtype* ob);
@@ -2075,8 +2075,8 @@ objtype* FindHiddenOfs(
 objtype* MoveHiddenOfs(
 	classtype which_class,
 	classtype new_class,
-	const double x,
-	const double y)
+	double x,
+	double y)
 {
 	auto obj = FindHiddenOfs(which_class);
 
@@ -2789,10 +2789,10 @@ namespace
 
 
 std::uint16_t UpdateBarrierTable(
-	const int level,
-	const int x,
-	const int y,
-	const bool on_off)
+	int level,
+	int x,
+	int y,
+	bool on_off)
 {
 	const auto& assets_info = get_assets_info();
 
@@ -2846,9 +2846,9 @@ std::uint16_t UpdateBarrierTable(
 
 
 std::uint16_t UpdateBarrierTable(
-	const int level,
-	const int x,
-	const int y)
+	int level,
+	int x,
+	int y)
 {
 	const auto new_level = (level == 0xFF ? gamestate.mapon : level);
 
@@ -2856,9 +2856,9 @@ std::uint16_t UpdateBarrierTable(
 }
 
 std::uint16_t UpdateBarrierTable(
-	const int x,
-	const int y,
-	const bool on_off)
+	int x,
+	int y,
+	bool on_off)
 {
 	return UpdateBarrierTable(gamestate.mapon, x, y, on_off);
 }
@@ -5873,8 +5873,8 @@ void T_PainThink(
 
 // Spawns an explosion at a given x & y.
 void SpawnCusExplosion(
-	const double x,
-	const double y,
+	double x,
+	double y,
 	std::uint16_t StartFrame,
 	std::uint16_t NumFrames,
 	std::uint16_t Delay,
@@ -6282,8 +6282,8 @@ std::uint8_t proj_wall;
 //
 bool ProjectileTryMove(
 	objtype* ob,
-	const double deltax,
-	const double deltay)
+	double deltax,
+	double deltay)
 {
 	constexpr auto PROJECTILE_MAX_STEP = PROJWALLSIZE;
 

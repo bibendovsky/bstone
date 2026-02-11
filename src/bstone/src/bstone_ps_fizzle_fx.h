@@ -66,8 +66,8 @@ protected:
 
 	// Performs operation on one pixel.
 	void plot(
-		const int x,
-		const int y) override;
+		int x,
+		int y) override;
 
 	// Presents the final stage of the effect.
 	void skip_to_the_end() override;

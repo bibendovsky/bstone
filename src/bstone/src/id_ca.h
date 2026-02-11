@@ -102,7 +102,7 @@ public:
 	AssetsVersion get_version() const;
 
 	void set_version(
-		const AssetsVersion version);
+		AssetsVersion version);
 
 
 	const AssetsResources& get_resources() const;
@@ -169,10 +169,10 @@ public:
 	int get_max_barrier_switches_per_level_bits() const;
 
 	bool is_secret_level(
-		const int level_number) const;
+		int level_number) const;
 
 	int secret_floor_get_index(
-		const int level_number) const;
+		int level_number) const;
 
 
 private:

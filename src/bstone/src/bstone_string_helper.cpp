@@ -104,7 +104,7 @@ bool StringHelper::string_to_uint16(
 }
 
 std::string StringHelper::octet_to_hex_string(
-	const int octet)
+	int octet)
 {
 	if (octet < 0 || octet > 0xFF)
 	{

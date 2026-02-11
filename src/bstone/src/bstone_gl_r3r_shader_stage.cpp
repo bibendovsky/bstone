@@ -345,13 +345,13 @@ try {
 void GlR3rShaderStageImpl::get_vars(R3rShaderVarType type, GLuint gl_name, ShaderVars& shader_vars)
 try {
 	using GlInfoFunction = void (GL_APIENTRY *)(
-		const GLuint program,
-		const GLuint index,
-		const GLsizei bufSize,
-		GLsizei* const length,
-		GLint* const size,
-		GLenum* const type,
-		GLchar* const name);
+		GLuint program,
+		GLuint index,
+		GLsizei bufSize,
+		GLsizei* length,
+		GLint* size,
+		GLenum* type,
+		GLchar* name);
 
 	auto is_attribute = false;
 	auto gl_count_enum = GLenum{};

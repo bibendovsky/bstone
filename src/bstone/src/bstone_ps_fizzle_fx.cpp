@@ -100,8 +100,8 @@ int PsFizzleFX::get_height() const
 }
 
 void PsFizzleFX::plot(
-	const int x,
-	const int y)
+	int x,
+	int y)
 {
 	const auto offset = (y * vga_ref_width) + x;
 	const auto color_index = buffer_[offset];

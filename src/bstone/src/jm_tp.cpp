@@ -113,8 +113,8 @@ void VWL_MeasureString(
 void ClearMemory();
 
 void draw_wall_ui(
-	const int x,
-	const int y,
+	int x,
+	int y,
 	const void* raw_wall);
 
 

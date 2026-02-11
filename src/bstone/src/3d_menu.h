@@ -88,9 +88,9 @@ struct CP_iteminfo
 struct CP_itemtype
 {
 	using CarouselFunc = void(*)(
-		const int item_index,
-		const bool is_left,
-		const bool is_right);
+		int item_index,
+		bool is_left,
+		bool is_right);
 
 	activetypes active{AT_DISABLED};
 	std::string string{};

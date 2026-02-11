@@ -68,11 +68,11 @@ extern bool useBounceOffset;
 double bounceOffset = 0.0;
 
 void generic_scale_shape(
-	const int xcenter,
-	const int shapenum,
-	const int ref_height,
-	const std::int8_t lighting,
-	const ShapeDrawMode draw_mode)
+	int xcenter,
+	int shapenum,
+	int ref_height,
+	std::int8_t lighting,
+	ShapeDrawMode draw_mode)
 {
 	const auto is_player_weapon = (draw_mode == ShapeDrawMode::player_weapon);
 
@@ -339,8 +339,8 @@ void ScaleShape(
 
 // BBi
 void scale_player_weapon(
-	const int sprite_id,
-	const int height)
+	int sprite_id,
+	int height)
 {
 	generic_scale_shape(
 		0,

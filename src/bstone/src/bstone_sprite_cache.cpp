@@ -35,7 +35,7 @@ SpriteCache::SpriteCache(
 }
 
 const Sprite* SpriteCache::cache(
-	const int sprite_id)
+	int sprite_id)
 {
 	if (sprite_id <= 0 || sprite_id >= max_sprites)
 	{

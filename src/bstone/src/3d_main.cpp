@@ -9572,7 +9572,7 @@ void ShutdownId()
 }
 
 void CalcProjection(
-	const double focal)
+	double focal)
 {
 	focallength = focal;
 	const auto facedist = focallength + MINDIST;
@@ -9611,8 +9611,8 @@ void CalcProjection(
 }
 
 bool DoMovie(
-	const bstone::MovieId movie,
-	const void* const raw_palette)
+	bstone::MovieId movie,
+	const void* raw_palette)
 {
 	sd_stop_sfx_sound();
 
@@ -10607,7 +10607,7 @@ void gametype::initialize_barriers()
 }
 
 int gametype::get_barrier_group_offset(
-	const int level) const
+	int level) const
 {
 	const auto& assets_info = get_assets_info();
 
@@ -10622,7 +10622,7 @@ int gametype::get_barrier_group_offset(
 }
 
 int gametype::get_barrier_index(
-	const int code) const
+	int code) const
 {
 	auto level = 0;
 	auto index = 0;
@@ -10635,8 +10635,8 @@ int gametype::get_barrier_index(
 }
 
 int gametype::encode_barrier_index(
-	const int level,
-	const int index) const
+	int level,
+	int index) const
 {
 	const auto& assets_info = get_assets_info();
 
@@ -10665,7 +10665,7 @@ int gametype::encode_barrier_index(
 }
 
 void gametype::decode_barrier_index(
-	const int code,
+	int code,
 	int& level,
 	int& index) const
 {
@@ -10795,7 +10795,7 @@ const std::string& get_default_data_dir()
 
 classtype operator++(
 	classtype& value,
-	const int)
+	int)
 {
 	auto result = value;
 	value = static_cast<classtype>(value + 1);
@@ -10804,7 +10804,7 @@ classtype operator++(
 
 dirtype operator+=(
 	dirtype& lhs,
-	const int rhs)
+	int rhs)
 {
 	lhs = static_cast<dirtype>(lhs + rhs);
 	return lhs;
@@ -10812,7 +10812,7 @@ dirtype operator+=(
 
 dirtype operator-=(
 	dirtype& lhs,
-	const int rhs)
+	int rhs)
 {
 	lhs = static_cast<dirtype>(lhs - rhs);
 	return lhs;
@@ -10820,7 +10820,7 @@ dirtype operator-=(
 
 dirtype operator|=(
 	dirtype& lhs,
-	const int rhs)
+	int rhs)
 {
 	lhs = static_cast<dirtype>(lhs | rhs);
 	return lhs;
@@ -10828,7 +10828,7 @@ dirtype operator|=(
 
 dirtype operator--(
 	dirtype& value,
-	const int)
+	int)
 {
 	auto result = value;
 	value -= 1;
@@ -10837,7 +10837,7 @@ dirtype operator--(
 
 dirtype operator++(
 	dirtype& value,
-	const int)
+	int)
 {
 	auto result = value;
 	value += 1;
@@ -10846,13 +10846,13 @@ dirtype operator++(
 
 
 double get_integral(
-	const double value)
+	double value)
 {
 	return std::trunc(value);
 }
 
 double get_fractional(
-	const double value)
+	double value)
 {
 	double integral;
 	return std::modf(value, &integral);

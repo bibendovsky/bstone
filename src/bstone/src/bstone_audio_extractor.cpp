@@ -407,7 +407,7 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir,
 	}
 }
 
-void AudioExtractorImpl::extract_audio_chunks(const std::string& dst_dir, const AudioChunkFilter audio_chunk_filter)
+void AudioExtractorImpl::extract_audio_chunks(const std::string& dst_dir, AudioChunkFilter audio_chunk_filter)
 {
 	const auto audio_chunk_count = audio_content_mgr_.get_chunk_count();
 

@@ -66,7 +66,7 @@ public:
 	//    - True if movie file was found and "played".
 	//    - False otherwise.
 	//
-	bool play(MovieId movie_id, const std::uint8_t* const palette);
+	bool play(MovieId movie_id, const std::uint8_t* palette);
 
 private:
 	static constexpr int max_file_size = 400'000;

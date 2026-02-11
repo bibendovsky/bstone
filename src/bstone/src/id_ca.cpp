@@ -1007,7 +1007,7 @@ AssetsVersion AssetsInfo::get_version() const
 }
 
 void AssetsInfo::set_version(
-	const AssetsVersion version)
+	AssetsVersion version)
 {
 	version_ = version;
 
@@ -1282,7 +1282,7 @@ int AssetsInfo::get_max_barrier_switches_per_level_bits() const
 }
 
 bool AssetsInfo::is_secret_level(
-	const int level_number) const
+	int level_number) const
 {
 	if (is_aog())
 	{
@@ -1299,7 +1299,7 @@ bool AssetsInfo::is_secret_level(
 }
 
 int AssetsInfo::secret_floor_get_index(
-	const int level_number) const
+	int level_number) const
 {
 	if (is_aog())
 	{

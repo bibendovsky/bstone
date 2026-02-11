@@ -87,7 +87,7 @@ bool TryWalk(
 
 void MoveObj(
 	objtype* ob,
-	const double move);
+	double move);
 
 void KillActor(
 	objtype* ob);
@@ -811,7 +811,7 @@ extern std::int32_t last_objy;
 //
 void MoveObj(
 	objtype* ob,
-	const double move)
+	double move)
 {
 	auto sign_x = 0;
 	auto sign_y = 0;

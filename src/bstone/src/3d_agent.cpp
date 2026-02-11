@@ -85,10 +85,10 @@ struct atkinf_t
 // LRATIO is to be used for larger SCALEs, thus, giving you massive accuracy!
 //
 int LRATIO(
-	const std::int32_t M_BASE1,
-	const std::int32_t M_BASE2,
-	const std::int32_t F_BASE2,
-	const std::int32_t SCALE)
+	std::int32_t M_BASE1,
+	std::int32_t M_BASE2,
+	std::int32_t F_BASE2,
+	std::int32_t SCALE)
 {
 	return (M_BASE1 * ((F_BASE2 << SCALE) / M_BASE2)) >> SCALE;
 }
@@ -425,8 +425,8 @@ void T_Player(
 
 bool ClipMove(
 	objtype* ob,
-	const double xmove,
-	const double ymove);
+	double xmove,
+	double ymove);
 
 void T_Stand(
 	objtype* ob);
@@ -2756,8 +2756,8 @@ bool TryMove(
 //
 bool ClipMove(
 	objtype* ob,
-	const double xmove,
-	const double ymove)
+	double xmove,
+	double ymove)
 {
 	auto basex = ob->x;
 	auto basey = ob->y;

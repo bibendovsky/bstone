@@ -134,11 +134,11 @@ void LatchDrawPic(
 void LoadLatchMem();
 
 void vwb_rect(
-	const int x,
-	const int y,
-	const int width,
-	const int height,
-	const int color);
+	int x,
+	int y,
+	int width,
+	int height,
+	int color);
 
 
 void VW_Startup();
@@ -151,13 +151,13 @@ void VW_Bar(
 	int width,
 	int height,
 	std::uint8_t color,
-	const bool is_transparent = false);
+	bool is_transparent = false);
 
 void VW_Plot(
 	int x,
 	int y,
 	std::uint8_t color,
-	const bool is_transparent = false);
+	bool is_transparent = false);
 
 void VW_Hlin(
 	int x,
