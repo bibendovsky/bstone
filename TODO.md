@@ -7,4 +7,3 @@
 - HDR support.
 - Move "mouse relative mode" code to window.
 - Use "auto" only if necessary.
-- Remove jm_io
