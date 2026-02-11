@@ -215,7 +215,8 @@ void INVALID_ACTOR_ERR(
 */
 void ScanInfoPlane()
 {
-	std::uint16_t x, y;
+	std::uint16_t x;
+	std::uint16_t y;
 	std::int16_t tile;
 	std::uint16_t* start;
 	bool gottextures = false;
@@ -267,7 +268,9 @@ void ScanInfoPlane()
 		{
 			sci_mCacheInfo* ci;
 			scientist_t* st = nullptr;
-			std::uint8_t tilehi, tilelo, block = 0;
+			std::uint8_t tilehi;
+			std::uint8_t tilelo;
+			std::uint8_t block = 0;
 
 
 			tile = *start++;
@@ -2373,10 +2376,14 @@ void SetupGameLevel()
 {
 	bool switchon = false;
 	sci_mCacheInfo* ci = InfHintList.smInfo;
-	std::int16_t x, y;
-	std::uint16_t* map, tile, icon;
+	std::int16_t x;
+	std::int16_t y;
+	std::uint16_t* map;
+	std::uint16_t tile;
+	std::uint16_t icon;
 	keytype lock;
-	std::uint16_t* map1, *map2;
+	std::uint16_t* map1;
+	std::uint16_t* map2;
 	std::int16_t count;
 
 	if (!loadedgame)
@@ -2933,7 +2940,8 @@ void BevelBox(
 	std::uint8_t med,
 	std::uint8_t lo)
 {
-	std::int16_t xh = xl + w - 1, yh = yl + h - 1;
+	std::int16_t xh = xl + w - 1;
+	std::int16_t yh = yl + h - 1;
 	std::uint8_t hc;
 
 	VWB_Bar(xl, yl, w, h, med); // inside
@@ -2952,8 +2960,10 @@ void ShadowPrintLocationText(
 	sp_type type)
 {
 	const char* DebugText = "-- DEBUG MODE ENABLED --";
-	const char* s = nullptr, *ls_text[3] = {"-- LOADING --", "-- SAVING --", "-- CHANGE VIEW SIZE --"};
-	int w, h;
+	const char* s = nullptr;
+	const char* ls_text[3] = {"-- LOADING --", "-- SAVING --", "-- CHANGE VIEW SIZE --"};
+	int w;
+	int h;
 
 	// Used for all fields...
 	//
@@ -3298,7 +3308,10 @@ void RotateView(
 	std::int16_t DestAngle,
 	std::uint8_t RotSpeed)
 {
-	std::int16_t curangle, clockwise, counter, change;
+	std::int16_t curangle;
+	std::int16_t clockwise;
+	std::int16_t counter;
+	std::int16_t change;
 	objtype* obj;
 	bool old_godmode = godmode;
 

@@ -7,4 +7,4 @@
 - HDR support.
 - Move "mouse relative mode" code to window.
 - Use "auto" only if necessary.
-- Declare each variable or data-member on separate line.
+- Remove jm_io
