@@ -1290,7 +1290,9 @@ void InitGame()
 {
 	vid_is_movie = true;
 
-	std::int16_t i, x, y;
+	std::int16_t i;
+	std::int16_t x;
+	std::int16_t y;
 	std::uint16_t* blockstart;
 
 	CA_Startup();

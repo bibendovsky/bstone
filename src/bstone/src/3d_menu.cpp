@@ -2159,7 +2159,8 @@ void CP_ViewScores(
 void CP_NewGame(
 	std::int16_t)
 {
-	std::int16_t which, episode = 0;
+	std::int16_t which;
+	std::int16_t episode = 0;
 
 	DrawMenuTitle("Difficulty Level");
 	DrawInstructions(IT_STANDARD);
@@ -3215,7 +3216,8 @@ void PrintLSEntry(
 std::int16_t CP_SaveGame(
 	std::int16_t quick)
 {
-	std::int16_t which, exit = 0;
+	std::int16_t which;
+	std::int16_t exit = 0;
 	char input[GAME_DESCRIPTION_LEN + 1];
 	bool temp_caps = allcaps;
 	US_CursorStruct TermCursor = {'@', 0, HIGHLIGHT_TEXT_COLOR, 2};
@@ -3742,7 +3744,8 @@ void ShadowPrint(
 	std::int16_t x,
 	std::int16_t y)
 {
-	std::int16_t old_bc, old_fc;
+	std::int16_t old_bc;
+	std::int16_t old_fc;
 
 	old_fc = fontcolor;
 	old_bc = backcolor;
@@ -3771,7 +3774,13 @@ std::int16_t HandleMenu(
 	std::int8_t key;
 	static std::int16_t redrawitem = 1;
 
-	std::int16_t i, x, y, basey, exit, which, flash_tics;
+	std::int16_t i;
+	std::int16_t x;
+	std::int16_t y;
+	std::int16_t basey;
+	std::int16_t exit;
+	std::int16_t which;
+	std::int16_t flash_tics;
 	ControlInfo ci;
 
 	which = item_i->curpos;
@@ -4148,7 +4157,8 @@ void DrawMenu(
 	CP_iteminfo* item_i,
 	CP_itemtype* items)
 {
-	std::int16_t i, which = item_i->curpos;
+	std::int16_t i;
+	std::int16_t which = item_i->curpos;
 
 	WindowX = PrintX = item_i->x + item_i->indent;
 	WindowY = PrintY = item_i->y;
@@ -4283,7 +4293,11 @@ void ReadAnyControl(
 std::int16_t Confirm(
 	const char* string)
 {
-	std::int16_t xit = 0, x, y, tick = 0, whichsnd[2] = {ESCPRESSEDSND, SHOOTSND};
+	std::int16_t xit = 0;
+	std::int16_t x;
+	std::int16_t y;
+	std::int16_t tick = 0;
+	std::int16_t whichsnd[2] = {ESCPRESSEDSND, SHOOTSND};
 
 
 	Message(string);
@@ -4352,7 +4366,9 @@ std::int16_t Confirm(
 void Message(
 	const char* string)
 {
-	std::int16_t h = 0, w = 0, mw = 0;
+	std::int16_t h = 0;
+	std::int16_t w = 0;
+	std::int16_t mw = 0;
 	std::size_t i;
 	fontstruct* font;
 
@@ -4537,7 +4553,8 @@ void CheckPause()
 void DrawMenuGun(
 	CP_iteminfo* iteminfo)
 {
-	std::int16_t x, y;
+	std::int16_t x;
+	std::int16_t y;
 
 	x = iteminfo->cursor.x;
 	y = iteminfo->y + iteminfo->curpos * iteminfo->y_spacing + iteminfo->cursor.y_ofs;

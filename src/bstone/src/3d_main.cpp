@@ -9485,7 +9485,10 @@ void CycleColors()
 
 		if (tics >= c->delay_count)
 		{
-			std::uint8_t temp[3], first, last, numregs;
+			std::uint8_t temp[3];
+			std::uint8_t first;
+			std::uint8_t last;
+			std::uint8_t numregs;
 
 			if (!changes)
 			{
