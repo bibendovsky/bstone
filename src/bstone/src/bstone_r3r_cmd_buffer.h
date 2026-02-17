@@ -158,143 +158,73 @@ public:
 	R3rCmdBuffer() = default;
 	virtual ~R3rCmdBuffer() = default;
 
-public:
-	int get_count() const;
-	bool is_enabled() const;
-	void enable(bool is_enabled);
+	virtual int get_count() const = 0;
+	virtual bool is_enabled() const = 0;
+	virtual void enable(bool is_enabled) = 0;
 
-	void begin_write();
-	void end_write();
+	virtual void begin_write() = 0;
+	virtual void end_write() = 0;
 
-	R3rClearCmd& write_clear();
+	virtual R3rClearCmd& write_clear() = 0;
 
-	R3rSetViewportCmd& write_set_viewport();
+	virtual R3rSetViewportCmd& write_set_viewport() = 0;
 
-	R3rEnableCullingCmd& write_enable_culling();
+	virtual R3rEnableCullingCmd& write_enable_culling() = 0;
 
-	R3rEnableDepthTestCmd& write_enable_depth_test();
-	R3rEnableDepthWriteCmd& write_enable_depth_write();
+	virtual R3rEnableDepthTestCmd& write_enable_depth_test() = 0;
+	virtual R3rEnableDepthWriteCmd& write_enable_depth_write() = 0;
 
-	R3rEnableBlendingCmd& write_enable_blending();
-	R3rSetBlendingFuncCmd& write_set_blending_func();
+	virtual R3rEnableBlendingCmd& write_enable_blending() = 0;
+	virtual R3rSetBlendingFuncCmd& write_set_blending_func() = 0;
 
-	R3rSetTextureCmd& write_set_texture();
-	R3rSetSamplerCmd& write_set_sampler();
+	virtual R3rSetTextureCmd& write_set_texture() = 0;
+	virtual R3rSetSamplerCmd& write_set_sampler() = 0;
 
-	R3rSetVertexInputCmd& write_set_vertex_input();
+	virtual R3rSetVertexInputCmd& write_set_vertex_input() = 0;
 
-	R3rSetShaderStageCmd& write_set_shader_stage();
+	virtual R3rSetShaderStageCmd& write_set_shader_stage() = 0;
 
-	R3rSetInt32UniformCmd& write_set_i32_uniform();
-	R3rSetFloat32UniformCmd& write_set_f32_uniform();
-	R3rSetVec2UniformCmd& write_set_vec2_uniform();
-	R3rSetVec4UniformCmd& write_set_vec4_uniform();
-	R3rSetMat4UniformCmd& write_set_mat4_uniform();
-	R3rSetR2SamplerUniformCmd& write_set_r2_sampler_uniform();
+	virtual R3rSetInt32UniformCmd& write_set_i32_uniform() = 0;
+	virtual R3rSetFloat32UniformCmd& write_set_f32_uniform() = 0;
+	virtual R3rSetVec2UniformCmd& write_set_vec2_uniform() = 0;
+	virtual R3rSetVec4UniformCmd& write_set_vec4_uniform() = 0;
+	virtual R3rSetMat4UniformCmd& write_set_mat4_uniform() = 0;
+	virtual R3rSetR2SamplerUniformCmd& write_set_r2_sampler_uniform() = 0;
 
-	R3rDrawIndexedCmd& write_draw_indexed();
+	virtual R3rDrawIndexedCmd& write_draw_indexed() = 0;
 
-	void begin_read();
-	void end_read();
+	virtual void begin_read() = 0;
+	virtual void end_read() = 0;
 
-	R3rCmdId read_command_id();
+	virtual R3rCmdId read_command_id() = 0;
 
-	const R3rClearCmd& read_clear();
+	virtual const R3rClearCmd& read_clear() = 0;
 
-	const R3rSetViewportCmd& read_set_viewport();
+	virtual const R3rSetViewportCmd& read_set_viewport() = 0;
 
-	const R3rEnableCullingCmd& read_enable_culling();
+	virtual const R3rEnableCullingCmd& read_enable_culling() = 0;
 
-	const R3rEnableDepthTestCmd& read_enable_depth_test();
-	const R3rEnableDepthWriteCmd& read_enable_depth_write();
+	virtual const R3rEnableDepthTestCmd& read_enable_depth_test() = 0;
+	virtual const R3rEnableDepthWriteCmd& read_enable_depth_write() = 0;
 
-	const R3rEnableBlendingCmd& read_enable_blending();
-	const R3rSetBlendingFuncCmd& read_set_blending_func();
+	virtual const R3rEnableBlendingCmd& read_enable_blending() = 0;
+	virtual const R3rSetBlendingFuncCmd& read_set_blending_func() = 0;
 
-	const R3rSetTextureCmd& read_set_texture();
-	const R3rSetSamplerCmd& read_set_sampler();
+	virtual const R3rSetTextureCmd& read_set_texture() = 0;
+	virtual const R3rSetSamplerCmd& read_set_sampler() = 0;
 
-	const R3rSetVertexInputCmd& read_set_vertex_input();
+	virtual const R3rSetVertexInputCmd& read_set_vertex_input() = 0;
 
-	const R3rSetShaderStageCmd& read_set_shader_stage();
+	virtual const R3rSetShaderStageCmd& read_set_shader_stage() = 0;
 
-	const R3rSetInt32UniformCmd& read_set_int32_uniform();
-	const R3rSetFloat32UniformCmd& read_set_float32_uniform();
-	const R3rSetVec2UniformCmd& read_set_vec2_uniform();
-	const R3rSetVec4UniformCmd& read_set_vec4_uniform();
-	const R3rSetMat4UniformCmd& read_set_mat4_uniform();
-	const R3rSetR2SamplerUniformCmd& read_set_r2_sampler_uniform();
+	virtual const R3rSetInt32UniformCmd& read_set_int32_uniform() = 0;
+	virtual const R3rSetFloat32UniformCmd& read_set_float32_uniform() = 0;
+	virtual const R3rSetVec2UniformCmd& read_set_vec2_uniform() = 0;
+	virtual const R3rSetVec4UniformCmd& read_set_vec4_uniform() = 0;
+	virtual const R3rSetMat4UniformCmd& read_set_mat4_uniform() = 0;
+	virtual const R3rSetR2SamplerUniformCmd& read_set_r2_sampler_uniform() = 0;
 
-	const R3rDrawIndexedCmd& read_draw_indexed();
-
-private:
-	virtual int do_get_count() const = 0;
-	virtual bool do_is_enabled() const = 0;
-	virtual void do_enable(bool is_enabled) = 0;
-
-	virtual void do_begin_write() = 0;
-	virtual void do_end_write() = 0;
-
-	virtual R3rClearCmd& do_write_clear() = 0;
-
-	virtual R3rSetViewportCmd& do_write_set_viewport() = 0;
-
-	virtual R3rEnableCullingCmd& do_write_enable_culling() = 0;
-
-	virtual R3rEnableDepthTestCmd& do_write_enable_depth_test() = 0;
-	virtual R3rEnableDepthWriteCmd& do_write_enable_depth_write() = 0;
-
-	virtual R3rEnableBlendingCmd& do_write_enable_blending() = 0;
-	virtual R3rSetBlendingFuncCmd& do_write_set_blending_func() = 0;
-
-	virtual R3rSetTextureCmd& do_write_set_texture() = 0;
-	virtual R3rSetSamplerCmd& do_write_set_sampler() = 0;
-
-	virtual R3rSetVertexInputCmd& do_write_set_vertex_input() = 0;
-
-	virtual R3rSetShaderStageCmd& do_write_set_shader_stage() = 0;
-
-	virtual R3rSetInt32UniformCmd& do_write_set_i32_uniform() = 0;
-	virtual R3rSetFloat32UniformCmd& do_write_set_f32_uniform() = 0;
-	virtual R3rSetVec2UniformCmd& do_write_set_vec2_uniform() = 0;
-	virtual R3rSetVec4UniformCmd& do_write_set_vec4_uniform() = 0;
-	virtual R3rSetMat4UniformCmd& do_write_set_mat4_uniform() = 0;
-	virtual R3rSetR2SamplerUniformCmd& do_write_set_r2_sampler_uniform() = 0;
-
-	virtual R3rDrawIndexedCmd& do_write_draw_indexed() = 0;
-
-	virtual void do_begin_read() = 0;
-	virtual void do_end_read() = 0;
-
-	virtual R3rCmdId do_read_command_id() = 0;
-
-	virtual const R3rClearCmd& do_read_clear() = 0;
-
-	virtual const R3rSetViewportCmd& do_read_set_viewport() = 0;
-
-	virtual const R3rEnableCullingCmd& do_read_enable_culling() = 0;
-
-	virtual const R3rEnableDepthTestCmd& do_read_enable_depth_test() = 0;
-	virtual const R3rEnableDepthWriteCmd& do_read_enable_depth_write() = 0;
-
-	virtual const R3rEnableBlendingCmd& do_read_enable_blending() = 0;
-	virtual const R3rSetBlendingFuncCmd& do_read_set_blending_func() = 0;
-
-	virtual const R3rSetTextureCmd& do_read_set_texture() = 0;
-	virtual const R3rSetSamplerCmd& do_read_set_sampler() = 0;
-
-	virtual const R3rSetVertexInputCmd& do_read_set_vertex_input() = 0;
-
-	virtual const R3rSetShaderStageCmd& do_read_set_shader_stage() = 0;
-
-	virtual const R3rSetInt32UniformCmd& do_read_set_int32_uniform() = 0;
-	virtual const R3rSetFloat32UniformCmd& do_read_set_float32_uniform() = 0;
-	virtual const R3rSetVec2UniformCmd& do_read_set_vec2_uniform() = 0;
-	virtual const R3rSetVec4UniformCmd& do_read_set_vec4_uniform() = 0;
-	virtual const R3rSetMat4UniformCmd& do_read_set_mat4_uniform() = 0;
-	virtual const R3rSetR2SamplerUniformCmd& do_read_set_r2_sampler_uniform() = 0;
-
-	virtual const R3rDrawIndexedCmd& do_read_draw_indexed() = 0;
+	virtual const R3rDrawIndexedCmd& read_draw_indexed() = 0;
 };
 
 // ==========================================================================

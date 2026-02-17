@@ -31,8 +31,7 @@ public:
 	GlR3rShaderImpl(const R3rShaderInitParam& param);
 	~GlR3rShaderImpl() override;
 
-private:
-	R3rShaderType do_get_type() const override;
+	R3rShaderType get_type() const override;
 
 public:
 	GLuint get_gl_name() const override;
@@ -126,7 +125,7 @@ GlR3rShaderImpl::~GlR3rShaderImpl()
 	}
 }
 
-R3rShaderType GlR3rShaderImpl::do_get_type() const
+R3rShaderType GlR3rShaderImpl::get_type() const
 {
 	return type_;
 }

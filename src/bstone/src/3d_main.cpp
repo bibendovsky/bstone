@@ -7615,7 +7615,7 @@ try
 		return false;
 	}
 
-	ccmd->get_action()(tokens.subspan(1));
+	ccmd->get_action().invoke(tokens.subspan(1));
 	return true;
 }
 catch (const std::exception& ex)
@@ -9952,16 +9952,15 @@ int main(
 
 		~SysLogger() override = default;
 
-	private:
-		bstone::Logger& logger_;
-
-	private:
-		void do_log(bstone::sys::LogLevel level, const char* message) override
+		void log(bstone::sys::LogLevel level, const char* message) override
 		{
 			BSTONE_ASSERT(level == bstone::sys::LogLevel::information);
 			static_cast<void>(level);
 			logger_.log_information(message != nullptr ? message : "");
 		}
+
+	private:
+		bstone::Logger& logger_;
 	};
 
 	SysLogger sys_logger{*bstone::globals::logger};

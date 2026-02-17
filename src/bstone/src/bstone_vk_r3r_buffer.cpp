@@ -25,14 +25,14 @@ public:
 	VkR3rBufferImpl(VkR3rContext& context, const R3rBufferInitParam& param);
 	~VkR3rBufferImpl() override {}
 
+	R3rBufferType get_type() const override;
+	R3rBufferUsageType get_usage_type() const override;
+	int get_size() const override;
+	void update(const R3rUpdateBufferParam& param) override;
+
+	VkBuffer get_vk_buffer() const override;
+
 private:
-	R3rBufferType do_get_type() const override;
-	R3rBufferUsageType do_get_usage_type() const override;
-	int do_get_size() const override;
-	void do_update(const R3rUpdateBufferParam& param) override;
-
-	VkBuffer do_get_vk_buffer() const override;
-
 	VkR3rContext& context_;
 	R3rBufferType type_{};
 	R3rBufferUsageType usage_type_{};
@@ -79,22 +79,22 @@ try :
 	mapped_memory_ = context_.map_memory(device_memory_resource_.get());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rBufferType VkR3rBufferImpl::do_get_type() const
+R3rBufferType VkR3rBufferImpl::get_type() const
 {
 	return type_;
 }
 
-R3rBufferUsageType VkR3rBufferImpl::do_get_usage_type() const
+R3rBufferUsageType VkR3rBufferImpl::get_usage_type() const
 {
 	return usage_type_;
 }
 
-int VkR3rBufferImpl::do_get_size() const
+int VkR3rBufferImpl::get_size() const
 {
 	return size_;
 }
 
-void VkR3rBufferImpl::do_update(const R3rUpdateBufferParam& param)
+void VkR3rBufferImpl::update(const R3rUpdateBufferParam& param)
 try {
 	if (param.offset < 0)
 	{
@@ -111,19 +111,12 @@ try {
 	std::memcpy(static_cast<unsigned char*>(mapped_memory_) + param.offset, param.data, param.size);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-VkBuffer VkR3rBufferImpl::do_get_vk_buffer() const
+VkBuffer VkR3rBufferImpl::get_vk_buffer() const
 {
 	return buffer_resource_.get();
 }
 
 } // namespace
-
-// ======================================
-
-VkBuffer VkR3rBuffer::get_vk_buffer() const
-{
-	return do_get_vk_buffer();
-}
 
 // ======================================
 

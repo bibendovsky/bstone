@@ -44,17 +44,17 @@ void StaticRoMemoryStream::open(const void* buffer, std::intptr_t buffer_size)
 	size_ = buffer_size;
 }
 
-void StaticRoMemoryStream::do_close()
+void StaticRoMemoryStream::close()
 {
 	close_internal();
 }
 
-bool StaticRoMemoryStream::do_is_open() const
+bool StaticRoMemoryStream::is_open() const
 {
 	return is_open_;
 }
 
-std::intptr_t StaticRoMemoryStream::do_read(void* buffer, std::intptr_t count)
+std::intptr_t StaticRoMemoryStream::read(void* buffer, std::intptr_t count)
 {
 	BSTONE_ASSERT(is_open_);
 	BSTONE_ASSERT(buffer != nullptr);
@@ -72,14 +72,14 @@ std::intptr_t StaticRoMemoryStream::do_read(void* buffer, std::intptr_t count)
 	return copy_count;
 }
 
-std::intptr_t StaticRoMemoryStream::do_write(const void*, std::intptr_t)
+std::intptr_t StaticRoMemoryStream::write(const void*, std::intptr_t)
 {
 	BSTONE_ASSERT(is_open_);
 
 	BSTONE_THROW_STATIC_SOURCE("Not supported.");
 }
 
-std::int64_t StaticRoMemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
+std::int64_t StaticRoMemoryStream::seek(std::int64_t offset, StreamOrigin origin)
 {
 	BSTONE_ASSERT(is_open_);
 
@@ -127,21 +127,21 @@ std::int64_t StaticRoMemoryStream::do_seek(std::int64_t offset, StreamOrigin ori
 	return position_;
 }
 
-std::int64_t StaticRoMemoryStream::do_get_size()
+std::int64_t StaticRoMemoryStream::get_size()
 {
 	BSTONE_ASSERT(is_open_);
 
 	return size_;
 }
 
-void StaticRoMemoryStream::do_set_size(std::int64_t)
+void StaticRoMemoryStream::set_size(std::int64_t)
 {
 	BSTONE_ASSERT(is_open_);
 
 	BSTONE_THROW_STATIC_SOURCE("Not supported.");
 }
 
-void StaticRoMemoryStream::do_flush()
+void StaticRoMemoryStream::flush()
 {
 	BSTONE_ASSERT(is_open_);
 

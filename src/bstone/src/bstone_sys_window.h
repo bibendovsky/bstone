@@ -141,41 +141,24 @@ public:
 	Window() = default;
 	virtual ~Window() = default;
 
-	const char* get_title();
-	void set_title(const char* title);
-	WindowPosition get_position();
-	void set_position(WindowPosition position);
-	void center();
-	WindowSize get_size();
-	void set_size(WindowSize size);
-	DisplayMode get_display_mode();
-	void set_display_mode(const DisplayMode& display_mode);
-	void show(bool is_visible);
-	void set_rounded_corner_type(WindowRoundedCornerType value);
-	WindowFullscreenType get_fullscreen_mode();
-	void set_fullscreen_mode(WindowFullscreenType fullscreen_mode);
-	GlContextUPtr gl_make_context();
-	WindowSize gl_get_drawable_size();
-	void gl_swap_buffers();
-	RendererUPtr make_renderer(const RendererInitParam& param);
+	virtual const char* get_title() = 0;
+	virtual void set_title(const char* title) = 0;
+	virtual WindowPosition get_position() = 0;
+	virtual void set_position(WindowPosition position) = 0;
+	virtual WindowSize get_size() = 0;
+	virtual void set_size(WindowSize size) = 0;
+	virtual DisplayMode get_display_mode() = 0;
+	virtual void set_display_mode(const DisplayMode& display_mode) = 0;
+	virtual void show(bool is_visible) = 0;
+	virtual void set_rounded_corner_type(WindowRoundedCornerType value) = 0;
+	virtual WindowFullscreenType get_fullscreen_mode() = 0;
+	virtual void set_fullscreen_mode(WindowFullscreenType fullscreen_mode) = 0;
+	virtual GlContextUPtr gl_make_context() = 0;
+	virtual WindowSize gl_get_drawable_size() = 0;
+	virtual void gl_swap_buffers() = 0;
+	virtual RendererUPtr make_renderer(const RendererInitParam& param) = 0;
 
-private:
-	virtual const char* do_get_title() = 0;
-	virtual void do_set_title(const char* title) = 0;
-	virtual WindowPosition do_get_position() = 0;
-	virtual void do_set_position(WindowPosition position) = 0;
-	virtual WindowSize do_get_size() = 0;
-	virtual void do_set_size(WindowSize size) = 0;
-	virtual DisplayMode do_get_display_mode() = 0;
-	virtual void do_set_display_mode(const DisplayMode& display_mode) = 0;
-	virtual void do_show(bool is_visible) = 0;
-	virtual void do_set_rounded_corner_type(WindowRoundedCornerType value) = 0;
-	virtual WindowFullscreenType do_get_fullscreen_mode() = 0;
-	virtual void do_set_fullscreen_mode(WindowFullscreenType fullscreen_mode) = 0;
-	virtual GlContextUPtr do_gl_make_context() = 0;
-	virtual WindowSize do_gl_get_drawable_size() = 0;
-	virtual void do_gl_swap_buffers() = 0;
-	virtual RendererUPtr do_make_renderer(const RendererInitParam& param) = 0;
+	void center();
 };
 
 // ======================================

@@ -23,13 +23,10 @@ class VkR3rShader : public R3rShader
 public:
 	~VkR3rShader() override {}
 
-	VkShaderModule get_vk_shader_module() const;
+	virtual VkShaderModule get_vk_shader_module() const = 0;
 
 protected:
 	VkR3rShader() {}
-
-private:
-	virtual VkShaderModule do_get_vk_shader_module() const = 0;
 };
 
 using VkR3rShaderUPtr = std::unique_ptr<VkR3rShader>;

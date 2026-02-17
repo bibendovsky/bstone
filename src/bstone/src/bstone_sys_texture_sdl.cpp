@@ -25,14 +25,14 @@ public:
 	TextureSdl& operator=(const TextureSdl&) = delete;
 	~TextureSdl() override;
 
+	void set_blend_mode(TextureBlendMode mode) override;
+	void copy(const FRect* texture_rect, const FRect* target_rect) override;
+	TextureLockUPtr make_lock() override;
+
 private:
 	Logger& logger_;
 	SDL_Renderer& sdl_renderer_;
 	SDL_Texture* sdl_texture_{};
-
-	void do_set_blend_mode(TextureBlendMode mode) override;
-	void do_copy(const FRect* texture_rect, const FRect* target_rect) override;
-	TextureLockUPtr do_make_lock(const Rect* rect) override;
 
 	static SDL_BlendMode map_blend_mode(TextureBlendMode blend_mode);
 	static SDL_PixelFormat map_pixel_format(PixelFormat pixel_format);
@@ -79,7 +79,7 @@ TextureSdl::~TextureSdl()
 	SDL_DestroyTexture(sdl_texture_);
 }
 
-void TextureSdl::do_set_blend_mode(TextureBlendMode blend_mode)
+void TextureSdl::set_blend_mode(TextureBlendMode blend_mode)
 {
 	const SDL_BlendMode sdl_blend_mode = map_blend_mode(blend_mode);
 	if (!SDL_SetTextureBlendMode(sdl_texture_, sdl_blend_mode))
@@ -88,7 +88,7 @@ void TextureSdl::do_set_blend_mode(TextureBlendMode blend_mode)
 	}
 }
 
-void TextureSdl::do_copy(const FRect* texture_rect, const FRect* target_rect)
+void TextureSdl::copy(const FRect* texture_rect, const FRect* target_rect)
 {
 	if (!SDL_RenderTexture(
 		&sdl_renderer_,
@@ -100,9 +100,9 @@ void TextureSdl::do_copy(const FRect* texture_rect, const FRect* target_rect)
 	}
 }
 
-TextureLockUPtr TextureSdl::do_make_lock(const Rect* rect)
+TextureLockUPtr TextureSdl::make_lock()
 {
-	return make_texture_lock_sdl(*sdl_texture_, rect);
+	return make_texture_lock_sdl(*sdl_texture_, nullptr);
 }
 
 SDL_BlendMode TextureSdl::map_blend_mode(TextureBlendMode blend_mode)

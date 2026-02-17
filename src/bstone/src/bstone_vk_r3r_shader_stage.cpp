@@ -39,20 +39,20 @@ public:
 	~VkR3rShaderStageImpl() override;
 
 private:
-	R3rShaderVar* do_find_var(const char* name) override;
-	R3rShaderVar* do_find_int32_var(const char* name) override;
-	R3rShaderVar* do_find_float32_var(const char* name) override;
-	R3rShaderVar* do_find_vec2_var(const char* name) override;
-	R3rShaderVar* do_find_vec3_var(const char* name) override;
-	R3rShaderVar* do_find_vec4_var(const char* name) override;
-	R3rShaderVar* do_find_mat4_var(const char* name) override;
-	R3rShaderVar* do_find_r2_sampler_var(const char* name) override;
+	R3rShaderVar* find_var(const char* name) override;
+	R3rShaderVar* find_int32_var(const char* name) override;
+	R3rShaderVar* find_float32_var(const char* name) override;
+	R3rShaderVar* find_vec2_var(const char* name) override;
+	R3rShaderVar* find_vec3_var(const char* name) override;
+	R3rShaderVar* find_vec4_var(const char* name) override;
+	R3rShaderVar* find_mat4_var(const char* name) override;
+	R3rShaderVar* find_r2_sampler_var(const char* name) override;
 
-	std::uint32_t do_get_vk_image_binding() const override;
-	VkR3rShader* do_get_vertex_shader() const override;
-	VkR3rShader* do_get_fragment_shader() const override;
-	VkDescriptorSetLayout do_get_vk_descriptor_set_layout() const override;
-	VkDescriptorSet do_acquire_vk_descriptor_set() override;
+	std::uint32_t get_vk_image_binding() const override;
+	VkR3rShader* get_vertex_shader() const override;
+	VkR3rShader* get_fragment_shader() const override;
+	VkDescriptorSetLayout get_vk_descriptor_set_layout() const override;
+	VkDescriptorSet acquire_vk_descriptor_set() override;
 
 	static constexpr const char* const shader_module_default_entry_point = "main";
 
@@ -66,14 +66,13 @@ private:
 
 		~PostPresentObserver() override {}
 
-	private:
-		VkR3rShaderStageImpl& shader_stage_;
-
-	private:
-		void do_update() override
+		void update() override
 		{
 			shader_stage_.on_post_present();
 		}
+
+	private:
+		VkR3rShaderStageImpl& shader_stage_;
 	};
 
 private:
@@ -146,67 +145,67 @@ VkR3rShaderStageImpl::~VkR3rShaderStageImpl()
 	context_.post_present_subject.detach(post_present_observer_);
 }
 
-R3rShaderVar* VkR3rShaderStageImpl::do_find_var(const char* name)
+R3rShaderVar* VkR3rShaderStageImpl::find_var(const char* name)
 {
 	return impl_find_var(name, R3rShaderVarTypeId::none);
 }
 
-R3rShaderVar* VkR3rShaderStageImpl::do_find_int32_var(const char* name)
+R3rShaderVar* VkR3rShaderStageImpl::find_int32_var(const char* name)
 {
 	return impl_find_var(name, R3rShaderVarTypeId::int32);
 }
 
-R3rShaderVar* VkR3rShaderStageImpl::do_find_float32_var(const char* name)
+R3rShaderVar* VkR3rShaderStageImpl::find_float32_var(const char* name)
 {
 	return impl_find_var(name, R3rShaderVarTypeId::float32);
 }
 
-R3rShaderVar* VkR3rShaderStageImpl::do_find_vec2_var(const char* name)
+R3rShaderVar* VkR3rShaderStageImpl::find_vec2_var(const char* name)
 {
 	return impl_find_var(name, R3rShaderVarTypeId::vec2);
 }
 
-R3rShaderVar* VkR3rShaderStageImpl::do_find_vec3_var(const char* name)
+R3rShaderVar* VkR3rShaderStageImpl::find_vec3_var(const char* name)
 {
 	return impl_find_var(name, R3rShaderVarTypeId::vec4);
 }
 
-R3rShaderVar* VkR3rShaderStageImpl::do_find_vec4_var(const char* name)
+R3rShaderVar* VkR3rShaderStageImpl::find_vec4_var(const char* name)
 {
 	return impl_find_var(name, R3rShaderVarTypeId::vec4);
 }
 
-R3rShaderVar* VkR3rShaderStageImpl::do_find_mat4_var(const char* name)
+R3rShaderVar* VkR3rShaderStageImpl::find_mat4_var(const char* name)
 {
 	return impl_find_var(name, R3rShaderVarTypeId::mat4);
 }
 
-R3rShaderVar* VkR3rShaderStageImpl::do_find_r2_sampler_var(const char* name)
+R3rShaderVar* VkR3rShaderStageImpl::find_r2_sampler_var(const char* name)
 {
 	return impl_find_var(name, R3rShaderVarTypeId::sampler2d);
 }
 
-std::uint32_t VkR3rShaderStageImpl::do_get_vk_image_binding() const
+std::uint32_t VkR3rShaderStageImpl::get_vk_image_binding() const
 {
 	return vk_image_binding_;
 }
 
-VkR3rShader* VkR3rShaderStageImpl::do_get_vertex_shader() const
+VkR3rShader* VkR3rShaderStageImpl::get_vertex_shader() const
 {
 	return vertex_shader_;
 }
 
-VkR3rShader* VkR3rShaderStageImpl::do_get_fragment_shader() const
+VkR3rShader* VkR3rShaderStageImpl::get_fragment_shader() const
 {
 	return fragment_shader_;
 }
 
-VkDescriptorSetLayout VkR3rShaderStageImpl::do_get_vk_descriptor_set_layout() const
+VkDescriptorSetLayout VkR3rShaderStageImpl::get_vk_descriptor_set_layout() const
 {
 	return descriptor_set_layout_.get();
 }
 
-VkDescriptorSet VkR3rShaderStageImpl::do_acquire_vk_descriptor_set()
+VkDescriptorSet VkR3rShaderStageImpl::acquire_vk_descriptor_set()
 {
 	if (used_descriptor_set_count_ < descriptor_contexts_.size())
 	{
@@ -588,33 +587,6 @@ void VkR3rShaderStageImpl::commit_uniforms(DescriptorContext& descriptor_context
 }
 
 } // namespace
-
-// ======================================
-
-std::uint32_t VkR3rShaderStage::get_vk_image_binding() const
-{
-	return do_get_vk_image_binding();
-}
-
-VkR3rShader* VkR3rShaderStage::get_vertex_shader() const
-{
-	return do_get_vertex_shader();
-}
-
-VkR3rShader* VkR3rShaderStage::get_fragment_shader() const
-{
-	return do_get_fragment_shader();
-}
-
-VkDescriptorSetLayout VkR3rShaderStage::get_vk_descriptor_set_layout() const
-{
-	return do_get_vk_descriptor_set_layout();
-}
-
-VkDescriptorSet VkR3rShaderStage::acquire_vk_descriptor_set()
-{
-	return do_acquire_vk_descriptor_set();
-}
 
 // ======================================
 

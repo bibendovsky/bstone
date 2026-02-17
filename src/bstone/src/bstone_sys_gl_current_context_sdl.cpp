@@ -25,26 +25,25 @@ public:
 	GlCurrentContextSdl& operator=(const GlCurrentContextSdl&) = delete;
 	~GlCurrentContextSdl() override = default;
 
-private:
-	GlSymbolResolverSdl gl_symbol_resolver_{};
+	bool has_extension(const char* extension_name) const override;
+	SwapIntervalType get_swap_interval() const override;
+	void set_swap_interval(SwapIntervalType swap_interval_type) override;
+	const GlSymbolResolver& get_symbol_resolver() const override;
 
 private:
-	bool do_has_extension(const char* extension_name) const override;
-	SwapIntervalType do_get_swap_interval() const override;
-	void do_set_swap_interval(SwapIntervalType swap_interval_type) override;
-	const GlSymbolResolver& do_get_symbol_resolver() const override;
+	GlSymbolResolverSdl gl_symbol_resolver_{};
 
 	static int map(SwapIntervalType swap_interval_type);
 };
 
 // --------------------------------------
 
-bool GlCurrentContextSdl::do_has_extension(const char* extension_name) const
+bool GlCurrentContextSdl::has_extension(const char* extension_name) const
 {
 	return SDL_GL_ExtensionSupported(extension_name);
 }
 
-SwapIntervalType GlCurrentContextSdl::do_get_swap_interval() const
+SwapIntervalType GlCurrentContextSdl::get_swap_interval() const
 {
 	int sdl_swap_interval;
 	if (!SDL_GL_GetSwapInterval(&sdl_swap_interval))
@@ -60,7 +59,7 @@ SwapIntervalType GlCurrentContextSdl::do_get_swap_interval() const
 	}
 }
 
-void GlCurrentContextSdl::do_set_swap_interval(SwapIntervalType swap_interval_type)
+void GlCurrentContextSdl::set_swap_interval(SwapIntervalType swap_interval_type)
 {
 	const int sdl_swap_interval = map(swap_interval_type);
 	if (!SDL_GL_SetSwapInterval(sdl_swap_interval))
@@ -70,7 +69,7 @@ void GlCurrentContextSdl::do_set_swap_interval(SwapIntervalType swap_interval_ty
 	}
 }
 
-const GlSymbolResolver& GlCurrentContextSdl::do_get_symbol_resolver() const
+const GlSymbolResolver& GlCurrentContextSdl::get_symbol_resolver() const
 {
 	return gl_symbol_resolver_;
 }

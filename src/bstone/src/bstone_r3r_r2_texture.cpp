@@ -6,19 +6,4 @@ SPDX-License-Identifier: MIT
 
 // 3D Renderer: 2D Texture
 
-#include "bstone_exception.h"
 #include "bstone_r3r_r2_texture.h"
-
-namespace bstone {
-
-void R3rR2Texture::update(const R3rR2TextureUpdateParam& param)
-try {
-	do_update(param);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void R3rR2Texture::generate_mipmap()
-try {
-	do_generate_mipmap();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-} // namespace bstone

@@ -24,8 +24,7 @@ public:
 	NullR3rShaderImpl(const R3rShaderInitParam& param);
 	~NullR3rShaderImpl() override {}
 
-private:
-	R3rShaderType do_get_type() const override;
+	R3rShaderType get_type() const override;
 
 private:
 	R3rShaderType type_{};
@@ -38,7 +37,7 @@ NullR3rShaderImpl::NullR3rShaderImpl(const R3rShaderInitParam& param)
 	type_(param.type)
 {}
 
-R3rShaderType NullR3rShaderImpl::do_get_type() const
+R3rShaderType NullR3rShaderImpl::get_type() const
 {
 	return type_;
 }

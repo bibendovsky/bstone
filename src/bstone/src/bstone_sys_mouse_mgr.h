@@ -19,10 +19,7 @@ public:
 	MouseMgr() = default;
 	virtual ~MouseMgr() = default;
 
-	void set_relative_mode(bool is_relative);
-
-private:
-	virtual void do_set_relative_mode(bool is_relative) = 0;
+	virtual void set_relative_mode(bool is_relative) = 0;
 };
 
 // ======================================

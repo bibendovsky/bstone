@@ -7,12 +7,3 @@ SPDX-License-Identifier: MIT
 // Window manager
 
 #include "bstone_sys_window_mgr.h"
-
-namespace bstone::sys {
-
-WindowUPtr WindowMgr::make_window(const WindowInitParam& param)
-{
-	return do_make_window(param);
-}
-
-} // namespace bstone::sys

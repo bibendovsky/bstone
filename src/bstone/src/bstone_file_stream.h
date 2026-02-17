@@ -27,18 +27,17 @@ public:
 
 	bool open(const char* path, sys::FileMode mode);
 
-private:
-	sys::File file_{};
+	void close() override;
+	bool is_open() const override;
+	std::intptr_t read(void* buffer, std::intptr_t count) override;
+	std::intptr_t write(const void* buffer, std::intptr_t count) override;
+	std::int64_t seek(std::int64_t offset, StreamOrigin origin) override;
+	std::int64_t get_size() override;
+	void set_size(std::int64_t size) override;
+	void flush() override;
 
 private:
-	void do_close() override;
-	bool do_is_open() const override;
-	std::intptr_t do_read(void* buffer, std::intptr_t count) override;
-	std::intptr_t do_write(const void* buffer, std::intptr_t count) override;
-	std::int64_t do_seek(std::int64_t offset, StreamOrigin origin) override;
-	std::int64_t do_get_size() override;
-	void do_set_size(std::int64_t size) override;
-	void do_flush() override;
+	sys::File file_{};
 };
 
 } // namespace bstone

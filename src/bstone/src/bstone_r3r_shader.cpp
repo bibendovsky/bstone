@@ -7,12 +7,3 @@ SPDX-License-Identifier: MIT
 // 3D Renderer: Shader
 
 #include "bstone_r3r_shader.h"
-
-namespace bstone {
-
-R3rShaderType R3rShader::get_type() const
-{
-	return do_get_type();
-}
-
-} // namespace bstone

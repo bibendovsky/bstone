@@ -14,7 +14,7 @@ VkR3rPostPresentSubject::VkR3rPostPresentSubject()
 	observers_copy_.reserve(64);
 }
 
-void VkR3rPostPresentSubject::do_attach(Observer& observer)
+void VkR3rPostPresentSubject::attach(Observer& observer)
 try {
 	if (!observers_.emplace(&observer).second)
 	{
@@ -22,7 +22,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void VkR3rPostPresentSubject::do_detach(Observer& observer)
+void VkR3rPostPresentSubject::detach(Observer& observer)
 try {
 	if (observers_.erase(&observer) == 0)
 	{
@@ -30,7 +30,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void VkR3rPostPresentSubject::do_notify()
+void VkR3rPostPresentSubject::notify()
 {
 	observers_copy_ = observers_;
 	for (Observer* observer : observers_copy_)

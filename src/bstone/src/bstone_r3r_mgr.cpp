@@ -19,13 +19,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-R3r* R3rMgr::make_renderer(const R3rInitParam& param)
-try {
-	return do_make_renderer(param);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-// ==========================================================================
-
 namespace {
 
 class R3rMgrImpl final : public R3rMgr
@@ -34,8 +27,7 @@ public:
 	R3rMgrImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr);
 	~R3rMgrImpl() override;
 
-private:
-	R3r* do_make_renderer(const R3rInitParam& param) override;
+	R3r* make_renderer(const R3rInitParam& param) override;
 
 private:
 	sys::VideoMgr& video_mgr_;
@@ -53,7 +45,7 @@ R3rMgrImpl::R3rMgrImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr)
 	window_mgr_{window_mgr}
 {}
 
-R3r* R3rMgrImpl::do_make_renderer(const R3rInitParam& param)
+R3r* R3rMgrImpl::make_renderer(const R3rInitParam& param)
 try {
 	r3r_ = nullptr;
 

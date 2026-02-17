@@ -42,10 +42,7 @@ public:
 	R3rShader() = default;
 	virtual ~R3rShader() = default;
 
-	R3rShaderType get_type() const;
-
-private:
-	virtual R3rShaderType do_get_type() const = 0;
+	virtual R3rShaderType get_type() const = 0;
 };
 
 // ==========================================================================

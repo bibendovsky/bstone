@@ -14,58 +14,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 namespace bstone {
 
-bool VoiceGroup::is_any_playing()
-try {
-	return do_is_any_playing();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VoiceGroup::set_gain(double gain)
-try {
-	do_set_gain(gain);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VoiceGroup::pause()
-try {
-	do_pause();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VoiceGroup::resume()
-try {
-	do_resume();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VoiceGroup::stop()
-try {
-	do_stop();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VoiceGroup::add_voice(Voice& voice)
-try {
-	do_add_voice(voice);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VoiceGroup::stop_and_remove_voice(Voice& voice)
-try {
-	do_stop_and_remove_voice(voice);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VoiceGroup::stop_voice(Voice& voice)
-try {
-	do_stop_voice(voice);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VoiceGroup::set_voice_gain(const Voice& voice)
-try {
-	do_set_voice_gain(voice);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void VoiceGroup::set_voice_output_gains(const Voice& voice)
-try {
-	do_set_voice_output_gains(voice);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-// ==========================================================================
-
 namespace {
 
 class VoiceGroupImpl final : public VoiceGroup
@@ -74,24 +22,24 @@ public:
 	VoiceGroupImpl(AudioMixer& audio_mixer);
 	~VoiceGroupImpl() override;
 
+	bool is_any_playing() override;
+	void set_gain(double gain) override;
+	void pause() override;
+	void resume() override;
+	void stop() override;
+
+	void add_voice(Voice& voice) override;
+	void stop_and_remove_voice(Voice& voice) override;
+	void stop_voice(Voice& voice) override;
+	void set_voice_gain(const Voice&) override;
+	void set_voice_output_gains(const Voice& voice) override;
+
 private:
 	using VoiceSet = std::unordered_set<Voice*>;
 
 	AudioMixer* audio_mixer_{};
 	VoiceSet voice_set_{};
 	double gain_{};
-
-	bool do_is_any_playing() override;
-	void do_set_gain(double gain) override;
-	void do_pause() override;
-	void do_resume() override;
-	void do_stop() override;
-
-	void do_add_voice(Voice& voice) override;
-	void do_stop_and_remove_voice(Voice& voice) override;
-	void do_stop_voice(Voice& voice) override;
-	void do_set_voice_gain(const Voice&) override;
-	void do_set_voice_output_gains(const Voice& voice) override;
 };
 
 // --------------------------------------------------------------------------
@@ -104,7 +52,7 @@ VoiceGroupImpl::VoiceGroupImpl(AudioMixer& audio_mixer)
 
 VoiceGroupImpl::~VoiceGroupImpl() = default;
 
-bool VoiceGroupImpl::do_is_any_playing()
+bool VoiceGroupImpl::is_any_playing()
 {
 	for (const auto& voice : voice_set_)
 	{
@@ -119,18 +67,18 @@ bool VoiceGroupImpl::do_is_any_playing()
 	return false;
 }
 
-void VoiceGroupImpl::do_set_gain(double gain)
+void VoiceGroupImpl::set_gain(double gain)
 {
 	AudioMixerValidator::validate_gain(gain);
 	gain_ = gain;
 
 	for (const auto& voice : voice_set_)
 	{
-		voice->use_output_gains ? do_set_voice_output_gains(*voice) : do_set_voice_gain(*voice);
+		voice->use_output_gains ? set_voice_output_gains(*voice) : set_voice_gain(*voice);
 	}
 }
 
-void VoiceGroupImpl::do_pause()
+void VoiceGroupImpl::pause()
 {
 	for (const auto& voice : voice_set_)
 	{
@@ -138,7 +86,7 @@ void VoiceGroupImpl::do_pause()
 	}
 }
 
-void VoiceGroupImpl::do_resume()
+void VoiceGroupImpl::resume()
 {
 	for (const auto& voice : voice_set_)
 	{
@@ -146,7 +94,7 @@ void VoiceGroupImpl::do_resume()
 	}
 }
 
-void VoiceGroupImpl::do_stop()
+void VoiceGroupImpl::stop()
 {
 	for (const auto& voice : voice_set_)
 	{
@@ -156,33 +104,33 @@ void VoiceGroupImpl::do_stop()
 	voice_set_.clear();
 }
 
-void VoiceGroupImpl::do_add_voice(Voice& voice)
+void VoiceGroupImpl::add_voice(Voice& voice)
 {
 	voice_set_.insert(&voice);
 	set_voice_gain(voice);
 }
 
-void VoiceGroupImpl::do_stop_and_remove_voice(Voice& voice)
+void VoiceGroupImpl::stop_and_remove_voice(Voice& voice)
 {
 	voice_set_.erase(&voice);
 }
 
-void VoiceGroupImpl::do_stop_voice(Voice& voice)
+void VoiceGroupImpl::stop_voice(Voice& voice)
 {
 	const auto voice_handle = voice.handle;
 	voice.handle.reset();
 	audio_mixer_->stop_voice(voice_handle);
-	do_stop_and_remove_voice(voice);
+	stop_and_remove_voice(voice);
 }
 
-void VoiceGroupImpl::do_set_voice_gain(const Voice& voice)
+void VoiceGroupImpl::set_voice_gain(const Voice& voice)
 {
 	AudioMixerValidator::validate_gain(voice.gain);
 	const auto effective_gain = voice.gain * gain_;
 	audio_mixer_->set_voice_gain(voice.handle, effective_gain);
 }
 
-void VoiceGroupImpl::do_set_voice_output_gains(const Voice& voice)
+void VoiceGroupImpl::set_voice_output_gains(const Voice& voice)
 {
 	auto effective_output_gains = AudioMixerOutputGains{};
 

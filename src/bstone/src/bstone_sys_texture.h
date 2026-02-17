@@ -44,14 +44,9 @@ public:
 	Texture() = default;
 	virtual ~Texture() = default;
 
-	void set_blend_mode(TextureBlendMode mode);
-	void copy(const FRect* texture_rectangle, const FRect* target_rectangle);
-	TextureLockUPtr make_lock();
-
-private:
-	virtual void do_set_blend_mode(TextureBlendMode mode) = 0;
-	virtual void do_copy(const FRect* texture_rectangle, const FRect* target_rectangle) = 0;
-	virtual TextureLockUPtr do_make_lock(const Rect* rectangle) = 0;
+	virtual void set_blend_mode(TextureBlendMode mode) = 0;
+	virtual void copy(const FRect* texture_rectangle, const FRect* target_rectangle) = 0;
+	virtual TextureLockUPtr make_lock() = 0;
 };
 
 // ======================================

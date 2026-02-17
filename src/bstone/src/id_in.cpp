@@ -1434,8 +1434,7 @@ public:
 	InClearBindingsCCmdAction() = default;
 	~InClearBindingsCCmdAction() override = default;
 
-private:
-	void do_invoke(bstone::CCmdActionArgs args) override
+	void invoke(bstone::CCmdActionArgs args) override
 	try {
 		if (!args.empty())
 		{
@@ -1477,8 +1476,7 @@ public:
 	InClearBindingCCmdAction() = default;
 	~InClearBindingCCmdAction() override = default;
 
-private:
-	void do_invoke(bstone::CCmdActionArgs args) override
+	void invoke(bstone::CCmdActionArgs args) override
 	try {
 		if (args.size() != 2)
 		{
@@ -1738,8 +1736,7 @@ public:
 	InBindCCmdAction() = default;
 	~InBindCCmdAction() override = default;
 
-private:
-	void do_invoke(bstone::CCmdActionArgs args) override
+	void invoke(bstone::CCmdActionArgs args) override
 	try {
 		if (args.size() != 3)
 		{

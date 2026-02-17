@@ -19,13 +19,10 @@ public:
 	GlSymbolResolver() = default;
 	virtual ~GlSymbolResolver() = default;
 
-	GlSymbolResolverSymbolFunc find_symbol(const char* symbol_name) const;
+	virtual GlSymbolResolverSymbolFunc find_symbol(const char* symbol_name) const = 0;
 
 	template<typename T>
 	T find_symbol(const char* symbol_name) const;
-
-private:
-	virtual GlSymbolResolverSymbolFunc do_find_symbol(const char* symbol_name) const = 0;
 };
 
 // --------------------------------------

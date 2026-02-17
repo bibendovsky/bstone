@@ -27,12 +27,12 @@ public:
 	VkR3rSamplerImpl(VkR3rContext& context, const R3rSamplerInitParam& param);
 	~VkR3rSamplerImpl() override {}
 
+	void update(const R3rSamplerUpdateParam& param) override;
+	const R3rSamplerState& get_state() const override;
+	VkSampler get_vk_sampler() const override;
+
 private:
 	static const int min_anisotropy;
-
-	void do_update(const R3rSamplerUpdateParam& param) override;
-	const R3rSamplerState& do_get_state() const override;
-	VkSampler do_get_vk_sampler() const override;
 
 	VkR3rContext& context_;
 	R3rSamplerState state_{};
@@ -60,7 +60,7 @@ try
 	update_internal();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void VkR3rSamplerImpl::do_update(const R3rSamplerUpdateParam& param)
+void VkR3rSamplerImpl::update(const R3rSamplerUpdateParam& param)
 {
 	if (param.state.mag_filter == state_.mag_filter &&
 		param.state.min_filter == state_.min_filter &&
@@ -76,12 +76,12 @@ void VkR3rSamplerImpl::do_update(const R3rSamplerUpdateParam& param)
 	update_internal();
 }
 
-const R3rSamplerState& VkR3rSamplerImpl::do_get_state() const
+const R3rSamplerState& VkR3rSamplerImpl::get_state() const
 {
 	return state_;
 }
 
-VkSampler VkR3rSamplerImpl::do_get_vk_sampler() const
+VkSampler VkR3rSamplerImpl::get_vk_sampler() const
 {
 	return sampler_resource_.get();
 }
@@ -181,13 +181,6 @@ void VkR3rSamplerImpl::update_internal()
 }
 
 } // namespace
-
-// ======================================
-
-VkSampler VkR3rSampler::get_vk_sampler() const
-{
-	return do_get_vk_sampler();
-}
 
 // ======================================
 

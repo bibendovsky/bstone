@@ -5,17 +5,3 @@ SPDX-License-Identifier: MIT
 */
 
 #include "bstone_ccmd_action.h"
-
-namespace bstone {
-
-void CCmdAction::invoke(CCmdActionArgs args)
-try {
-	do_invoke(args);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void CCmdAction::operator()(CCmdActionArgs args)
-try {
-	invoke(args);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-} // namespace bstone

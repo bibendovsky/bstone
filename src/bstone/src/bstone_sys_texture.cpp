@@ -7,22 +7,3 @@ SPDX-License-Identifier: MIT
 // Renderer's texture
 
 #include "bstone_sys_texture.h"
-
-namespace bstone::sys {
-
-void Texture::set_blend_mode(TextureBlendMode mode)
-{
-	do_set_blend_mode(mode);
-}
-
-void Texture::copy(const FRect* texture_rectangle, const FRect* target_rectangle)
-{
-	return do_copy(texture_rectangle, target_rectangle);
-}
-
-TextureLockUPtr Texture::make_lock()
-{
-	return do_make_lock(nullptr);
-}
-
-} // namespace bstone::sys

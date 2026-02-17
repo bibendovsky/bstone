@@ -27,6 +27,11 @@ public:
 	PollingAudioDeviceSdl& operator=(const PollingAudioDeviceSdl&) = delete;
 	~PollingAudioDeviceSdl() override;
 
+	int get_rate() const override;
+	int get_channel_count() const override;
+	int get_frame_count() const override;
+	void pause(bool is_pause) override;
+
 private:
 	using Sample = float;
 	static constexpr int sample_size = sizeof(Sample);
@@ -43,11 +48,6 @@ private:
 	int audio_cache_capacity_{};
 	int audio_cache_size_{};
 	int audio_cache_offset_{};
-
-	int do_get_rate() const override;
-	int do_get_channel_count() const override;
-	int do_get_frame_count() const override;
-	void do_pause(bool is_pause) override;
 
 	static void SDLCALL callback_proxy(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount);
 	void callback(int sdl_size);
@@ -112,22 +112,22 @@ PollingAudioDeviceSdl::~PollingAudioDeviceSdl()
 	SDL_DestroyAudioStream(sdl_audio_stream_);
 }
 
-int PollingAudioDeviceSdl::do_get_rate() const
+int PollingAudioDeviceSdl::get_rate() const
 {
 	return rate_;
 }
 
-int PollingAudioDeviceSdl::do_get_channel_count() const
+int PollingAudioDeviceSdl::get_channel_count() const
 {
 	return channel_count_;
 }
 
-int PollingAudioDeviceSdl::do_get_frame_count() const
+int PollingAudioDeviceSdl::get_frame_count() const
 {
 	return frame_count_;
 }
 
-void PollingAudioDeviceSdl::do_pause(bool is_pause)
+void PollingAudioDeviceSdl::pause(bool is_pause)
 {
 	if (is_pause)
 	{

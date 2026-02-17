@@ -50,7 +50,7 @@ public:
 	virtual ~Logger() = default;
 
 	// Writes a message of the specified type.
-	void log(LoggerMessageType message_type, std::string_view message_sv);
+	virtual void log(LoggerMessageType message_type, std::string_view message_sv) = 0;
 
 	// Write an empty informational message.
 	void log_information();
@@ -72,11 +72,7 @@ public:
 
 	// Flushes all remaining messages.
 	// (blocks the calling thread)
-	void flush();
-
-private:
-	virtual void do_log(LoggerMessageType message_type, std::string_view message_sv) = 0;
-	virtual void do_flush() = 0;
+	virtual void flush() = 0;
 
 private:
 	void log_exception_internal(std::exception_ptr exception_ptr, std::string& message_buffer);

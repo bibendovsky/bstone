@@ -24,13 +24,10 @@ class VkR3rBuffer : public R3rBuffer
 {
 public:
 	~VkR3rBuffer() override {}
-	VkBuffer get_vk_buffer() const;
+	virtual VkBuffer get_vk_buffer() const = 0;
 
 protected:
 	VkR3rBuffer() {}
-
-private:
-	virtual VkBuffer do_get_vk_buffer() const = 0;
 };
 
 // ======================================

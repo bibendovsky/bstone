@@ -7,12 +7,3 @@ SPDX-License-Identifier: MIT
 // Mouse manager
 
 #include "bstone_sys_mouse_mgr.h"
-
-namespace bstone::sys {
-
-void MouseMgr::set_relative_mode(bool is_relative)
-{
-	do_set_relative_mode(is_relative);
-}
-
-} // namespace bstone::sys

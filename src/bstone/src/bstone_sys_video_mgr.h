@@ -26,26 +26,16 @@ public:
 	VideoMgr() = default;
 	virtual ~VideoMgr() = default;
 
-	bool is_initialized() const;
-	Logger& get_logger();
-	DisplayMode get_current_display_mode();
+	virtual bool is_initialized() const = 0;
+	virtual Logger& get_logger() = 0;
+	virtual DisplayMode get_current_display_mode() = 0;
 	// Notes:
 	//   - The returned data valid until the next invocation.
-	std::span<const DisplayMode> get_display_modes();
-	GlCurrentContext& get_gl_current_context();
-	VulkanMgr& get_vulkan_mgr();
-	MouseMgr& get_mouse_mgr();
-	WindowMgr& get_window_mgr();
-
-private:
-	virtual bool do_is_initialized() const = 0;
-	virtual Logger& do_get_logger() = 0;
-	virtual DisplayMode do_get_current_display_mode() = 0;
-	virtual std::span<const DisplayMode> do_get_display_modes() = 0;
-	virtual GlCurrentContext& do_get_gl_current_context() = 0;
-	virtual VulkanMgr& do_get_vulkan_mgr() = 0;
-	virtual MouseMgr& do_get_mouse_mgr() = 0;
-	virtual WindowMgr& do_get_window_mgr() = 0;
+	virtual std::span<const DisplayMode> get_display_modes() = 0;
+	virtual GlCurrentContext& get_gl_current_context() = 0;
+	virtual VulkanMgr& get_vulkan_mgr() = 0;
+	virtual MouseMgr& get_mouse_mgr() = 0;
+	virtual WindowMgr& get_window_mgr() = 0;
 };
 
 // ======================================

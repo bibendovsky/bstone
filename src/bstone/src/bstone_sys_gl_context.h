@@ -20,10 +20,7 @@ public:
 	GlContext() = default;
 	virtual ~GlContext() = default;
 
-	const GlContextAttributes& get_attributes() const;
-
-private:
-	virtual const GlContextAttributes& do_get_attributes() const = 0;
+	virtual const GlContextAttributes& get_attributes() const = 0;
 };
 
 // ======================================

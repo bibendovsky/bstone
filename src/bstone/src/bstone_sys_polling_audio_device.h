@@ -19,10 +19,7 @@ public:
 	PollingAudioDeviceCallback() = default;
 	virtual ~PollingAudioDeviceCallback() = default;
 
-	void invoke(float* samples, int sample_count);
-
-private:
-	virtual void do_invoke(float* samples, int sample_count) = 0;
+	virtual void invoke(float* samples, int sample_count) = 0;
 };
 
 // ======================================
@@ -33,16 +30,10 @@ public:
 	PollingAudioDevice() = default;
 	virtual ~PollingAudioDevice() = default;
 
-	int get_rate() const;
-	int get_channel_count() const;
-	int get_frame_count() const;
-	void pause(bool is_pause);
-
-private:
-	virtual int do_get_rate() const = 0;
-	virtual int do_get_channel_count() const = 0;
-	virtual int do_get_frame_count() const = 0;
-	virtual void do_pause(bool is_pause) = 0;
+	virtual int get_rate() const = 0;
+	virtual int get_channel_count() const = 0;
+	virtual int get_frame_count() const = 0;
+	virtual void pause(bool is_pause) = 0;
 };
 
 // ======================================

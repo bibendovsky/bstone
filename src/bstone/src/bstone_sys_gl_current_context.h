@@ -21,16 +21,10 @@ public:
 	GlCurrentContext() = default;
 	virtual ~GlCurrentContext() = default;
 
-	bool has_extension(const char* extension_name) const;
-	SwapIntervalType get_swap_interval() const;
-	void set_swap_interval(SwapIntervalType swap_interval_type);
-	const GlSymbolResolver& get_symbol_resolver() const;
-
-private:
-	virtual bool do_has_extension(const char* extension_name) const = 0;
-	virtual SwapIntervalType do_get_swap_interval() const = 0;
-	virtual void do_set_swap_interval(SwapIntervalType swap_interval_type) = 0;
-	virtual const GlSymbolResolver& do_get_symbol_resolver() const = 0;
+	virtual bool has_extension(const char* extension_name) const = 0;
+	virtual SwapIntervalType get_swap_interval() const = 0;
+	virtual void set_swap_interval(SwapIntervalType swap_interval_type) = 0;
+	virtual const GlSymbolResolver& get_symbol_resolver() const = 0;
 };
 
 // ======================================

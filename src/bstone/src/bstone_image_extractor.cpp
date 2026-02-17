@@ -36,6 +36,10 @@ public:
 	ImageExtractorImpl& operator=(const ImageExtractorImpl&) = delete;
 	~ImageExtractorImpl() override = default;
 
+	void extract_vga_palette(const std::string& destination_dir) override;
+	void extract_walls(const std::string& destination_dir) override;
+	void extract_sprites(const std::string& destination_dir) override;
+
 private:
 	static constexpr int wall_width = 64;
 	static constexpr int wall_height = 64;
@@ -75,10 +79,6 @@ private:
 	Colors colors_{};
 	Colors32 colors32_{};
 
-	void do_extract_vga_palette(const std::string& destination_dir) override;
-	void do_extract_walls(const std::string& destination_dir) override;
-	void do_extract_sprites(const std::string& destination_dir) override;
-
 	void initialize_bs_palette();
 	void save_image(const std::string& file_name_without_ext, int image_number);
 	void impl_extract_palette();
@@ -98,7 +98,7 @@ ImageExtractorImpl::ImageExtractorImpl()
 	initialize_bs_palette();
 }
 
-void ImageExtractorImpl::do_extract_vga_palette(const std::string& destination_dir)
+void ImageExtractorImpl::extract_vga_palette(const std::string& destination_dir)
 {
 	logger_.log_information();
 	logger_.log_information("Extracting VGA palette.");
@@ -109,7 +109,7 @@ void ImageExtractorImpl::do_extract_vga_palette(const std::string& destination_d
 	logger_.log_information("VGA palette has extracted.");
 }
 
-void ImageExtractorImpl::do_extract_walls(const std::string& destination_dir)
+void ImageExtractorImpl::extract_walls(const std::string& destination_dir)
 {
 	const int wall_count = vswap_.get_wall_count();
 	logger_.log_information();
@@ -125,7 +125,7 @@ void ImageExtractorImpl::do_extract_walls(const std::string& destination_dir)
 	logger_.log_information("Walls has extracted.");
 }
 
-void ImageExtractorImpl::do_extract_sprites(const std::string& destination_dir)
+void ImageExtractorImpl::extract_sprites(const std::string& destination_dir)
 {
 	const int sprite_count = std::max(vswap_.get_sprite_count(), 0);
 	logger_.log_information();
@@ -275,23 +275,6 @@ void ImageExtractorImpl::impl_extract_sprite(int sprite_index)
 }
 
 } // namespace
-
-// ======================================
-
-void ImageExtractor::extract_vga_palette(const std::string& destination_dir)
-{
-	do_extract_vga_palette(destination_dir);
-}
-
-void ImageExtractor::extract_walls(const std::string& destination_dir)
-{
-	do_extract_walls(destination_dir);
-}
-
-void ImageExtractor::extract_sprites(const std::string& destination_dir)
-{
-	do_extract_sprites(destination_dir);
-}
 
 // ======================================
 

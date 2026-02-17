@@ -29,16 +29,16 @@ public:
 	SystemMgrSdl& operator=(const SystemMgrSdl&) = delete;
 	~SystemMgrSdl() override;
 
+	Logger& get_logger() override;
+	AudioMgr& get_audio_mgr() override;
+	EventMgr& get_event_mgr() override;
+	VideoMgr& get_video_mgr() override;
+
 private:
 	Logger& logger_;
 	AudioMgrUPtr audio_mgr_{};
 	EventMgrUPtr event_mgr_{};
 	VideoMgrUPtr video_mgr_{};
-
-	Logger& do_get_logger() override;
-	AudioMgr& do_get_audio_mgr() override;
-	EventMgr& do_get_event_mgr() override;
-	VideoMgr& do_get_video_mgr() override;
 
 	void log_version(int sdl_version, std::string_view version_name, StringBuilder& formatter);
 	void log_compiled_version(StringBuilder& formatter);
@@ -74,22 +74,22 @@ SystemMgrSdl::~SystemMgrSdl()
 	SDL_Quit();
 }
 
-Logger& SystemMgrSdl::do_get_logger()
+Logger& SystemMgrSdl::get_logger()
 {
 	return logger_;
 }
 
-AudioMgr& SystemMgrSdl::do_get_audio_mgr()
+AudioMgr& SystemMgrSdl::get_audio_mgr()
 {
 	return *audio_mgr_;
 }
 
-EventMgr& SystemMgrSdl::do_get_event_mgr()
+EventMgr& SystemMgrSdl::get_event_mgr()
 {
 	return *event_mgr_;
 }
 
-VideoMgr& SystemMgrSdl::do_get_video_mgr()
+VideoMgr& SystemMgrSdl::get_video_mgr()
 {
 	return *video_mgr_;
 }

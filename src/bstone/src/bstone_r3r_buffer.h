@@ -59,18 +59,11 @@ public:
 	virtual ~R3rBuffer() = default;
 
 public:
-	R3rBufferType get_type() const;
-	R3rBufferUsageType get_usage_type() const;
+	virtual R3rBufferType get_type() const = 0;
+	virtual R3rBufferUsageType get_usage_type() const = 0;
 
-	int get_size() const;
-	void update(const R3rUpdateBufferParam& param);
-
-private:
-	virtual R3rBufferType do_get_type() const = 0;
-	virtual R3rBufferUsageType do_get_usage_type() const = 0;
-
-	virtual int do_get_size() const = 0;
-	virtual void do_update(const R3rUpdateBufferParam& param) = 0;
+	virtual int get_size() const = 0;
+	virtual void update(const R3rUpdateBufferParam& param) = 0;
 };
 
 // ==========================================================================

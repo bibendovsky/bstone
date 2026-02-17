@@ -20,17 +20,17 @@ public:
 	NullVideoMgr(Logger& logger);
 	~NullVideoMgr() override;
 
+	bool is_initialized() const override;
+	Logger& get_logger() override;
+	DisplayMode get_current_display_mode() override;
+	std::span<const DisplayMode> get_display_modes() override;
+	GlCurrentContext& get_gl_current_context() override;
+	VulkanMgr& get_vulkan_mgr() override;
+	MouseMgr& get_mouse_mgr() override;
+	WindowMgr& get_window_mgr() override;
+
 private:
 	Logger& logger_;
-
-	bool do_is_initialized() const override;
-	Logger& do_get_logger() override;
-	DisplayMode do_get_current_display_mode() override;
-	std::span<const DisplayMode> do_get_display_modes() override;
-	GlCurrentContext& do_get_gl_current_context() override;
-	VulkanMgr& do_get_vulkan_mgr() override;
-	MouseMgr& do_get_mouse_mgr() override;
-	WindowMgr& do_get_window_mgr() override;
 
 	[[noreturn]] static void not_initialized();
 };
@@ -49,42 +49,42 @@ NullVideoMgr::~NullVideoMgr()
 	logger_.log_information("Shut down NULL video manager.");
 }
 
-bool NullVideoMgr::do_is_initialized() const
+bool NullVideoMgr::is_initialized() const
 {
 	return false;
 }
 
-Logger& NullVideoMgr::do_get_logger()
+Logger& NullVideoMgr::get_logger()
 {
 	return logger_;
 }
 
-DisplayMode NullVideoMgr::do_get_current_display_mode()
+DisplayMode NullVideoMgr::get_current_display_mode()
 {
 	not_initialized();
 }
 
-std::span<const DisplayMode> NullVideoMgr::do_get_display_modes()
+std::span<const DisplayMode> NullVideoMgr::get_display_modes()
 {
 	not_initialized();
 }
 
-GlCurrentContext& NullVideoMgr::do_get_gl_current_context()
+GlCurrentContext& NullVideoMgr::get_gl_current_context()
 {
 	not_initialized();
 }
 
-VulkanMgr& NullVideoMgr::do_get_vulkan_mgr()
+VulkanMgr& NullVideoMgr::get_vulkan_mgr()
 {
 	not_initialized();
 }
 
-MouseMgr& NullVideoMgr::do_get_mouse_mgr()
+MouseMgr& NullVideoMgr::get_mouse_mgr()
 {
 	not_initialized();
 }
 
-WindowMgr& NullVideoMgr::do_get_window_mgr()
+WindowMgr& NullVideoMgr::get_window_mgr()
 {
 	not_initialized();
 }

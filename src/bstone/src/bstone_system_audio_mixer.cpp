@@ -30,7 +30,7 @@ void SystemAudioMixer::SysCallback::set_mixer(SystemAudioMixer* mixer)
 	mixer_ = mixer;
 }
 
-void SystemAudioMixer::SysCallback::do_invoke(float* samples, int sample_count)
+void SystemAudioMixer::SysCallback::invoke(float* samples, int sample_count)
 {
 	if (mixer_ == nullptr)
 	{

@@ -28,12 +28,12 @@ public:
 	AudioMgrSdl& operator=(const AudioMgrSdl&) = delete;
 	~AudioMgrSdl() override;
 
+	bool is_initialized() const override;
+	PollingAudioDeviceUPtr make_polling_audio_device(const PollingAudioDeviceOpenParam& param) override;
+
 private:
 	Logger& logger_;
 	SdlSubsystem sdl_subsystem_{};
-
-	bool do_is_initialized() const override;
-	PollingAudioDeviceUPtr do_make_polling_audio_device(const PollingAudioDeviceOpenParam& param) override;
 
 	static void log_drivers(StringBuilder& formatter);
 	static void log_devices(StringBuilder& formatter);
@@ -58,12 +58,12 @@ AudioMgrSdl::~AudioMgrSdl()
 	logger_.log_information("Shut down SDL audio manager.");
 }
 
-bool AudioMgrSdl::do_is_initialized() const
+bool AudioMgrSdl::is_initialized() const
 {
 	return true;
 }
 
-PollingAudioDeviceUPtr AudioMgrSdl::do_make_polling_audio_device(const PollingAudioDeviceOpenParam& param)
+PollingAudioDeviceUPtr AudioMgrSdl::make_polling_audio_device(const PollingAudioDeviceOpenParam& param)
 {
 	return make_polling_audio_device_sdl(logger_, param);
 }

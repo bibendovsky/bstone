@@ -28,15 +28,14 @@ public:
 	NullR3rShaderStageImpl(const R3rShaderStageInitParam& param);
 	~NullR3rShaderStageImpl() override {}
 
-private:
-	R3rShaderVar* do_find_var(const char* name) override;
-	R3rShaderVar* do_find_int32_var(const char* name) override;
-	R3rShaderVar* do_find_float32_var(const char* name) override;
-	R3rShaderVar* do_find_vec2_var(const char* name) override;
-	R3rShaderVar* do_find_vec3_var(const char* name) override;
-	R3rShaderVar* do_find_vec4_var(const char* name) override;
-	R3rShaderVar* do_find_mat4_var(const char* name) override;
-	R3rShaderVar* do_find_r2_sampler_var(const char* name) override;
+	R3rShaderVar* find_var(const char* name) override;
+	R3rShaderVar* find_int32_var(const char* name) override;
+	R3rShaderVar* find_float32_var(const char* name) override;
+	R3rShaderVar* find_vec2_var(const char* name) override;
+	R3rShaderVar* find_vec3_var(const char* name) override;
+	R3rShaderVar* find_vec4_var(const char* name) override;
+	R3rShaderVar* find_mat4_var(const char* name) override;
+	R3rShaderVar* find_r2_sampler_var(const char* name) override;
 
 private:
 	using ShaderVars = std::vector<NullR3rShaderVarUPtr>;
@@ -55,42 +54,42 @@ private:
 NullR3rShaderStageImpl::NullR3rShaderStageImpl([[maybe_unused]] const R3rShaderStageInitParam& param)
 {}
 
-R3rShaderVar* NullR3rShaderStageImpl::do_find_var(const char* name)
+R3rShaderVar* NullR3rShaderStageImpl::find_var(const char* name)
 {
 	return impl_find_var(name, R3rShaderVarTypeId::none);
 }
 
-R3rShaderVar* NullR3rShaderStageImpl::do_find_int32_var(const char* name)
+R3rShaderVar* NullR3rShaderStageImpl::find_int32_var(const char* name)
 {
 	return impl_find_var(name, R3rShaderVarTypeId::int32);
 }
 
-R3rShaderVar* NullR3rShaderStageImpl::do_find_float32_var(const char* name)
+R3rShaderVar* NullR3rShaderStageImpl::find_float32_var(const char* name)
 {
 	return impl_find_var(name, R3rShaderVarTypeId::float32);
 }
 
-R3rShaderVar* NullR3rShaderStageImpl::do_find_vec2_var(const char* name)
+R3rShaderVar* NullR3rShaderStageImpl::find_vec2_var(const char* name)
 {
 	return impl_find_var(name, R3rShaderVarTypeId::vec2);
 }
 
-R3rShaderVar* NullR3rShaderStageImpl::do_find_vec3_var(const char* name)
+R3rShaderVar* NullR3rShaderStageImpl::find_vec3_var(const char* name)
 {
 	return impl_find_var(name, R3rShaderVarTypeId::vec3);
 }
 
-R3rShaderVar* NullR3rShaderStageImpl::do_find_vec4_var(const char* name)
+R3rShaderVar* NullR3rShaderStageImpl::find_vec4_var(const char* name)
 {
 	return impl_find_var(name, R3rShaderVarTypeId::vec4);
 }
 
-R3rShaderVar* NullR3rShaderStageImpl::do_find_mat4_var(const char* name)
+R3rShaderVar* NullR3rShaderStageImpl::find_mat4_var(const char* name)
 {
 	return impl_find_var(name, R3rShaderVarTypeId::mat4);
 }
 
-R3rShaderVar* NullR3rShaderStageImpl::do_find_r2_sampler_var(const char* name)
+R3rShaderVar* NullR3rShaderStageImpl::find_r2_sampler_var(const char* name)
 {
 	return impl_find_var(name, R3rShaderVarTypeId::sampler2d);
 }

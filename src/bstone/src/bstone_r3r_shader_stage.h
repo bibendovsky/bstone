@@ -46,24 +46,14 @@ public:
 	R3rShaderStage() = default;
 	virtual ~R3rShaderStage() = default;
 
-	R3rShaderVar* find_var(const char* name);
-	R3rShaderVar* find_int32_var(const char* name);
-	R3rShaderVar* find_float32_var(const char* name);
-	R3rShaderVar* find_vec2_var(const char* name);
-	R3rShaderVar* find_vec3_var(const char* name);
-	R3rShaderVar* find_vec4_var(const char* name);
-	R3rShaderVar* find_mat4_var(const char* name);
-	R3rShaderVar* find_r2_sampler_var(const char* name);
-
-private:
-	virtual R3rShaderVar* do_find_var(const char* name) = 0;
-	virtual R3rShaderVar* do_find_int32_var(const char* name) = 0;
-	virtual R3rShaderVar* do_find_float32_var(const char* name) = 0;
-	virtual R3rShaderVar* do_find_vec2_var(const char* name) = 0;
-	virtual R3rShaderVar* do_find_vec3_var(const char* name) = 0;
-	virtual R3rShaderVar* do_find_vec4_var(const char* name) = 0;
-	virtual R3rShaderVar* do_find_mat4_var(const char* name) = 0;
-	virtual R3rShaderVar* do_find_r2_sampler_var(const char* name) = 0;
+	virtual R3rShaderVar* find_var(const char* name) = 0;
+	virtual R3rShaderVar* find_int32_var(const char* name) = 0;
+	virtual R3rShaderVar* find_float32_var(const char* name) = 0;
+	virtual R3rShaderVar* find_vec2_var(const char* name) = 0;
+	virtual R3rShaderVar* find_vec3_var(const char* name) = 0;
+	virtual R3rShaderVar* find_vec4_var(const char* name) = 0;
+	virtual R3rShaderVar* find_mat4_var(const char* name) = 0;
+	virtual R3rShaderVar* find_r2_sampler_var(const char* name) = 0;
 };
 
 // ==========================================================================
