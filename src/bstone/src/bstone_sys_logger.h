@@ -36,8 +36,7 @@ public:
 	void log_error();
 	void log_error(const char* message);
 
-private:
-	virtual void do_log(LogLevel level, const char* message) = 0;
+	virtual void log(LogLevel level, const char* message) = 0;
 };
 
 } // namespace bstone::sys

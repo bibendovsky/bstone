@@ -39,12 +39,8 @@ public:
 	R3rR2Texture() = default;
 	virtual ~R3rR2Texture() = default;
 
-	void update(const R3rR2TextureUpdateParam& param);
-	void generate_mipmap();
-
-private:
-	virtual void do_update(const R3rR2TextureUpdateParam& param) = 0;
-	virtual void do_generate_mipmap() = 0;
+	virtual void update(const R3rR2TextureUpdateParam& param) = 0;
+	virtual void generate_mipmap() = 0;
 };
 
 // ==========================================================================

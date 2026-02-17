@@ -24,12 +24,11 @@ public:
 	NullR3rBufferImpl(const R3rBufferInitParam& param);
 	~NullR3rBufferImpl() override {}
 
-private:
-	R3rBufferType do_get_type() const override;
-	R3rBufferUsageType do_get_usage_type() const override;
-	int do_get_size() const override;
+	R3rBufferType get_type() const override;
+	R3rBufferUsageType get_usage_type() const override;
+	int get_size() const override;
 
-	void do_update(const R3rUpdateBufferParam& param) override;
+	void update(const R3rUpdateBufferParam& param) override;
 
 private:
 	R3rBufferType type_{};
@@ -46,22 +45,22 @@ NullR3rBufferImpl::NullR3rBufferImpl(const R3rBufferInitParam& param)
 	size_{param.size}
 {}
 
-R3rBufferType NullR3rBufferImpl::do_get_type() const
+R3rBufferType NullR3rBufferImpl::get_type() const
 {
 	return type_;
 }
 
-R3rBufferUsageType NullR3rBufferImpl::do_get_usage_type() const
+R3rBufferUsageType NullR3rBufferImpl::get_usage_type() const
 {
 	return usage_type_;
 }
 
-int NullR3rBufferImpl::do_get_size() const
+int NullR3rBufferImpl::get_size() const
 {
 	return size_;
 }
 
-void NullR3rBufferImpl::do_update([[maybe_unused]] const R3rUpdateBufferParam& param)
+void NullR3rBufferImpl::update([[maybe_unused]] const R3rUpdateBufferParam& param)
 {}
 
 } // namespace

@@ -28,12 +28,12 @@ public:
 	VkR3rR2TextureImpl(VkR3rContext& context, const R3rR2TextureInitParam& param);
 	~VkR3rR2TextureImpl() override {}
 
+	void update(const R3rR2TextureUpdateParam& param) override;
+	void generate_mipmap() override;
+
+	VkImageView get_vk_image_view() const override;
+
 private:
-	void do_update(const R3rR2TextureUpdateParam& param) override;
-	void do_generate_mipmap() override;
-
-	VkImageView do_get_vk_image_view() const override;
-
 	static constexpr const VkFormat vk_default_format = VK_FORMAT_R8G8B8A8_UNORM;
 	using ImageLayouts = std::array<VkImageLayout, R3rLimits::max_mip_levels>;
 
@@ -105,7 +105,7 @@ VkR3rR2TextureImpl::VkR3rR2TextureImpl(VkR3rContext& context, const R3rR2Texture
 	image_layouts_.fill(VK_IMAGE_LAYOUT_UNDEFINED);
 }
 
-void VkR3rR2TextureImpl::do_update(const R3rR2TextureUpdateParam& param)
+void VkR3rR2TextureImpl::update(const R3rR2TextureUpdateParam& param)
 {
 	if (param.image == nullptr)
 	{
@@ -132,7 +132,7 @@ void VkR3rR2TextureImpl::do_update(const R3rR2TextureUpdateParam& param)
 	context_.cmd_end_single_time_commands(command_buffer_resource.get());
 }
 
-void VkR3rR2TextureImpl::do_generate_mipmap()
+void VkR3rR2TextureImpl::generate_mipmap()
 {
 	if (!context_.r3r_device_features.can_generate_mipmap)
 	{
@@ -171,7 +171,7 @@ void VkR3rR2TextureImpl::do_generate_mipmap()
 	context_.cmd_end_single_time_commands(command_buffer_resource.get());
 }
 
-VkImageView VkR3rR2TextureImpl::do_get_vk_image_view() const
+VkImageView VkR3rR2TextureImpl::get_vk_image_view() const
 {
 	return image_view_resource_.get();
 }
@@ -231,13 +231,6 @@ void VkR3rR2TextureImpl::transition_image_layouts(VkCommandBuffer vk_command_buf
 }
 
 } // namespace
-
-// ======================================
-
-VkImageView VkR3rR2Texture::get_vk_image_view() const
-{
-	return do_get_vk_image_view();
-}
 
 // ======================================
 

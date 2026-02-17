@@ -24,9 +24,8 @@ public:
 	NullR3rR2TextureImpl(const R3rR2TextureInitParam& param);
 	~NullR3rR2TextureImpl() override {}
 
-private:
-	void do_update(const R3rR2TextureUpdateParam& param) override;
-	void do_generate_mipmap() override;
+	void update(const R3rR2TextureUpdateParam& param) override;
+	void generate_mipmap() override;
 };
 
 // --------------------------------------------------------------------------
@@ -34,10 +33,10 @@ private:
 NullR3rR2TextureImpl::NullR3rR2TextureImpl([[maybe_unused]] const R3rR2TextureInitParam& param)
 {}
 
-void NullR3rR2TextureImpl::do_update([[maybe_unused]] const R3rR2TextureUpdateParam& param)
+void NullR3rR2TextureImpl::update([[maybe_unused]] const R3rR2TextureUpdateParam& param)
 {}
 
-void NullR3rR2TextureImpl::do_generate_mipmap()
+void NullR3rR2TextureImpl::generate_mipmap()
 {}
 
 } // namespace

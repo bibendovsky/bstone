@@ -21,10 +21,7 @@ public:
 	R3rMgr() = default;
 	virtual ~R3rMgr() = default;
 
-	R3r* make_renderer(const R3rInitParam& param);
-
-private:
-	virtual R3r* do_make_renderer(const R3rInitParam& param) = 0;
+	virtual R3r* make_renderer(const R3rInitParam& param) = 0;
 };
 
 // ==========================================================================

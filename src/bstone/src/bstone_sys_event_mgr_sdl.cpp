@@ -27,12 +27,12 @@ public:
 	EventMgrSdl& operator=(const EventMgrSdl&) = delete;
 	~EventMgrSdl() override;
 
+	bool is_initialized() const override;
+	bool poll_event(Event& e) override;
+
 private:
 	Logger& logger_;
 	SdlSubsystem sdl_subsystem_{};
-
-	bool do_is_initialized() const override;
-	bool do_poll_event(Event& e) override;
 
 	static void log_sdl_error(StringBuilder& formatter);
 	static void log_keyboards(StringBuilder& formatter);
@@ -70,12 +70,12 @@ EventMgrSdl::~EventMgrSdl()
 	logger_.log_information("Shut down SDL event manager.");
 }
 
-bool EventMgrSdl::do_is_initialized() const
+bool EventMgrSdl::is_initialized() const
 {
 	return true;
 }
 
-bool EventMgrSdl::do_poll_event(Event& e)
+bool EventMgrSdl::poll_event(Event& e)
 {
 	SDL_Event sdl_e{};
 	while (SDL_PollEvent(&sdl_e))

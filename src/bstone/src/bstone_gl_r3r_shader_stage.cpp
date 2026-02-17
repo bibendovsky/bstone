@@ -40,16 +40,16 @@ public:
 	GlR3rContext& get_context() const override;
 	void set() override;
 
-private:
-	R3rShaderVar* do_find_var(const char* name) override;
-	R3rShaderVar* do_find_int32_var(const char* name) override;
-	R3rShaderVar* do_find_float32_var(const char* name) override;
-	R3rShaderVar* do_find_vec2_var(const char* name) override;
-	R3rShaderVar* do_find_vec3_var(const char* name) override;
-	R3rShaderVar* do_find_vec4_var(const char* name) override;
-	R3rShaderVar* do_find_mat4_var(const char* name) override;
-	R3rShaderVar* do_find_r2_sampler_var(const char* name) override;
+	R3rShaderVar* find_var(const char* name) override;
+	R3rShaderVar* find_int32_var(const char* name) override;
+	R3rShaderVar* find_float32_var(const char* name) override;
+	R3rShaderVar* find_vec2_var(const char* name) override;
+	R3rShaderVar* find_vec3_var(const char* name) override;
+	R3rShaderVar* find_vec4_var(const char* name) override;
+	R3rShaderVar* find_mat4_var(const char* name) override;
+	R3rShaderVar* find_r2_sampler_var(const char* name) override;
 
+private:
 	void detach_fragment_shader() override;
 	void detach_vertex_shader() override;
 
@@ -180,42 +180,42 @@ try {
 	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rShaderVar* GlR3rShaderStageImpl::do_find_var(const char* name)
+R3rShaderVar* GlR3rShaderStageImpl::find_var(const char* name)
 {
 	return find_var_internal(name);
 }
 
-R3rShaderVar* GlR3rShaderStageImpl::do_find_int32_var(const char* name)
+R3rShaderVar* GlR3rShaderStageImpl::find_int32_var(const char* name)
 {
 	return find_var_internal(R3rShaderVarTypeId::int32, name);
 }
 
-R3rShaderVar* GlR3rShaderStageImpl::do_find_float32_var(const char* name)
+R3rShaderVar* GlR3rShaderStageImpl::find_float32_var(const char* name)
 {
 	return find_var_internal(R3rShaderVarTypeId::float32, name);
 }
 
-R3rShaderVar* GlR3rShaderStageImpl::do_find_vec2_var(const char* name)
+R3rShaderVar* GlR3rShaderStageImpl::find_vec2_var(const char* name)
 {
 	return find_var_internal(R3rShaderVarTypeId::vec2, name);
 }
 
-R3rShaderVar* GlR3rShaderStageImpl::do_find_vec3_var(const char* name)
+R3rShaderVar* GlR3rShaderStageImpl::find_vec3_var(const char* name)
 {
 	return find_var_internal(R3rShaderVarTypeId::vec3, name);
 }
 
-R3rShaderVar* GlR3rShaderStageImpl::do_find_vec4_var(const char* name)
+R3rShaderVar* GlR3rShaderStageImpl::find_vec4_var(const char* name)
 {
 	return find_var_internal(R3rShaderVarTypeId::vec4, name);
 }
 
-R3rShaderVar* GlR3rShaderStageImpl::do_find_mat4_var(const char* name)
+R3rShaderVar* GlR3rShaderStageImpl::find_mat4_var(const char* name)
 {
 	return find_var_internal(R3rShaderVarTypeId::mat4, name);
 }
 
-R3rShaderVar* GlR3rShaderStageImpl::do_find_r2_sampler_var(const char* name)
+R3rShaderVar* GlR3rShaderStageImpl::find_r2_sampler_var(const char* name)
 {
 	return find_var_internal(R3rShaderVarTypeId::sampler2d, name);
 }

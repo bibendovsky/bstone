@@ -21,14 +21,9 @@ public:
 	ImageExtractor() = default;
 	virtual ~ImageExtractor() = default;
 
-	void extract_vga_palette(const std::string& destination_dir);
-	void extract_walls(const std::string& destination_dir);
-	void extract_sprites(const std::string& destination_dir);
-
-private:
-	virtual void do_extract_vga_palette(const std::string& destination_dir) = 0;
-	virtual void do_extract_walls(const std::string& destination_dir) = 0;
-	virtual void do_extract_sprites(const std::string& destination_dir) = 0;
+	virtual void extract_vga_palette(const std::string& destination_dir) = 0;
+	virtual void extract_walls(const std::string& destination_dir) = 0;
+	virtual void extract_sprites(const std::string& destination_dir) = 0;
 };
 
 // ======================================

@@ -35,7 +35,7 @@ public:
 	VkR3rPipelineLayoutResource pipeline_layout_{};
 	VkR3rPipelineResource pipeline_{};
 
-	void do_draw_indexed(const VkR3rPipelineDrawIndexedParam& param) override;
+	void draw_indexed(const VkR3rPipelineDrawIndexedParam& param) override;
 
 	void enqueue_bind_pipeline();
 	void enqueue_viewport();
@@ -294,7 +294,7 @@ VkR3rPipelineImpl::VkR3rPipelineImpl(VkR3rContext& context)
 	pipeline_.swap(pipeline);
 }
 
-void VkR3rPipelineImpl::do_draw_indexed(const VkR3rPipelineDrawIndexedParam& param)
+void VkR3rPipelineImpl::draw_indexed(const VkR3rPipelineDrawIndexedParam& param)
 {
 	enqueue_bind_pipeline();
 	enqueue_viewport();
@@ -423,13 +423,6 @@ void VkR3rPipelineImpl::enqueue_draw_indexed(const VkR3rPipelineDrawIndexedParam
 }
 
 } // namespace
-
-// ======================================
-
-void VkR3rPipeline::draw_indexed(const VkR3rPipelineDrawIndexedParam& param)
-{
-	do_draw_indexed(param);
-}
 
 // ======================================
 

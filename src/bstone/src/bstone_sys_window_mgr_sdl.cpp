@@ -20,11 +20,11 @@ public:
 	explicit WindowMgrSdl(Logger& logger);
 	~WindowMgrSdl() override;
 
+	WindowUPtr make_window(const WindowInitParam& param) override;
+
 private:
 	Logger& logger_;
 	WindowDecorationMgrUPtr decoration_mgr_{};
-
-	WindowUPtr do_make_window(const WindowInitParam& param) override;
 };
 
 // --------------------------------------
@@ -43,7 +43,7 @@ WindowMgrSdl::~WindowMgrSdl()
 	logger_.log_information("Shut down SDL window manager.");
 }
 
-WindowUPtr WindowMgrSdl::do_make_window(const WindowInitParam& param)
+WindowUPtr WindowMgrSdl::make_window(const WindowInitParam& param)
 {
 	return make_window_sdl(logger_, *decoration_mgr_, param);
 }

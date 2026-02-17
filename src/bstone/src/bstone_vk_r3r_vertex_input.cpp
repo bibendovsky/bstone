@@ -26,12 +26,12 @@ public:
 	VkR3rVertexInputImpl(VkR3rContext& context, const R3rCreateVertexInputParam& param);
 	~VkR3rVertexInputImpl() override {}
 
-private:
-	VkR3rBuffer* do_get_index_buffer() const override;
-	VkR3rBuffer* do_get_vertex_buffer() const override;
-	VkBuffer do_get_vk_generic_buffer() const override;
-	const VkPipelineVertexInputStateCreateInfo& do_get_vk_create_info() const override;
+	VkR3rBuffer* get_index_buffer() const override;
+	VkR3rBuffer* get_vertex_buffer() const override;
+	VkBuffer get_vk_generic_buffer() const override;
+	const VkPipelineVertexInputStateCreateInfo& get_vk_create_info() const override;
 
+private:
 	static constexpr std::uint32_t default_value_size = sizeof(R3rVec4);
 
 	using VkAttributeDescriptions = std::vector<VkVertexInputAttributeDescription>;
@@ -178,22 +178,22 @@ try
 	};
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-VkR3rBuffer* VkR3rVertexInputImpl::do_get_index_buffer() const
+VkR3rBuffer* VkR3rVertexInputImpl::get_index_buffer() const
 {
 	return index_buffer_;
 }
 
-VkR3rBuffer* VkR3rVertexInputImpl::do_get_vertex_buffer() const
+VkR3rBuffer* VkR3rVertexInputImpl::get_vertex_buffer() const
 {
 	return vertex_buffer_;
 }
 
-VkBuffer VkR3rVertexInputImpl::do_get_vk_generic_buffer() const
+VkBuffer VkR3rVertexInputImpl::get_vk_generic_buffer() const
 {
 	return generic_buffer_resource_.get();
 }
 
-const VkPipelineVertexInputStateCreateInfo& VkR3rVertexInputImpl::do_get_vk_create_info() const
+const VkPipelineVertexInputStateCreateInfo& VkR3rVertexInputImpl::get_vk_create_info() const
 {
 	return vk_pipeline_vertex_input_state_create_info_;
 }
@@ -213,28 +213,6 @@ void VkR3rVertexInputImpl::initialize_generic_buffer(const DefaultValues& defaul
 }
 
 } // namespace
-
-// ======================================
-
-VkR3rBuffer* VkR3rVertexInput::get_index_buffer() const
-{
-	return do_get_index_buffer();
-}
-
-VkR3rBuffer* VkR3rVertexInput::get_vertex_buffer() const
-{
-	return do_get_vertex_buffer();
-}
-
-VkBuffer VkR3rVertexInput::get_vk_generic_buffer() const
-{
-	return do_get_vk_generic_buffer();
-}
-
-const VkPipelineVertexInputStateCreateInfo& VkR3rVertexInput::get_vk_create_info() const
-{
-	return do_get_vk_create_info();
-}
 
 // ======================================
 

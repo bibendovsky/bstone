@@ -25,13 +25,10 @@ class VkR3rR2Texture : public R3rR2Texture
 public:
 	~VkR3rR2Texture() override {}
 
-	VkImageView get_vk_image_view() const;
+	virtual VkImageView get_vk_image_view() const = 0;
 
 protected:
 	VkR3rR2Texture() {}
-
-private:
-	virtual VkImageView do_get_vk_image_view() const = 0;
 };
 
 // ======================================

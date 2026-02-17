@@ -21,8 +21,7 @@ public:
 	GlSymbolResolverSdl& operator=(const GlSymbolResolverSdl&) = delete;
 	~GlSymbolResolverSdl() override = default;
 
-private:
-	GlSymbolResolverSymbolFunc do_find_symbol(const char* symbol_name) const override;
+	GlSymbolResolverSymbolFunc find_symbol(const char* symbol_name) const override;
 };
 
 } // namespace bstone::sys

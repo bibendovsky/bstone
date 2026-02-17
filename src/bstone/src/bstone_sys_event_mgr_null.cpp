@@ -20,11 +20,11 @@ public:
 	EventMgrNull(Logger& logger);
 	~EventMgrNull() override;
 
+	bool is_initialized() const override;
+	bool poll_event(Event& e) override;
+
 private:
 	Logger& logger_;
-
-	bool do_is_initialized() const override;
-	bool do_poll_event(Event& e) override;
 
 	[[noreturn]] static void not_initialized();
 };
@@ -43,12 +43,12 @@ EventMgrNull::~EventMgrNull()
 	logger_.log_information("Shut down NULL event manager.");
 }
 
-bool EventMgrNull::do_is_initialized() const
+bool EventMgrNull::is_initialized() const
 {
 	return false;
 }
 
-bool EventMgrNull::do_poll_event([[maybe_unused]] Event& e)
+bool EventMgrNull::poll_event([[maybe_unused]] Event& e)
 {
 	not_initialized();
 }

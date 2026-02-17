@@ -39,6 +39,15 @@ public:
 		std::intptr_t capacity = default_capacity,
 		std::intptr_t chunk_size = default_chunk_size);
 
+	void close() override;
+	bool is_open() const override;
+	std::intptr_t read(void* buffer, std::intptr_t count) override;
+	std::intptr_t write(const void* buffer, std::intptr_t count) override;
+	std::int64_t seek(std::int64_t offset, StreamOrigin origin) override;
+	std::int64_t get_size() override;
+	void set_size(std::int64_t size) override;
+	void flush() override;
+
 private:
 	using Storage = std::unique_ptr<std::uint8_t[]>;
 
@@ -49,16 +58,6 @@ private:
 	std::intptr_t size_{};
 	std::intptr_t position_{};
 	Storage storage_{};
-
-private:
-	void do_close() override;
-	bool do_is_open() const override;
-	std::intptr_t do_read(void* buffer, std::intptr_t count) override;
-	std::intptr_t do_write(const void* buffer, std::intptr_t count) override;
-	std::int64_t do_seek(std::int64_t offset, StreamOrigin origin) override;
-	std::int64_t do_get_size() override;
-	void do_set_size(std::int64_t size) override;
-	void do_flush() override;
 
 private:
 	void reserve(std::intptr_t capacity, std::intptr_t chunk_size);

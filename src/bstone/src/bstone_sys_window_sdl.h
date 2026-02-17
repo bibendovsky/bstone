@@ -21,12 +21,8 @@ public:
 	WindowSdlInternal() {}
 	~WindowSdlInternal() override {}
 
-	void* get_native_handle() const;
-	void* get_sdl_window() const;
-
-private:
-	virtual void* do_get_native_handle() const = 0;
-	virtual void* do_get_sdl_window() const = 0;
+	virtual void* get_native_handle() const = 0;
+	virtual void* get_sdl_window() const = 0;
 };
 
 // ==========================================================================

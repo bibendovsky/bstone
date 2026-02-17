@@ -28,19 +28,18 @@ public:
 		const char* name);
 	~NullR3rShaderVarImpl() override {}
 
-private:
-	R3rShaderVarType do_get_type() const override;
-	R3rShaderVarTypeId do_get_type_id() const override;
-	int do_get_index() const override;
-	const std::string& do_get_name() const override;
+	R3rShaderVarType get_type() const override;
+	R3rShaderVarTypeId get_type_id() const override;
+	int get_index() const override;
+	const std::string& get_name() const override;
 
-	void do_set_int32(int32_t value) override;
-	void do_set_float32(float value) override;
-	void do_set_vec2(const float* value) override;
-	void do_set_vec3(const float* value) override;
-	void do_set_vec4(const float* value) override;
-	void do_set_mat4(const float* value) override;
-	void do_set_r2_sampler(int32_t value) override;
+	void set_int32(int32_t value) override;
+	void set_float32(float value) override;
+	void set_vec2(const float* value) override;
+	void set_vec3(const float* value) override;
+	void set_vec4(const float* value) override;
+	void set_mat4(const float* value) override;
+	void set_r2_sampler(int32_t value) override;
 
 private:
 	R3rShaderVarType type_{};
@@ -63,45 +62,45 @@ NullR3rShaderVarImpl::NullR3rShaderVarImpl(
 	name_{name}
 {}
 
-R3rShaderVarType NullR3rShaderVarImpl::do_get_type() const
+R3rShaderVarType NullR3rShaderVarImpl::get_type() const
 {
 	return type_;
 }
 
-R3rShaderVarTypeId NullR3rShaderVarImpl::do_get_type_id() const
+R3rShaderVarTypeId NullR3rShaderVarImpl::get_type_id() const
 {
 	return type_id_;
 }
 
-int NullR3rShaderVarImpl::do_get_index() const
+int NullR3rShaderVarImpl::get_index() const
 {
 	return index_;
 }
 
-const std::string& NullR3rShaderVarImpl::do_get_name() const
+const std::string& NullR3rShaderVarImpl::get_name() const
 {
 	return name_;
 }
 
-void NullR3rShaderVarImpl::do_set_int32([[maybe_unused]] int32_t value)
+void NullR3rShaderVarImpl::set_int32([[maybe_unused]] int32_t value)
 {}
 
-void NullR3rShaderVarImpl::do_set_float32([[maybe_unused]] float value)
+void NullR3rShaderVarImpl::set_float32([[maybe_unused]] float value)
 {}
 
-void NullR3rShaderVarImpl::do_set_vec2([[maybe_unused]] const float* value)
+void NullR3rShaderVarImpl::set_vec2([[maybe_unused]] const float* value)
 {}
 
-void NullR3rShaderVarImpl::do_set_vec3([[maybe_unused]] const float* value)
+void NullR3rShaderVarImpl::set_vec3([[maybe_unused]] const float* value)
 {}
 
-void NullR3rShaderVarImpl::do_set_vec4([[maybe_unused]] const float* value)
+void NullR3rShaderVarImpl::set_vec4([[maybe_unused]] const float* value)
 {}
 
-void NullR3rShaderVarImpl::do_set_mat4([[maybe_unused]] const float* value)
+void NullR3rShaderVarImpl::set_mat4([[maybe_unused]] const float* value)
 {}
 
-void NullR3rShaderVarImpl::do_set_r2_sampler([[maybe_unused]] int32_t value)
+void NullR3rShaderVarImpl::set_r2_sampler([[maybe_unused]] int32_t value)
 {}
 
 } // namespace

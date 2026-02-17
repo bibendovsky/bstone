@@ -26,13 +26,12 @@ public:
 	MouseMgrSdl& operator=(const MouseMgrSdl&) = delete;
 	~MouseMgrSdl() override = default;
 
-private:
-	void do_set_relative_mode(bool is_enable) override;
+	void set_relative_mode(bool is_enable) override;
 };
 
 // --------------------------------------
 
-void MouseMgrSdl::do_set_relative_mode(bool is_enable)
+void MouseMgrSdl::set_relative_mode(bool is_enable)
 {
 	// TODO Move it somewhere else.
 	int window_count;

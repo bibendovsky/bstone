@@ -34,10 +34,9 @@ public:
 
 	void set() override;
 
-private:
-	void do_update(const R3rSamplerUpdateParam& param) override;
+	void update(const R3rSamplerUpdateParam& param) override;
 
-	const R3rSamplerState& do_get_state() const override;
+	const R3rSamplerState& get_state() const override;
 
 private:
 	struct SamplerDeleter
@@ -116,7 +115,7 @@ try {
 	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rSamplerImpl::do_update(const R3rSamplerUpdateParam& param)
+void GlR3rSamplerImpl::update(const R3rSamplerUpdateParam& param)
 try {
 	auto is_modified = false;
 
@@ -213,7 +212,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-const R3rSamplerState& GlR3rSamplerImpl::do_get_state() const
+const R3rSamplerState& GlR3rSamplerImpl::get_state() const
 {
 	return state_;
 }

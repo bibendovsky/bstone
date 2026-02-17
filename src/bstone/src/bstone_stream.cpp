@@ -12,21 +12,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-void Stream::close()
-{
-	do_close();
-}
-
-bool Stream::is_open() const
-{
-	return do_is_open();
-}
-
-std::intptr_t Stream::read(void* buffer, std::intptr_t count)
-{
-	return do_read(buffer, count);
-}
-
 void Stream::read_exactly(void* buffer, std::intptr_t count)
 {
 	auto buffer_bytes = static_cast<char*>(buffer);
@@ -48,11 +33,6 @@ void Stream::read_exactly(void* buffer, std::intptr_t count)
 		buffer_bytes += read_count;
 		count -= read_count;
 	}
-}
-
-std::intptr_t Stream::write(const void* buffer, std::intptr_t count)
-{
-	return do_write(buffer, count);
 }
 
 void Stream::write_exactly(const void* buffer, std::intptr_t count)
@@ -78,11 +58,6 @@ void Stream::write_exactly(const void* buffer, std::intptr_t count)
 	}
 }
 
-std::int64_t Stream::seek(std::int64_t offset, StreamOrigin origin)
-{
-	return do_seek(offset, origin);
-}
-
 std::int64_t Stream::skip(std::int64_t offset)
 {
 	return seek(offset, StreamOrigin::current);
@@ -96,21 +71,6 @@ std::int64_t Stream::get_position()
 void Stream::set_position(std::int64_t position)
 {
 	seek(position, StreamOrigin::begin);
-}
-
-std::int64_t Stream::get_size()
-{
-	return do_get_size();
-}
-
-void Stream::set_size(std::int64_t size)
-{
-	do_set_size(size);
-}
-
-void Stream::flush()
-{
-	do_flush();
 }
 
 } // namespace bstone

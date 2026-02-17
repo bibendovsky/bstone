@@ -83,11 +83,10 @@ private:
 	public:
 		void set_mixer(SystemAudioMixer* mixer);
 
-	private:
-		SystemAudioMixer* mixer_{};
+		void invoke(float* samples, int sample_count) override;
 
 	private:
-		void do_invoke(float* samples, int sample_count) override;
+		SystemAudioMixer* mixer_{};
 	};
 
 	class CacheItem

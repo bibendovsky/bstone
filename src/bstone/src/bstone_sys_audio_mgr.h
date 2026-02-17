@@ -20,12 +20,8 @@ public:
 	AudioMgr() = default;
 	virtual ~AudioMgr() = default;
 
-	bool is_initialized() const;
-	PollingAudioDeviceUPtr make_polling_audio_device(const PollingAudioDeviceOpenParam& param);
-
-private:
-	virtual bool do_is_initialized() const = 0;
-	virtual PollingAudioDeviceUPtr do_make_polling_audio_device(const PollingAudioDeviceOpenParam& param) = 0;
+	virtual bool is_initialized() const = 0;
+	virtual PollingAudioDeviceUPtr make_polling_audio_device(const PollingAudioDeviceOpenParam& param) = 0;
 };
 
 // ======================================

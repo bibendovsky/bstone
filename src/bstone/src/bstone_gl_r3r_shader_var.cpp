@@ -54,19 +54,18 @@ public:
 
 	~GlR3rShaderVarImpl() override {};
 
-private:
-	R3rShaderVarType do_get_type() const override;
-	R3rShaderVarTypeId do_get_type_id() const override;
-	int do_get_index() const override;
-	const std::string& do_get_name() const override;
+	R3rShaderVarType get_type() const override;
+	R3rShaderVarTypeId get_type_id() const override;
+	int get_index() const override;
+	const std::string& get_name() const override;
 
-	void do_set_int32(int32_t value) override;
-	void do_set_float32(float value) override;
-	void do_set_vec2(const float* value) override;
-	void do_set_vec3(const float* value) override;
-	void do_set_vec4(const float* value) override;
-	void do_set_mat4(const float* value) override;
-	void do_set_r2_sampler(int32_t value) override;
+	void set_int32(int32_t value) override;
+	void set_float32(float value) override;
+	void set_vec2(const float* value) override;
+	void set_vec3(const float* value) override;
+	void set_vec4(const float* value) override;
+	void set_mat4(const float* value) override;
+	void set_r2_sampler(int32_t value) override;
 
 private:
 	GlR3rShaderStage& shader_stage_;
@@ -100,57 +99,57 @@ try
 	gl_location_ = param.gl_location;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rShaderVarType GlR3rShaderVarImpl::do_get_type() const
+R3rShaderVarType GlR3rShaderVarImpl::get_type() const
 {
 	return type_;
 }
 
-R3rShaderVarTypeId GlR3rShaderVarImpl::do_get_type_id() const
+R3rShaderVarTypeId GlR3rShaderVarImpl::get_type_id() const
 {
 	return type_id_;
 }
 
-int GlR3rShaderVarImpl::do_get_index() const
+int GlR3rShaderVarImpl::get_index() const
 {
 	return index_;
 }
 
-const std::string& GlR3rShaderVarImpl::do_get_name() const
+const std::string& GlR3rShaderVarImpl::get_name() const
 {
 	return name_;
 }
 
-void GlR3rShaderVarImpl::do_set_int32(int32_t value)
+void GlR3rShaderVarImpl::set_int32(int32_t value)
 try {
 	set_value(R3rShaderVarTypeId::int32, &value);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rShaderVarImpl::do_set_float32(float value)
+void GlR3rShaderVarImpl::set_float32(float value)
 try {
 	set_value(R3rShaderVarTypeId::float32, &value);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rShaderVarImpl::do_set_vec2(const float* value)
+void GlR3rShaderVarImpl::set_vec2(const float* value)
 try {
 	set_value(R3rShaderVarTypeId::vec2, value);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rShaderVarImpl::do_set_vec3(const float* value)
+void GlR3rShaderVarImpl::set_vec3(const float* value)
 try {
 	set_value(R3rShaderVarTypeId::vec3, value);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rShaderVarImpl::do_set_vec4(const float* value)
+void GlR3rShaderVarImpl::set_vec4(const float* value)
 try {
 	set_value(R3rShaderVarTypeId::vec4, value);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rShaderVarImpl::do_set_mat4(const float* value)
+void GlR3rShaderVarImpl::set_mat4(const float* value)
 try {
 	set_value(R3rShaderVarTypeId::mat4, value);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rShaderVarImpl::do_set_r2_sampler(int32_t value)
+void GlR3rShaderVarImpl::set_r2_sampler(int32_t value)
 try {
 	set_value(R3rShaderVarTypeId::sampler2d, &value);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED

@@ -20,11 +20,11 @@ public:
 	AudioMgrNull(Logger& logger);
 	~AudioMgrNull() override;
 
+	bool is_initialized() const override;
+	PollingAudioDeviceUPtr make_polling_audio_device(const PollingAudioDeviceOpenParam& param) override;
+
 private:
 	Logger& logger_;
-
-	bool do_is_initialized() const override;
-	PollingAudioDeviceUPtr do_make_polling_audio_device(const PollingAudioDeviceOpenParam& param) override;
 
 	[[noreturn]] static void not_initialized();
 };
@@ -43,12 +43,12 @@ AudioMgrNull::~AudioMgrNull()
 	logger_.log_information("Shut down audio manager stub.");
 }
 
-bool AudioMgrNull::do_is_initialized() const
+bool AudioMgrNull::is_initialized() const
 {
 	return false;
 }
 
-PollingAudioDeviceUPtr AudioMgrNull::do_make_polling_audio_device(const PollingAudioDeviceOpenParam&)
+PollingAudioDeviceUPtr AudioMgrNull::make_polling_audio_device(const PollingAudioDeviceOpenParam&)
 {
 	not_initialized();
 }

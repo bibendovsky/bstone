@@ -20,10 +20,7 @@ public:
 	WindowDecorationMgr() = default;
 	virtual ~WindowDecorationMgr() = default;
 
-	void set_round_corner_type(Window& window, WindowRoundedCornerType round_corner_type);
-
-private:
-	virtual void do_set_round_corner_type(Window& window, WindowRoundedCornerType round_corner_type) = 0;
+	virtual void set_round_corner_type(Window& window, WindowRoundedCornerType round_corner_type) = 0;
 };
 
 // ======================================

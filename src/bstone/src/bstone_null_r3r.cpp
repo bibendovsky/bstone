@@ -30,39 +30,38 @@ public:
 	NullR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param);
 	~NullR3rImpl() override;
 
-private:
-	R3rType do_get_type() const override;
-	std::string_view do_get_name() const override;
-	std::string_view do_get_description() const override;
+	R3rType get_type() const override;
+	std::string_view get_name() const override;
+	std::string_view get_description() const override;
 
-	const R3rDeviceFeatures& do_get_device_features() const override;
-	const R3rDeviceInfo& do_get_device_info() const override;
+	const R3rDeviceFeatures& get_device_features() const override;
+	const R3rDeviceInfo& get_device_info() const override;
 
-	void do_enable_checking_api_calls_for_errors(bool is_enable) override;
+	void enable_checking_api_calls_for_errors(bool is_enable) override;
 
-	sys::Window& do_get_window() const override;
-	void do_handle_resize(sys::WindowSize new_size) override;
+	sys::Window& get_window() const override;
+	void handle_resize(sys::WindowSize new_size) override;
 
-	bool do_get_vsync() const override;
-	void do_enable_vsync(bool is_enabled) override;
+	bool get_vsync() const override;
+	void enable_vsync(bool is_enabled) override;
 
-	void do_set_anti_aliasing(R3rAaType aa_type, int aa_value) override;
+	void set_anti_aliasing(R3rAaType aa_type, int aa_value) override;
 
-	void do_read_pixels(
+	void read_pixels(
 		sys::PixelFormat pixel_format,
 		void* buffer,
 		bool& is_flipped_vertically) override;
 
-	void do_present() override;
+	void present() override;
 
-	R3rBufferUPtr do_create_buffer(const R3rBufferInitParam& param) override;
-	R3rR2TextureUPtr do_create_r2_texture(const R3rR2TextureInitParam& param) override;
-	R3rSamplerUPtr do_create_sampler(const R3rSamplerInitParam& param) override;
-	R3rVertexInputUPtr do_create_vertex_input(const R3rCreateVertexInputParam& param) override;
-	R3rShaderUPtr do_create_shader(const R3rShaderInitParam& param) override;
-	R3rShaderStageUPtr do_create_shader_stage(const R3rShaderStageInitParam& param) override;
-	void do_submit_commands(std::span<R3rCmdBuffer*> command_buffers) override;
-	void do_wait_for_device() override;
+	R3rBufferUPtr create_buffer(const R3rBufferInitParam& param) override;
+	R3rR2TextureUPtr create_r2_texture(const R3rR2TextureInitParam& param) override;
+	R3rSamplerUPtr create_sampler(const R3rSamplerInitParam& param) override;
+	R3rVertexInputUPtr create_vertex_input(const R3rCreateVertexInputParam& param) override;
+	R3rShaderUPtr create_shader(const R3rShaderInitParam& param) override;
+	R3rShaderStageUPtr create_shader_stage(const R3rShaderStageInitParam& param) override;
+	void submit_commands(std::span<R3rCmdBuffer*> command_buffers) override;
+	void wait_for_device() override;
 
 private:
 	sys::VideoMgr& video_mgr_;
@@ -99,96 +98,96 @@ try
 	initialize_window();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rType NullR3rImpl::do_get_type() const
+R3rType NullR3rImpl::get_type() const
 {
 	return type_;
 }
 
-std::string_view NullR3rImpl::do_get_name() const
+std::string_view NullR3rImpl::get_name() const
 {
 	return name_;
 }
 
-std::string_view NullR3rImpl::do_get_description() const
+std::string_view NullR3rImpl::get_description() const
 {
 	return description_;
 }
 
-const R3rDeviceFeatures& NullR3rImpl::do_get_device_features() const
+const R3rDeviceFeatures& NullR3rImpl::get_device_features() const
 {
 	return r3r_device_features_;
 }
 
-const R3rDeviceInfo& NullR3rImpl::do_get_device_info() const
+const R3rDeviceInfo& NullR3rImpl::get_device_info() const
 {
 	return device_info_;
 }
 
-void NullR3rImpl::do_enable_checking_api_calls_for_errors([[maybe_unused]] bool is_enable)
+void NullR3rImpl::enable_checking_api_calls_for_errors([[maybe_unused]] bool is_enable)
 {}
 
-sys::Window& NullR3rImpl::do_get_window() const
+sys::Window& NullR3rImpl::get_window() const
 {
 	return *window_;
 }
 
-void NullR3rImpl::do_handle_resize([[maybe_unused]] sys::WindowSize new_size)
+void NullR3rImpl::handle_resize([[maybe_unused]] sys::WindowSize new_size)
 {}
 
-bool NullR3rImpl::do_get_vsync() const
+bool NullR3rImpl::get_vsync() const
 {
 	return false;
 }
 
-void NullR3rImpl::do_enable_vsync([[maybe_unused]] bool is_enabled)
+void NullR3rImpl::enable_vsync([[maybe_unused]] bool is_enabled)
 {}
 
-void NullR3rImpl::do_set_anti_aliasing([[maybe_unused]] R3rAaType aa_type, [[maybe_unused]] int aa_value)
+void NullR3rImpl::set_anti_aliasing([[maybe_unused]] R3rAaType aa_type, [[maybe_unused]] int aa_value)
 {}
 
-void NullR3rImpl::do_read_pixels(
+void NullR3rImpl::read_pixels(
 	[[maybe_unused]] sys::PixelFormat pixel_format,
 	[[maybe_unused]] void* buffer,
 	[[maybe_unused]] bool& is_flipped_vertically)
 {}
 
-void NullR3rImpl::do_present()
+void NullR3rImpl::present()
 {}
 
-R3rBufferUPtr NullR3rImpl::do_create_buffer(const R3rBufferInitParam& param)
+R3rBufferUPtr NullR3rImpl::create_buffer(const R3rBufferInitParam& param)
 try {
 	return make_null_r3r_buffer(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rVertexInputUPtr NullR3rImpl::do_create_vertex_input(const R3rCreateVertexInputParam& param)
+R3rVertexInputUPtr NullR3rImpl::create_vertex_input(const R3rCreateVertexInputParam& param)
 try {
 	return make_null_r3r_vertex_input(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rShaderUPtr NullR3rImpl::do_create_shader(const R3rShaderInitParam& param)
+R3rShaderUPtr NullR3rImpl::create_shader(const R3rShaderInitParam& param)
 try {
 	return make_null_r3r_shader(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rShaderStageUPtr NullR3rImpl::do_create_shader_stage(const R3rShaderStageInitParam& param)
+R3rShaderStageUPtr NullR3rImpl::create_shader_stage(const R3rShaderStageInitParam& param)
 try {
 	return make_null_r3r_shader_stage(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rR2TextureUPtr NullR3rImpl::do_create_r2_texture(const R3rR2TextureInitParam& param)
+R3rR2TextureUPtr NullR3rImpl::create_r2_texture(const R3rR2TextureInitParam& param)
 try {
 	return make_null_r3r_r2_texture(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rSamplerUPtr NullR3rImpl::do_create_sampler(const R3rSamplerInitParam& param)
+R3rSamplerUPtr NullR3rImpl::create_sampler(const R3rSamplerInitParam& param)
 try {
 	return make_null_r3r_sampler(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void NullR3rImpl::do_submit_commands([[maybe_unused]] std::span<R3rCmdBuffer*> command_buffers)
+void NullR3rImpl::submit_commands([[maybe_unused]] std::span<R3rCmdBuffer*> command_buffers)
 {}
 
-void NullR3rImpl::do_wait_for_device()
+void NullR3rImpl::wait_for_device()
 {}
 
 void NullR3rImpl::initialize_device_features()

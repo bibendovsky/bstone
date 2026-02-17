@@ -28,20 +28,20 @@ public:
 		void* mapped_memory);
 	~VkR3rShaderVarImpl() override {}
 
+	R3rShaderVarType get_type() const override;
+	R3rShaderVarTypeId get_type_id() const override;
+	int get_index() const override;
+	const std::string& get_name() const override;
+
+	void set_int32(std::int32_t value) override;
+	void set_float32(float value) override;
+	void set_vec2(const float* value) override;
+	void set_vec3(const float* value) override;
+	void set_vec4(const float* value) override;
+	void set_mat4(const float* value) override;
+	void set_r2_sampler(std::int32_t value) override;
+
 private:
-	R3rShaderVarType do_get_type() const override;
-	R3rShaderVarTypeId do_get_type_id() const override;
-	int do_get_index() const override;
-	const std::string& do_get_name() const override;
-
-	void do_set_int32(std::int32_t value) override;
-	void do_set_float32(float value) override;
-	void do_set_vec2(const float* value) override;
-	void do_set_vec3(const float* value) override;
-	void do_set_vec4(const float* value) override;
-	void do_set_mat4(const float* value) override;
-	void do_set_r2_sampler(std::int32_t value) override;
-
 	R3rShaderVarType type_{};
 	R3rShaderVarTypeId type_id_{};
 	int index_{};
@@ -67,63 +67,63 @@ VkR3rShaderVarImpl::VkR3rShaderVarImpl(
 	mapped_memory_{mapped_memory}
 {}
 
-R3rShaderVarType VkR3rShaderVarImpl::do_get_type() const
+R3rShaderVarType VkR3rShaderVarImpl::get_type() const
 {
 	return type_;
 }
 
-R3rShaderVarTypeId VkR3rShaderVarImpl::do_get_type_id() const
+R3rShaderVarTypeId VkR3rShaderVarImpl::get_type_id() const
 {
 	return type_id_;
 }
 
-int VkR3rShaderVarImpl::do_get_index() const
+int VkR3rShaderVarImpl::get_index() const
 {
 	return index_;
 }
 
-const std::string& VkR3rShaderVarImpl::do_get_name() const
+const std::string& VkR3rShaderVarImpl::get_name() const
 {
 	return name_;
 }
 
-void VkR3rShaderVarImpl::do_set_int32(std::int32_t value)
+void VkR3rShaderVarImpl::set_int32(std::int32_t value)
 {
 	ensure_is_not_vertex_attribute();
 	*static_cast<std::int32_t*>(mapped_memory_) = value;
 }
 
-void VkR3rShaderVarImpl::do_set_float32(float value)
+void VkR3rShaderVarImpl::set_float32(float value)
 {
 	ensure_is_not_vertex_attribute();
 	*static_cast<float*>(mapped_memory_) = value;
 }
 
-void VkR3rShaderVarImpl::do_set_vec2(const float* value)
+void VkR3rShaderVarImpl::set_vec2(const float* value)
 {
 	ensure_is_not_vertex_attribute();
 	std::copy_n(value, 2, static_cast<float*>(mapped_memory_));
 }
 
-void VkR3rShaderVarImpl::do_set_vec3([[maybe_unused]] const float* value)
+void VkR3rShaderVarImpl::set_vec3([[maybe_unused]] const float* value)
 try {
 	ensure_is_not_vertex_attribute();
 	BSTONE_THROW_STATIC_SOURCE("Unsupported shader var type id.");
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void VkR3rShaderVarImpl::do_set_vec4(const float* value)
+void VkR3rShaderVarImpl::set_vec4(const float* value)
 {
 	ensure_is_not_vertex_attribute();
 	std::copy_n(value, 4, static_cast<float*>(mapped_memory_));
 }
 
-void VkR3rShaderVarImpl::do_set_mat4(const float* value)
+void VkR3rShaderVarImpl::set_mat4(const float* value)
 {
 	ensure_is_not_vertex_attribute();
 	std::copy_n(value, 16, static_cast<float*>(mapped_memory_));
 }
 
-void VkR3rShaderVarImpl::do_set_r2_sampler([[maybe_unused]] std::int32_t value)
+void VkR3rShaderVarImpl::set_r2_sampler([[maybe_unused]] std::int32_t value)
 {
 	ensure_is_not_vertex_attribute();
 }

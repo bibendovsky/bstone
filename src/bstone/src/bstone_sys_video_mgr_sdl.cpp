@@ -35,6 +35,15 @@ public:
 	VideoMgrSdl& operator=(const VideoMgrSdl&) = delete;
 	~VideoMgrSdl() override;
 
+	bool is_initialized() const override;
+	Logger& get_logger() override;
+	DisplayMode get_current_display_mode() override;
+	std::span<const DisplayMode> get_display_modes() override;
+	GlCurrentContext& get_gl_current_context() override;
+	VulkanMgr& get_vulkan_mgr() override;
+	MouseMgr& get_mouse_mgr() override;
+	WindowMgr& get_window_mgr() override;
+
 private:
 	using DisplayModeCache = DisplayMode[limits::max_display_modes];
 
@@ -45,15 +54,6 @@ private:
 	DisplayModeCache display_mode_cache_{};
 	GlCurrentContextUPtr gl_current_context_{};
 	VulkanMgrUPtr vulkan_mgr_{};
-
-	bool do_is_initialized() const override;
-	Logger& do_get_logger() override;
-	DisplayMode do_get_current_display_mode() override;
-	std::span<const DisplayMode> do_get_display_modes() override;
-	GlCurrentContext& do_get_gl_current_context() override;
-	VulkanMgr& do_get_vulkan_mgr() override;
-	MouseMgr& do_get_mouse_mgr() override;
-	WindowMgr& do_get_window_mgr() override;
 
 	static void log_sdl_error(StringBuilder& formatter);
 	static void log_drivers(StringBuilder& formatter);
@@ -88,17 +88,17 @@ VideoMgrSdl::~VideoMgrSdl()
 	mouse_mgr_ = nullptr;
 }
 
-bool VideoMgrSdl::do_is_initialized() const
+bool VideoMgrSdl::is_initialized() const
 {
 	return true;
 }
 
-Logger& VideoMgrSdl::do_get_logger()
+Logger& VideoMgrSdl::get_logger()
 {
 	return logger_;
 }
 
-DisplayMode VideoMgrSdl::do_get_current_display_mode()
+DisplayMode VideoMgrSdl::get_current_display_mode()
 {
 	const SDL_DisplayID sdl_display_id = SDL_GetPrimaryDisplay();
 	if (sdl_display_id == 0)
@@ -113,7 +113,7 @@ DisplayMode VideoMgrSdl::do_get_current_display_mode()
 	return map_display_mode(*sdl_display_mode);
 }
 
-std::span<const DisplayMode> VideoMgrSdl::do_get_display_modes()
+std::span<const DisplayMode> VideoMgrSdl::get_display_modes()
 {
 	int sdl_mode_count;
 	SDL_DisplayMode** const sdl_display_mode_ptrs = SDL_GetFullscreenDisplayModes(SDL_GetPrimaryDisplay(), &sdl_mode_count);
@@ -134,7 +134,7 @@ std::span<const DisplayMode> VideoMgrSdl::do_get_display_modes()
 	return std::span<const DisplayMode>{display_mode_cache_, static_cast<std::size_t>(mode_count)};
 }
 
-GlCurrentContext& VideoMgrSdl::do_get_gl_current_context()
+GlCurrentContext& VideoMgrSdl::get_gl_current_context()
 {
 	if (gl_current_context_ == nullptr)
 	{
@@ -143,7 +143,7 @@ GlCurrentContext& VideoMgrSdl::do_get_gl_current_context()
 	return *gl_current_context_;
 }
 
-VulkanMgr& VideoMgrSdl::do_get_vulkan_mgr()
+VulkanMgr& VideoMgrSdl::get_vulkan_mgr()
 {
 	if (vulkan_mgr_ == nullptr)
 	{
@@ -152,12 +152,12 @@ VulkanMgr& VideoMgrSdl::do_get_vulkan_mgr()
 	return *vulkan_mgr_;
 }
 
-MouseMgr& VideoMgrSdl::do_get_mouse_mgr()
+MouseMgr& VideoMgrSdl::get_mouse_mgr()
 {
 	return *mouse_mgr_;
 }
 
-WindowMgr& VideoMgrSdl::do_get_window_mgr()
+WindowMgr& VideoMgrSdl::get_window_mgr()
 {
 	return *window_mgr_;
 }

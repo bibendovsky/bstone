@@ -25,10 +25,10 @@ public:
 	VkR3rPipelineMgrImpl(VkR3rContext& context);
 	~VkR3rPipelineMgrImpl() override {}
 
-private:
-	void do_clear() override;
-	VkR3rPipeline* do_acquire_pipeline() override;
+	void clear() override;
+	VkR3rPipeline* acquire_pipeline() override;
 
+private:
 	using PipelineMapKey = VkR3rContext::DrawState;
 	class ByteHasher
 	{
@@ -103,12 +103,12 @@ VkR3rPipelineMgrImpl::VkR3rPipelineMgrImpl(VkR3rContext& context)
 	pipeline_map_.reserve(32);
 }
 
-void VkR3rPipelineMgrImpl::do_clear()
+void VkR3rPipelineMgrImpl::clear()
 {
 	pipeline_map_.clear();
 }
 
-VkR3rPipeline* VkR3rPipelineMgrImpl::do_acquire_pipeline()
+VkR3rPipeline* VkR3rPipelineMgrImpl::acquire_pipeline()
 {
 	const auto pipeline_map_iter = pipeline_map_.find(context_.draw_state);
 	if (pipeline_map_iter != pipeline_map_.cend())
@@ -121,18 +121,6 @@ VkR3rPipeline* VkR3rPipelineMgrImpl::do_acquire_pipeline()
 }
 
 } // namespace
-
-// ======================================
-
-void VkR3rPipelineMgr::clear()
-{
-	return do_clear();
-}
-
-VkR3rPipeline* VkR3rPipelineMgr::acquire_pipeline()
-{
-	return do_acquire_pipeline();
-}
 
 // ======================================
 

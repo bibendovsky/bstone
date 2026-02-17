@@ -27,29 +27,20 @@ public:
 	Stream() = default;
 	virtual ~Stream() = default;
 
-	void close();
-	bool is_open() const;
-	std::intptr_t read(void* buffer, std::intptr_t count);
+	virtual void close() = 0;
+	virtual bool is_open() const = 0;
+	virtual std::intptr_t read(void* buffer, std::intptr_t count) = 0;
+	virtual std::intptr_t write(const void* buffer, std::intptr_t count) = 0;
+	virtual std::int64_t seek(std::int64_t offset, StreamOrigin origin) = 0;
+	virtual std::int64_t get_size() = 0;
+	virtual void set_size(std::int64_t size) = 0;
+	virtual void flush() = 0;
+
 	void read_exactly(void* buffer, std::intptr_t count);
-	std::intptr_t write(const void* buffer, std::intptr_t count);
 	void write_exactly(const void* buffer, std::intptr_t count);
-	std::int64_t seek(std::int64_t offset, StreamOrigin origin);
 	std::int64_t skip(std::int64_t offset);
 	std::int64_t get_position();
 	void set_position(std::int64_t position);
-	std::int64_t get_size();
-	void set_size(std::int64_t size);
-	void flush();
-
-private:
-	virtual void do_close() = 0;
-	virtual bool do_is_open() const = 0;
-	virtual std::intptr_t do_read(void* buffer, std::intptr_t count) = 0;
-	virtual std::intptr_t do_write(const void* buffer, std::intptr_t count) = 0;
-	virtual std::int64_t do_seek(std::int64_t offset, StreamOrigin origin) = 0;
-	virtual std::int64_t do_get_size() = 0;
-	virtual void do_set_size(std::int64_t size) = 0;
-	virtual void do_flush() = 0;
 };
 
 } // namespace bstone

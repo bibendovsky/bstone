@@ -17,7 +17,7 @@ void Logger::log_information()
 
 void Logger::log_information(const char* message)
 {
-	do_log(LogLevel::information, message);
+	log(LogLevel::information, message);
 }
 
 void Logger::log_warning()
@@ -27,7 +27,7 @@ void Logger::log_warning()
 
 void Logger::log_warning(const char* message)
 {
-	do_log(LogLevel::warning, message);
+	log(LogLevel::warning, message);
 }
 
 void Logger::log_error()
@@ -37,7 +37,7 @@ void Logger::log_error()
 
 void Logger::log_error(const char* message)
 {
-	do_log(LogLevel::error, message);
+	log(LogLevel::error, message);
 }
 
 } // namespace bstone::sys

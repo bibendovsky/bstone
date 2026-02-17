@@ -27,29 +27,24 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 namespace bstone {
 
-void Logger::log(LoggerMessageType message_type, std::string_view message_sv)
-{
-	do_log(message_type, message_sv);
-}
-
 void Logger::log_information()
 {
-	do_log(LoggerMessageType::information, std::string_view{});
+	log(LoggerMessageType::information, std::string_view{});
 }
 
 void Logger::log_information(std::string_view message_sv)
 {
-	do_log(LoggerMessageType::information, message_sv);
+	log(LoggerMessageType::information, message_sv);
 }
 
 void Logger::log_warning(std::string_view message_sv)
 {
-	do_log(LoggerMessageType::warning, message_sv);
+	log(LoggerMessageType::warning, message_sv);
 }
 
 void Logger::log_error(std::string_view message_sv)
 {
-	do_log(LoggerMessageType::error, message_sv);
+	log(LoggerMessageType::error, message_sv);
 }
 
 void Logger::log_exception(std::exception_ptr exception_ptr)
@@ -83,11 +78,6 @@ void Logger::log_exception(std::exception_ptr exception_ptr)
 void Logger::log_current_exception()
 {
 	log_exception(std::current_exception());
-}
-
-void Logger::flush()
-{
-	do_flush();
 }
 
 void Logger::log_exception_internal(std::exception_ptr exception_ptr, std::string& message_buffer)
@@ -236,6 +226,9 @@ public:
 	LoggerImpl(const LoggerOpenParam& param);
 	~LoggerImpl() override;
 
+	void log(LoggerMessageType message_type, std::string_view message_sv) override;
+	void flush() override;
+
 private:
 	static const std::string_view empty_sv;
 	static const std::string_view error_prefix_sv;
@@ -272,10 +265,6 @@ private:
 	Mutex cv_mutex_{};
 	Mutex cv_flush_mutex_{};
 	Queues queues_{};
-
-private:
-	void do_log(LoggerMessageType message_type, std::string_view message_sv) override;
-	void do_flush() override;
 
 private:
 	void log_logger_current_exception();
@@ -345,7 +334,7 @@ LoggerImpl::~LoggerImpl()
 	thread_.join();
 }
 
-void LoggerImpl::do_log(LoggerMessageType message_type, std::string_view message_sv)
+void LoggerImpl::log(LoggerMessageType message_type, std::string_view message_sv)
 {
 	try
 	{
@@ -357,7 +346,7 @@ void LoggerImpl::do_log(LoggerMessageType message_type, std::string_view message
 	}
 }
 
-void LoggerImpl::do_flush()
+void LoggerImpl::flush()
 {
 	try
 	{

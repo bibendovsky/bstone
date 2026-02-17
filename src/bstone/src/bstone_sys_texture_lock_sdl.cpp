@@ -39,15 +39,15 @@ public:
 	void* operator new(std::size_t size);
 	void operator delete(void* ptr);
 
+	void* get_pixels() const override;
+	int get_pitch() const override;
+
 private:
 	class Storage;
 
 	SDL_Texture& sdl_texture_;
 	void* pixels_{};
 	int pitch_{};
-
-	void* do_get_pixels() const override;
-	int do_get_pitch() const override;
 };
 
 // ======================================
@@ -97,12 +97,12 @@ void TextureLockSdl::operator delete(void* ptr)
 	Storage::get_singleton().deallocate(ptr);
 }
 
-void* TextureLockSdl::do_get_pixels() const
+void* TextureLockSdl::get_pixels() const
 {
 	return pixels_;
 }
 
-int TextureLockSdl::do_get_pitch() const
+int TextureLockSdl::get_pitch() const
 {
 	return pitch_;
 }

@@ -44,14 +44,14 @@ public:
 	WindowDecorationMgrSdl();
 	~WindowDecorationMgrSdl() override = default;
 
+	void set_round_corner_type(Window& window, WindowRoundedCornerType rounded_corner_type) override;
+
 private:
 	using PFNDWMSETWINDOWATTRIBUTEPROC = HRESULT (WINAPI *)(
 		HWND hwnd,
 		DWORD dwAttribute,
 		LPCVOID pvAttribute,
 		DWORD cbAttribute);
-
-	void do_set_round_corner_type(Window& window, WindowRoundedCornerType rounded_corner_type) override;
 
 	SharedLibrary wdmapi_shared_library_{};
 	PFNDWMSETWINDOWATTRIBUTEPROC DwmSetWindowAttribute_{};
@@ -80,7 +80,7 @@ WindowDecorationMgrSdl::WindowDecorationMgrSdl()
 	wdmapi_shared_library_.swap(wdmapi_shared_library);
 }
 
-void WindowDecorationMgrSdl::do_set_round_corner_type(
+void WindowDecorationMgrSdl::set_round_corner_type(
 	Window& window,
 	WindowRoundedCornerType rounded_corner_type)
 {

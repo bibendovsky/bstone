@@ -56,18 +56,18 @@ public:
 	RendererSdl& operator=(const RendererSdl&) = delete;
 	~RendererSdl() override;
 
+	const char* get_name() const override;
+	void set_viewport() override;
+	void clear() override;
+	void set_draw_color(Color color) override;
+	void fill(std::span<const FRect> rects) override;
+	void present() override;
+	void read_pixels(PixelFormat pixel_format, void* pixels, int pitch) override;
+	TextureUPtr make_texture(const TextureInitParam& param) override;
+
 private:
 	Logger& logger_;
 	SDL_Renderer* sdl_renderer_;
-
-	const char* do_get_name() const override;
-	void do_set_viewport(const RendererViewport* viewport) override;
-	void do_clear() override;
-	void do_set_draw_color(Color color) override;
-	void do_fill(std::span<const FRect> rects) override;
-	void do_present() override;
-	void do_read_pixels(const Rect* rect, PixelFormat pixel_format, void* pixels, int pitch) override;
-	TextureUPtr do_make_texture(const TextureInitParam& param) override;
 
 	static SDL_PixelFormat map_pixel_format(PixelFormat pixel_format);
 	void log_info(SDL_Renderer* sdl_renderer);
@@ -109,7 +109,7 @@ RendererSdl::~RendererSdl()
 	SDL_DestroyRenderer(sdl_renderer_);
 }
 
-const char* RendererSdl::do_get_name() const
+const char* RendererSdl::get_name() const
 {
 	const SDL_PropertiesID sdl_properties_id = SDL_GetRendererProperties(sdl_renderer_);
 	if (sdl_properties_id == 0)
@@ -119,15 +119,15 @@ const char* RendererSdl::do_get_name() const
 	return SDL_GetStringProperty(sdl_properties_id, SDL_PROP_RENDERER_NAME_STRING, "");
 }
 
-void RendererSdl::do_set_viewport(const RendererViewport* viewport)
+void RendererSdl::set_viewport()
 {
-	if (!SDL_SetRenderViewport(sdl_renderer_, reinterpret_cast<const SDL_Rect*>(viewport)))
+	if (!SDL_SetRenderViewport(sdl_renderer_, nullptr))
 	{
 		sdl::fail("SDL_SetRenderViewport");
 	}
 }
 
-void RendererSdl::do_clear()
+void RendererSdl::clear()
 {
 	if (!SDL_RenderClear(sdl_renderer_))
 	{
@@ -135,7 +135,7 @@ void RendererSdl::do_clear()
 	}
 }
 
-void RendererSdl::do_set_draw_color(Color color)
+void RendererSdl::set_draw_color(Color color)
 {
 	if (!SDL_SetRenderDrawColor(sdl_renderer_, color.r, color.g, color.b, color.a))
 	{
@@ -143,7 +143,7 @@ void RendererSdl::do_set_draw_color(Color color)
 	}
 }
 
-void RendererSdl::do_fill(std::span<const FRect> rects)
+void RendererSdl::fill(std::span<const FRect> rects)
 {
 	if (rects.size() > INT_MAX)
 	{
@@ -158,7 +158,7 @@ void RendererSdl::do_fill(std::span<const FRect> rects)
 	}
 }
 
-void RendererSdl::do_present()
+void RendererSdl::present()
 {
 	if (!SDL_RenderPresent(sdl_renderer_))
 	{
@@ -166,13 +166,13 @@ void RendererSdl::do_present()
 	}
 }
 
-void RendererSdl::do_read_pixels(const Rect* rect, PixelFormat pixel_format, void* pixels, int pitch)
+void RendererSdl::read_pixels(PixelFormat pixel_format, void* pixels, int pitch)
 {
 	if (pixel_format != PixelFormat::r8g8b8)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Unsupported destination pixel format.");
 	}
-	SDL_Surface* sdl_surface = SDL_RenderReadPixels(sdl_renderer_, reinterpret_cast<const SDL_Rect*>(rect));
+	SDL_Surface* sdl_surface = SDL_RenderReadPixels(sdl_renderer_, nullptr);
 	if (sdl_surface == nullptr)
 	{
 		sdl::fail("SDL_RenderReadPixels");
@@ -182,18 +182,6 @@ void RendererSdl::do_read_pixels(const Rect* rect, PixelFormat pixel_format, voi
 		{
 			SDL_DestroySurface(sdl_surface);
 		});
-	int width;
-	int height;
-	if (rect != nullptr)
-	{
-		width = rect->width;
-		height = rect->height;
-	}
-	else
-	{
-		width = sdl_surface->w;
-		height = sdl_surface->h;
-	}
 	if (SDL_MUSTLOCK(sdl_surface))
 	{
 		if (!SDL_LockSurface(sdl_surface))
@@ -202,8 +190,8 @@ void RendererSdl::do_read_pixels(const Rect* rect, PixelFormat pixel_format, voi
 		}
 	}
 	if (!SDL_ConvertPixels(
-		width,
-		height,
+		sdl_surface->w,
+		sdl_surface->h,
 		sdl_surface->format,
 		sdl_surface->pixels,
 		sdl_surface->pitch,
@@ -215,7 +203,7 @@ void RendererSdl::do_read_pixels(const Rect* rect, PixelFormat pixel_format, voi
 	}
 }
 
-TextureUPtr RendererSdl::do_make_texture(const TextureInitParam& param)
+TextureUPtr RendererSdl::make_texture(const TextureInitParam& param)
 {
 	return make_texture_sdl(logger_, *sdl_renderer_, param);
 }

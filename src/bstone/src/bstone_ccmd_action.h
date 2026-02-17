@@ -23,11 +23,7 @@ public:
 	CCmdAction() = default;
 	virtual ~CCmdAction() = default;
 
-	void invoke(CCmdActionArgs args);
-	void operator()(CCmdActionArgs args);
-
-private:
-	virtual void do_invoke(CCmdActionArgs args) = 0;
+	virtual void invoke(CCmdActionArgs args) = 0;
 };
 
 } // namespace bstone

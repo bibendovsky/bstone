@@ -31,12 +31,11 @@ public:
 	GlR3rBufferImpl(GlR3rContext& context, const R3rBufferInitParam& param);
 	~GlR3rBufferImpl() override {}
 
-private:
-	R3rBufferType do_get_type() const override;
-	R3rBufferUsageType do_get_usage_type() const override;
-	int do_get_size() const override;
+	R3rBufferType get_type() const override;
+	R3rBufferUsageType get_usage_type() const override;
+	int get_size() const override;
 
-	void do_update(const R3rUpdateBufferParam& param) override;
+	void update(const R3rUpdateBufferParam& param) override;
 
 private:
 	void set(bool is_set) override;
@@ -117,17 +116,17 @@ try
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rBufferType GlR3rBufferImpl::do_get_type() const
+R3rBufferType GlR3rBufferImpl::get_type() const
 {
 	return type_;
 }
 
-R3rBufferUsageType GlR3rBufferImpl::do_get_usage_type() const
+R3rBufferUsageType GlR3rBufferImpl::get_usage_type() const
 {
 	return usage_type_;
 }
 
-int GlR3rBufferImpl::do_get_size() const
+int GlR3rBufferImpl::get_size() const
 {
 	return size_;
 }
@@ -139,7 +138,7 @@ try {
 	GlR3rError::check_optionally();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rBufferImpl::do_update(const R3rUpdateBufferParam& param)
+void GlR3rBufferImpl::update(const R3rUpdateBufferParam& param)
 try {
 	validate(param);
 

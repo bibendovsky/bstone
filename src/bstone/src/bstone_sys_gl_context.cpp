@@ -7,12 +7,3 @@ SPDX-License-Identifier: MIT
 // OpenGL context
 
 #include "bstone_sys_gl_context.h"
-
-namespace bstone::sys {
-
-const GlContextAttributes& GlContext::get_attributes() const
-{
-	return do_get_attributes();
-}
-
-} // namespace bstone::sys

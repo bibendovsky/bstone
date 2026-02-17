@@ -53,17 +53,17 @@ void MemoryStream::open(std::intptr_t capacity, std::intptr_t chunk_size)
 	chunk_size_ = chunk_size;
 }
 
-void MemoryStream::do_close()
+void MemoryStream::close()
 {
 	close_internal();
 }
 
-bool MemoryStream::do_is_open() const
+bool MemoryStream::is_open() const
 {
 	return is_open_;
 }
 
-std::intptr_t MemoryStream::do_read(void* buffer, std::intptr_t count)
+std::intptr_t MemoryStream::read(void* buffer, std::intptr_t count)
 {
 	BSTONE_ASSERT(is_open_);
 	BSTONE_ASSERT(buffer != nullptr);
@@ -82,7 +82,7 @@ std::intptr_t MemoryStream::do_read(void* buffer, std::intptr_t count)
 	return copy_count;
 }
 
-std::intptr_t MemoryStream::do_write(const void* buffer, std::intptr_t count)
+std::intptr_t MemoryStream::write(const void* buffer, std::intptr_t count)
 {
 	BSTONE_ASSERT(is_open_);
 	BSTONE_ASSERT(buffer != nullptr);
@@ -104,7 +104,7 @@ std::intptr_t MemoryStream::do_write(const void* buffer, std::intptr_t count)
 	return copy_count;
 }
 
-std::int64_t MemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
+std::int64_t MemoryStream::seek(std::int64_t offset, StreamOrigin origin)
 {
 	BSTONE_ASSERT(is_open_);
 
@@ -147,14 +147,14 @@ std::int64_t MemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
 	return position_;
 }
 
-std::int64_t MemoryStream::do_get_size()
+std::int64_t MemoryStream::get_size()
 {
 	BSTONE_ASSERT(is_open_);
 
 	return size_;
 }
 
-void MemoryStream::do_set_size(std::int64_t size)
+void MemoryStream::set_size(std::int64_t size)
 {
 	BSTONE_ASSERT(is_open_);
 	BSTONE_ASSERT(size >= 0);
@@ -174,7 +174,7 @@ void MemoryStream::do_set_size(std::int64_t size)
 	size_ = size_intptr;
 }
 
-void MemoryStream::do_flush()
+void MemoryStream::flush()
 {
 	BSTONE_ASSERT(is_open_);
 }

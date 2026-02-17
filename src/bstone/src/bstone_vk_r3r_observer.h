@@ -16,13 +16,7 @@ class VkR3rObserver
 public:
 	virtual ~VkR3rObserver() = default;
 
-	void update(TContext& context)
-	{
-		return do_update(context);
-	}
-
-private:
-	virtual void do_update(TContext& context) = 0;
+	virtual void update(TContext& context) = 0;
 };
 
 // ======================================
@@ -33,13 +27,7 @@ class VkR3rObserver<void>
 public:
 	virtual ~VkR3rObserver() = default;
 
-	void update()
-	{
-		return do_update();
-	}
-
-private:
-	virtual void do_update() = 0;
+	virtual void update() = 0;
 };
 
 // ======================================
@@ -53,25 +41,9 @@ public:
 public:
 	virtual ~VkR3rSubject() = default;
 
-	void attach(Observer& observer)
-	{
-		do_attach(observer);
-	}
-
-	void detach(Observer& observer)
-	{
-		do_detach(observer);
-	}
-
-	void notify(TContext& context)
-	{
-		do_notify(context);
-	}
-
-private:
-	virtual void do_attach(Observer& observer) = 0;
-	virtual void do_detach(Observer& observer) = 0;
-	virtual void do_notify(TContext& context) = 0;
+	virtual void attach(Observer& observer) = 0;
+	virtual void detach(Observer& observer) = 0;
+	virtual void notify(TContext& context) = 0;
 };
 
 // ======================================
@@ -85,25 +57,9 @@ public:
 public:
 	virtual ~VkR3rSubject() = default;
 
-	void attach(Observer& observer)
-	{
-		do_attach(observer);
-	}
-
-	void detach(Observer& observer)
-	{
-		do_detach(observer);
-	}
-
-	void notify()
-	{
-		do_notify();
-	}
-
-private:
-	virtual void do_attach(Observer& observer) = 0;
-	virtual void do_detach(Observer& observer) = 0;
-	virtual void do_notify() = 0;
+	virtual void attach(Observer& observer) = 0;
+	virtual void detach(Observer& observer) = 0;
+	virtual void notify() = 0;
 };
 
 // ======================================
@@ -114,14 +70,14 @@ public:
 	VkR3rPostPresentSubject();
 	~VkR3rPostPresentSubject() override {};
 
+	void attach(Observer& observer) override;
+	void detach(Observer& observer) override;
+	void notify() override;
+
 	using Observers = std::unordered_set<Observer*>;
 
 	Observers observers_{};
 	Observers observers_copy_{};
-
-	void do_attach(Observer& observer) override;
-	void do_detach(Observer& observer) override;
-	void do_notify() override;
 };
 
 #endif // BSTONE_VK_R3R_OBSERVER_INCLUDED

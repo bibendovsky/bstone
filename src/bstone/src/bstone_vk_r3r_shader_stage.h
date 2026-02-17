@@ -24,21 +24,14 @@ class VkR3rShaderStage : public R3rShaderStage
 public:
 	~VkR3rShaderStage() override {}
 
-	std::uint32_t get_vk_image_binding() const;
-	VkR3rShader* get_vertex_shader() const;
-	VkR3rShader* get_fragment_shader() const;
-	VkDescriptorSetLayout get_vk_descriptor_set_layout() const;
-	VkDescriptorSet acquire_vk_descriptor_set();
+	virtual std::uint32_t get_vk_image_binding() const = 0;
+	virtual VkR3rShader* get_vertex_shader() const = 0;
+	virtual VkR3rShader* get_fragment_shader() const = 0;
+	virtual VkDescriptorSetLayout get_vk_descriptor_set_layout() const = 0;
+	virtual VkDescriptorSet acquire_vk_descriptor_set() = 0;
 
 protected:
 	VkR3rShaderStage() {}
-
-private:
-	virtual std::uint32_t do_get_vk_image_binding() const = 0;
-	virtual VkR3rShader* do_get_vertex_shader() const = 0;
-	virtual VkR3rShader* do_get_fragment_shader() const = 0;
-	virtual VkDescriptorSetLayout do_get_vk_descriptor_set_layout() const = 0;
-	virtual VkDescriptorSet do_acquire_vk_descriptor_set() = 0;
 };
 
 // ======================================

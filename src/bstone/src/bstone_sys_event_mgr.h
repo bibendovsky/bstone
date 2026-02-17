@@ -20,12 +20,8 @@ public:
 	EventMgr() = default;
 	virtual ~EventMgr() = default;
 
-	bool is_initialized() const;
-	bool poll_event(Event& e);
-
-private:
-	virtual bool do_is_initialized() const = 0;
-	virtual bool do_poll_event(Event& e) = 0;
+	virtual bool is_initialized() const = 0;
+	virtual bool poll_event(Event& e) = 0;
 };
 
 // ======================================

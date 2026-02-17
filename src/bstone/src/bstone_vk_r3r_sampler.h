@@ -23,13 +23,10 @@ class VkR3rSampler : public R3rSampler
 public:
 	~VkR3rSampler() override {}
 
-	VkSampler get_vk_sampler() const;
+	virtual VkSampler get_vk_sampler() const = 0;
 
 protected:
 	VkR3rSampler() {}
-
-private:
-	virtual VkSampler do_get_vk_sampler() const = 0;
 };
 
 // ======================================

@@ -24,10 +24,10 @@ public:
 	VkR3rShaderImpl(VkR3rContext& context, const R3rShaderInitParam& param);
 	~VkR3rShaderImpl() override {}
 
-private:
-	R3rShaderType do_get_type() const override;
-	VkShaderModule do_get_vk_shader_module() const override;
+	R3rShaderType get_type() const override;
+	VkShaderModule get_vk_shader_module() const override;
 
+private:
 	VkR3rContext& context_;
 	R3rShaderType type_{};
 	VkR3rShaderModuleResource shader_{};
@@ -55,24 +55,17 @@ VkR3rShaderImpl::VkR3rShaderImpl(VkR3rContext& context, const R3rShaderInitParam
 	shader_.reset(vk_shader_module, VkR3rShaderModuleDeleter{context_});
 }
 
-R3rShaderType VkR3rShaderImpl::do_get_type() const
+R3rShaderType VkR3rShaderImpl::get_type() const
 {
 	return type_;
 }
 
-VkShaderModule VkR3rShaderImpl::do_get_vk_shader_module() const
+VkShaderModule VkR3rShaderImpl::get_vk_shader_module() const
 {
 	return shader_.get();
 }
 
 } // namespace
-
-// ======================================
-
-VkShaderModule VkR3rShader::get_vk_shader_module() const
-{
-	return do_get_vk_shader_module();
-}
 
 // ======================================
 

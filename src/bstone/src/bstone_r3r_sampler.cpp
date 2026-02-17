@@ -6,19 +6,4 @@ SPDX-License-Identifier: MIT
 
 // 3D Renderer: Sampler
 
-#include "bstone_exception.h"
 #include "bstone_r3r_sampler.h"
-
-namespace bstone {
-
-void R3rSampler::update(const R3rSamplerUpdateParam& param)
-try {
-	do_update(param);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-const R3rSamplerState& R3rSampler::get_state() const
-try {
-	return do_get_state();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-} // namespace bstone

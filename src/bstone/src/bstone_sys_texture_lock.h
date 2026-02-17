@@ -19,19 +19,14 @@ public:
 	TextureLock() = default;
 	virtual ~TextureLock() = default;
 
-	void* get_pixels() const;
+	virtual void* get_pixels() const = 0;
+	virtual int get_pitch() const = 0;
 
 	template<typename T>
 	T get_pixels() const
 	{
 		return static_cast<T>(get_pixels());
 	}
-
-	int get_pitch() const;
-
-private:
-	virtual void* do_get_pixels() const = 0;
-	virtual int do_get_pitch() const = 0;
 };
 
 // ======================================

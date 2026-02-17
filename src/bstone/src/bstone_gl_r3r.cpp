@@ -47,39 +47,38 @@ public:
 	GlR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param);
 	~GlR3rImpl() override {}
 
-private:
-	R3rType do_get_type() const override;
-	std::string_view do_get_name() const override;
-	std::string_view do_get_description() const override;
+	R3rType get_type() const override;
+	std::string_view get_name() const override;
+	std::string_view get_description() const override;
 
-	const R3rDeviceFeatures& do_get_device_features() const override;
-	const R3rDeviceInfo& do_get_device_info() const override;
+	const R3rDeviceFeatures& get_device_features() const override;
+	const R3rDeviceInfo& get_device_info() const override;
 
-	void do_enable_checking_api_calls_for_errors(bool is_enable) override;
+	void enable_checking_api_calls_for_errors(bool is_enable) override;
 
-	sys::Window& do_get_window() const override;
-	void do_handle_resize(sys::WindowSize new_size) override;
+	sys::Window& get_window() const override;
+	void handle_resize(sys::WindowSize new_size) override;
 
-	bool do_get_vsync() const override;
-	void do_enable_vsync(bool is_enabled) override;
+	bool get_vsync() const override;
+	void enable_vsync(bool is_enabled) override;
 
-	void do_set_anti_aliasing(R3rAaType aa_type, int aa_value) override;
+	void set_anti_aliasing(R3rAaType aa_type, int aa_value) override;
 
-	void do_read_pixels(
+	void read_pixels(
 		sys::PixelFormat pixel_format,
 		void* buffer,
 		bool& is_flipped_vertically) override;
 
-	void do_present() override;
+	void present() override;
 
-	R3rBufferUPtr do_create_buffer(const R3rBufferInitParam& param) override;
-	R3rR2TextureUPtr do_create_r2_texture(const R3rR2TextureInitParam& param) override;
-	R3rSamplerUPtr do_create_sampler(const R3rSamplerInitParam& param) override;
-	R3rVertexInputUPtr do_create_vertex_input(const R3rCreateVertexInputParam& param) override;
-	R3rShaderUPtr do_create_shader(const R3rShaderInitParam& param) override;
-	R3rShaderStageUPtr do_create_shader_stage(const R3rShaderStageInitParam& param) override;
-	void do_submit_commands(std::span<R3rCmdBuffer*> command_buffers) override;
-	void do_wait_for_device() override;
+	R3rBufferUPtr create_buffer(const R3rBufferInitParam& param) override;
+	R3rR2TextureUPtr create_r2_texture(const R3rR2TextureInitParam& param) override;
+	R3rSamplerUPtr create_sampler(const R3rSamplerInitParam& param) override;
+	R3rVertexInputUPtr create_vertex_input(const R3rCreateVertexInputParam& param) override;
+	R3rShaderUPtr create_shader(const R3rShaderInitParam& param) override;
+	R3rShaderStageUPtr create_shader_stage(const R3rShaderStageInitParam& param) override;
+	void submit_commands(std::span<R3rCmdBuffer*> command_buffers) override;
+	void wait_for_device() override;
 
 private:
 	class FboDeleter
@@ -386,42 +385,42 @@ try
 	present();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rType GlR3rImpl::do_get_type() const
+R3rType GlR3rImpl::get_type() const
 {
 	return type_;
 }
 
-std::string_view GlR3rImpl::do_get_name() const
+std::string_view GlR3rImpl::get_name() const
 {
 	return name_;
 }
 
-std::string_view GlR3rImpl::do_get_description() const
+std::string_view GlR3rImpl::get_description() const
 {
 	return description_;
 }
 
-const R3rDeviceFeatures& GlR3rImpl::do_get_device_features() const
+const R3rDeviceFeatures& GlR3rImpl::get_device_features() const
 {
 	return device_features_;
 }
 
-const R3rDeviceInfo& GlR3rImpl::do_get_device_info() const
+const R3rDeviceInfo& GlR3rImpl::get_device_info() const
 {
 	return device_info_;
 }
 
-void GlR3rImpl::do_enable_checking_api_calls_for_errors(bool is_enable)
+void GlR3rImpl::enable_checking_api_calls_for_errors(bool is_enable)
 {
 	GlR3rError::enable_checking(is_enable);
 }
 
-sys::Window& GlR3rImpl::do_get_window() const
+sys::Window& GlR3rImpl::get_window() const
 {
 	return *window_;
 }
 
-void GlR3rImpl::do_handle_resize(sys::WindowSize new_size)
+void GlR3rImpl::handle_resize(sys::WindowSize new_size)
 try {
 	const auto size_changed = screen_width_ != new_size.width || screen_height_ != new_size.height;
 
@@ -435,7 +434,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-bool GlR3rImpl::do_get_vsync() const
+bool GlR3rImpl::get_vsync() const
 {
 	if (!device_features_.is_vsync_available)
 	{
@@ -445,7 +444,7 @@ bool GlR3rImpl::do_get_vsync() const
 	return gl_current_context_.get_swap_interval() == sys::SwapIntervalType::standard;
 }
 
-void GlR3rImpl::do_enable_vsync(bool is_enabled)
+void GlR3rImpl::enable_vsync(bool is_enabled)
 try {
 	if (!device_features_.is_vsync_available)
 	{
@@ -461,7 +460,7 @@ try {
 		is_enabled ? sys::SwapIntervalType::standard : sys::SwapIntervalType::none);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rImpl::do_set_anti_aliasing(R3rAaType aa_type, int aa_value)
+void GlR3rImpl::set_anti_aliasing(R3rAaType aa_type, int aa_value)
 try {
 	switch (aa_type)
 	{
@@ -500,7 +499,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rImpl::do_read_pixels(
+void GlR3rImpl::read_pixels(
 	sys::PixelFormat pixel_format,
 	void* buffer,
 	bool& is_flipped_vertically)
@@ -527,7 +526,7 @@ try {
 	bind_framebuffers();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rImpl::do_present()
+void GlR3rImpl::present()
 try {
 	blit_framebuffers();
 	GlR3rError::ensure_no_errors();
@@ -536,37 +535,37 @@ try {
 	bind_framebuffers();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rBufferUPtr GlR3rImpl::do_create_buffer(const R3rBufferInitParam& param)
+R3rBufferUPtr GlR3rImpl::create_buffer(const R3rBufferInitParam& param)
 try {
 	return context_->create_buffer(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rVertexInputUPtr GlR3rImpl::do_create_vertex_input(const R3rCreateVertexInputParam& param)
+R3rVertexInputUPtr GlR3rImpl::create_vertex_input(const R3rCreateVertexInputParam& param)
 try {
 	return context_->get_vertex_input_manager().create(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rShaderUPtr GlR3rImpl::do_create_shader(const R3rShaderInitParam& param)
+R3rShaderUPtr GlR3rImpl::create_shader(const R3rShaderInitParam& param)
 try {
 	return context_->create_shader(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rShaderStageUPtr GlR3rImpl::do_create_shader_stage(const R3rShaderStageInitParam& param)
+R3rShaderStageUPtr GlR3rImpl::create_shader_stage(const R3rShaderStageInitParam& param)
 try {
 	return context_->create_shader_stage(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rR2TextureUPtr GlR3rImpl::do_create_r2_texture(const R3rR2TextureInitParam& param)
+R3rR2TextureUPtr GlR3rImpl::create_r2_texture(const R3rR2TextureInitParam& param)
 try {
 	return context_->create_r2_texture(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rSamplerUPtr GlR3rImpl::do_create_sampler(const R3rSamplerInitParam& param)
+R3rSamplerUPtr GlR3rImpl::create_sampler(const R3rSamplerInitParam& param)
 try {
 	return context_->get_sampler_manager().create(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rImpl::do_submit_commands(std::span<R3rCmdBuffer*> command_buffers)
+void GlR3rImpl::submit_commands(std::span<R3rCmdBuffer*> command_buffers)
 try {
 	for (auto command_buffer : command_buffers)
 	{
@@ -671,7 +670,7 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rImpl::do_wait_for_device()
+void GlR3rImpl::wait_for_device()
 try {
 	glFinish();
 	GlR3rError::ensure_no_errors_assert();

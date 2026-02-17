@@ -33,9 +33,8 @@ public:
 	GlR3rR2TextureImpl(GlR3rContext& context, const R3rR2TextureInitParam& param);
 	~GlR3rR2TextureImpl() override {}
 
-private:
-	void do_update(const R3rR2TextureUpdateParam& param) override;
-	void do_generate_mipmap() override;
+	void update(const R3rR2TextureUpdateParam& param) override;
+	void generate_mipmap() override;
 
 public:
 	void set() override;
@@ -228,7 +227,7 @@ try
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rR2TextureImpl::do_update(const R3rR2TextureUpdateParam& param)
+void GlR3rR2TextureImpl::update(const R3rR2TextureUpdateParam& param)
 try {
 	validate(param);
 
@@ -261,7 +260,7 @@ try {
 	upload_mip(param.mip_level, mip_width, mip_height, param.image);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void GlR3rR2TextureImpl::do_generate_mipmap()
+void GlR3rR2TextureImpl::generate_mipmap()
 try {
 	if (mip_level_count_ <= 1)
 	{

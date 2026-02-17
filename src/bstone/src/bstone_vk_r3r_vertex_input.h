@@ -25,19 +25,13 @@ class VkR3rVertexInput : public R3rVertexInput
 public:
 	~VkR3rVertexInput() override {}
 
-	VkR3rBuffer* get_index_buffer() const;
-	VkR3rBuffer* get_vertex_buffer() const;
-	VkBuffer get_vk_generic_buffer() const;
-	const VkPipelineVertexInputStateCreateInfo& get_vk_create_info() const;
+	virtual VkR3rBuffer* get_index_buffer() const = 0;
+	virtual VkR3rBuffer* get_vertex_buffer() const = 0;
+	virtual VkBuffer get_vk_generic_buffer() const = 0;
+	virtual const VkPipelineVertexInputStateCreateInfo& get_vk_create_info() const = 0;
 
 protected:
 	VkR3rVertexInput() {}
-
-private:
-	virtual VkR3rBuffer* do_get_index_buffer() const = 0;
-	virtual VkR3rBuffer* do_get_vertex_buffer() const = 0;
-	virtual VkBuffer do_get_vk_generic_buffer() const = 0;
-	virtual const VkPipelineVertexInputStateCreateInfo& do_get_vk_create_info() const = 0;
 };
 
 // ======================================

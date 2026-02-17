@@ -7,17 +7,3 @@ SPDX-License-Identifier: MIT
 // Texture lock
 
 #include "bstone_sys_texture_lock.h"
-
-namespace bstone::sys {
-
-void* TextureLock::get_pixels() const
-{
-	return do_get_pixels();
-}
-
-int TextureLock::get_pitch() const
-{
-	return do_get_pitch();
-}
-
-} // namespace bstone::sys

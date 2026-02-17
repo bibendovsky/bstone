@@ -33,9 +33,7 @@ public:
 	VkR3rPipeline() = default;
 	virtual ~VkR3rPipeline() = default;
 
-	void draw_indexed(const VkR3rPipelineDrawIndexedParam& param);
-
-	virtual void do_draw_indexed(const VkR3rPipelineDrawIndexedParam& param) = 0;
+	virtual void draw_indexed(const VkR3rPipelineDrawIndexedParam& param) = 0;
 };
 
 // ======================================

@@ -52,17 +52,17 @@ void StaticMemoryStream::open(void* buffer, std::intptr_t buffer_size)
 	size_ = 0;
 }
 
-void StaticMemoryStream::do_close()
+void StaticMemoryStream::close()
 {
 	close_internal();
 }
 
-bool StaticMemoryStream::do_is_open() const
+bool StaticMemoryStream::is_open() const
 {
 	return is_open_;
 }
 
-std::intptr_t StaticMemoryStream::do_read(void* buffer, std::intptr_t count)
+std::intptr_t StaticMemoryStream::read(void* buffer, std::intptr_t count)
 {
 	BSTONE_ASSERT(is_open_);
 	BSTONE_ASSERT(buffer != nullptr);
@@ -81,7 +81,7 @@ std::intptr_t StaticMemoryStream::do_read(void* buffer, std::intptr_t count)
 	return copy_count;
 }
 
-std::intptr_t StaticMemoryStream::do_write(const void* buffer, std::intptr_t count)
+std::intptr_t StaticMemoryStream::write(const void* buffer, std::intptr_t count)
 {
 	BSTONE_ASSERT(is_open_);
 	BSTONE_ASSERT(buffer != nullptr);
@@ -101,7 +101,7 @@ std::intptr_t StaticMemoryStream::do_write(const void* buffer, std::intptr_t cou
 	return copy_count;
 }
 
-std::int64_t StaticMemoryStream::do_seek(std::int64_t offset, StreamOrigin origin)
+std::int64_t StaticMemoryStream::seek(std::int64_t offset, StreamOrigin origin)
 {
 	BSTONE_ASSERT(is_open_);
 	
@@ -144,14 +144,14 @@ std::int64_t StaticMemoryStream::do_seek(std::int64_t offset, StreamOrigin origi
 	return position_;
 }
 
-std::int64_t StaticMemoryStream::do_get_size()
+std::int64_t StaticMemoryStream::get_size()
 {
 	BSTONE_ASSERT(is_open_);
 
 	return size_;
 }
 
-void StaticMemoryStream::do_set_size(std::int64_t size)
+void StaticMemoryStream::set_size(std::int64_t size)
 {
 	BSTONE_ASSERT(is_open_);
 	BSTONE_ASSERT(size >= 0);
@@ -164,7 +164,7 @@ void StaticMemoryStream::do_set_size(std::int64_t size)
 	size_ = size;
 }
 
-void StaticMemoryStream::do_flush()
+void StaticMemoryStream::flush()
 {
 	BSTONE_ASSERT(is_open_);
 }

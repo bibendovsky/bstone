@@ -20,10 +20,7 @@ public:
 	WindowMgr() = default;
 	virtual ~WindowMgr() = default;
 
-	WindowUPtr make_window(const WindowInitParam& param);
-
-private:
-	virtual WindowUPtr do_make_window(const WindowInitParam& param) = 0;
+	virtual WindowUPtr make_window(const WindowInitParam& param) = 0;
 };
 
 // ======================================

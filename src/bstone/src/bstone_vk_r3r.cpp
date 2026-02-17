@@ -53,38 +53,38 @@ public:
 	VkR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param);
 	~VkR3rImpl() override;
 
-	R3rType do_get_type() const override;
-	std::string_view do_get_name() const override;
-	std::string_view do_get_description() const override;
+	R3rType get_type() const override;
+	std::string_view get_name() const override;
+	std::string_view get_description() const override;
 
-	const R3rDeviceFeatures& do_get_device_features() const override;
-	const R3rDeviceInfo& do_get_device_info() const override;
+	const R3rDeviceFeatures& get_device_features() const override;
+	const R3rDeviceInfo& get_device_info() const override;
 
-	void do_enable_checking_api_calls_for_errors(bool is_enable) override;
+	void enable_checking_api_calls_for_errors(bool is_enable) override;
 
-	sys::Window& do_get_window() const override;
-	void do_handle_resize(sys::WindowSize new_size) override;
+	sys::Window& get_window() const override;
+	void handle_resize(sys::WindowSize new_size) override;
 
-	bool do_get_vsync() const override;
-	void do_enable_vsync(bool is_enabled) override;
+	bool get_vsync() const override;
+	void enable_vsync(bool is_enabled) override;
 
-	void do_set_anti_aliasing(R3rAaType aa_type, int aa_value) override;
+	void set_anti_aliasing(R3rAaType aa_type, int aa_value) override;
 
-	void do_read_pixels(
+	void read_pixels(
 		sys::PixelFormat pixel_format,
 		void* buffer,
 		bool& is_flipped_vertically) override;
 
-	void do_present() override;
+	void present() override;
 
-	R3rBufferUPtr do_create_buffer(const R3rBufferInitParam& param) override;
-	R3rR2TextureUPtr do_create_r2_texture(const R3rR2TextureInitParam& param) override;
-	R3rSamplerUPtr do_create_sampler(const R3rSamplerInitParam& param) override;
-	R3rVertexInputUPtr do_create_vertex_input(const R3rCreateVertexInputParam& param) override;
-	R3rShaderUPtr do_create_shader(const R3rShaderInitParam& param) override;
-	R3rShaderStageUPtr do_create_shader_stage(const R3rShaderStageInitParam& param) override;
-	void do_submit_commands(std::span<R3rCmdBuffer*> command_buffers) override;
-	void do_wait_for_device() override;
+	R3rBufferUPtr create_buffer(const R3rBufferInitParam& param) override;
+	R3rR2TextureUPtr create_r2_texture(const R3rR2TextureInitParam& param) override;
+	R3rSamplerUPtr create_sampler(const R3rSamplerInitParam& param) override;
+	R3rVertexInputUPtr create_vertex_input(const R3rCreateVertexInputParam& param) override;
+	R3rShaderUPtr create_shader(const R3rShaderInitParam& param) override;
+	R3rShaderStageUPtr create_shader_stage(const R3rShaderStageInitParam& param) override;
+	void submit_commands(std::span<R3rCmdBuffer*> command_buffers) override;
+	void wait_for_device() override;
 
 	using StringPointers = std::vector<const char*>;
 	using QueueFamilies = std::vector<VkQueueFamilyProperties>;
@@ -155,7 +155,7 @@ public:
 	int get_max_sample_count() const;
 	int choose_sample_count(R3rAaType aa_type, int aa_degree) const;
 	VkPresentModeKHR choose_present_mode(bool enable_vsync) const;
-	void wait_for_device() const;
+	void impl_wait_for_device() const;
 
 	VkR3rSemaphoreResource make_semaphore() const;
 
@@ -252,7 +252,7 @@ public:
 
 VkR3rImpl::~VkR3rImpl()
 {
-	wait_for_device();
+	impl_wait_for_device();
 }
 
 VkR3rImpl::VkR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param)
@@ -299,40 +299,40 @@ try
 	initialize_r3r_device_features();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rType VkR3rImpl::do_get_type() const
+R3rType VkR3rImpl::get_type() const
 {
 	return type_;
 }
 
-std::string_view VkR3rImpl::do_get_name() const
+std::string_view VkR3rImpl::get_name() const
 {
 	return name_;
 }
 
-std::string_view VkR3rImpl::do_get_description() const
+std::string_view VkR3rImpl::get_description() const
 {
 	return description_;
 }
 
-const R3rDeviceFeatures& VkR3rImpl::do_get_device_features() const
+const R3rDeviceFeatures& VkR3rImpl::get_device_features() const
 {
 	return context_.r3r_device_features;
 }
 
-const R3rDeviceInfo& VkR3rImpl::do_get_device_info() const
+const R3rDeviceInfo& VkR3rImpl::get_device_info() const
 {
 	return device_info_;
 }
 
-void VkR3rImpl::do_enable_checking_api_calls_for_errors([[maybe_unused]] bool is_enable)
+void VkR3rImpl::enable_checking_api_calls_for_errors([[maybe_unused]] bool is_enable)
 {}
 
-sys::Window& VkR3rImpl::do_get_window() const
+sys::Window& VkR3rImpl::get_window() const
 {
 	return *window_;
 }
 
-void VkR3rImpl::do_handle_resize(sys::WindowSize new_size)
+void VkR3rImpl::handle_resize(sys::WindowSize new_size)
 try
 {
 	if (new_size.width < R3rLimits::min_viewport_width ||
@@ -356,12 +356,12 @@ try
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-bool VkR3rImpl::do_get_vsync() const
+bool VkR3rImpl::get_vsync() const
 {
 	return context_.vk_present_mode_khr == VK_PRESENT_MODE_FIFO_KHR;
 }
 
-void VkR3rImpl::do_enable_vsync(bool is_enabled)
+void VkR3rImpl::enable_vsync(bool is_enabled)
 {
 	const VkPresentModeKHR old_vk_present_mode_khr = context_.vk_present_mode_khr;
 	context_.vk_present_mode_khr = choose_present_mode(is_enabled);
@@ -371,7 +371,7 @@ void VkR3rImpl::do_enable_vsync(bool is_enabled)
 	}
 }
 
-void VkR3rImpl::do_set_anti_aliasing(R3rAaType aa_type, int aa_value)
+void VkR3rImpl::set_anti_aliasing(R3rAaType aa_type, int aa_value)
 {
 	const int old_sample_count = context_.sample_count;
 	context_.sample_count = choose_sample_count(aa_type, aa_value);
@@ -379,7 +379,7 @@ void VkR3rImpl::do_set_anti_aliasing(R3rAaType aa_type, int aa_value)
 	{
 		return;
 	}
-	wait_for_device();
+	impl_wait_for_device();
 	terminate_offscreen_framebuffer();
 	terminate_render_pass();
 	pipeline_mgr_->clear();
@@ -387,7 +387,7 @@ void VkR3rImpl::do_set_anti_aliasing(R3rAaType aa_type, int aa_value)
 	initialize_offscreen_framebuffer();
 }
 
-void VkR3rImpl::do_read_pixels(
+void VkR3rImpl::read_pixels(
 	sys::PixelFormat pixel_format,
 	void* buffer,
 	bool& is_flipped_vertically)
@@ -555,7 +555,7 @@ void VkR3rImpl::do_read_pixels(
 	}
 }
 
-void VkR3rImpl::do_present()
+void VkR3rImpl::present()
 {
 	frame_state_pre_present();
 	if (context_.has_swapchain())
@@ -596,37 +596,37 @@ void VkR3rImpl::do_present()
 	context_.post_present_subject.notify();
 }
 
-R3rBufferUPtr VkR3rImpl::do_create_buffer(const R3rBufferInitParam& param)
+R3rBufferUPtr VkR3rImpl::create_buffer(const R3rBufferInitParam& param)
 try {
 	return make_vk_r3r_buffer(context_, param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rVertexInputUPtr VkR3rImpl::do_create_vertex_input(const R3rCreateVertexInputParam& param)
+R3rVertexInputUPtr VkR3rImpl::create_vertex_input(const R3rCreateVertexInputParam& param)
 try {
 	return make_vk_r3r_vertex_input(context_, param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rShaderUPtr VkR3rImpl::do_create_shader(const R3rShaderInitParam& param)
+R3rShaderUPtr VkR3rImpl::create_shader(const R3rShaderInitParam& param)
 try {
 	return make_vk_r3r_shader(context_, param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rShaderStageUPtr VkR3rImpl::do_create_shader_stage(const R3rShaderStageInitParam& param)
+R3rShaderStageUPtr VkR3rImpl::create_shader_stage(const R3rShaderStageInitParam& param)
 try {
 	return make_vk_r3r_shader_stage(context_, param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rR2TextureUPtr VkR3rImpl::do_create_r2_texture(const R3rR2TextureInitParam& param)
+R3rR2TextureUPtr VkR3rImpl::create_r2_texture(const R3rR2TextureInitParam& param)
 try {
 	return make_vk_r3r_r2_texture(context_, param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-R3rSamplerUPtr VkR3rImpl::do_create_sampler(const R3rSamplerInitParam& param)
+R3rSamplerUPtr VkR3rImpl::create_sampler(const R3rSamplerInitParam& param)
 try {
 	return make_vk_r3r_sampler(context_, param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void VkR3rImpl::do_submit_commands(std::span<R3rCmdBuffer*> command_buffers)
+void VkR3rImpl::submit_commands(std::span<R3rCmdBuffer*> command_buffers)
 {
 	for (R3rCmdBuffer* r3r_command_buffer : command_buffers)
 	{
@@ -705,9 +705,9 @@ void VkR3rImpl::do_submit_commands(std::span<R3rCmdBuffer*> command_buffers)
 	}
 }
 
-void VkR3rImpl::do_wait_for_device()
+void VkR3rImpl::wait_for_device()
 {
-	wait_for_device();
+	impl_wait_for_device();
 }
 
 VkBool32 VKAPI_PTR VkR3rImpl::vk_debug_utils_messenger_callback(
@@ -871,7 +871,7 @@ VkPresentModeKHR VkR3rImpl::choose_present_mode(bool enable_vsync) const
 	}
 }
 
-void VkR3rImpl::wait_for_device() const
+void VkR3rImpl::impl_wait_for_device() const
 {
 	const VkResult vk_result = context_.vkDeviceWaitIdle(
 		/* device */ context_.device.get()
@@ -2073,7 +2073,7 @@ void VkR3rImpl::swapchain_acquire_next_image()
 
 void VkR3rImpl::recreate_swapchain()
 {
-	wait_for_device();
+	impl_wait_for_device();
 	terminate_swapchain_image_views();
 	terminate_swapchain_images();
 	terminate_swapchain();

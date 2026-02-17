@@ -24,14 +24,14 @@ public:
 	explicit VulkanMgrSdl(Logger& logger);
 	~VulkanMgrSdl() override;
 
+	bool is_vulkan_available() const override;
+	VulkanMgrSymbolFunc get_instance_proc_addr() const override;
+	std::span<const char* const> get_required_extensions(Window& window) override;
+	VkSurfaceKHR create_surface(Window& window, VkInstance vk_instance) override;
+
 private:
 	Logger& logger_;
 	bool is_vulkan_available_{};
-
-	bool do_is_vulkan_available() const override;
-	VulkanMgrSymbolFunc do_get_instance_proc_addr() const override;
-	std::span<const char* const> do_get_required_extensions(Window& window) override;
-	VkSurfaceKHR do_create_surface(Window& window, VkInstance vk_instance) override;
 
 	static SDL_Window* get_sdl_window(Window& window);
 	[[noreturn]] static void vulkan_not_available();
@@ -70,18 +70,18 @@ VulkanMgrSdl::~VulkanMgrSdl()
 	}
 }
 
-bool VulkanMgrSdl::do_is_vulkan_available() const
+bool VulkanMgrSdl::is_vulkan_available() const
 {
 	return impl_is_vulkan_available();
 }
 
-VulkanMgrSymbolFunc VulkanMgrSdl::do_get_instance_proc_addr() const
+VulkanMgrSymbolFunc VulkanMgrSdl::get_instance_proc_addr() const
 {
 	ensure_is_vulkan_available();
 	return reinterpret_cast<VulkanMgrSymbolFunc>(SDL_Vulkan_GetVkGetInstanceProcAddr());
 }
 
-std::span<const char* const> VulkanMgrSdl::do_get_required_extensions(Window& window)
+std::span<const char* const> VulkanMgrSdl::get_required_extensions(Window& window)
 {
 	ensure_is_vulkan_available();
 	Uint32 sdl_count;
@@ -93,7 +93,7 @@ std::span<const char* const> VulkanMgrSdl::do_get_required_extensions(Window& wi
 	return std::span<const char* const>{};
 }
 
-VkSurfaceKHR VulkanMgrSdl::do_create_surface(Window& window, VkInstance vk_instance)
+VkSurfaceKHR VulkanMgrSdl::create_surface(Window& window, VkInstance vk_instance)
 {
 	ensure_is_vulkan_available();
 	SDL_Window* const sdl_window = get_sdl_window(window);

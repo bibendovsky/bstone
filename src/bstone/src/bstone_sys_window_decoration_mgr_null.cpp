@@ -20,13 +20,12 @@ public:
 	NullWindowDecorationMgr() = default;
 	~NullWindowDecorationMgr() override = default;
 
-private:
-	void do_set_round_corner_type(Window& window, WindowRoundedCornerType round_corner_type) override;
+	void set_round_corner_type(Window& window, WindowRoundedCornerType round_corner_type) override;
 };
 
 // --------------------------------------
 
-void NullWindowDecorationMgr::do_set_round_corner_type(
+void NullWindowDecorationMgr::set_round_corner_type(
 	[[maybe_unused]] Window& window,
 	[[maybe_unused]] WindowRoundedCornerType round_corner_type)
 {}

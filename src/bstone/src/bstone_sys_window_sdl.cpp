@@ -18,18 +18,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone::sys {
 
-void* WindowSdlInternal::get_native_handle() const
-{
-	return do_get_native_handle();
-}
-
-void* WindowSdlInternal::get_sdl_window() const
-{
-	return do_get_sdl_window();
-}
-
-// ======================================
-
 namespace {
 
 class WindowSdl final : public WindowSdlInternal
@@ -42,32 +30,32 @@ public:
 
 	~WindowSdl() override;
 
+	void* get_native_handle() const override;
+	void* get_sdl_window() const override;
+
+	const char* get_title() override;
+	void set_title(const char* title) override;
+	WindowPosition get_position() override;
+	void set_position(WindowPosition position) override;
+	WindowSize get_size() override;
+	void set_size(WindowSize size) override;
+	DisplayMode get_display_mode() override;
+	void set_display_mode(const DisplayMode& display_mode) override;
+	void show(bool is_visible) override;
+	void set_rounded_corner_type(WindowRoundedCornerType value) override;
+	WindowFullscreenType get_fullscreen_mode() override;
+	void set_fullscreen_mode(WindowFullscreenType fullscreen_mode) override;
+	GlContextUPtr gl_make_context() override;
+	WindowSize gl_get_drawable_size() override;
+	void gl_swap_buffers() override;
+	RendererUPtr make_renderer(const RendererInitParam& param) override;
+
 private:
 	Logger& logger_;
 	WindowDecorationMgr& decoration_mgr_;
 	SDL_Window* sdl_window_{};
 	Uint32 sdl_window_id_{};
 	void* native_window_handle_{};
-
-	void* do_get_native_handle() const override;
-	void* do_get_sdl_window() const override;
-
-	const char* do_get_title() override;
-	void do_set_title(const char* title) override;
-	WindowPosition do_get_position() override;
-	void do_set_position(WindowPosition position) override;
-	WindowSize do_get_size() override;
-	void do_set_size(WindowSize size) override;
-	DisplayMode do_get_display_mode() override;
-	void do_set_display_mode(const DisplayMode& display_mode) override;
-	void do_show(bool is_visible) override;
-	void do_set_rounded_corner_type(WindowRoundedCornerType value) override;
-	WindowFullscreenType do_get_fullscreen_mode() override;
-	void do_set_fullscreen_mode(WindowFullscreenType fullscreen_mode) override;
-	GlContextUPtr do_gl_make_context() override;
-	WindowSize do_gl_get_drawable_size() override;
-	void do_gl_swap_buffers() override;
-	RendererUPtr do_make_renderer(const RendererInitParam& param) override;
 
 	static int map_offset(WindowOffset offset);
 	static Uint32 map_flags(const WindowInitParam& param);
@@ -147,7 +135,7 @@ WindowSdl::~WindowSdl()
 	SDL_DestroyWindow(sdl_window_);
 }
 
-void* WindowSdl::do_get_native_handle() const
+void* WindowSdl::get_native_handle() const
 {
 #ifdef _WIN32
 	return native_window_handle_;
@@ -156,17 +144,17 @@ void* WindowSdl::do_get_native_handle() const
 #endif
 }
 
-void* WindowSdl::do_get_sdl_window() const
+void* WindowSdl::get_sdl_window() const
 {
 	return sdl_window_;
 }
 
-const char* WindowSdl::do_get_title()
+const char* WindowSdl::get_title()
 {
 	return SDL_GetWindowTitle(sdl_window_);
 }
 
-void WindowSdl::do_set_title(const char* title)
+void WindowSdl::set_title(const char* title)
 {
 	if (!SDL_SetWindowTitle(sdl_window_, title))
 	{
@@ -174,7 +162,7 @@ void WindowSdl::do_set_title(const char* title)
 	}
 }
 
-WindowPosition WindowSdl::do_get_position()
+WindowPosition WindowSdl::get_position()
 {
 	int x;
 	int y;
@@ -188,7 +176,7 @@ WindowPosition WindowSdl::do_get_position()
 	};
 }
 
-void WindowSdl::do_set_position(WindowPosition position)
+void WindowSdl::set_position(WindowPosition position)
 {
 	const int sdl_x = map_offset(position.x);
 	const int sdl_y = map_offset(position.y);
@@ -198,7 +186,7 @@ void WindowSdl::do_set_position(WindowPosition position)
 	}
 }
 
-WindowSize WindowSdl::do_get_size()
+WindowSize WindowSdl::get_size()
 {
 	int width;
 	int height;
@@ -212,7 +200,7 @@ WindowSize WindowSdl::do_get_size()
 	};
 }
 
-void WindowSdl::do_set_size(WindowSize size)
+void WindowSdl::set_size(WindowSize size)
 {
 	if (!SDL_SetWindowSize(sdl_window_, size.width, size.height))
 	{
@@ -220,7 +208,7 @@ void WindowSdl::do_set_size(WindowSize size)
 	}
 }
 
-DisplayMode WindowSdl::do_get_display_mode()
+DisplayMode WindowSdl::get_display_mode()
 {
 	SDL_Window* const sdl_window = sdl_window_;
 	if (const Uint32 sdl_flags = SDL_GetWindowFlags(sdl_window);
@@ -259,7 +247,7 @@ DisplayMode WindowSdl::do_get_display_mode()
 	};
 }
 
-void WindowSdl::do_set_display_mode(const DisplayMode& display_mode)
+void WindowSdl::set_display_mode(const DisplayMode& display_mode)
 {
 	const SDL_DisplayID sdl_display_id = SDL_GetDisplayForWindow(sdl_window_);
 	if (sdl_display_id == 0)
@@ -283,7 +271,7 @@ void WindowSdl::do_set_display_mode(const DisplayMode& display_mode)
 	}
 }
 
-void WindowSdl::do_show(bool is_visible)
+void WindowSdl::show(bool is_visible)
 {
 	if (is_visible)
 	{
@@ -301,12 +289,12 @@ void WindowSdl::do_show(bool is_visible)
 	}
 }
 
-void WindowSdl::do_set_rounded_corner_type(WindowRoundedCornerType value)
+void WindowSdl::set_rounded_corner_type(WindowRoundedCornerType value)
 {
 	decoration_mgr_.set_round_corner_type(*this, value);
 }
 
-WindowFullscreenType WindowSdl::do_get_fullscreen_mode()
+WindowFullscreenType WindowSdl::get_fullscreen_mode()
 {
 	const Uint32 sdl_flags = SDL_GetWindowFlags(sdl_window_);
 	if ((sdl_flags & SDL_WINDOW_FULLSCREEN) != 0)
@@ -320,7 +308,7 @@ WindowFullscreenType WindowSdl::do_get_fullscreen_mode()
 	return WindowFullscreenType::none;
 }
 
-void WindowSdl::do_set_fullscreen_mode(WindowFullscreenType fullscreen_mode)
+void WindowSdl::set_fullscreen_mode(WindowFullscreenType fullscreen_mode)
 {
 	bool is_fullscreen = false;
 	bool is_exclusive_fullscreen = false;
@@ -350,12 +338,12 @@ void WindowSdl::do_set_fullscreen_mode(WindowFullscreenType fullscreen_mode)
 	}
 }
 
-GlContextUPtr WindowSdl::do_gl_make_context()
+GlContextUPtr WindowSdl::gl_make_context()
 {
 	return make_gl_context_sdl(logger_, *sdl_window_);
 }
 
-WindowSize WindowSdl::do_gl_get_drawable_size()
+WindowSize WindowSdl::gl_get_drawable_size()
 {
 	int sdl_width;
 	int sdl_height;
@@ -369,7 +357,7 @@ WindowSize WindowSdl::do_gl_get_drawable_size()
 	};
 }
 
-void WindowSdl::do_gl_swap_buffers()
+void WindowSdl::gl_swap_buffers()
 {
 	if (!SDL_GL_SwapWindow(sdl_window_))
 	{
@@ -377,7 +365,7 @@ void WindowSdl::do_gl_swap_buffers()
 	}
 }
 
-RendererUPtr WindowSdl::do_make_renderer(const RendererInitParam& param)
+RendererUPtr WindowSdl::make_renderer(const RendererInitParam& param)
 {
 	return make_renderer_sdl(logger_, *sdl_window_, param);
 }

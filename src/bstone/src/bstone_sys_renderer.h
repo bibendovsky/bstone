@@ -38,28 +38,14 @@ public:
 	Renderer() = default;
 	virtual ~Renderer() = default;
 
-	const char* get_name() const;
-	void set_viewport();
-	void clear();
-	void set_draw_color(Color color);
-	void fill(std::span<const FRect> rectangles);
-	void present();
-	void read_pixels(PixelFormat pixel_format, void* pixels, int pitch);
-	TextureUPtr make_texture(const TextureInitParam& param);
-
-private:
-	virtual const char* do_get_name() const = 0;
-	virtual void do_set_viewport(const RendererViewport* viewport) = 0;
-	virtual void do_clear() = 0;
-	virtual void do_set_draw_color(Color color) = 0;
-	virtual void do_fill(std::span<const FRect> rects) = 0;
-	virtual void do_present() = 0;
-	virtual void do_read_pixels(
-		const Rect* rectangle,
-		PixelFormat pixel_format,
-		void* pixels,
-		int pitch) = 0;
-	virtual TextureUPtr do_make_texture(const TextureInitParam& param) = 0;
+	virtual const char* get_name() const = 0;
+	virtual void set_viewport() = 0;
+	virtual void clear() = 0;
+	virtual void set_draw_color(Color color) = 0;
+	virtual void fill(std::span<const FRect> rects) = 0;
+	virtual void present() = 0;
+	virtual void read_pixels(PixelFormat pixel_format, void* pixels, int pitch) = 0;
+	virtual TextureUPtr make_texture(const TextureInitParam& param) = 0;
 };
 
 // ======================================

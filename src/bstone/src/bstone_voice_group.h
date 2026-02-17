@@ -20,30 +20,17 @@ public:
 	VoiceGroup() = default;
 	virtual ~VoiceGroup() = default;
 
-	bool is_any_playing();
-	void set_gain(double gain);
-	void pause();
-	void resume();
-	void stop();
+	virtual bool is_any_playing() = 0;
+	virtual void set_gain(double gain) = 0;
+	virtual void pause() = 0;
+	virtual void resume() = 0;
+	virtual void stop() = 0;
 
-	void add_voice(Voice& voice);
-	void stop_and_remove_voice(Voice& voice);
-	void stop_voice(Voice& voice);
-	void set_voice_gain(const Voice& voice);
-	void set_voice_output_gains(const Voice& voice);
-
-private:
-	virtual bool do_is_any_playing() = 0;
-	virtual void do_set_gain(double gain) = 0;
-	virtual void do_pause() = 0;
-	virtual void do_resume() = 0;
-	virtual void do_stop() = 0;
-
-	virtual void do_add_voice(Voice& voice) = 0;
-	virtual void do_stop_and_remove_voice(Voice& voice) = 0;
-	virtual void do_stop_voice(Voice& voice) = 0;
-	virtual void do_set_voice_gain(const Voice& voice) = 0;
-	virtual void do_set_voice_output_gains(const Voice& voice) = 0;
+	virtual void add_voice(Voice& voice) = 0;
+	virtual void stop_and_remove_voice(Voice& voice) = 0;
+	virtual void stop_voice(Voice& voice) = 0;
+	virtual void set_voice_gain(const Voice& voice) = 0;
+	virtual void set_voice_output_gains(const Voice& voice) = 0;
 };
 
 // ==========================================================================

@@ -24,12 +24,8 @@ public:
 	VkR3rPipelineMgr() = default;
 	virtual ~VkR3rPipelineMgr() = default;
 
-	void clear();
-	VkR3rPipeline* acquire_pipeline();
-
-private:
-	virtual void do_clear() = 0;
-	virtual VkR3rPipeline* do_acquire_pipeline() = 0;
+	virtual void clear() = 0;
+	virtual VkR3rPipeline* acquire_pipeline() = 0;
 };
 
 // ======================================

@@ -24,16 +24,10 @@ public:
 	VulkanMgr() = default;
 	virtual ~VulkanMgr() = default;
 
-	bool is_vulkan_available() const;
-	VulkanMgrSymbolFunc get_instance_proc_addr();
-	std::span<const char* const> get_required_extensions(Window& window);
-	VkSurfaceKHR create_surface(Window& window, VkInstance vk_instance);
-
-private:
-	virtual bool do_is_vulkan_available() const = 0;
-	virtual VulkanMgrSymbolFunc do_get_instance_proc_addr() const = 0;
-	virtual std::span<const char* const> do_get_required_extensions(Window& window) = 0;
-	virtual VkSurfaceKHR do_create_surface(Window& window, VkInstance vk_instance) = 0;
+	virtual bool is_vulkan_available() const = 0;
+	virtual VulkanMgrSymbolFunc get_instance_proc_addr() const = 0;
+	virtual std::span<const char* const> get_required_extensions(Window& window) = 0;
+	virtual VkSurfaceKHR create_surface(Window& window, VkInstance vk_instance) = 0;
 };
 
 // ======================================

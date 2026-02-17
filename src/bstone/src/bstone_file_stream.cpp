@@ -30,17 +30,17 @@ bool FileStream::open(const char* path, sys::FileMode mode)
 	return file_.open(path, mode);
 }
 
-void FileStream::do_close()
+void FileStream::close()
 {
 	file_.close();
 }
 
-bool FileStream::do_is_open() const
+bool FileStream::is_open() const
 {
 	return file_.is_open();
 }
 
-std::intptr_t FileStream::do_read(void* buffer, std::intptr_t count)
+std::intptr_t FileStream::read(void* buffer, std::intptr_t count)
 try {
 	const std::intptr_t result = file_.read(buffer, static_cast<int>(count));
 
@@ -52,7 +52,7 @@ try {
 	return result;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-std::intptr_t FileStream::do_write(const void* buffer, std::intptr_t count)
+std::intptr_t FileStream::write(const void* buffer, std::intptr_t count)
 try {
 	const std::intptr_t result = file_.write(buffer, static_cast<int>(count));
 
@@ -64,7 +64,7 @@ try {
 	return result;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-std::int64_t FileStream::do_seek(std::int64_t offset, StreamOrigin origin)
+std::int64_t FileStream::seek(std::int64_t offset, StreamOrigin origin)
 try {
 	sys::FileOrigin file_origin;
 
@@ -86,7 +86,7 @@ try {
 	return result;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-std::int64_t FileStream::do_get_size()
+std::int64_t FileStream::get_size()
 try {
 	const std::int64_t result = file_.get_size();
 
@@ -98,12 +98,12 @@ try {
 	return result;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void FileStream::do_set_size([[maybe_unused]] std::int64_t size)
+void FileStream::set_size([[maybe_unused]] std::int64_t size)
 try {
 	BSTONE_THROW_STATIC_SOURCE("Resize not supported.");
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void FileStream::do_flush()
+void FileStream::flush()
 try {
 	if (!file_.flush())
 	{

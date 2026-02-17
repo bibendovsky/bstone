@@ -66,71 +66,39 @@ public:
 	R3r() = default;
 	virtual ~R3r() = default;
 
-	R3rType get_type() const;
-	std::string_view get_name() const;
-	std::string_view get_description() const;
+	virtual R3rType get_type() const = 0;
+	virtual std::string_view get_name() const = 0;
+	virtual std::string_view get_description() const = 0;
 
-	const R3rDeviceFeatures& get_device_features() const;
-	const R3rDeviceInfo& get_device_info() const;
+	virtual const R3rDeviceFeatures& get_device_features() const = 0;
+	virtual const R3rDeviceInfo& get_device_info() const = 0;
 
-	void enable_checking_api_calls_for_errors(bool is_enable);
+	virtual void enable_checking_api_calls_for_errors(bool is_enable) = 0;
 
-	sys::Window& get_window() const;
-	void handle_resize(sys::WindowSize new_size);
+	virtual sys::Window& get_window() const = 0;
+	virtual void handle_resize(sys::WindowSize new_size) = 0;
 
-	bool get_vsync() const;
-	void enable_vsync(bool is_enabled);
+	virtual bool get_vsync() const = 0;
+	virtual void enable_vsync(bool is_enabled) = 0;
 
-	void set_anti_aliasing(R3rAaType aa_type, int aa_value);
+	virtual void set_anti_aliasing(R3rAaType aa_type, int aa_value) = 0;
 
-	void read_pixels(sys::PixelFormat pixel_format, void* buffer, bool& is_flipped_vertically);
-
-	void present();
-
-	R3rBufferUPtr create_buffer(const R3rBufferInitParam& param);
-	R3rR2TextureUPtr create_r2_texture(const R3rR2TextureInitParam& param);
-	R3rSamplerUPtr create_sampler(const R3rSamplerInitParam& param);
-	R3rVertexInputUPtr create_vertex_input(const R3rCreateVertexInputParam& param);
-	R3rShaderUPtr create_shader(const R3rShaderInitParam& param);
-	R3rShaderStageUPtr create_shader_stage(const R3rShaderStageInitParam& param);
-
-	void submit_commands(std::span<R3rCmdBuffer*> command_buffers);
-	void wait_for_device();
-
-private:
-	virtual R3rType do_get_type() const = 0;
-	virtual std::string_view do_get_name() const = 0;
-	virtual std::string_view do_get_description() const = 0;
-
-	virtual const R3rDeviceFeatures& do_get_device_features() const = 0;
-	virtual const R3rDeviceInfo& do_get_device_info() const = 0;
-
-	virtual void do_enable_checking_api_calls_for_errors(bool is_enable) = 0;
-
-	virtual sys::Window& do_get_window() const = 0;
-	virtual void do_handle_resize(sys::WindowSize new_size) = 0;
-
-	virtual bool do_get_vsync() const = 0;
-	virtual void do_enable_vsync(bool is_enabled) = 0;
-
-	virtual void do_set_anti_aliasing(R3rAaType aa_type, int aa_value) = 0;
-
-	virtual void do_read_pixels(
+	virtual void read_pixels(
 		sys::PixelFormat pixel_format,
 		void* buffer,
 		bool& is_flipped_vertically) = 0;
 
-	virtual void do_present() = 0;
+	virtual void present() = 0;
 
-	virtual R3rBufferUPtr do_create_buffer(const R3rBufferInitParam& param) = 0;
-	virtual R3rR2TextureUPtr do_create_r2_texture(const R3rR2TextureInitParam& param) = 0;
-	virtual R3rSamplerUPtr do_create_sampler(const R3rSamplerInitParam& param) = 0;
-	virtual R3rVertexInputUPtr do_create_vertex_input(const R3rCreateVertexInputParam& param) = 0;
-	virtual R3rShaderUPtr do_create_shader(const R3rShaderInitParam& param) = 0;
-	virtual R3rShaderStageUPtr do_create_shader_stage(const R3rShaderStageInitParam& param) = 0;
+	virtual R3rBufferUPtr create_buffer(const R3rBufferInitParam& param) = 0;
+	virtual R3rR2TextureUPtr create_r2_texture(const R3rR2TextureInitParam& param) = 0;
+	virtual R3rSamplerUPtr create_sampler(const R3rSamplerInitParam& param) = 0;
+	virtual R3rVertexInputUPtr create_vertex_input(const R3rCreateVertexInputParam& param) = 0;
+	virtual R3rShaderUPtr create_shader(const R3rShaderInitParam& param) = 0;
+	virtual R3rShaderStageUPtr create_shader_stage(const R3rShaderStageInitParam& param) = 0;
 
-	virtual void do_submit_commands(std::span<R3rCmdBuffer*> command_buffers) = 0;
-	virtual void do_wait_for_device() = 0;
+	virtual void submit_commands(std::span<R3rCmdBuffer*> command_buffers) = 0;
+	virtual void wait_for_device() = 0;
 };
 
 // ==========================================================================

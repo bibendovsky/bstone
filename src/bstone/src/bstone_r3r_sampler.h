@@ -47,12 +47,8 @@ public:
 	R3rSampler() = default;
 	virtual ~R3rSampler() = default;
 
-	void update(const R3rSamplerUpdateParam& param);
-	const R3rSamplerState& get_state() const;
-
-private:
-	virtual void do_update(const R3rSamplerUpdateParam& param) = 0;
-	virtual const R3rSamplerState& do_get_state() const = 0;
+	virtual void update(const R3rSamplerUpdateParam& param) = 0;
+	virtual const R3rSamplerState& get_state() const = 0;
 };
 
 // ==========================================================================

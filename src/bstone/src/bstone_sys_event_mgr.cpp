@@ -7,17 +7,3 @@ SPDX-License-Identifier: MIT
 // Event manager
 
 #include "bstone_sys_event_mgr.h"
-
-namespace bstone::sys {
-
-bool EventMgr::is_initialized() const
-{
-	return do_is_initialized();
-}
-
-bool EventMgr::poll_event(Event& e)
-{
-	return do_poll_event(e);
-}
-
-} // namespace bstone::sys
