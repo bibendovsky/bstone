@@ -4,62 +4,31 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-
-//
-// A text writer for a stream.
-//
-
+// A text writer for a stream
 
 #ifndef BSTONE_TEXT_WRITER_INCLUDED
 #define BSTONE_TEXT_WRITER_INCLUDED
 
-
+#include "bstone_stream.h"
 #include <string>
 
-#include "bstone_stream.h"
+namespace bstone {
 
-
-namespace bstone
-{
-
-
-// A binary reader for a block of memory.
-class TextWriter final
+class TextWriter
 {
 public:
-	TextWriter();
+	TextWriter() = default;
+	explicit TextWriter(Stream* stream);
 
-	TextWriter(
-		Stream* stream);
-
-	TextWriter(
-		TextWriter&& rhs) noexcept;
-
-
-	// Opens the writer.
-	bool open(
-		Stream* stream);
-
-	// Closes the writer.
+	bool open(Stream* stream);
 	void close();
-
-	// Returns true if the writer is initialized or
-	// false otherwise.
-	bool is_initialized() const;
-
-	// Writes a string.
-	//
-	// Returns true on success or false otherwise.
-	bool write(
-		const std::string& string);
-
+	bool is_open() const;
+	bool write(const std::string& string);
 
 private:
-	Stream* stream_;
-}; // TextWriter
+	Stream* stream_{};
+};
 
+} // namespace bstone
 
-} // bstone
-
-
-#endif // !BSTONE_TEXT_WRITER_INCLUDED
+#endif // BSTONE_TEXT_WRITER_INCLUDED
