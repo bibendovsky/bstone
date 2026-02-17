@@ -4,80 +4,44 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-
-//
-// A text reader for a stream.
-//
-
+// A text reader for a stream
 
 #ifndef BSTONE_TEXT_READER_INCLUDED
 #define BSTONE_TEXT_READER_INCLUDED
 
-
+#include "bstone_stream.h"
 #include <array>
 #include <string>
 
-#include "bstone_stream.h"
+namespace bstone {
 
-
-namespace bstone
-{
-
-
-class TextReader final
+class TextReader
 {
 public:
-	TextReader();
+	TextReader() = default;
+	explicit TextReader(Stream* stream);
 
-	TextReader(
-		Stream* stream);
-
-	TextReader(
-		const TextReader& rhs) = delete;
-
-	TextReader(
-		TextReader&& rhs) noexcept;
-
-	TextReader& operator=(
-		const TextReader& rhs) = delete;
-
-	~TextReader();
-
-
-	bool open(
-		Stream* stream);
-
+	bool open(Stream* stream);
 	void close();
-
 	bool is_open() const;
-
-
 	bool is_eos() const;
-
-
 	std::string read_line();
 
-
 private:
-	static constexpr auto max_buffer_size = 4096;
-
+	static constexpr int max_buffer_size = 1024;
 
 	using Buffer = std::array<char, max_buffer_size>;
 
+	Buffer buffer_{};
+	Stream* stream_{};
+	int buffer_offset_{};
+	int buffer_size_{};
+	int char_buffer_{};
+	bool is_eos_{};
 
-	Stream* stream_;
-	bool is_eos_;
-	int buffer_offset_;
-	int buffer_size_;
-	Buffer buffer_;
-	int char_buffer_;
+	int fetch_char();
+};
 
+} // namespace bstone
 
-	int peek_char();
-}; // TextReader
-
-
-} // bstone
-
-
-#endif // !BSTONE_TEXT_READER_INCLUDED
+#endif // BSTONE_TEXT_READER_INCLUDED

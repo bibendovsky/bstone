@@ -4,79 +4,31 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-
-//
-// A text reader for a stream.
-//
-
+// A text reader for a stream
 
 #include "bstone_text_reader.h"
 
+namespace bstone {
 
-namespace bstone
+TextReader::TextReader(Stream* stream)
 {
-
-
-TextReader::TextReader()
-	:
-	stream_{},
-	is_eos_{},
-	buffer_offset_{},
-	buffer_size_{},
-	buffer_{},
-	char_buffer_{}
-{
+	open(stream);
 }
 
-TextReader::TextReader(
-	TextReader&& rhs) noexcept
-	:
-	stream_{std::move(rhs.stream_)},
-	is_eos_{std::move(rhs.is_eos_)},
-	buffer_offset_{std::move(rhs.buffer_offset_)},
-	buffer_size_{std::move(rhs.buffer_size_)},
-	buffer_{std::move(rhs.buffer_)},
-	char_buffer_{std::move(rhs.char_buffer_)}
-{
-	rhs.stream_ = nullptr;
-}
-
-TextReader::TextReader(
-	Stream* stream)
-	:
-	TextReader{}
-{
-	static_cast<void>(open(stream));
-}
-
-TextReader::~TextReader()
+bool TextReader::open(Stream* stream)
 {
 	close();
-}
-
-bool TextReader::open(
-	Stream* stream)
-{
-	close();
-
-	if (!stream)
-	{
-		return false;
-	}
-
 	stream_ = stream;
-
-	return true;
+	return is_open();
 }
 
 void TextReader::close()
 {
-	stream_ = {};
-	is_eos_ = {};
-	buffer_offset_ = {};
-	buffer_size_ = {};
-	buffer_ = {};
+	stream_ = nullptr;
+	buffer_offset_ = 0;
+	buffer_size_ = 0;
 	char_buffer_ = -1;
+	is_eos_ = false;
 }
 
 bool TextReader::is_open() const
@@ -93,29 +45,20 @@ std::string TextReader::read_line()
 {
 	if (!is_open())
 	{
-		return {};
+		return std::string{};
 	}
-
-	if (is_eos())
-	{
-		return {};
-	}
-
-	auto line = std::string{};
+	std::string line{};
 	line.reserve(max_buffer_size);
-
 	while (true)
 	{
-		const auto ch = peek_char();
-
+		const int ch = fetch_char();
 		if (ch < 0)
 		{
 			break;
 		}
-
 		if (ch != '\r' && ch != '\n')
 		{
-			line += static_cast<char>(ch);
+			line.push_back(static_cast<char>(ch));
 		}
 		else
 		{
@@ -125,8 +68,7 @@ std::string TextReader::read_line()
 			}
 			else if (ch == '\r')
 			{
-				const auto next_ch = peek_char();
-
+				const int next_ch = fetch_char();
 				if (next_ch == '\n')
 				{
 					break;
@@ -138,40 +80,34 @@ std::string TextReader::read_line()
 			}
 		}
 	}
-
 	return line;
 }
 
-int TextReader::peek_char()
+int TextReader::fetch_char()
 {
 	if (is_eos())
 	{
 		return -1;
 	}
-
 	if (char_buffer_ >= 0)
 	{
-		const auto result = char_buffer_;
+		const int result = char_buffer_;
 		char_buffer_ = -1;
 		return result;
 	}
-
 	if (buffer_offset_ == buffer_size_)
 	{
 		buffer_offset_ = 0;
 		buffer_size_ = static_cast<int>(stream_->read(buffer_.data(), max_buffer_size));
-
 		if (buffer_size_ == 0)
 		{
 			is_eos_ = true;
 			return -1;
 		}
 	}
-
 	const int result = buffer_[buffer_offset_];
 	buffer_offset_ += 1;
 	return result;
 }
 
-
-} // bstone
+} // namespace bstone
