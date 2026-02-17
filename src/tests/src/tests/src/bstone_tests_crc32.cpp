@@ -9,9 +9,9 @@ auto tester = bstone::Tester{};
 
 // ==========================================================================
 
-std::intptr_t length(const char* string)
+int length(const char* string)
 {
-	return static_cast<std::intptr_t>(std::char_traits<char>::length(string));
+	return static_cast<int>(std::char_traits<char>::length(string));
 }
 
 // ==========================================================================

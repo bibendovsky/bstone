@@ -17,9 +17,8 @@ class Crc32
 {
 public:
 	std::uint32_t get_value() const;
-
 	void reset();
-	void update(const void* data, std::intptr_t size);
+	void update(const void* data, int size);
 
 private:
 	std::uint32_t value_{};
