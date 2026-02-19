@@ -68,7 +68,6 @@ public:
 	static int calculate_mip_level_count(int width, int height);
 
 	static sys::WindowFullscreenType get_fullscreen_mode_from_cvar();
-	static void set_fullscreen_mode_cvar_from_window(sys::Window& window);
 
 	static sys::WindowUPtr create_window(
 		const R3rUtilsCreateWindowParam& param,

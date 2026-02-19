@@ -147,14 +147,14 @@ public:
 	virtual void set_position(WindowPosition position) = 0;
 	virtual WindowSize get_size() = 0;
 	virtual void set_size(WindowSize size) = 0;
-	virtual DisplayMode get_display_mode() = 0;
-	virtual void set_display_mode(const DisplayMode& display_mode) = 0;
 	virtual void show(bool is_visible) = 0;
 	virtual void set_rounded_corner_type(WindowRoundedCornerType value) = 0;
 	virtual WindowFullscreenType get_fullscreen_mode() = 0;
-	virtual void set_fullscreen_mode(WindowFullscreenType fullscreen_mode) = 0;
+	virtual void set_windowed_mode(WindowSize window_size) = 0;
+	virtual void set_exclusive_fullscreen_mode(DisplayMode display_mode) = 0;
+	virtual void set_fake_fullscreen_mode() = 0;
 	virtual GlContextUPtr gl_make_context() = 0;
-	virtual WindowSize gl_get_drawable_size() = 0;
+	virtual WindowSize get_size_in_pixels() = 0;
 	virtual void gl_swap_buffers() = 0;
 	virtual RendererUPtr make_renderer(const RendererInitParam& param) = 0;
 

@@ -21,6 +21,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_sdl_subsystem.h"
 #include <algorithm>
 #include <exception>
+#include <vector>
 #include "SDL3/SDL_video.h"
 
 namespace bstone::sys {
@@ -45,7 +46,7 @@ public:
 	WindowMgr& get_window_mgr() override;
 
 private:
-	using DisplayModeCache = DisplayMode[limits::max_display_modes];
+	using DisplayModeCache = std::vector<DisplayMode>;
 
 	Logger& logger_;
 	SdlSubsystem sdl_subsystem_{};
@@ -126,12 +127,15 @@ std::span<const DisplayMode> VideoMgrSdl::get_display_modes()
 		{
 			SDL_free(sdl_display_mode_ptrs);
 		});
-	const int mode_count = std::min(sdl_mode_count, limits::max_display_modes);
-	for (int i_mode = 0; i_mode < mode_count; ++i_mode)
+	if (static_cast<int>(display_mode_cache_.size()) < sdl_mode_count)
+	{
+		display_mode_cache_.resize(static_cast<std::size_t>(sdl_mode_count));
+	}
+	for (int i_mode = 0; i_mode < sdl_mode_count; ++i_mode)
 	{
 		display_mode_cache_[i_mode] = map_display_mode(*(sdl_display_mode_ptrs[i_mode]));
 	}
-	return std::span<const DisplayMode>{display_mode_cache_, static_cast<std::size_t>(mode_count)};
+	return std::span<const DisplayMode>{display_mode_cache_.data(), static_cast<std::size_t>(sdl_mode_count)};
 }
 
 GlCurrentContext& VideoMgrSdl::get_gl_current_context()

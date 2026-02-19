@@ -39,14 +39,14 @@ public:
 	void set_position(WindowPosition position) override;
 	WindowSize get_size() override;
 	void set_size(WindowSize size) override;
-	DisplayMode get_display_mode() override;
-	void set_display_mode(const DisplayMode& display_mode) override;
 	void show(bool is_visible) override;
 	void set_rounded_corner_type(WindowRoundedCornerType value) override;
 	WindowFullscreenType get_fullscreen_mode() override;
-	void set_fullscreen_mode(WindowFullscreenType fullscreen_mode) override;
+	void set_windowed_mode(WindowSize window_size) override;
+	void set_exclusive_fullscreen_mode(DisplayMode display_mode) override;
+	void set_fake_fullscreen_mode() override;
 	GlContextUPtr gl_make_context() override;
-	WindowSize gl_get_drawable_size() override;
+	WindowSize get_size_in_pixels() override;
 	void gl_swap_buffers() override;
 	RendererUPtr make_renderer(const RendererInitParam& param) override;
 
@@ -208,69 +208,6 @@ void WindowSdl::set_size(WindowSize size)
 	}
 }
 
-DisplayMode WindowSdl::get_display_mode()
-{
-	SDL_Window* const sdl_window = sdl_window_;
-	if (const Uint32 sdl_flags = SDL_GetWindowFlags(sdl_window);
-		(sdl_flags & SDL_WINDOW_FULLSCREEN) != 0)
-	{
-		if (const SDL_DisplayMode* sdl_display_mode = SDL_GetWindowFullscreenMode(sdl_window);
-			sdl_display_mode != nullptr)
-		{
-			return DisplayMode{
-				.width = sdl_display_mode->w,
-				.height = sdl_display_mode->h,
-				.refresh_rate = sdl_display_mode->refresh_rate,
-			};
-		}
-	}
-	const SDL_DisplayID sdl_display_id = SDL_GetPrimaryDisplay();
-	if (sdl_display_id == 0)
-	{
-		sdl::fail("SDL_GetPrimaryDisplay");
-	}
-	const SDL_DisplayMode* const sdl_display_mode = SDL_GetCurrentDisplayMode(sdl_display_id);
-	if (sdl_display_mode == nullptr)
-	{
-		sdl::fail("SDL_GetCurrentDisplayMode");
-	}
-	int sdl_w;
-	int sdl_h;
-	if (!SDL_GetWindowSizeInPixels(sdl_window, &sdl_w, &sdl_h))
-	{
-		sdl::fail("SDL_GetWindowSizeInPixels");
-	}
-	return DisplayMode{
-		.width = sdl_w,
-		.height = sdl_h,
-		.refresh_rate = sdl_display_mode->refresh_rate,
-	};
-}
-
-void WindowSdl::set_display_mode(const DisplayMode& display_mode)
-{
-	const SDL_DisplayID sdl_display_id = SDL_GetDisplayForWindow(sdl_window_);
-	if (sdl_display_id == 0)
-	{
-		sdl::fail("SDL_GetDisplayForWindow");
-	}
-	SDL_DisplayMode sdl_display_mode;
-	if (!SDL_GetClosestFullscreenDisplayMode(
-		sdl_display_id,
-		display_mode.width,
-		display_mode.height,
-		display_mode.refresh_rate,
-		false,
-		&sdl_display_mode))
-	{
-		sdl::fail("SDL_GetClosestFullscreenDisplayMode");
-	}
-	if (!SDL_SetWindowFullscreenMode(sdl_window_, &sdl_display_mode))
-	{
-		sdl::fail("SDL_SetWindowFullscreenMode");
-	}
-}
-
 void WindowSdl::show(bool is_visible)
 {
 	if (is_visible)
@@ -296,7 +233,7 @@ void WindowSdl::set_rounded_corner_type(WindowRoundedCornerType value)
 
 WindowFullscreenType WindowSdl::get_fullscreen_mode()
 {
-	const Uint32 sdl_flags = SDL_GetWindowFlags(sdl_window_);
+	const SDL_WindowFlags sdl_flags = SDL_GetWindowFlags(sdl_window_);
 	if ((sdl_flags & SDL_WINDOW_FULLSCREEN) != 0)
 	{
 		if (SDL_GetWindowFullscreenMode(sdl_window_) != nullptr)
@@ -308,31 +245,53 @@ WindowFullscreenType WindowSdl::get_fullscreen_mode()
 	return WindowFullscreenType::none;
 }
 
-void WindowSdl::set_fullscreen_mode(WindowFullscreenType fullscreen_mode)
+void WindowSdl::set_windowed_mode(WindowSize window_size)
 {
-	bool is_fullscreen = false;
-	bool is_exclusive_fullscreen = false;
-	switch (fullscreen_mode)
+	if (!SDL_SetWindowFullscreen(sdl_window_, false))
 	{
-		case WindowFullscreenType::none:
-			break;
-		case WindowFullscreenType::fake:
-			is_fullscreen = true;
-			break;
-		case WindowFullscreenType::exclusive:
-			is_fullscreen = true;
-			is_exclusive_fullscreen = true;
-			break;
-		default: BSTONE_THROW_STATIC_SOURCE("Unknown fullscreen mode.");
+		sdl::fail("SDL_SetWindowFullscreen");
 	}
-	if (!is_exclusive_fullscreen)
+	if (!SDL_SetWindowSize(sdl_window_, window_size.width, window_size.height))
 	{
-		if (!SDL_SetWindowFullscreenMode(sdl_window_, nullptr))
-		{
-			sdl::fail("SDL_SetWindowFullscreenMode");
-		}
+		sdl::fail("SDL_SetWindowSize");
 	}
-	if (!SDL_SetWindowFullscreen(sdl_window_, is_fullscreen))
+}
+
+void WindowSdl::set_exclusive_fullscreen_mode(DisplayMode display_mode)
+{
+	const SDL_DisplayID sdl_display_id = SDL_GetDisplayForWindow(sdl_window_);
+	if (sdl_display_id == 0)
+	{
+		sdl::fail("SDL_GetDisplayForWindow");
+	}
+	SDL_DisplayMode sdl_display_mode;
+	if (!SDL_GetClosestFullscreenDisplayMode(
+		/* displayID                  */ sdl_display_id,
+		/* w                          */ display_mode.width,
+		/* h                          */ display_mode.height,
+		/* refresh_rate               */ display_mode.refresh_rate,
+		/* include_high_density_modes */ true,
+		/* closest                    */ &sdl_display_mode))
+	{
+		sdl::fail("SDL_GetClosestFullscreenDisplayMode");
+	}
+	if (!SDL_SetWindowFullscreenMode(sdl_window_, &sdl_display_mode))
+	{
+		sdl::fail("SDL_SetWindowFullscreenMode");
+	}
+	if (!SDL_SetWindowFullscreen(sdl_window_, true))
+	{
+		sdl::fail("SDL_SetWindowFullscreen");
+	}
+}
+
+void WindowSdl::set_fake_fullscreen_mode()
+{
+	if (!SDL_SetWindowFullscreenMode(sdl_window_, nullptr))
+	{
+		sdl::fail("SDL_SetWindowFullscreenMode");
+	}
+	if (!SDL_SetWindowFullscreen(sdl_window_, true))
 	{
 		sdl::fail("SDL_SetWindowFullscreen");
 	}
@@ -343,7 +302,7 @@ GlContextUPtr WindowSdl::gl_make_context()
 	return make_gl_context_sdl(logger_, *sdl_window_);
 }
 
-WindowSize WindowSdl::gl_get_drawable_size()
+WindowSize WindowSdl::get_size_in_pixels()
 {
 	int sdl_width;
 	int sdl_height;

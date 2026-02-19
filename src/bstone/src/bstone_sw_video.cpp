@@ -127,7 +127,7 @@ private:
 	void uninitialize_textures();
 	void initialize_textures();
 	void initialize_palette();
-	void calculate_dimensions();
+	void calculate_dimensions(int window_width, int window_height);
 	void uninitialize_vga_buffer();
 	void update_palette_from_vga(int offset, int count);
 
@@ -214,7 +214,7 @@ try {
 	screen_texture_ = nullptr;
 
 	uninitialize_vga_buffer();
-	calculate_dimensions();
+	calculate_dimensions(vid_layout_.window_width, vid_layout_.window_height);
 	initialize_vga_buffer();
 	create_screen_texture();
 	renderer_->set_viewport();
@@ -454,18 +454,23 @@ try {
 
 void SwVideo::apply_window_mode()
 try {
+	const R3rUtilsSetWindowModeParam param{
+		.is_positioned = vid_cfg_is_positioned(),
+		.position = sys::WindowPosition{
+			.x = sys::WindowOffset{vid_cfg_get_x()},
+			.y = sys::WindowOffset{vid_cfg_get_y()},
+		},
+		.fullscreen_mode = R3rUtils::get_fullscreen_mode_from_cvar(),
+		.display_mode = sys::DisplayMode{
+			.width = vid_cfg_get_width(),
+			.height = vid_cfg_get_height(),
+			.refresh_rate = static_cast<float>(vid_cfg_get_refresh_rate()),
+		},
+	};
 	sys::Window& window = *window_;
-
-	auto param = R3rUtilsSetWindowModeParam{};
-	param.display_mode.width = vid_cfg_get_width();
-	param.display_mode.height = vid_cfg_get_height();
-	param.display_mode.refresh_rate = vid_cfg_get_refresh_rate();
-	param.fullscreen_mode = R3rUtils::get_fullscreen_mode_from_cvar();
 	R3rUtils::set_window_mode(window, param);
-
-	R3rUtils::set_fullscreen_mode_cvar_from_window(window);
-
-	calculate_dimensions();
+	const sys::WindowSize window_size = window.get_size_in_pixels();
+	calculate_dimensions(window_size.width, window_size.height);
 	vid_initialize_vanilla_raycaster();
 	vid_initialize_common();
 	uninitialize_textures();
@@ -670,7 +675,7 @@ const R3rDeviceFeatures& SwVideo::get_device_features() const
 void SwVideo::initialize_video()
 try {
 	vid_initialize_common();
-	calculate_dimensions();
+	calculate_dimensions(vid_cfg_get_width(), vid_cfg_get_height());
 
 	vid_initialize_vanilla_raycaster();
 
@@ -722,23 +727,21 @@ try {
 
 void SwVideo::create_window()
 try {
-	const auto is_native_mode = vid_is_native_mode();
-	const auto title = vid_get_game_name_and_game_version_string();
-
-	auto param = sys::WindowInitParam{};
+	const std::string title = vid_get_game_name_and_game_version_string();
+	sys::WindowInitParam param{};
 	param.title = title.c_str();
-	param.x = sys::WindowOffset::make_centered();
-	param.y = sys::WindowOffset::make_centered();
-
-	if (!is_native_mode && vid_cfg_is_positioned())
+	if (vid_cfg_is_positioned())
 	{
 		param.x = sys::WindowOffset{vid_cfg_get_x()};
 		param.y = sys::WindowOffset{vid_cfg_get_y()};
 	}
-
-	param.width = vid_cfg_get_width();
-	param.height = vid_cfg_get_height();
-
+	else
+	{
+		param.x = sys::WindowOffset::make_centered();
+		param.y = sys::WindowOffset::make_centered();
+	}
+	param.width = vid_layout_.window_width;
+	param.height = vid_layout_.window_height;
 	param.is_visible = true;
 	window_ = window_mgr_.make_window(param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -791,9 +794,9 @@ void SwVideo::initialize_palette()
 	palette_ = {};
 }
 
-void SwVideo::calculate_dimensions()
+void SwVideo::calculate_dimensions(int window_width, int window_height)
 {
-	auto src_param = vid_create_screen_size_param();
+	auto src_param = vid_create_screen_size_param(window_width, window_height);
 	vid_calculate_window_elements_dimensions(src_param, vid_layout_);
 	vid_calculate_vga_dimensions();
 
