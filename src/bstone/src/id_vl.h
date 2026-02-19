@@ -552,6 +552,7 @@ std::string vid_get_window_title_for_renderer(std::string_view renderer_name);
 std::string vid_get_game_name_and_game_version_string();
 
 CalculateScreenSizeInputParam vid_create_screen_size_param();
+CalculateScreenSizeInputParam vid_create_screen_size_param(int window_width, int window_height);
 
 void vid_calculate_window_elements_dimensions(
 	const CalculateScreenSizeInputParam& src_param,

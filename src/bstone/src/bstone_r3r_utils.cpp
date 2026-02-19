@@ -93,24 +93,6 @@ sys::WindowFullscreenType R3rUtils::get_fullscreen_mode_from_cvar()
 	}
 }
 
-void R3rUtils::set_fullscreen_mode_cvar_from_window(sys::Window& window)
-{
-	switch (window.get_fullscreen_mode())
-	{
-		case sys::WindowFullscreenType::exclusive:
-			vid_window_mode_cvar.set_string(vid_window_mode_cvar_fullscreen);
-			break;
-
-		case sys::WindowFullscreenType::fake:
-			vid_window_mode_cvar.set_string(vid_window_mode_cvar_fake_fullscreen);
-			break;
-
-		default:
-			vid_window_mode_cvar.set_string(vid_window_mode_cvar_windowed);
-			break;
-	}
-}
-
 sys::WindowUPtr R3rUtils::create_window(
 	const R3rUtilsCreateWindowParam& param,
 	sys::WindowMgr& window_mgr)
@@ -142,45 +124,31 @@ try {
 
 void R3rUtils::set_window_mode(sys::Window& window, const R3rUtilsSetWindowModeParam& param)
 try {
-	/*
-	State transition.
-
-	none -> none (resize and position)
-	none -> exclusive (assign resolution, change fullscreen)
-	none -> fake (change fullscreen)
-	exclusive -> exclusive (assign resolution, change fullscreen)
-	exclusive -> none (change fullscreen, resize and position)
-	exclusive -> fake (change fullscreen)
-	fake -> fake (change fullscreen)
-	fake -> none (change fullscreen, resize and position)
-	fake -> exclusive (assign resolution, change fullscreen)
-	*/
-	sys::WindowFullscreenType desire_fullscreen_mode = param.fullscreen_mode;
-	sys::DisplayMode desire_window_display_mode = param.display_mode;
-	desire_window_display_mode.width = std::max(desire_window_display_mode.width, window_min_width);
-	desire_window_display_mode.height = std::max(desire_window_display_mode.height, window_min_height);
-	desire_window_display_mode.refresh_rate = std::max(desire_window_display_mode.refresh_rate, 0.0F);
-	if (desire_fullscreen_mode == sys::WindowFullscreenType::exclusive)
+	sys::DisplayMode display_mode = param.display_mode;
+	display_mode.width = std::max(display_mode.width, window_min_width);
+	display_mode.height = std::max(display_mode.height, window_min_height);
+	display_mode.refresh_rate = std::max(display_mode.refresh_rate, 0.0F);
+	switch (param.fullscreen_mode)
 	{
-		window.set_display_mode(desire_window_display_mode);
-	}
-	window.set_fullscreen_mode(desire_fullscreen_mode);
-	if (desire_fullscreen_mode == sys::WindowFullscreenType::none)
-	{
-		sys::WindowSize desire_window_size{};
-		desire_window_size.width = desire_window_display_mode.width;
-		desire_window_size.height = desire_window_display_mode.height;
-		window.set_size(desire_window_size);
-		if (param.is_positioned)
-		{
-			const int x = std::max(param.position.x.get(), 0);
-			const int y = std::max(param.position.y.get(), 0);
-			window.set_position(sys::WindowPosition{sys::WindowOffset{x}, sys::WindowOffset{y}});
-		}
-		else
-		{
-			window.center();
-		}
+		case sys::WindowFullscreenType::none:
+			window.set_windowed_mode(sys::WindowSize{.width = display_mode.width, .height = display_mode.height});
+			if (param.is_positioned)
+			{
+				const int x = std::max(param.position.x.get(), 0);
+				const int y = std::max(param.position.y.get(), 0);
+				window.set_position(sys::WindowPosition{sys::WindowOffset{x}, sys::WindowOffset{y}});
+			}
+			else
+			{
+				window.center();
+			}
+			break;
+		case sys::WindowFullscreenType::exclusive:
+			window.set_exclusive_fullscreen_mode(display_mode);
+			break;
+		case sys::WindowFullscreenType::fake:
+			window.set_fake_fullscreen_mode();
+			break;
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 

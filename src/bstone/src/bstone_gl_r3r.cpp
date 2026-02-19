@@ -292,7 +292,7 @@ try
 
 	GlR3rUtils::create_window_and_context(window_param, window_mgr, window_, gl_context_);
 
-	const auto drawable_size = window_->gl_get_drawable_size();
+	const auto drawable_size = window_->get_size_in_pixels();
 	screen_width_ = drawable_size.width;
 	screen_height_ = drawable_size.height;
 

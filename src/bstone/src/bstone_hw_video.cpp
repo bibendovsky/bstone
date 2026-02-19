@@ -955,7 +955,7 @@ private:
 	void update_palette_from_vga(int offset, int count);
 	void initialize_palette();
 
-	void calculate_dimensions();
+	void calculate_dimensions(int window_width, int window_height);
 
 	void build_2d_model_matrix();
 	void build_2d_view_matrix();
@@ -1735,7 +1735,7 @@ try {
 
 void HwVideo::apply_widescreen()
 try {
-	calculate_dimensions();
+	calculate_dimensions(vid_layout_.window_width, vid_layout_.window_height);
 	SetViewSize();
 	build_projection_matrix();
 	build_player_weapon_projection_matrix();
@@ -1745,43 +1745,34 @@ try {
 
 void HwVideo::apply_window_mode()
 try {
+	const R3rUtilsSetWindowModeParam param{
+		.is_positioned = vid_cfg_is_positioned(),
+		.position = sys::WindowPosition{sys::WindowOffset{vid_cfg_get_x()}, sys::WindowOffset{vid_cfg_get_y()}},
+		.fullscreen_mode = R3rUtils::get_fullscreen_mode_from_cvar(),
+		.display_mode = sys::DisplayMode{
+			.width = vid_cfg_get_width(),
+			.height = vid_cfg_get_height(),
+			.refresh_rate = static_cast<float>(vid_cfg_get_refresh_rate()),
+		},
+	};
 	sys::Window& window = renderer_->get_window();
-
-	R3rUtilsSetWindowModeParam param{};
-	param.is_positioned = vid_cfg_is_positioned();
-	param.position.x = sys::WindowOffset{vid_cfg_get_x()};
-	param.position.y = sys::WindowOffset{vid_cfg_get_y()};
-	param.fullscreen_mode = R3rUtils::get_fullscreen_mode_from_cvar();
-	param.display_mode.width = vid_cfg_get_width();
-	param.display_mode.height = vid_cfg_get_height();
-	param.display_mode.refresh_rate = vid_cfg_get_refresh_rate();
 	R3rUtils::set_window_mode(window, param);
-	R3rUtils::set_fullscreen_mode_cvar_from_window(window);
-	if (vid_cfg_get_window_mode() != WindowMode::fake_fullscreen)
-	{
-		const sys::DisplayMode window_display_mode = window.get_display_mode();
-		vid_cfg_set_width(window_display_mode.width);
-		vid_cfg_set_height(window_display_mode.height);
-		vid_cfg_set_refresh_rate(window_display_mode.refresh_rate);
-	}
-
-	calculate_dimensions();
+	const sys::WindowSize window_size = window.get_size_in_pixels();
+	calculate_dimensions(window_size.width, window_size.height);
 	vid_initialize_vanilla_raycaster();
-
 	renderer_->handle_resize(sys::WindowSize{vid_layout_.window_width, vid_layout_.window_height});
-
 	vid_initialize_common();
 	if (texture_mgr_ != nullptr)
 	{
 		uninitialize_2d();
 		initialize_2d();
-
+		//
 		uninitialize_3d_fade();
 		initialize_3d_fade();
-
+		//
 		uninitialize_player_weapon();
 		initialize_player_weapon();
-
+		//
 		build_matrices();
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -4106,9 +4097,9 @@ void HwVideo::initialize_palette()
 	}
 }
 
-void HwVideo::calculate_dimensions()
+void HwVideo::calculate_dimensions(int window_width, int window_height)
 {
-	auto src_param = vid_create_screen_size_param();
+	auto src_param = vid_create_screen_size_param(window_width, window_height);
 	vid_calculate_window_elements_dimensions(src_param, vid_layout_);
 	vid_calculate_vga_dimensions();
 }
@@ -10383,7 +10374,7 @@ try {
 	renderer_mgr_ = make_r3r_mgr(*globals::sys_video_mgr, *globals::sys_window_mgr);
 
 	vid_initialize_common();
-	calculate_dimensions();
+	calculate_dimensions(vid_cfg_get_width(), vid_cfg_get_height());
 
 	vid_initialize_vanilla_raycaster();
 

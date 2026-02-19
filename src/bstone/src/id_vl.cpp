@@ -799,7 +799,6 @@ CalculateScreenSizeInputParam vid_create_screen_size_param()
 {
 	int width;
 	int height;
-
 	if (vid_cfg_get_window_mode() == WindowMode::fake_fullscreen)
 	{
 		const bstone::sys::DisplayMode sys_display_mode = bstone::globals::sys_video_mgr->get_current_display_mode();
@@ -811,17 +810,20 @@ CalculateScreenSizeInputParam vid_create_screen_size_param()
 		width = vid_cfg_get_width();
 		height = vid_cfg_get_height();
 	}
+	return vid_create_screen_size_param(width, height);
+}
 
-	width = std::max(width, vga_ref_width);
-	height = std::max(height, vga_ref_height_4x3);
-
-	auto result = CalculateScreenSizeInputParam{};
-	result.is_widescreen = vid_cfg_is_widescreen();
-	result.width = width;
-	result.height = height;
-	result.window_width = width;
-	result.window_height = height;
-	return result;
+CalculateScreenSizeInputParam vid_create_screen_size_param(int window_width, int window_height)
+{
+	window_width = std::max(window_width, vga_ref_width);
+	window_height = std::max(window_height, vga_ref_height_4x3);
+	return CalculateScreenSizeInputParam{
+		.is_widescreen = vid_cfg_is_widescreen(),
+		.width = window_width,
+		.height = window_height,
+		.window_width = window_width,
+		.window_height = window_height,
+	};
 }
 
 void vid_calculate_vga_dimensions()
@@ -2243,40 +2245,35 @@ const VidRendererTypes& vid_get_available_renderer_types()
 const VidWindowSizes& vid_get_window_size_list()
 try {
 	static VidWindowSizes result{};
-
 	const auto display_modes = bstone::globals::sys_video_mgr->get_display_modes();
-
 	result.clear();
 	result.reserve(1 + display_modes.size());
-
-	for (const auto& display_mode : display_modes)
-	{
-		result.emplace_back();
-		auto& window_size = result.back();
-		window_size.width = display_mode.width;
-		window_size.height = display_mode.height;
-		window_size.refresh_rate = display_mode.refresh_rate;
-	}
-
-	VidWindowSize custom_mode{};
-	custom_mode.width = vid_cfg_get_width();
-	custom_mode.height = vid_cfg_get_height();
-	custom_mode.refresh_rate = vid_cfg_get_refresh_rate();
-
+	const VidWindowSize user_mode{
+		.width = vid_cfg_get_width(),
+		.height = vid_cfg_get_height(),
+		.refresh_rate = vid_cfg_get_refresh_rate(),
+	};
 	if (!std::any_of(
-		result.cbegin(),
-		result.cend(),
-		[&custom_mode](const VidWindowSize& mode)
+		display_modes.begin(),
+		display_modes.end(),
+		[&user_mode](const bstone::sys::DisplayMode& mode)
 		{
 			return
-				mode.width == custom_mode.width &&
-				mode.height == custom_mode.height &&
-				mode.refresh_rate == custom_mode.refresh_rate;
+				mode.width == user_mode.width &&
+				mode.height == user_mode.height &&
+				static_cast<int>(mode.refresh_rate) == user_mode.refresh_rate;
 		}))
 	{
-		result.insert(result.cbegin(), custom_mode);
+		result.push_back(user_mode);
 	}
-
+	for (const auto& display_mode : display_modes)
+	{
+		result.push_back(VidWindowSize{
+			.width = display_mode.width,
+			.height = display_mode.height,
+			.refresh_rate = static_cast<int>(display_mode.refresh_rate),
+		});
+	}
 	return result;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
