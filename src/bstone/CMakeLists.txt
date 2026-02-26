@@ -310,7 +310,6 @@ set(BSTONE_LEGACY_SOURCES
 	src/jm_tp.h
 	src/jm_vl.h
 	src/markhack.cpp
-	src/scale.cpp
 	src/stub.cpp
 	src/vgapal.cpp
 )
