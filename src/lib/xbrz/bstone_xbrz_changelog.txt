@@ -1,0 +1,10 @@
+BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
+xBRZ v1.8 changelog
+Look up "bstone" for changes.
+
+- Moved headers and sources into separate directories.
+- Added CMake project.
+- Converted "xbrz.cpp" to UTF-8.
+- Reduced warnings.
+- Disabled forced inlining.
+- Disabled breakpoints.
