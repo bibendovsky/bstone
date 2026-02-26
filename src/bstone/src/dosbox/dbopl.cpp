@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2002-2015  The DOSBox Team
+ *  Copyright (C) 2002-2010  The DOSBox Team
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 	//DUNNO Keyon in 4op, switch to 2op without keyoff.
 */
 
+/* $Id: dbopl.cpp,v 1.10 2009-06-10 19:54:51 harekiet Exp $ */
 
 
 #include <math.h>
@@ -100,7 +101,7 @@ namespace DBOPL {
 #endif
 
 
-//How much to subtract from the base value for the final attenuation
+//How much to substract from the base value for the final attenuation
 static const Bit8u KslCreateTable[16] = {
 	//0 will always be be lower than 7 * 8
 	64, 32, 24, 19, 
@@ -417,6 +418,7 @@ Bits Operator::TemplateVolume(  ) {
 			return vol;
 		}
 		//In sustain phase, but not sustaining, do regular release
+		/* bstone */ [[fallthrough]];
 	case RELEASE: 
 		vol += RateForward( releaseAdd );;
 		if ( GCC_UNLIKELY(vol >= ENV_MAX) ) {
@@ -883,6 +885,11 @@ Channel* Channel::BlockTemplate( Chip* chip, Bit32u samples, Bit32s* output ) {
 			return (this + 2);
 		}
 		break;
+#if 1 // bstone
+	case sm2Percussion:
+	case sm3Percussion:
+		break;
+#endif // bstone
 	}
 	//Init the operators with the the current vibrato and tremolo values
 	Op( 0 )->Prepare( chip );
@@ -948,6 +955,11 @@ Channel* Channel::BlockTemplate( Chip* chip, Bit32u samples, Bit32s* output ) {
 			output[ i * 2 + 0 ] += sample & maskLeft;
 			output[ i * 2 + 1 ] += sample & maskRight;
 			break;
+#if 1 // bstone
+		case sm2Percussion:
+		case sm3Percussion:
+			break;
+#endif // bstone
 		}
 	}
 	switch( mode ) {
@@ -1177,9 +1189,13 @@ void Chip::GenerateBlock2( Bitu total, Bit32s* output ) {
 	while ( total > 0 ) {
 		Bit32u samples = ForwardLFO( total );
 		memset(output, 0, sizeof(Bit32s) * samples);
+#if 0 // bstone
 		int count = 0;
+#endif // bstone
 		for( Channel* ch = chan; ch < chan + 9; ) {
+#if 0 // bstone
 			count++;
+#endif // bstone
 			ch = (ch->*(ch->synthHandler))( this, samples, output );
 		}
 		total -= samples;
@@ -1191,9 +1207,13 @@ void Chip::GenerateBlock3( Bitu total, Bit32s* output  ) {
 	while ( total > 0 ) {
 		Bit32u samples = ForwardLFO( total );
 		memset(output, 0, sizeof(Bit32s) * samples *2);
+#if 0 // bstone
 		int count = 0;
+#endif // bstone
 		for( Channel* ch = chan; ch < chan + 18; ) {
+#if 0 // bstone
 			count++;
+#endif // bstone
 			ch = (ch->*(ch->synthHandler))( this, samples, output );
 		}
 		total -= samples;
