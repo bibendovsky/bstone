@@ -1,29 +1,25 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
-SPDX-License-Identifier: MIT
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+SPDX-License-Identifier: GPL-2.0-or-late
 */
 
-// A stub for DOSBox OPL2 emulator.
-
-#include <algorithm>
+// A stub for DOSBox OPL2 emulator
 
 #include "mixer.h"
-
 #include "bstone_assert.h"
+#include <climits>
+#include <algorithm>
 
 void MixerChannel::AddSamples_m32(Bitu len, const Bit32s* data)
 {
-	for (auto i = decltype(len){}; i < len; ++i)
+	for (Bitu i = 0; i < len; ++i)
 	{
-		auto value = data[i];
-		value = std::min(value, get_max_sample_value());
-		value = std::max(value, get_min_sample_value());
-		buffer_[i] = static_cast<Bit16s>(value);
+		buffer_[i] = static_cast<Bit16s>(std::clamp(data[i], get_min_sample_value(), get_max_sample_value()));
 	}
 }
 
-void MixerChannel::AddSamples_s32(Bitu, const Bit32s*)
+void MixerChannel::AddSamples_s32([[maybe_unused]] Bitu len, [[maybe_unused]] const Bit32s* data)
 {
 	BSTONE_ASSERT(false && "AddSamples_s32 not implemented.");
 }
@@ -36,10 +32,10 @@ void MixerChannel::set_buffer(Bit16s* buffer)
 
 std::int32_t MixerChannel::get_min_sample_value()
 {
-	return -32768;
+	return INT16_MIN;
 }
 
 std::int32_t MixerChannel::get_max_sample_value()
 {
-	return 32767;
+	return INT16_MAX;
 }
