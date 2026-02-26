@@ -26,29 +26,10 @@ using namespace xbrz;
 
 namespace
 {
-
-// <<< BStone
-template<typename T>
-const T& bstone_clamp(
-    const T& v,
-    const T& lo,
-    const T& hi)
-{
-    assert(!(hi < lo));
-    return (v < lo) ? lo : (hi < v) ? hi : v;
-}
-// >>> BStone
-
 template <unsigned int M, unsigned int N> inline
 uint32_t gradientRGB(uint32_t pixFront, uint32_t pixBack) //blend front color with opacity M / N over opaque background: https://en.wikipedia.org/wiki/Alpha_compositing#Alpha_blending
 {
-// <<< BStone
-#if 0
     static_assert(0 < M && M < N && N <= 1000);
-#else
-    static_assert(0 < M && M < N && N <= 1000, "Opacity parameters (M, N) out of range.");
-#endif
-// >>> BStone
 
     auto calcColor = [](unsigned char colFront, unsigned char colBack) -> unsigned char { return (colFront * M + colBack * (N - M)) / N; };
 
@@ -61,13 +42,7 @@ uint32_t gradientRGB(uint32_t pixFront, uint32_t pixBack) //blend front color wi
 template <unsigned int M, unsigned int N> inline
 uint32_t gradientARGB(uint32_t pixFront, uint32_t pixBack) //find intermediate color between two colors with alpha channels (=> NO alpha blending!!!)
 {
-// <<< BStone
-#if 0
     static_assert(0 < M && M < N && N <= 1000);
-#else
-    static_assert(0 < M && M < N && N <= 1000, "Opacity parameters (M, N) out of range.");
-#endif
-// >>> BStone
 
     const unsigned int weightFront = getAlpha(pixFront) * M;
     const unsigned int weightBack  = getAlpha(pixBack) * (N - M);
@@ -99,6 +74,7 @@ uint32_t gradientARGB(uint32_t pixFront, uint32_t pixBack) //find intermediate c
 //
 
 
+#if 0 // bstone
 #ifdef _MSC_VER
     #define FORCE_INLINE __forceinline
 #elif defined __GNUC__
@@ -106,6 +82,9 @@ uint32_t gradientARGB(uint32_t pixFront, uint32_t pixBack) //find intermediate c
 #else
     #define FORCE_INLINE inline
 #endif
+#else // bstone
+#define FORCE_INLINE inline
+#endif // bstone
 
 
 enum RotationDegree //clock-wise
@@ -255,12 +234,14 @@ double distYCbCrBuffered(uint32_t pix1, uint32_t pix2)
 }
 
 
+#if 0 // bstone
 #if defined _MSC_VER && !defined NDEBUG
     const int debugPixelX = -1;
     const int debugPixelY = 58;
 
     thread_local bool breakIntoDebugger = false;
 #endif
+#endif // bstone
 
 
 enum BlendType
@@ -312,10 +293,12 @@ template <class ColorDistance>
 FORCE_INLINE //detect blend direction
 BlendResult preProcessCorners(const Kernel_4x4& ker, const xbrz::ScalerCfg& cfg) //result: F, G, J, K corners of "GradientType"
 {
+#if 0 // bstone
 #if defined _MSC_VER && !defined NDEBUG
     if (breakIntoDebugger)
         __debugbreak(); //__asm int 3;
 #endif
+#endif // bstone
 
     BlendResult result = {};
 
@@ -359,19 +342,19 @@ DEF_GETTER(g) DEF_GETTER(h) DEF_GETTER(i)
 #undef DEF_GETTER
 
 #define DEF_GETTER(x, y) template <> inline uint32_t get_##x<ROT_90>(const Kernel_3x3& ker) { return ker.y; }
-DEF_GETTER(a, g) DEF_GETTER(b, d) DEF_GETTER(c, a)
+/* bstone */ /* DEF_GETTER(a, g) */ DEF_GETTER(b, d) DEF_GETTER(c, a)
 DEF_GETTER(d, h) DEF_GETTER(e, e) DEF_GETTER(f, b)
 DEF_GETTER(g, i) DEF_GETTER(h, f) DEF_GETTER(i, c)
 #undef DEF_GETTER
 
 #define DEF_GETTER(x, y) template <> inline uint32_t get_##x<ROT_180>(const Kernel_3x3& ker) { return ker.y; }
-DEF_GETTER(a, i) DEF_GETTER(b, h) DEF_GETTER(c, g)
+/* bstone */ /* DEF_GETTER(a, i) */ DEF_GETTER(b, h) DEF_GETTER(c, g)
 DEF_GETTER(d, f) DEF_GETTER(e, e) DEF_GETTER(f, d)
 DEF_GETTER(g, c) DEF_GETTER(h, b) DEF_GETTER(i, a)
 #undef DEF_GETTER
 
 #define DEF_GETTER(x, y) template <> inline uint32_t get_##x<ROT_270>(const Kernel_3x3& ker) { return ker.y; }
-DEF_GETTER(a, c) DEF_GETTER(b, f) DEF_GETTER(c, i)
+/* bstone */ /* DEF_GETTER(a, c) */ DEF_GETTER(b, f) DEF_GETTER(c, i)
 DEF_GETTER(d, b) DEF_GETTER(e, e) DEF_GETTER(f, h)
 DEF_GETTER(g, a) DEF_GETTER(h, d) DEF_GETTER(i, g)
 #undef DEF_GETTER
@@ -390,14 +373,7 @@ inline void addBottomL  (unsigned char& b, BlendType bt) { b |= (bt << 6); } //
 
 inline bool blendingNeeded(unsigned char b)
 {
-// >>> BStone
-#if 0
     static_assert(BLEND_NONE == 0);
-#else
-    static_assert(BLEND_NONE == 0, "Expected positive value.");
-#endif
-// <<< BStone
-
     return b != 0;
 }
 
@@ -434,10 +410,12 @@ void blendPixel(const Kernel_3x3& ker,
 #define h get_h<rotDeg>(ker)
 #define i get_i<rotDeg>(ker)
 
+#if 0 // bstone
 #if defined _MSC_VER && !defined NDEBUG
     if (breakIntoDebugger)
         __debugbreak(); //__asm int 3;
 #endif
+#endif // bstone
 
     const unsigned char blend = rotateBlendInfo<rotDeg>(blendInfo);
 
@@ -519,15 +497,7 @@ public:
 
     void readDhlp(Kernel_4x4& ker, int x) const //(x, y) is at kernel position F
     {
-// <<< BStone
-#if 0
         [[likely]] if (const int x_p2 = x + 2; 0 <= x_p2 && x_p2 < srcWidth_)
-#else
-        const int x_p2 = x + 2;
-
-        if (0 <= x_p2 && x_p2 < srcWidth_)
-#endif
-// >>> BStone
         {
             ker.d = s_m1 ? s_m1[x_p2] : 0;
             ker.h = s_0  ? s_0 [x_p2] : 0;
@@ -556,31 +526,15 @@ class OobReaderDuplicate
 {
 public:
     OobReaderDuplicate(const uint32_t* src, int srcWidth, int srcHeight, int y) :
-// <<< BStone
-#if 0
         s_m1(src + srcWidth * std::clamp(y - 1, 0, srcHeight - 1)),
         s_0 (src + srcWidth * std::clamp(y,     0, srcHeight - 1)),
         s_p1(src + srcWidth * std::clamp(y + 1, 0, srcHeight - 1)),
         s_p2(src + srcWidth * std::clamp(y + 2, 0, srcHeight - 1)),
-#else
-        s_m1(src + srcWidth * bstone_clamp(y - 1, 0, srcHeight - 1)),
-        s_0 (src + srcWidth * bstone_clamp(y,     0, srcHeight - 1)),
-        s_p1(src + srcWidth * bstone_clamp(y + 1, 0, srcHeight - 1)),
-        s_p2(src + srcWidth * bstone_clamp(y + 2, 0, srcHeight - 1)),
-#endif
-// >>> BStone
         srcWidth_(srcWidth) {}
 
     void readDhlp(Kernel_4x4& ker, int x) const //(x, y) is at kernel position F
     {
-// <<< BStone
-#if 0
         const int x_p2 = std::clamp(x + 2, 0, srcWidth_ - 1);
-#else
-        const int x_p2 = bstone_clamp(x + 2, 0, srcWidth_ - 1);
-#endif
-// >>> BStone
-
         ker.d = s_m1[x_p2];
         ker.h = s_0 [x_p2];
         ker.l = s_p1[x_p2];
@@ -714,9 +668,11 @@ void scaleImage(const uint32_t* src, uint32_t* trg, int srcWidth, int srcHeight,
 
         for (int x = 0; x < srcWidth; ++x, out += Scaler::scale)
         {
+#if 0 // bstone
 #if defined _MSC_VER && !defined NDEBUG
             breakIntoDebugger = debugPixelX == x && debugPixelY == y;
 #endif
+#endif // bstone
             ker4.a = ker4.b;    //shift previous kernel to the left
             ker4.e = ker4.f;    // -----------------
             ker4.i = ker4.j;    // | A | B | C | D |
@@ -749,13 +705,7 @@ void scaleImage(const uint32_t* src, uint32_t* trg, int srcWidth, int srcHeight,
                 addTopR(blend_xy1, res.blend_j); //set 2nd known corner for (x, y + 1)
                 preProcBuf[x] = blend_xy1; //store on current buffer position for use on next row
 
-// <<< BStone
-#if 0
                 [[likely]] if (x + 1 < srcWidth)
-#else
-                if (x + 1 < srcWidth)
-#endif
-// >>> BStone
                 {
                     //blend_xy1 -> blend_x1y1
                     clearAddTopL(blend_xy1, res.blend_k); //set 1st known corner for (x + 1, y + 1) and buffer for use on next column
@@ -771,7 +721,21 @@ void scaleImage(const uint32_t* src, uint32_t* trg, int srcWidth, int srcHeight,
             //blend all four corners of current pixel
             if (blendingNeeded(blend_xy))
             {
+#if 0 // bstone
                 const auto& ker3 = reinterpret_cast<const Kernel_3x3&>(ker4); //"The Things We Do for Perf"
+#else // bstone
+				const Kernel_3x3 ker3{
+					.a = ker4.a,
+					.b = ker4.b,
+					.c = ker4.c,
+					.d = ker4.e,
+					.e = ker4.f,
+					.f = ker4.g,
+					.g = ker4.i,
+					.h = ker4.j,
+					.i = ker4.k,
+				};
+#endif // bstone
                 blendPixel<Scaler, ColorDistance, ROT_0  >(ker3, out, trgWidth, blend_xy, cfg);
                 blendPixel<Scaler, ColorDistance, ROT_90 >(ker3, out, trgWidth, blend_xy, cfg);
                 blendPixel<Scaler, ColorDistance, ROT_180>(ker3, out, trgWidth, blend_xy, cfg);
@@ -1146,7 +1110,7 @@ struct Scaler6x : public ColorGradient
 
 struct ColorDistanceRGB
 {
-    static double dist(uint32_t pix1, uint32_t pix2, double luminanceWeight)
+    static double dist(uint32_t pix1, uint32_t pix2, /* bstone */ [[maybe_unused]] double luminanceWeight)
     {
         return distYCbCrBuffered(pix1, pix2);
 
@@ -1158,7 +1122,7 @@ struct ColorDistanceRGB
 
 struct ColorDistanceARGB
 {
-    static double dist(uint32_t pix1, uint32_t pix2, double luminanceWeight)
+    static double dist(uint32_t pix1, uint32_t pix2, /* bstone */ [[maybe_unused]] double luminanceWeight)
     {
         const double a1 = getAlpha(pix1) / 255.0 ;
         const double a2 = getAlpha(pix2) / 255.0 ;
@@ -1227,7 +1191,7 @@ void xbrz::scale(size_t factor, const uint32_t* src, uint32_t* trg, int srcWidth
         return;
     }
 
-    static_assert(SCALE_FACTOR_MAX == 6, "Mismatch max scale factor reference.");
+    static_assert(SCALE_FACTOR_MAX == 6);
     switch (colFmt)
     {
         case ColorFormat::RGB:
