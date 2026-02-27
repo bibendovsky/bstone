@@ -1,0 +1,5 @@
+BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
+Nuked OPL3 v1.8 changelog
+
+- Wraped up .c in .cpp file.
+- Added CMake project.
