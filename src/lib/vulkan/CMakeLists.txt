@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.24.0 FATAL_ERROR)
-project(bstone_vulkan VERSION 1.0.0 LANGUAGES CXX)
-message(STATUS "[bstone_vulkan] v${PROJECT_VERSION}")
-add_library(bstone_vulkan STATIC "")
-add_library(bstone::vulkan ALIAS bstone_vulkan)
-target_compile_definitions(bstone_vulkan INTERFACE VK_NO_PROTOTYPES)
-target_include_directories(bstone_vulkan INTERFACE include)
-target_sources(bstone_vulkan PRIVATE
+project(bstone_vulkan VERSION 1.0.0 LANGUAGES NONE)
+message(STATUS "[${PROJECT_NAME}] v${PROJECT_VERSION}")
+add_library(${PROJECT_NAME} INTERFACE)
+add_library(bstone::vulkan ALIAS ${PROJECT_NAME})
+target_compile_definitions(${PROJECT_NAME} INTERFACE VK_NO_PROTOTYPES)
+target_include_directories(${PROJECT_NAME} INTERFACE include)
+target_sources(${PROJECT_NAME} PRIVATE
 	include/vk_video/vulkan_video_codecs_common.h
 	include/vk_video/vulkan_video_codec_av1std.h
 	include/vk_video/vulkan_video_codec_av1std_decode.h
@@ -41,6 +41,4 @@ target_sources(bstone_vulkan PRIVATE
 	include/vulkan/vulkan_xcb.h
 	include/vulkan/vulkan_xlib.h
 	include/vulkan/vulkan_xlib_xrandr.h
-	#
-	src/bstone_vulkan.cpp
 )
