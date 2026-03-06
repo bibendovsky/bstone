@@ -54,8 +54,6 @@ private:
 	VkDescriptorSetLayout get_vk_descriptor_set_layout() const override;
 	VkDescriptorSet acquire_vk_descriptor_set() override;
 
-	static constexpr const char* const shader_module_default_entry_point = "main";
-
 	class PostPresentObserver final : public VkR3rObserver<void>
 	{
 	public:
@@ -444,6 +442,8 @@ void VkR3rShaderStageImpl::initialize(const R3rShaderStageInitParam& param)
 					case R3rShaderVarStage::vertex:
 						vk_stage = VK_SHADER_STAGE_VERTEX_BIT;
 						break;
+					default:
+						BSTONE_THROW_STATIC_SOURCE("Unknown shader stage type.");
 				}
 				descriptor_set_layout_bindings.emplace_back(
 					VkDescriptorSetLayoutBinding

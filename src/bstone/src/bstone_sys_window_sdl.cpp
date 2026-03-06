@@ -387,6 +387,13 @@ GlContextAttributes WindowSdl::make_default_gl_attributes()
 		.profile = GlContextProfile::compatibility,
 		.major_version = 1,
 		.minor_version = 1,
+		.multisample_buffer_count = 0,
+		.multisample_sample_count = 0,
+		.red_bit_count = 0,
+		.green_bit_count = 0,
+		.blue_bit_count = 0,
+		.alpha_bit_count = 0,
+		.depth_bit_count = 0,
 	};
 }
 

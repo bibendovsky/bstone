@@ -552,8 +552,6 @@ void PollMouseMove()
 */
 void PollControls()
 {
-	std::uint8_t buttonbits;
-
 	controlx = 0;
 	controly = 0;
 	buttonheld = buttonstate;
@@ -994,7 +992,7 @@ void CheckKeys()
 			CleanDrawPlayBorder();
 			break;
 		}
-
+		[[fallthrough]];
 	case ScanCode::sc_f1: // HELP
 	case ScanCode::sc_f3: // LOAD MISSION
 	case ScanCode::sc_f4: // SOUND MENU

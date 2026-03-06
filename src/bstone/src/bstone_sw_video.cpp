@@ -108,7 +108,6 @@ public:
 	// HW
 
 private:
-	static constexpr auto log_prefix = "[VIDSW] ";
 	static const sys::Color opaque_black;
 
 private:
@@ -132,7 +131,6 @@ private:
 	void update_palette_from_vga(int offset, int count);
 
 private:
-	sys::VideoMgr& video_mgr_;
 	sys::WindowMgr& window_mgr_;
 	sys::WindowUPtr window_{};
 	sys::RendererUPtr renderer_{};
@@ -180,10 +178,9 @@ constexpr sys::Color SwVideo::opaque_black = sys::Color{
 	.a = 0xFF,
 };
 
-SwVideo::SwVideo(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr)
+SwVideo::SwVideo([[maybe_unused]] sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr)
 try
 	:
-	video_mgr_{video_mgr},
 	window_mgr_{window_mgr}
 {
 	initialize_video();

@@ -64,7 +64,6 @@ public:
 	void wait_for_device() override;
 
 private:
-	sys::VideoMgr& video_mgr_;
 	sys::WindowMgr& window_mgr_;
 
 	R3rType type_{};
@@ -83,10 +82,9 @@ private:
 
 NullR3rImpl::~NullR3rImpl() = default;
 
-NullR3rImpl::NullR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param)
+NullR3rImpl::NullR3rImpl([[maybe_unused]] sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param)
 try
 	:
-	video_mgr_{video_mgr},
 	window_mgr_{window_mgr},
 	type_{param.renderer_type},
 	name_{"NULL"},

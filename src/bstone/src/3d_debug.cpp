@@ -397,7 +397,7 @@ std::string get_enemy_actor_name(const objtype& bs_actor)
 		actor_name += ')';
 	};
 
-	const auto set_actor_name_with_state = [&actor_name, &awake_string, &asleep_string](
+	const auto set_actor_name_with_state = [&actor_name](
 		const char* base_actor_name,
 		bool is_awake)
 	{

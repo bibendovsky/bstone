@@ -261,7 +261,7 @@ try {
 		auto last_value = *values.begin();
 		auto found_default_value = (last_value == default_value);
 
-		for (auto i = 1; i < value_count; ++i)
+		for (std::size_t i = 1; i < value_count; ++i)
 		{
 			const auto& value = values.begin()[i];
 

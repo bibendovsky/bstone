@@ -1355,8 +1355,6 @@ private:
 	static constexpr auto max_file_size = 4'000'000;
 
 private:
-	static const std::string glapientry_string;
-
 	XmlNodes xml_nodes_{};
 	Registry registry_{};
 
@@ -1439,8 +1437,6 @@ Registry& RegistryParser::get_registry()
 {
 	return registry_;
 }
-
-const std::string RegistryParser::glapientry_string = "GLAPIENTRY";
 
 std::string RegistryParser::load_xml(const std::string& file_path)
 {

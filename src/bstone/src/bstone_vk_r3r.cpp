@@ -144,14 +144,15 @@ public:
 		resolve_symbol(nullptr, name, symbol);
 	}
 
+#ifndef NDEBUG
 	static VkBool32 VKAPI_PTR vk_debug_utils_messenger_callback(
 		VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 		VkDebugUtilsMessageTypeFlagsEXT messageTypes,
 		const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 		void* pUserData);
+#endif // NDEBUG
 
 	static void ensure_vk_result(VkResult vk_result, const char* vk_name);
-	static std::size_t align16(std::size_t value);
 	int get_max_sample_count() const;
 	int choose_sample_count(R3rAaType aa_type, int aa_degree) const;
 	VkPresentModeKHR choose_present_mode(bool enable_vsync) const;
@@ -160,8 +161,6 @@ public:
 	VkR3rSemaphoreResource make_semaphore() const;
 
 	VkR3rFenceResource make_fence(FenceState initial_state) const;
-	VkR3rFenceResource make_unsignaled_fence() const;
-	VkR3rFenceResource make_signaled_fence() const;
 	void reset_fence(VkFence vk_fence) const;
 	void wait_for_fence(VkFence vk_fence) const;
 
@@ -179,7 +178,6 @@ public:
 	void initialize_instance();
 	void initialize_instance_symbols();
 	void initialize_debug_utils_messenger();
-	void terminate_surface();
 	void initialize_surface();
 	void update_surface_capabilities();
 	void choose_physical_device();
@@ -213,8 +211,6 @@ public:
 	void initialize_sample_count(const R3rInitParam& r3r_init_param);
 	void initialize_present_mode(const R3rInitParam& r3r_init_param);
 	void initialize_r3r_device_features();
-
-	void submit_none_commands();
 
 	void wait_for_previous_frame();
 	void swapchain_acquire_next_image();
@@ -710,6 +706,7 @@ void VkR3rImpl::wait_for_device()
 	impl_wait_for_device();
 }
 
+#ifndef NDEBUG
 VkBool32 VKAPI_PTR VkR3rImpl::vk_debug_utils_messenger_callback(
 	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 	[[maybe_unused]] VkDebugUtilsMessageTypeFlagsEXT messageTypes,
@@ -767,6 +764,7 @@ VkBool32 VKAPI_PTR VkR3rImpl::vk_debug_utils_messenger_callback(
 	logger.log_information(message.c_str());
 	return VK_FALSE;
 }
+#endif // NDEBUG
 
 float VkR3rImpl::color_byte_to_float(std::uint8_t value)
 {
@@ -801,11 +799,6 @@ void VkR3rImpl::ensure_vk_result(VkResult vk_result, const char* vk_name)
 		message += ')';
 	}
 	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
-}
-
-std::size_t VkR3rImpl::align16(std::size_t value)
-{
-	return (value + 15) & (~std::size_t{15});
 }
 
 int VkR3rImpl::get_max_sample_count() const
@@ -917,16 +910,6 @@ VkR3rFenceResource VkR3rImpl::make_fence(FenceState initial_state) const
 	);
 	ensure_vk_result(vk_result, "vkCreateFence");
 	return VkR3rFenceResource{vk_fence, VkR3rFenceDeleter{context_}};
-}
-
-VkR3rFenceResource VkR3rImpl::make_unsignaled_fence() const
-{
-	return make_fence(FenceState::unsignaled);
-}
-
-VkR3rFenceResource VkR3rImpl::make_signaled_fence() const
-{
-	return make_fence(FenceState::signaled);
 }
 
 void VkR3rImpl::reset_fence(VkFence vk_fence) const
@@ -1334,11 +1317,6 @@ void VkR3rImpl::initialize_debug_utils_messenger()
 #endif
 }
 
-void VkR3rImpl::terminate_surface()
-{
-	context_.surface = vk_r3r_resource_null;
-}
-
 void VkR3rImpl::initialize_surface()
 {
 	sys::VulkanMgr& vulkan_mgr = video_mgr_.get_vulkan_mgr();
@@ -1470,6 +1448,8 @@ void VkR3rImpl::choose_physical_device()
 					break;
 				case VK_PRESENT_MODE_FIFO_KHR:
 					has_vk_present_mode_fifo_khr = true;
+					break;
+				default:
 					break;
 			}
 		}
@@ -1650,11 +1630,10 @@ void VkR3rImpl::initialize_swapchain_image_views()
 	for (const VkImage& vk_image : context_.swapchain_images)
 	{
 		context_.swapchain_image_views.emplace_back(
-			std::move(
-				context_.create_image_view_resource(
-					vk_image,
-					context_.surface_format,
-					VK_IMAGE_ASPECT_COLOR_BIT)));
+			context_.create_image_view_resource(
+				vk_image,
+				context_.surface_format,
+				VK_IMAGE_ASPECT_COLOR_BIT));
 	}
 }
 
@@ -2023,12 +2002,6 @@ void VkR3rImpl::initialize_r3r_device_features()
 	r3r_features.max_msaa_degree = get_max_sample_count();
 	//
 	r3r_features.max_vertex_input_locations = static_cast<int>(vk_limits.maxVertexInputAttributes);
-}
-
-void VkR3rImpl::submit_none_commands()
-{
-	begin_submit_commands();
-	end_submit_commands();
 }
 
 void VkR3rImpl::wait_for_previous_frame()

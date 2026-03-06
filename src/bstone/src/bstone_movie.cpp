@@ -43,15 +43,19 @@ consteval int MV_CNVT_CODE(char c1, char c2)
 
 constexpr int AN_PAUSE = MV_CNVT_CODE('P', 'A');
 constexpr int AN_SOUND = MV_CNVT_CODE('S', 'D');
+#if 0 // FIXME Unused.
 constexpr int AN_MUSIC = MV_CNVT_CODE('M', 'U');
+#endif
 constexpr int AN_PAGE = MV_CNVT_CODE('G', 'R');
 constexpr int AN_FADE_IN_FRAME = MV_CNVT_CODE('F', 'I');
 constexpr int AN_FADE_OUT_FRAME = MV_CNVT_CODE('F', 'O');
+#if 0 // FIXME Unused.
 constexpr int AN_FADE_IN = MV_CNVT_CODE('F', 'B');
 constexpr int AN_FADE_OUT = MV_CNVT_CODE('F', 'E');
 constexpr int AN_PALETTE = MV_CNVT_CODE('P', 'L');
 constexpr int AN_PRELOAD_BEGIN = MV_CNVT_CODE('L', 'B');
 constexpr int AN_PRELOAD_END = MV_CNVT_CODE('L', 'E');
+#endif
 constexpr int AN_END_OF_ANIM = MV_CNVT_CODE('X', 'X');
 
 // =====================================

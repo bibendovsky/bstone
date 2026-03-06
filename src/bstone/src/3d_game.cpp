@@ -513,7 +513,7 @@ void ScanInfoPlane()
 			case 87: // Gold
 			case 88: // Bonus
 				AddTotalPoints(static_points[statinfo[tile - 23].type - bo_money_bag]);
-
+				[[fallthrough]];
 			case 53:
 
 			case 23:
@@ -586,7 +586,7 @@ void ScanInfoPlane()
 			case 400: // gold 2
 			case 401: // gold 3
 				AddTotalPoints(static_points[statinfo[tile - 315].type - bo_money_bag]);
-
+				[[fallthrough]];
 			case 381:
 			case 382:
 			case 383:
@@ -671,11 +671,13 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 207:
 				if (gamestate.difficulty < gd_medium)
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 206:
 				SpawnOffsetObj(en_green_ooze, x, y);
 				break;
@@ -690,11 +692,13 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 211:
 				if (gamestate.difficulty < gd_medium)
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 210:
 				SpawnOffsetObj(en_black_ooze, x, y);
 				break;
@@ -762,11 +766,13 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 566:
 				if (gamestate.difficulty < gd_medium)
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 565:
 				if (assets_info.is_ps())
 				{
@@ -798,11 +804,13 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 429:
 				if (gamestate.difficulty < gd_medium)
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 428:
 				if (assets_info.is_ps())
 				{
@@ -922,6 +930,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 36;
+				[[fallthrough]];
 			case 144:
 			case 145:
 			case 146:
@@ -931,6 +940,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 36;
+				[[fallthrough]];
 			case 108:
 			case 109:
 			case 110:
@@ -948,6 +958,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 36;
+				[[fallthrough]];
 			case 148:
 			case 149:
 			case 150:
@@ -957,6 +968,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 36;
+				[[fallthrough]];
 			case 112:
 			case 113:
 			case 114:
@@ -977,6 +989,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 36;
+				[[fallthrough]];
 			case 152:
 			case 153:
 			case 154:
@@ -986,6 +999,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 36;
+				[[fallthrough]];
 			case 116:
 			case 117:
 			case 118:
@@ -1008,6 +1022,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 36;
+				[[fallthrough]];
 			case 156:
 			case 157:
 			case 158:
@@ -1017,6 +1032,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 36;
+				[[fallthrough]];
 			case 120:
 			case 121:
 			case 122:
@@ -1042,6 +1058,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 36;
+				[[fallthrough]];
 			case 162:
 			case 163:
 			case 164:
@@ -1051,6 +1068,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 36;
+				[[fallthrough]];
 			case 126:
 			case 127:
 			case 128:
@@ -1068,6 +1086,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 36;
+				[[fallthrough]];
 			case 166:
 			case 167:
 			case 168:
@@ -1077,6 +1096,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 36;
+				[[fallthrough]];
 			case 130:
 			case 131:
 			case 132:
@@ -1091,13 +1111,13 @@ void ScanInfoPlane()
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 311:
 				if (gamestate.difficulty < gd_medium)
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 310:
 				SpawnStand(en_electro_alien, x, y, 0);
 				new_actor = nullptr;
@@ -1117,6 +1137,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 346:
 			case 347:
 			case 348:
@@ -1126,6 +1147,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 328:
 			case 329:
 			case 330:
@@ -1148,6 +1170,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 278:
 			case 279:
 			case 280:
@@ -1157,6 +1180,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 260:
 			case 261:
 			case 262:
@@ -1178,6 +1202,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 282:
 			case 283:
 			case 284:
@@ -1187,6 +1212,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 264:
 			case 265:
 			case 266:
@@ -1207,6 +1233,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 332:
 			case 333:
 			case 334:
@@ -1216,6 +1243,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 314:
 			case 315:
 			case 316:
@@ -1240,6 +1268,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 295:
 				if (assets_info.is_ps())
 				{
@@ -1253,6 +1282,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 277:
 				if (assets_info.is_ps())
 				{
@@ -1278,6 +1308,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 304:
 				if (assets_info.is_ps())
 				{
@@ -1291,6 +1322,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 286:
 				if (assets_info.is_ps())
 				{
@@ -1318,6 +1350,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 336:
 			case 337:
 			case 338:
@@ -1334,6 +1367,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 318:
 			case 319:
 			case 320:
@@ -1353,11 +1387,13 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 142:
 				if (gamestate.difficulty < gd_medium)
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 214:
 				SpawnOffsetObj(en_genetic_guard, x, y);
 				break;
@@ -1378,6 +1414,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 585:
 				if (assets_info.is_ps())
 				{
@@ -1390,6 +1427,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 250:
 				if (assets_info.is_ps())
 				{
@@ -1417,6 +1455,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 583:
 				if (assets_info.is_ps())
 				{
@@ -1429,6 +1468,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 232:
 				if (assets_info.is_ps())
 				{
@@ -1455,6 +1495,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 587:
 				if (assets_info.is_ps())
 				{
@@ -1467,7 +1508,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 268:
 				if (assets_info.is_ps())
 				{
@@ -1494,6 +1535,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 584:
 				if (assets_info.is_ps())
 				{
@@ -1506,7 +1548,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 233:
 				if (assets_info.is_ps())
 				{
@@ -1533,6 +1575,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 588:
 				if (assets_info.is_ps())
 				{
@@ -1545,7 +1588,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 269:
 				if (assets_info.is_ps())
 				{
@@ -1572,6 +1615,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 586:
 				if (assets_info.is_ps())
 				{
@@ -1584,7 +1628,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 251:
 				if (assets_info.is_ps())
 				{
@@ -1606,11 +1650,13 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 104:
 				if (gamestate.difficulty < gd_medium)
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 103:
 				SpawnOffsetObj(en_mutant_human1, x, y);
 				break;
@@ -1624,11 +1670,13 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 107:
 				if (gamestate.difficulty < gd_medium)
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 106:
 				SpawnOffsetObj(en_mutant_human2, x, y);
 				break;
@@ -1644,12 +1692,14 @@ void ScanInfoPlane()
 					static_cast<void>(SpawnStatic(x, y, 74 - 23));
 					break;
 				}
+				[[fallthrough]];
 			case 135:
 				if (gamestate.difficulty < gd_medium)
 				{
 					static_cast<void>(SpawnStatic(x, y, 74 - 23));
 					break;
 				}
+				[[fallthrough]];
 			case 134:
 				SpawnOffsetObj(en_scan_wait_alien, x, y);
 				break;
@@ -1665,12 +1715,14 @@ void ScanInfoPlane()
 					static_cast<void>(SpawnStatic(x, y, 73 - 23));
 					break;
 				}
+				[[fallthrough]];
 			case 171:
 				if (gamestate.difficulty < gd_medium)
 				{
 					static_cast<void>(SpawnStatic(x, y, 73 - 23));
 					break;
 				}
+				[[fallthrough]];
 			case 170:
 				SpawnOffsetObj(en_lcan_wait_alien, x, y);
 				break;
@@ -1686,12 +1738,14 @@ void ScanInfoPlane()
 					static_cast<void>(SpawnStatic(x, y, 72 - 23));
 					break;
 				}
+				[[fallthrough]];
 			case 173:
 				if (gamestate.difficulty < gd_medium)
 				{
 					static_cast<void>(SpawnStatic(x, y, 72 - 23));
 					break;
 				}
+				[[fallthrough]];
 			case 137:
 				SpawnOffsetObj(en_gurney_wait, x, y);
 				break;
@@ -1705,11 +1759,13 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 289:
 				if (gamestate.difficulty < gd_medium)
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 290:
 				SpawnOffsetObj(en_scan_alien, x, y);
 				break;
@@ -1723,11 +1779,13 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 271:
 				if (gamestate.difficulty < gd_medium)
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 272:
 				SpawnOffsetObj(en_lcan_alien, x, y);
 				break;
@@ -1741,11 +1799,13 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 274:
 				if (gamestate.difficulty < gd_medium)
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 273:
 				SpawnOffsetObj(en_gurney, x, y);
 				break;
@@ -1756,11 +1816,13 @@ void ScanInfoPlane()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 292:
 				if (gamestate.difficulty < gd_medium)
 				{
 					break;
 				}
+				[[fallthrough]];
 			case 291:
 				SpawnStand(en_liquid, x, y, 0);
 				break;
@@ -1773,13 +1835,13 @@ void ScanInfoPlane()
 				{
 					scan_value = 0xff;
 				}
-
+				[[fallthrough]];
 			case 276:
 				if (gamestate.difficulty < gd_medium)
 				{
 					scan_value = 0xff;
 				}
-
+				[[fallthrough]];
 			case 306:
 				SpawnOffsetObj(en_podegg, x, y);
 				if (scan_value == 0xff)
@@ -1808,7 +1870,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 609:
 				if (assets_info.is_ps())
 				{
@@ -1821,7 +1883,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 608:
 				if (assets_info.is_ps())
 				{
@@ -1854,7 +1916,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 591:
 				if (assets_info.is_ps())
 				{
@@ -1867,7 +1929,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 590:
 				if (assets_info.is_ps())
 				{
@@ -1901,7 +1963,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 627:
 				if (assets_info.is_ps())
 				{
@@ -1914,7 +1976,7 @@ void ScanInfoPlane()
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 626:
 				if (assets_info.is_ps())
 				{
@@ -1940,13 +2002,13 @@ void ScanInfoPlane()
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 308:
 				if (gamestate.difficulty < gd_medium)
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 307:
 				SpawnOffsetObj(en_pod, x, y);
 				break;
@@ -1959,13 +2021,13 @@ void ScanInfoPlane()
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 342:
 				if (gamestate.difficulty < gd_medium)
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 324:
 				SpawnOffsetObj(en_vertsphere, x, y);
 				break;
@@ -1977,13 +2039,13 @@ void ScanInfoPlane()
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 343:
 				if (gamestate.difficulty < gd_medium)
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 325:
 				SpawnOffsetObj(en_horzsphere, x, y);
 				break;
@@ -1995,13 +2057,13 @@ void ScanInfoPlane()
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 344:
 				if (gamestate.difficulty < gd_medium)
 				{
 					break;
 				}
-
+				[[fallthrough]];
 			case 326:
 				SpawnOffsetObj(en_diagsphere, x, y);
 				break;
@@ -2022,6 +2084,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 234:
 			case 235:
 			case 236:
@@ -2031,6 +2094,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 216:
 			case 217:
 			case 218:
@@ -2052,6 +2116,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 238:
 			case 239:
 			case 240:
@@ -2061,6 +2126,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 220:
 			case 221:
 			case 222:
@@ -2080,6 +2146,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 126;
+				[[fallthrough]];
 			case 242:
 			case 243:
 			case 244:
@@ -2089,6 +2156,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 224:
 			case 225:
 			case 226:
@@ -2110,6 +2178,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 126;
+				[[fallthrough]];
 			case 246:
 			case 247:
 			case 248:
@@ -2119,6 +2188,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 228:
 			case 229:
 			case 230:
@@ -2144,6 +2214,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 522:
 			case 523:
 			case 524:
@@ -2153,6 +2224,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 504:
 			case 505:
 			case 506:
@@ -2174,6 +2246,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 530:
 			case 531:
 			case 532:
@@ -2183,6 +2256,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 512:
 			case 513:
 			case 514:
@@ -2204,6 +2278,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 526:
 			case 527:
 			case 528:
@@ -2213,6 +2288,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 508:
 			case 509:
 			case 510:
@@ -2234,6 +2310,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 576:
 			case 577:
 			case 578:
@@ -2243,6 +2320,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 558:
 			case 559:
 			case 560:
@@ -2265,6 +2343,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 534:
 			case 535:
 			case 536:
@@ -2274,6 +2353,7 @@ void ScanInfoPlane()
 					break;
 				}
 				tile -= 18;
+				[[fallthrough]];
 			case 516:
 			case 517:
 			case 518:
@@ -2456,6 +2536,7 @@ void SetupGameLevel()
 					{
 						INVALID_ACTOR_ERR(x, y);
 					}
+					[[fallthrough]];
 				case AMBUSHTILE:
 					break;
 
@@ -2666,6 +2747,7 @@ void SetupGameLevel()
 					{
 						switchon = true;
 					}
+					[[fallthrough]];
 				case OFF_SWITCH:
 				{
 					if (assets_info.is_aog())
@@ -2780,6 +2862,7 @@ void SetupGameLevel()
 				{
 					break;
 				}
+				[[fallthrough]];
 			case AMBUSHTILE:
 				tilemap[x][y] = 0;
 				if (actorat[x][y] == (objtype*)AMBUSHTILE)
@@ -3538,7 +3621,7 @@ restartgame:
 				player_warp.tiley = player->tiley;
 				player_warp.dir = player->dir;
 			}
-
+			[[fallthrough]];
 		case ex_completed:
 		case ex_secretlevel:
 			if (assets_info.is_aog())
@@ -3546,6 +3629,7 @@ restartgame:
 				last_map_tile_x = player->tilex;
 				last_map_tile_y = player->tiley;
 			}
+			[[fallthrough]];
 		case ex_warped:
 			ClearMemory();
 // FIXME
@@ -3583,7 +3667,7 @@ restartgame:
 
 				LoseScreen();
 			}
-
+			[[fallthrough]];
 
 		case ex_victorious:
 			vid_is_hud = true;

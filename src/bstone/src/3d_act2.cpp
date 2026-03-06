@@ -1095,6 +1095,7 @@ void SpawnOffsetObj(
 	case en_watervent:
 		dir_which = which;
 		which = en_ventdrip;
+		break;
 
 	default:
 		break;
@@ -1102,12 +1103,13 @@ void SpawnOffsetObj(
 
 	SpawnNewObj(tilex, tiley, &s_ofs_stand);
 	new_actor->flags |= FL_SHOOTABLE | FL_SOLID | FL_OFFSET_STATES;
-	new_actor->obclass = static_cast<classtype>(rentacopobj + which);
+	new_actor->obclass = static_cast<classtype>(static_cast<int>(rentacopobj) + static_cast<int>(which));
 
 	switch (which)
 	{
 	case en_final_boss2:
 		new_actor->lighting = NO_SHADING;
+		[[fallthrough]];
 	case en_final_boss1:
 	case en_final_boss3:
 	case en_final_boss4:
@@ -1691,7 +1693,7 @@ void SphereStartDir(
 	for (loop = 0; loop < 3; loop++)
 	{
 		ob->dir = static_cast<dirtype>(RandomSphereDir(
-			static_cast<enemy_t>(en_vertsphere + ((ob->trydir - en_vertsphere + loop) % 3))));
+			static_cast<enemy_t>(en_vertsphere + ((static_cast<int>(ob->trydir) - static_cast<int>(en_vertsphere) + loop) % 3))));
 
 		if (!TryWalk(ob, true))
 		{
@@ -2207,6 +2209,8 @@ void T_SmartThink(objtype* ob)
 		case mech_guardianobj:
 			sd_play_actor_walking_sound(ROBOT_SERVOSND, *ob);
 			break;
+		default:
+			break;
 	}
 }
 
@@ -2256,6 +2260,7 @@ void T_SmartThought(
 					TakeDamage(4, obj);
 				}
 			}
+			[[fallthrough]];
 
 		case post_barrierobj:
 			//
@@ -2452,6 +2457,7 @@ void T_SmartThought(
 						MakeAlertNoise(obj);
 						obj->temp2 = 1;
 					}
+					[[fallthrough]];
 
 				case bfg_explosionobj:
 					if (!obj->temp2)
@@ -2530,6 +2536,7 @@ void T_SmartThought(
 							usedummy = false;
 						}
 					}
+					[[fallthrough]];
 
 				case floatingbombobj:
 					if (!(obj->flags & FL_INTERROGATED))
@@ -3047,7 +3054,7 @@ void SpawnBarrier(
 		new_actor->flags = FL_OFFSET_STATES | FL_BARRIER;
 	}
 
-	new_actor->obclass = static_cast<classtype>(rentacopobj + which);
+	new_actor->obclass = static_cast<classtype>(static_cast<int>(rentacopobj) + static_cast<int>(which));
 	new_actor->ammo = static_cast<std::uint8_t>(OnOff);
 	new_actor->temp2 = ScanBarrierTable(static_cast<std::uint8_t>(tilex), static_cast<std::uint8_t>(tiley));
 	new_actor->flags2 = (assets_info.is_ps() ? FL2_BFGSHOT_SOLID : 0);
@@ -4185,7 +4192,7 @@ void SpawnStand(
 	CheckForSpecialTile(new_actor, tilex, tiley);
 
 	new_actor->ammo = static_cast<std::uint8_t>(ammo);
-	new_actor->obclass = static_cast<classtype>(rentacopobj + which);
+	new_actor->obclass = static_cast<classtype>(static_cast<int>(rentacopobj) + static_cast<int>(which));
 	new_actor->hitpoints += get_start_hit_point(which);
 	new_actor->dir = static_cast<dirtype>(dir << 1);
 
@@ -4241,6 +4248,7 @@ void CheckForSpecialTile(
 		}
 
 		obj->flags2 |= FL2_CLOAKED;
+		[[fallthrough]];
 
 	case AMBUSHTILE:
 		obj->flags |= FL_AMBUSH | FL_SHOOTABLE | FL_SOLID;
@@ -4257,6 +4265,7 @@ void CheckForSpecialTile(
 		SpawnHiddenOfs(en_plasma_detonator_reserve, tilex, tiley);
 		new_actor = old_new;
 		obj->flags &= ~FL_INFORMANT;
+		[[fallthrough]];
 	case RKEY_TILE:
 	case YKEY_TILE:
 	case BKEY_TILE:
@@ -4386,7 +4395,7 @@ void SpawnPatrol(
 	}
 
 	new_actor->ammo = static_cast<std::uint8_t>(ammo);
-	new_actor->obclass = static_cast<classtype>(rentacopobj + which);
+	new_actor->obclass = static_cast<classtype>(static_cast<int>(rentacopobj) + static_cast<int>(which));
 	new_actor->dir = static_cast<dirtype>(dir << 1);
 	new_actor->hitpoints = get_start_hit_point(which);
 	new_actor->distance = 0.0;
@@ -4489,6 +4498,7 @@ void A_DeathScream(
 			sd_play_actor_voice_sound(GGUARDDEATHSND, *ob);
 			break;
 		}
+		[[fallthrough]];
 
 	case breather_beastobj:
 	case cyborg_warriorobj:
@@ -5193,6 +5203,7 @@ void T_Shoot(
 		{
 			return;
 		}
+		break;
 
 	default:
 		break;
@@ -6156,9 +6167,11 @@ void SpawnProjectile(
 				case final_boss2shotobj:
 				case goldmorphshotobj:
 					new_actor->temp1 = SPR_MGOLD_SHOT1;
+					[[fallthrough]];
 
 				case electroshotobj:
 					new_actor->lighting = NO_SHADING;
+					break;
 
 				default:
 					break;
@@ -6169,6 +6182,7 @@ void SpawnProjectile(
 		case lcanshotobj:
 		case podshotobj:
 			temp = SPR_SPIT3_1 - SPR_SPIT1_1;
+			[[fallthrough]];
 
 		case scanshotobj:
 		case dogshotobj:

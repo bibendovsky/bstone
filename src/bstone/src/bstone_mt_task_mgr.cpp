@@ -43,10 +43,6 @@ public:
 	MtTaskQueue& operator=(
 		const MtTaskQueue& that) = delete;
 
-
-	void push(
-		MtTask* mt_task);
-
 	void push(
 		MtTask** mt_tasks,
 		int mt_task_count);
@@ -179,31 +175,6 @@ MtTaskQueue::MtTaskQueue(
 
 	size_ = static_cast<Index>(size);
 	items_.resize(size_);
-}
-
-void MtTaskQueue::push(
-	MtTask* mt_task)
-{
-	if (!mt_task)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Null task.");
-	}
-
-	MutexLock flag_lock{mutex_};
-
-	const auto read_index = mt_read_index_.load(std::memory_order_acquire);
-	const auto write_index = mt_write_index_.load(std::memory_order_acquire);
-
-	const auto new_write_index = (write_index + 1) % size_;
-
-	if (read_index == new_write_index)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Queue overflow.");
-	}
-
-	items_[write_index] = mt_task;
-
-	mt_write_index_.store(new_write_index, std::memory_order_release);
 }
 
 void MtTaskQueue::push(

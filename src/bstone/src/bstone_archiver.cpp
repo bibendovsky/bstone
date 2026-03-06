@@ -103,7 +103,6 @@ try {
 void Archiver::read_uint16_array(std::uint16_t* items, int item_count)
 try {
 	constexpr int item_size = 2;
-	const int items_size = item_count * item_size;
 	constexpr int max_buffer_size = 128;
 	constexpr int items_per_buffer = max_buffer_size / item_size;
 	std::byte buffer[max_buffer_size];
@@ -219,7 +218,6 @@ try {
 void Archiver::write_uint16_array(const std::uint16_t* items, int item_count)
 try {
 	constexpr int item_size = 2;
-	const int items_size = item_count * item_size;
 	constexpr int max_buffer_size = 128;
 	constexpr int items_per_buffer = max_buffer_size / item_size;
 	std::byte buffer[max_buffer_size];

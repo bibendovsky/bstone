@@ -191,7 +191,6 @@ double heightnumerator;
 bool startgame;
 bool loadedgame;
 
-const std::string binary_config_file_name = "bstone_config";
 const std::string text_config_file_name = "bstone_config.txt";
 
 constexpr int sg_area_connect_bitmap_size = ((NUMAREAS * NUMAREAS) + 7) / 8;
@@ -7201,8 +7200,6 @@ static void write_high_scores()
 
 
 namespace {
-
-const auto in_binding_name = "in_binding";
 
 class ConfigLineTokens
 {

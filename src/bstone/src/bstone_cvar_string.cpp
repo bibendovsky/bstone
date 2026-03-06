@@ -61,10 +61,10 @@ void CVarString::set(std::string_view string_view)
 {
 	const auto new_size = string_view.size();
 
-	if (new_size > capacity_)
+	if (new_size > static_cast<std::size_t>(capacity_))
 	{
 		const auto new_capacity = std::max(new_size, static_cast<std::size_t>(initial_capacity));
-		auto new_storage = std::make_unique<char[]>(static_cast<std::size_t>(new_capacity));
+		auto new_storage = std::make_unique<char[]>(new_capacity);
 		storage_.swap(new_storage);
 		capacity_ = new_capacity;
 	}
