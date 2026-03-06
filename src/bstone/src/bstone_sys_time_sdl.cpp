@@ -53,7 +53,17 @@ DateTime time_ns_to_date_time(TimeNs time_ns, DateTimeKind date_time_kind)
 	{
 		sdl::fail("SDL_TimeToDateTime");
 	}
-	return reinterpret_cast<const DateTime&>(sdl_date_time);
+	return DateTime{
+		.year = sdl_date_time.year,
+		.month = sdl_date_time.month,
+		.day = sdl_date_time.day,
+		.hour = sdl_date_time.hour,
+		.minute = sdl_date_time.minute,
+		.second = sdl_date_time.second,
+		.nanosecond = sdl_date_time.nanosecond,
+		.day_of_week = sdl_date_time.day_of_week,
+		.utc_offset_s = sdl_date_time.utc_offset,
+	};
 }
 
 } // namespace bstone::sys

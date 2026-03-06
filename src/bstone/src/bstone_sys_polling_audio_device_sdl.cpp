@@ -42,7 +42,6 @@ private:
 	int channel_count_{};
 	int frame_count_{};
 	PollingAudioDeviceCallback* callback_{};
-	SDL_AudioDeviceID sdl_audio_device_id_{};
 	SDL_AudioStream* sdl_audio_stream_{};
 	AudioCache audio_cache_{};
 	int audio_cache_capacity_{};

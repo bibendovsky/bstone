@@ -1202,6 +1202,7 @@ void KillActor(
 
 	case mutant_human1obj:
 		PlaceItemNearTile(bo_clip2, tilex, tiley);
+		[[fallthrough]];
 	case final_boss3obj:
 	case final_boss4obj:
 	case mutant_human2obj:
@@ -1217,6 +1218,7 @@ void KillActor(
 		{
 			PlaceItemNearTile(bo_clip2, tilex, tiley);
 		}
+		[[fallthrough]];
 	case spider_mutantobj:
 	case breather_beastobj:
 	case acid_dragonobj:

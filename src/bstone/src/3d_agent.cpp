@@ -2500,6 +2500,7 @@ void GetBonus(
 		{
 			return;
 		}
+		[[fallthrough]];
 	case bo_fullheal:
 	case bo_firstaid:
 	case bo_ham: // STEAK
@@ -5164,6 +5165,7 @@ void T_Attack(
 			{
 				gamestate.attackframe -= 2;
 			}
+			[[fallthrough]];
 
 		case 0:
 			if (gamestate.weapon == wp_grenade)
@@ -5799,7 +5801,6 @@ bool OperateSmartSwitch(
 constexpr auto wb_MaxPoint = 10.0;
 constexpr auto wb_MidPoint = 6.0;
 constexpr auto wb_MinPoint = 2.0;
-constexpr auto wb_MaxGoalDist = wb_MaxPoint - wb_MidPoint;
 
 constexpr auto wb_MaxOffset = wb_MaxPoint + 2.0;
 constexpr auto wb_MinOffset = wb_MinPoint - 2.0;

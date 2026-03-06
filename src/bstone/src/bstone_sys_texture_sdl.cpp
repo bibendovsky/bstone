@@ -30,7 +30,6 @@ public:
 	TextureLockUPtr make_lock() override;
 
 private:
-	Logger& logger_;
 	SDL_Renderer& sdl_renderer_;
 	SDL_Texture* sdl_texture_{};
 
@@ -41,9 +40,8 @@ private:
 
 // ======================================
 
-TextureSdl::TextureSdl(Logger& logger, SDL_Renderer& sdl_renderer, const TextureInitParam& param)
+TextureSdl::TextureSdl([[maybe_unused]] Logger& logger, SDL_Renderer& sdl_renderer, const TextureInitParam& param)
 	:
-	logger_{logger},
 	sdl_renderer_{sdl_renderer}
 {
 	const SDL_PixelFormat sdl_pixel_format = map_pixel_format(param.pixel_format);

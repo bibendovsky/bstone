@@ -111,9 +111,6 @@ private:
 	using ShaderStages = std::list<GlR3rShaderStageUPtr>;
 
 private:
-	sys::VideoMgr& video_mgr_;
-	sys::WindowMgr& window_mgr_;
-
 	R3rType type_{};
 	std::string_view name_{};
 	std::string_view description_{};
@@ -218,11 +215,9 @@ private:
 
 // ==========================================================================
 
-GlR3rImpl::GlR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param)
+GlR3rImpl::GlR3rImpl([[maybe_unused]] sys::VideoMgr& video_mgr, [[maybe_unused]] sys::WindowMgr& window_mgr, const R3rInitParam& param)
 try
 	:
-	video_mgr_{video_mgr},
-	window_mgr_{window_mgr},
 	gl_current_context_{video_mgr.get_gl_current_context()}
 {
 	switch (param.renderer_type)

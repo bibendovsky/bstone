@@ -37,8 +37,8 @@ private:
 	static constexpr auto min_src_size = 6;
 
 	static constexpr auto command_rate = 140;
-	static constexpr auto min_command = 1;
-	static constexpr auto max_command = 254;
+	[[maybe_unused]] static constexpr auto min_command = 1;
+	[[maybe_unused]] static constexpr auto max_command = 254;
 	static constexpr auto pit_clock_frequency = 1'193'180;
 
 	int dst_sample_rate_{};

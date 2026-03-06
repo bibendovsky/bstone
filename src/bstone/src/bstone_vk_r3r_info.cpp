@@ -291,8 +291,6 @@ constexpr VkFormat vk_r3r_info_impl_vk_formats[] = {
 	VK_FORMAT_G14X2_B14X2R14X2_2PLANE_422_UNORM_3PACK16_ARM,
 };
 
-constexpr int vk_r3r_info_impl_vk_format_count = std::extent<decltype(vk_r3r_info_impl_vk_formats)>::value;
-
 } // namespace
 
 // ======================================

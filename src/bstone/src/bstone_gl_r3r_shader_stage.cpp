@@ -421,12 +421,9 @@ try {
 			BSTONE_THROW_STATIC_SOURCE("Empty name.");
 		}
 
-		auto unit_count = 0;
-
 		switch (gl_size)
 		{
 			case 1:
-				unit_count = 1;
 				break;
 
 			default:

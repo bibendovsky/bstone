@@ -69,7 +69,6 @@ private:
 	Logger& logger_;
 	SDL_Renderer* sdl_renderer_;
 
-	static SDL_PixelFormat map_pixel_format(PixelFormat pixel_format);
 	void log_info(SDL_Renderer* sdl_renderer);
 };
 
@@ -206,15 +205,6 @@ void RendererSdl::read_pixels(PixelFormat pixel_format, void* pixels, int pitch)
 TextureUPtr RendererSdl::make_texture(const TextureInitParam& param)
 {
 	return make_texture_sdl(logger_, *sdl_renderer_, param);
-}
-
-SDL_PixelFormat RendererSdl::map_pixel_format(PixelFormat pixel_format)
-{
-	switch (pixel_format)
-	{
-		case PixelFormat::r8g8b8: return SDL_PIXELFORMAT_RGB24;
-		default: BSTONE_THROW_STATIC_SOURCE("Unknown pixel format.");
-	}
 }
 
 void RendererSdl::log_info(SDL_Renderer* sdl_renderer)

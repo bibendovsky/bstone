@@ -109,7 +109,7 @@ int TextureLockSdl::get_pitch() const
 
 // ======================================
 
-void* TextureLockSdl::Storage::allocate(std::size_t size)
+void* TextureLockSdl::Storage::allocate([[maybe_unused]] std::size_t size)
 {
 	BSTONE_ASSERT(size == storage_size);
 	if (is_allocated_)

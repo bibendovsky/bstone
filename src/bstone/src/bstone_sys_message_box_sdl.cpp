@@ -81,10 +81,12 @@ int MessageBox::show(const MessageBoxInitParam& param)
 	}
 	SDL_MessageBoxData sdl_message_box{
 		.flags = sdl_message_box_flags,
+		.window = nullptr,
 		.title = param.title,
 		.message = param.message,
 		.numbuttons = static_cast<int>(param.buttons.size()),
 		.buttons = sdl_buttons,
+		.colorScheme = nullptr,
 	};
 	int sdl_button_id = 0;
 	if (!SDL_ShowMessageBox(&sdl_message_box, &sdl_button_id))

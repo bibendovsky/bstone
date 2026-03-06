@@ -1295,8 +1295,10 @@ private:
 	// Generic alien spit (#1).
 	void precache_generic_alien_spit_1();
 
+#if 0 // FIXME Remove or use.
 	// Generic alien spit (#2).
 	void precache_generic_alien_spit_2();
+#endif
 
 	// Generic alien spit (#3).
 	void precache_generic_alien_spit_3();
@@ -8385,6 +8387,7 @@ try {
 	cache_sprite(SPR_SPIT_EXP1_3);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
+#if 0 // FIXME Remove or use.
 // Generic alien spit (#2).
 void HwVideo::precache_generic_alien_spit_2()
 try {
@@ -8396,6 +8399,7 @@ try {
 	cache_sprite(SPR_SPIT_EXP2_2);
 	cache_sprite(SPR_SPIT_EXP2_3);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+#endif
 
 // Generic alien spit (#3).
 void HwVideo::precache_generic_alien_spit_3()

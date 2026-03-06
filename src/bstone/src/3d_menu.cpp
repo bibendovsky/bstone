@@ -3031,8 +3031,6 @@ char LOADSAVE_GAME_MSG[2][25] = {
 void DrawLSAction(
 	std::int16_t which)
 {
-	std::int8_t total[] = {19, 19};
-
 	VW_FadeOut();
 	screenfaded = true;
 	DrawTopInfo(static_cast<sp_type>(sp_loading + which));

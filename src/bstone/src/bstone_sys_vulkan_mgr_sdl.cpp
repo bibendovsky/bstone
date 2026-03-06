@@ -81,7 +81,7 @@ VulkanMgrSymbolFunc VulkanMgrSdl::get_instance_proc_addr() const
 	return reinterpret_cast<VulkanMgrSymbolFunc>(SDL_Vulkan_GetVkGetInstanceProcAddr());
 }
 
-std::span<const char* const> VulkanMgrSdl::get_required_extensions(Window& window)
+std::span<const char* const> VulkanMgrSdl::get_required_extensions([[maybe_unused]] Window& window)
 {
 	ensure_is_vulkan_available();
 	Uint32 sdl_count;

@@ -365,6 +365,7 @@ statobj_t* SpawnStatic(
 	case bo_yellow_key:
 	case bo_blue_key:
 		travel_table_[tilex][tiley] |= TT_KEYS;
+		[[fallthrough]];
 
 	case bo_gold1:
 	case bo_gold2:
@@ -513,6 +514,7 @@ statobj_t* UseReservedStatic(
 		{
 			break;
 		}
+		[[fallthrough]];
 
 	case bo_green_key:
 	case bo_gold_key:
