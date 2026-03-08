@@ -338,19 +338,13 @@ source_group("lib/dosbox" FILES ${BSTONE_LIB_DOSBOX_SOURCES})
 # ---------------------------------------------------------------------------
 
 set(BSTONE_LIB_MISC_SOURCES
-	src/bstone_ascii.cpp
 	src/bstone_ascii.h
-	src/bstone_assert.cpp
 	src/bstone_assert.h
-	src/bstone_cgm_mat.cpp
 	src/bstone_cgm_mat.h
-	src/bstone_cgm_transform.cpp
 	src/bstone_cgm_transform.h
-	src/bstone_cgm_vec.cpp
 	src/bstone_cgm_vec.h
 	src/bstone_char_conv.cpp
 	src/bstone_char_conv.h
-	src/bstone_char_traits.cpp
 	src/bstone_char_traits.h
 	src/bstone_configurations.h
 	src/bstone_crc32.cpp
@@ -363,7 +357,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_exception.h
 	src/bstone_file_stream.cpp
 	src/bstone_file_stream.h
-	src/bstone_four_cc.cpp
 	src/bstone_four_cc.h
 	src/bstone_memory_binary_reader.cpp
 	src/bstone_memory_binary_reader.h
@@ -372,7 +365,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_memory_stream.cpp
 	src/bstone_memory_stream.h
 	src/bstone_platform.h
-	src/bstone_scope_exit.cpp
 	src/bstone_scope_exit.h
 	src/bstone_sha1.cpp
 	src/bstone_sha1.h
@@ -384,7 +376,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_static_ro_memory_stream.h
 	src/bstone_stream.cpp
 	src/bstone_stream.h
-	src/bstone_unique_resource.cpp
 	src/bstone_unique_resource.h
 	src/bstone_win32_advapi32_symbols.cpp
 	src/bstone_win32_advapi32_symbols.h
@@ -394,7 +385,6 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_win32_registry_key.h
 	src/bstone_win32_utility.cpp
 	src/bstone_win32_utility.h
-	src/bstone_win32_wstring.cpp
 	src/bstone_win32_wstring.h
 	src/bstone_process_sdl.cpp
 	src/bstone_process.h
@@ -434,31 +424,22 @@ source_group("bstone/renderer" FILES ${BSTONE_BSTONE_RENDERER_SOURCES})
 # ---------------------------------------------------------------------------
 
 set(BSTONE_BSTONE_RENDERER_3D_SOURCES
-	src/bstone_r3r.cpp
 	src/bstone_r3r.h
-	src/bstone_r3r_buffer.cpp
 	src/bstone_r3r_buffer.h
 	src/bstone_r3r_cmd_buffer.cpp
 	src/bstone_r3r_cmd_buffer.h
-	src/bstone_r3r_limits.cpp
 	src/bstone_r3r_limits.h
 	src/bstone_r3r_mgr.cpp
 	src/bstone_r3r_mgr.h
-	src/bstone_r3r_r2_texture.cpp
 	src/bstone_r3r_r2_texture.h
-	src/bstone_r3r_sampler.cpp
 	src/bstone_r3r_sampler.h
-	src/bstone_r3r_shader.cpp
 	src/bstone_r3r_shader.h
-	src/bstone_r3r_shader_stage.cpp
 	src/bstone_r3r_shader_stage.h
-	src/bstone_r3r_shader_var.cpp
 	src/bstone_r3r_shader_var.h
 	src/bstone_r3r_tests.h
 	src/bstone_r3r_types.h
 	src/bstone_r3r_utils.cpp
 	src/bstone_r3r_utils.h
-	src/bstone_r3r_vertex_input.cpp
 	src/bstone_r3r_vertex_input.h
 )
 
@@ -540,7 +521,6 @@ set(BSTONE_BSTONE_RENDERER_3D_VK_SOURCES
 	src/bstone_vk_r3r_context.h
 	src/bstone_vk_r3r_enum_strings.cpp
 	src/bstone_vk_r3r_enum_strings.h
-	src/bstone_vk_r3r_array_extractor.cpp
 	src/bstone_vk_r3r_array_extractor.h
 	src/bstone_vk_r3r_info.cpp
 	src/bstone_vk_r3r_info.h
@@ -582,74 +562,46 @@ source_group("bstone/renderer/3d/vk/shaders" FILES ${BSTONE_BSTONE_RENDERER_3D_V
 # ---------------------------------------------------------------------------
 
 set(BSTONE_BSTONE_SYS_SOURCES
-	src/bstone_sys_audio_mgr.cpp
 	src/bstone_sys_audio_mgr.h
 	src/bstone_sys_audio_mgr_null.cpp
 	src/bstone_sys_audio_mgr_null.h
-	src/bstone_sys_color.cpp
 	src/bstone_sys_color.h
-	src/bstone_sys_display_mode.cpp
 	src/bstone_sys_display_mode.h
-	src/bstone_sys_event.cpp
 	src/bstone_sys_event.h
-	src/bstone_sys_event_mgr.cpp
 	src/bstone_sys_event_mgr.h
 	src/bstone_sys_event_mgr_null.cpp
 	src/bstone_sys_event_mgr_null.h
 	src/bstone_sys_file.h
 	src/bstone_sys_fs.h
-	src/bstone_sys_gl_context.cpp
 	src/bstone_sys_gl_context.h
-	src/bstone_sys_gl_context_attributes.cpp
 	src/bstone_sys_gl_context_attributes.h
-	src/bstone_sys_gl_context_profile.cpp
 	src/bstone_sys_gl_context_profile.h
-	src/bstone_sys_gl_current_context.cpp
 	src/bstone_sys_gl_current_context.h
-	src/bstone_sys_gl_symbol_resolver.cpp
 	src/bstone_sys_gl_symbol_resolver.h
-	src/bstone_sys_keyboard_key.cpp
 	src/bstone_sys_keyboard_key.h
 	src/bstone_sys_logger.cpp
 	src/bstone_sys_logger.h
-	src/bstone_sys_message_box.cpp
 	src/bstone_sys_message_box.h
-	src/bstone_sys_mouse.cpp
 	src/bstone_sys_mouse.h
-	src/bstone_sys_mouse_mgr.cpp
 	src/bstone_sys_mouse_mgr.h
 	src/bstone_sys_pixel_format.h
-	src/bstone_sys_pixel_format.cpp
-	src/bstone_sys_polling_audio_device.cpp
 	src/bstone_sys_polling_audio_device.h
-	src/bstone_sys_rectangle.cpp
 	src/bstone_sys_rectangle.h
-	src/bstone_sys_renderer.cpp
 	src/bstone_sys_renderer.h
-	src/bstone_sys_special_path.cpp
 	src/bstone_sys_special_path.h
-	src/bstone_sys_swap_interval_type.cpp
 	src/bstone_sys_swap_interval_type.h
-	src/bstone_sys_system_mgr.cpp
 	src/bstone_sys_system_mgr.h
-	src/bstone_sys_time.cpp
-	src/bstone_sys_time.h
-	src/bstone_sys_texture.cpp
 	src/bstone_sys_texture.h
-	src/bstone_sys_texture_lock.cpp
 	src/bstone_sys_texture_lock.h
-	src/bstone_sys_video_mgr.cpp
+	src/bstone_sys_time.h
 	src/bstone_sys_video_mgr.h
 	src/bstone_sys_video_mgr_null.cpp
 	src/bstone_sys_video_mgr_null.h
-	src/bstone_sys_vulkan_mgr.cpp
 	src/bstone_sys_vulkan_mgr.h
 	src/bstone_sys_window.cpp
 	src/bstone_sys_window.h
-	src/bstone_sys_window_decoration_mgr.cpp
 	src/bstone_sys_window_decoration_mgr.h
 	src/bstone_sys_window_decoration_mgr_null.cpp
-	src/bstone_sys_window_mgr.cpp
 	src/bstone_sys_window_mgr.h
 )
 
@@ -720,7 +672,6 @@ set(BSTONE_BSTONE_AUDIO_SOURCES
 	src/bstone_audio_mixer_validator.h
 	src/bstone_audio_mixer_voice_handle.cpp
 	src/bstone_audio_mixer_voice_handle.h
-	src/bstone_audio_mixer_voice_handle_mgr.cpp
 	src/bstone_audio_mixer_voice_handle_mgr.h
 	src/bstone_audio_sample_converter.cpp
 	src/bstone_audio_sample_converter.h
@@ -769,7 +720,6 @@ set(BSTONE_BSTONE_AUDIO_SOURCES
 	src/bstone_oal_resource.h
 	src/bstone_oal_source.cpp
 	src/bstone_oal_source.h
-	src/bstone_oal_symbols.cpp
 	src/bstone_oal_symbols.h
 )
 
@@ -789,7 +739,6 @@ set(BSTONE_BSTONE_VIDEO_SOURCES
 	src/bstone_ps_fizzle_fx.h
 	src/bstone_sw_video.cpp
 	src/bstone_sw_video.h
-	src/bstone_video.cpp
 	src/bstone_video.h
 	src/bstone_video_cvars.cpp
 	src/bstone_video_cvars.h
@@ -829,7 +778,6 @@ source_group("bstone/image/sdl" FILES ${BSTONE_BSTONE_IMAGE_SDL_SOURCES})
 set(BSTONE_BSTONE_CVAR_SOURCES
 	src/bstone_ccmd.cpp
 	src/bstone_ccmd.h
-	src/bstone_ccmd_action.cpp
 	src/bstone_ccmd_action.h
 	src/bstone_ccmd_mgr.cpp
 	src/bstone_ccmd_mgr.h

@@ -40,25 +40,18 @@ target_link_libraries(bstone_tests
 
 target_sources(bstone_tests
 	PRIVATE
-		../../../bstone/src/bstone_char_traits.cpp
 		../../../bstone/src/bstone_char_traits.h
 		../../../bstone/src/bstone_exception.cpp
 		../../../bstone/src/bstone_exception.h
-		../../../bstone/src/bstone_ascii.cpp
 		../../../bstone/src/bstone_ascii.h
 		../../../bstone/src/bstone_endian.cpp
 		../../../bstone/src/bstone_endian.h
-		../../../bstone/src/bstone_scope_exit.cpp
 		../../../bstone/src/bstone_scope_exit.h
 		../../../bstone/src/bstone_char_conv.cpp
 		../../../bstone/src/bstone_char_conv.cpp
-		../../../bstone/src/bstone_unique_resource.cpp
 		../../../bstone/src/bstone_unique_resource.h
-		../../../bstone/src/bstone_cgm_vec.cpp
 		../../../bstone/src/bstone_cgm_vec.h
-		../../../bstone/src/bstone_cgm_mat.cpp
 		../../../bstone/src/bstone_cgm_mat.h
-		../../../bstone/src/bstone_cgm_transform.cpp
 		../../../bstone/src/bstone_cgm_transform.h
 		../../../bstone/src/bstone_sha1.cpp
 		../../../bstone/src/bstone_sha1.h
@@ -82,13 +75,11 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_win32_registry_key.h
 		../../../bstone/src/bstone_win32_advapi32_symbols.cpp
 		../../../bstone/src/bstone_win32_advapi32_symbols.h
-		../../../bstone/src/bstone_four_cc.cpp
 		../../../bstone/src/bstone_four_cc.h
 		../../../bstone/src/bstone_win32_os_version.cpp
 		../../../bstone/src/bstone_win32_os_version.h
 		../../../bstone/src/bstone_win32_utility.cpp
 		../../../bstone/src/bstone_win32_utility.h
-		../../../bstone/src/bstone_win32_wstring.cpp
 		../../../bstone/src/bstone_win32_wstring.h
 		../../../bstone/src/bstone_sys_file.h
 		../../../bstone/src/bstone_sys_file_sdl.cpp
