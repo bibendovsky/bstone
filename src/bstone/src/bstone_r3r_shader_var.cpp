@@ -1,9 +1,0 @@
-/*
-BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
-SPDX-License-Identifier: MIT
-*/
-
-// 3D Renderer: Shader Variable
-
-#include "bstone_r3r_shader_var.h"
