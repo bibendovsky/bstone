@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -9,8 +9,8 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_STRING_BUILDER_INCLUDED
 #define BSTONE_STRING_BUILDER_INCLUDED
 
+#include "bstone_format.h"
 #include <format>
-#include <iterator>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -60,33 +60,33 @@ public:
 
 	template<typename... TArgs>
 	void add(std::format_string<TArgs...> format_string, TArgs&&... args)
-		requires (sizeof...(args) > 0)
+	requires (sizeof...(args) > 0)
 	{
-		std::format_to(std::back_inserter(message_), format_string, std::forward<TArgs>(args)...);
+		add_internal(format_string.get(), std::make_format_args(args...));
 	}
 
 	template<typename... TArgs>
 	void add_line(std::format_string<TArgs...> format_string, TArgs&&... args)
-		requires (sizeof...(args) > 0)
+	requires (sizeof...(args) > 0)
 	{
-		add(format_string, std::forward<TArgs>(args)...);
+		add_internal(format_string.get(), std::make_format_args(args...));
 		add_line();
 	}
 
 	template<typename... TArgs>
 	void add_indented(std::format_string<TArgs...> format_string, TArgs&&... args)
-		requires (sizeof...(args) > 0)
+	requires (sizeof...(args) > 0)
 	{
 		add_indent();
-		add(format_string, std::forward<TArgs>(args)...);
+		add_internal(format_string.get(), std::make_format_args(args...));
 	}
 	
 	template<typename... TArgs>
 	void add_indented_line(std::format_string<TArgs...> format_string, TArgs&&... args)
-		requires (sizeof...(args) > 0)
+	requires (sizeof...(args) > 0)
 	{
 		add_indent();
-		add(format_string, std::forward<TArgs>(args)...);
+		add_internal(format_string.get(), std::make_format_args(args...));
 		add_line();
 	}
 
@@ -95,6 +95,12 @@ private:
 
 	std::string message_{};
 	std::string indent_{};
+	StdStringFormatIterator iterator_{message_};
+
+	void add_internal(std::string_view string_view, std::format_args format_args)
+	{
+		std::vformat_to(iterator_, string_view, format_args);
+	}
 };
 
 } // namespace bstone
