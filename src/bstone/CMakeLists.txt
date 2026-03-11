@@ -357,6 +357,7 @@ set(BSTONE_LIB_MISC_SOURCES
 	src/bstone_exception.h
 	src/bstone_file_stream.cpp
 	src/bstone_file_stream.h
+	src/bstone_format.h
 	src/bstone_four_cc.h
 	src/bstone_memory_binary_reader.cpp
 	src/bstone_memory_binary_reader.h
