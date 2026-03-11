@@ -9,10 +9,10 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_special_path.h"
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"
+#include "bstone_sdl.h"
 #include <cstddef>
 #include <climits>
 #include <algorithm>
-#include <format>
 #include <string>
 #include "SDL3/SDL_filesystem.h"
 
@@ -27,8 +27,7 @@ int SpecialPath::get_user_specific_data_path(
 	char* const sdl_path = SDL_GetPrefPath(organization_name, application_name);
 	if (sdl_path == nullptr)
 	{
-		const std::string message = std::format("[{}] {}", "SDL_GetPrefPath", SDL_GetError());
-		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+		sdl::fail("SDL_GetPrefPath");
 	}
 	const auto scope_exit = make_scope_exit(
 		[sdl_path]()

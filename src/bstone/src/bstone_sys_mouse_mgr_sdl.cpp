@@ -9,8 +9,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"
 #include "bstone_sys_mouse_mgr_sdl.h"
-#include <format>
-#include <string>
+#include "bstone_sdl.h"
 #include "SDL3/SDL_mouse.h"
 #include "SDL3/SDL_video.h"
 
@@ -52,11 +51,7 @@ void MouseMgrSdl::set_relative_mode(bool is_enable)
 			SDL_Window* const sdl_window = sdl_windows[0];
 			if (!SDL_SetWindowRelativeMouseMode(sdl_window, is_enable))
 			{
-				const std::string message = std::format(
-					"[{}] {}",
-					"SDL_SetWindowRelativeMouseMode",
-					SDL_GetError());
-				BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+				sdl::fail("SDL_SetWindowRelativeMouseMode");
 			}
 		}
 	}
