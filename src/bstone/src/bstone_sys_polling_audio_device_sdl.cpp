@@ -9,9 +9,8 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_polling_audio_device_sdl.h"
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"
+#include "bstone_sdl.h"
 #include <cstddef>
-#include <format>
-#include <string>
 #include <vector>
 #include "SDL3/SDL_audio.h"
 
@@ -84,8 +83,7 @@ PollingAudioDeviceSdl::PollingAudioDeviceSdl(Logger& logger, const PollingAudioD
 		this);
 	if (sdl_audio_stream == nullptr)
 	{
-		const std::string message = std::format("[{}] {}", "SDL_OpenAudioDeviceStream", SDL_GetError());
-		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+		sdl::fail("SDL_OpenAudioDeviceStream");
 	}
 	const auto scope_exit = make_scope_exit(
 		[&sdl_audio_stream]()
@@ -132,16 +130,14 @@ void PollingAudioDeviceSdl::pause(bool is_pause)
 	{
 		if (!SDL_PauseAudioStreamDevice(sdl_audio_stream_))
 		{
-			const std::string message = std::format("[{}] {}", "SDL_PauseAudioStreamDevice", SDL_GetError());
-			BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+			sdl::fail("SDL_PauseAudioStreamDevice");
 		}
 	}
 	else
 	{
 		if (!SDL_ResumeAudioStreamDevice(sdl_audio_stream_))
 		{
-			const std::string message = std::format("[{}] {}", "SDL_ResumeAudioStreamDevice", SDL_GetError());
-			BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+			sdl::fail("SDL_ResumeAudioStreamDevice");
 		}
 	}
 }

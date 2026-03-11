@@ -8,8 +8,7 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_exception.h"
 #include "bstone_sys_message_box.h"
-#include <format>
-#include <string>
+#include "bstone_sdl.h"
 #include "SDL3/SDL_messagebox.h"
 
 namespace bstone::sys {
@@ -33,8 +32,7 @@ void MessageBox::show_simple(const char* title, const char* message, MessageBoxT
 	}
 	if (!SDL_ShowSimpleMessageBox(sdl_flags, title, message, nullptr))
 	{
-		const std::string error_message = std::format("[{}] {}", "SDL_ShowSimpleMessageBox", SDL_GetError());
-		BSTONE_THROW_DYNAMIC_SOURCE(error_message.c_str());
+		sdl::fail("SDL_ShowSimpleMessageBox");
 	}
 }
 
@@ -91,8 +89,7 @@ int MessageBox::show(const MessageBoxInitParam& param)
 	int sdl_button_id = 0;
 	if (!SDL_ShowMessageBox(&sdl_message_box, &sdl_button_id))
 	{
-		const std::string message = std::format("[{}] {}", "SDL_ShowMessageBox", SDL_GetError());
-		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+		sdl::fail("SDL_ShowMessageBox");
 	}
 	return sdl_button_id;
 }

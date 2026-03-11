@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2023-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2023-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -9,8 +9,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_exception.h"
 #include "bstone_sys_gl_current_context_sdl.h"
 #include "bstone_sys_gl_symbol_resolver_sdl.h"
-#include <format>
-#include <string>
+#include "bstone_sdl.h"
 #include "SDL3/SDL_video.h"
 
 namespace bstone::sys {
@@ -48,8 +47,7 @@ SwapIntervalType GlCurrentContextSdl::get_swap_interval() const
 	int sdl_swap_interval;
 	if (!SDL_GL_GetSwapInterval(&sdl_swap_interval))
 	{
-		const std::string message = std::format("[{}] {}", "SDL_GL_GetSwapInterval", SDL_GetError());
-		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+		sdl::fail("SDL_GL_GetSwapInterval");
 	}
 	switch (sdl_swap_interval)
 	{
@@ -64,8 +62,7 @@ void GlCurrentContextSdl::set_swap_interval(SwapIntervalType swap_interval_type)
 	const int sdl_swap_interval = map(swap_interval_type);
 	if (!SDL_GL_SetSwapInterval(sdl_swap_interval))
 	{
-		const std::string message = std::format("[{}] {}", "SDL_GL_SetSwapInterval", SDL_GetError());
-		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+		sdl::fail("SDL_GL_SetSwapInterval");
 	}
 }
 

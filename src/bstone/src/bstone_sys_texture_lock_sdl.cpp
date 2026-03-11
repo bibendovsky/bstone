@@ -9,7 +9,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_texture_lock_sdl.h"
 #include "bstone_assert.h"
 #include "bstone_exception.h"
-#include <format>
+#include "bstone_sdl.h"
 #include <memory>
 #include <string>
 #include "SDL3/SDL_render.h"
@@ -77,8 +77,7 @@ TextureLockSdl::TextureLockSdl(SDL_Texture& sdl_texture, const Rect* rect)
 		&pixels_,
 		&pitch_))
 	{
-		const std::string message = std::format("[{}] {}", "SDL_LockTexture", SDL_GetError());
-		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+		sdl::fail("SDL_LockTexture");
 	}
 }
 
