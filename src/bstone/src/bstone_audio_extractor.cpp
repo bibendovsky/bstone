@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 
 #include <algorithm>
+#include <format>
 
 #include "audio.h"
 #include "id_ca.h"
@@ -16,6 +17,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_audio_decoder.h"
 #include "bstone_audio_extractor.h"
 #include "bstone_exception.h"
+#include "bstone_format.h"
 #include "bstone_fs_utils.h"
 #include "bstone_globals.h"
 #include "bstone_logger.h"
@@ -290,7 +292,7 @@ const char* AudioExtractorImpl::make_file_extension(ExtensionType extension_type
 std::string AudioExtractorImpl::make_number_string(int number)
 {
 	BSTONE_ASSERT(number >= 0);
-	return StringHelper::make_left_padded_with_zero(number, 8);
+	return std::format("{:08}", number);
 }
 
 std::string AudioExtractorImpl::make_file_name(const AudioChunk& audio_chunk, ExtensionType extension_type)
@@ -332,7 +334,7 @@ void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, con
 	auto sha1 = Sha1{};
 	sha1.process(audio_chunk.data, audio_chunk.data_size);
 	sha1.finish();
-	const auto sha1_string = array_to_hex_string(sha1.get_digest());
+	const auto sha1_string = StringHelper::array_to_hex_string(sha1.get_digest());
 
 	globals::logger->log_information(("\tSHA1: " + sha1_string).c_str());
 }

@@ -9037,7 +9037,7 @@ bool LoadTheGame(
 			archiver.read_uint8_array(
 				levels_hash_digest.data(),
 				static_cast<int>(levels_hash_digest.size()));
-			const auto& levels_hash_string = bstone::array_to_hex_string(levels_hash_digest);
+			const auto& levels_hash_string = bstone::StringHelper::array_to_hex_string(levels_hash_digest);
 
 			const auto& assets_info = get_assets_info();
 

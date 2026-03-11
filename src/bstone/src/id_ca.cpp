@@ -25,6 +25,7 @@ loaded into the data segment
 
 #include <array>
 #include <algorithm>
+#include <format>
 #include <memory>
 
 #include "id_heads.h"
@@ -119,7 +120,7 @@ static const int BUFFERSIZE = 0x10000;
 std::string ca_make_padded_asset_number_string(
 	int number)
 {
-	return bstone::StringHelper::make_left_padded_with_zero(number, 8);
+	return std::format("{:08}", number);
 }
 
 void CAL_CarmackExpand(
@@ -940,7 +941,7 @@ std::string ca_calculate_hash(
 
 	sha1.finish();
 
-	return bstone::array_to_hex_string(sha1.get_digest());
+	return bstone::StringHelper::array_to_hex_string(sha1.get_digest());
 }
 
 std::string ca_calculate_hash(
