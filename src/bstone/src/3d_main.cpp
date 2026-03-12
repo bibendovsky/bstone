@@ -7126,8 +7126,7 @@ void read_high_scores()
 		{
 			is_succeed = false;
 
-			bstone::globals::logger->log_error(
-				("Failed to unarchive high scores. " + std::string{ex.what()}).c_str());
+			bstone::globals::logger->log_error("Failed to unarchive high scores. {}", ex.what());
 		}
 	}
 	else
@@ -7163,8 +7162,7 @@ static void write_high_scores()
 		tmp_scores_path.c_str(),
 		bstone::sys::FileMode::create))
 	{
-		bstone::globals::logger->log_error(
-			("Failed to open a high scores file for writing: \"" + tmp_scores_path + "\".").c_str());
+		bstone::globals::logger->log_error("Failed to open a high scores file for writing: {}", tmp_scores_path);
 
 		return;
 	}
@@ -7192,8 +7190,7 @@ static void write_high_scores()
 	}
 	catch (const std::exception& ex)
 	{
-		bstone::globals::logger->log_error(
-			("Failed to archive high scores data." + std::string{ex.what()}).c_str());
+		bstone::globals::logger->log_error("Failed to archive high scores data. {}", ex.what());
 	}
 }
 // BBi
@@ -7617,10 +7614,7 @@ try
 }
 catch (const std::exception& ex)
 {
-	auto message = std::string{};
-	message += "[CFG] ";
-	message += ex.what();
-	bstone::globals::logger->log_warning(message.c_str());
+	bstone::globals::logger->log_warning("[CFG] {}", ex.what());
 	return true;
 }
 
@@ -7678,11 +7672,7 @@ void read_text_config()
 				else
 				{
 					const auto& identifier_name = tokens_span.front();
-					auto message = std::string{};
-					message += "[CFG] Unknown identifier \"";
-					message.append(identifier_name.data(), identifier_name.size());
-					message += "\".";
-					bstone::globals::logger->log_warning(message.c_str());
+					bstone::globals::logger->log_warning("[CFG] Unknown identifier: {}", identifier_name);
 				}
 			}
 		}
@@ -7713,7 +7703,7 @@ void cfg_file_write_entry(
 
 	if (!writer.write(entry_string))
 	{
-		bstone::globals::logger->log_warning(("Failed to write setting \"" + key_string + "\".").c_str());
+		bstone::globals::logger->log_warning("Failed to write setting {}.", key_string);
 	}
 }
 
@@ -7726,7 +7716,7 @@ void cfg_file_write_entry(
 
 	if (!writer.write(entry_string))
 	{
-		bstone::globals::logger->log_warning(("Failed to write setting \"" + key_string + "\".").c_str());
+		bstone::globals::logger->log_warning("Failed to write setting {}.", key_string);
 	}
 }
 
@@ -8849,12 +8839,7 @@ static bool LoadCompressedChunk(
 
 	if (bstone::sg_find_chunk(chunk_four_cc, *stream) == 0)
 	{
-		auto error_message = std::string{};
-		error_message.reserve(64);
-		error_message += "[SG] Chunk \"";
-		error_message.append(chunk_four_cc_chars, 4);
-		error_message += "\" not found.";
-		bstone::globals::logger->log_error(error_message.c_str());
+		bstone::globals::logger->log_error("[SG] Chunk {} not found.", std::string_view{chunk_four_cc_chars, 4});
 
 		return false;
 	}
@@ -8870,12 +8855,7 @@ static bool LoadCompressedChunk(
 
 		if (total_size <= 0 || total_size > stream_size)
 		{
-			auto error_message = std::string{};
-			error_message.reserve(64);
-			error_message += "[SG] Chunk \"";
-			error_message.append(chunk_four_cc_chars, 4);
-			error_message += "\" has invalid size.";
-			bstone::globals::logger->log_error(error_message.c_str());
+			bstone::globals::logger->log_error("[SG] Chunk {} has invalid size.", std::string_view{chunk_four_cc_chars, 4});
 
 			return false;
 		}
@@ -8898,25 +8878,15 @@ static bool LoadCompressedChunk(
 
 		if (decoded_size != src_size)
 		{
-			auto error_message = std::string{};
-			error_message.reserve(64);
-			error_message += "[SG] Failed to decompress chunk \"";
-			error_message.append(chunk_four_cc_chars, 4);
-			error_message += "\".";
-			bstone::globals::logger->log_error(error_message.c_str());
+			bstone::globals::logger->log_error("[SG] Failed to decompress chunk {}.", std::string_view{chunk_four_cc_chars, 4});
 
 			return false;
 		}
 	}
 	catch (const std::exception& ex)
 	{
-		auto error_message = std::string{};
-		error_message.reserve(64);
-		error_message += "[SG] Failed to unarchive chunk \"";
-		error_message.append(chunk_four_cc_chars, 4);
-		error_message += "\". ";
-		error_message += ex.what();
-		bstone::globals::logger->log_error(error_message.c_str());
+		bstone::globals::logger->log_error(
+			"[SG] Failed to unarchive chunk {}. {}", std::string_view{chunk_four_cc_chars, 4}, ex.what());
 
 		return false;
 	}
@@ -8936,7 +8906,7 @@ bool LoadTheGame(
 	{
 		is_succeed = false;
 
-		bstone::globals::logger->log_error(("LOAD: Failed to open file \"" + file_name + "\".").c_str());
+		bstone::globals::logger->log_error("LOAD: Failed to open file: {}", file_name);
 	}
 
 	if (is_succeed)
@@ -9059,8 +9029,7 @@ bool LoadTheGame(
 		{
 			is_succeed = false;
 
-			bstone::globals::logger->log_error(
-				("LOAD: Failed to deserialize HEAD data. " + std::string{ex.what()}).c_str());
+			bstone::globals::logger->log_error("LOAD: Failed to deserialize HEAD data. {}", ex.what());
 		}
 	}
 
@@ -9182,7 +9151,7 @@ bool SaveTheGame(
 		tmp_file_name.c_str(),
 		bstone::sys::FileMode::create))
 	{
-		bstone::globals::logger->log_error(("SAVE: Failed to open file \"" + tmp_file_name + "\".").c_str());
+		bstone::globals::logger->log_error("SAVE: Failed to open file: {}", tmp_file_name);
 
 		return false;
 	}
@@ -9235,8 +9204,7 @@ bool SaveTheGame(
 	}
 	catch (const std::exception& ex)
 	{
-		bstone::globals::logger->log_error(
-			("SAVE: Failed to serialize HEAD chunk. " + std::string{ex.what()}).c_str());
+		bstone::globals::logger->log_error("SAVE: Failed to serialize HEAD chunk. {}", ex.what());
 
 		return false;
 	}
@@ -9319,8 +9287,7 @@ bool SaveTheGame(
 	}
 	catch (const std::exception& ex)
 	{
-		bstone::globals::logger->log_error(
-			("SAVE: Failed to write data. " + std::string{ex.what()}).c_str());
+		bstone::globals::logger->log_error("SAVE: Failed to write data. {}", ex.what());
 
 		return false;
 	}

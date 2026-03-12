@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 
 #include <cstring>
+#include <format>
 
 #include "gfxv.h"
 #include "id_ca.h"
@@ -329,10 +330,7 @@ void log_bonus_stuff()
 	bstone::globals::logger->log_information("<<<<<<<<");
 	bstone::globals::logger->log_information("Current bonus items.");
 
-	bstone::globals::logger->log_information((
-		std::string{"stats:"} +
-			std::to_string(stats.accum_points) + "/" +
-			std::to_string(stats.total_points)).c_str());
+	bstone::globals::logger->log_information("stats:{}/{}", stats.accum_points, stats.total_points);
 
 	auto number = 0;
 	auto static_name = std::string{};
@@ -355,14 +353,7 @@ void log_bonus_stuff()
 		{
 			number += 1;
 
-			bstone::globals::logger->log_information((
-				std::to_string(number) +
-					". (" +
-					std::to_string(bs_static.tilex) +
-					", " +
-					std::to_string(bs_static.tiley) +
-					") " +
-					static_name).c_str());
+			bstone::globals::logger->log_information("{}. ({}, {}) {}", number, bs_static.tilex, bs_static.tiley, static_name);
 		}
 	}
 
@@ -622,12 +613,10 @@ void log_enemy_stuff()
 	bstone::globals::logger->log_information("<<<<<<<<");
 	bstone::globals::logger->log_information("Current enemies.");
 
-	bstone::globals::logger->log_information((
-		std::string("stats:")
-		+std::to_string(gamestuff.level[gamestate.mapon].stats.accum_enemy)
-		+"/"
-		+std::to_string(gamestuff.level[gamestate.mapon].stats.total_enemy)
-		).c_str());
+	bstone::globals::logger->log_information(
+		"stats:{}/{}",
+		gamestuff.level[gamestate.mapon].stats.accum_enemy,
+		gamestuff.level[gamestate.mapon].stats.total_enemy);
 
 	auto number = 0;
 
@@ -659,15 +648,7 @@ void log_enemy_stuff()
 		{
 			number += 1;
 
-			bstone::globals::logger->log_information(
-				(std::to_string(number) +
-					". (" +
-					std::to_string(bs_actor->tilex) +
-					", " +
-					std::to_string(bs_actor->tiley) +
-					") " +
-					actor_name).c_str()
-			);
+			bstone::globals::logger->log_information("{}. ({}, {}) {}", number, bs_actor->tilex, bs_actor->tiley, actor_name);
 		}
 	}
 

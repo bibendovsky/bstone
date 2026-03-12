@@ -225,9 +225,9 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 
 	const auto volume_factor = 32'767.0 / abs_max_sample;
 
-	bstone::globals::logger->log_information(("\tSample rate: " + std::to_string(dst_rate)).c_str());
-	bstone::globals::logger->log_information(("\tSample count: " + std::to_string(sample_count)).c_str());
-	bstone::globals::logger->log_information(("\tVolume factor: " + std::to_string(volume_factor)).c_str());
+	bstone::globals::logger->log_information("\tSample rate: {}", dst_rate);
+	bstone::globals::logger->log_information("\tSample count: {}", sample_count);
+	bstone::globals::logger->log_information("\tVolume factor: {}", volume_factor);
 }
 
 void AudioExtractorImpl::write_digitized_audio_chunk(const AudioChunk& audio_chunk, bstone::Stream& stream)
@@ -263,10 +263,9 @@ void AudioExtractorImpl::write_digitized_audio_chunk(const AudioChunk& audio_chu
 
 	const auto volume_factor = 127.0 / abs_max_sample;
 
-	bstone::globals::logger->log_information(
-		("\tSample rate: " + std::to_string(bstone::audio_decoder_w3d_pcm_frequency)).c_str());
-	bstone::globals::logger->log_information(("\tSample count: " + std::to_string(data_size)).c_str());
-	bstone::globals::logger->log_information(("\tVolume factor: " + std::to_string(volume_factor)).c_str());
+	bstone::globals::logger->log_information("\tSample rate: {}", bstone::audio_decoder_w3d_pcm_frequency);
+	bstone::globals::logger->log_information("\tSample count: {}", data_size);
+	bstone::globals::logger->log_information("\tVolume factor: {}", volume_factor);
 }
 
 const char* AudioExtractorImpl::make_file_name_prefix(AudioChunkType audio_chunk_type)
@@ -352,7 +351,7 @@ void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, con
 	sha1.finish();
 	const auto sha1_string = StringHelper::array_to_hex_string(sha1.get_digest());
 
-	globals::logger->log_information(("\tSHA1: " + sha1_string).c_str());
+	globals::logger->log_information("\tSHA1: {}", sha1_string);
 }
 
 void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir, const AudioChunk& audio_chunk)

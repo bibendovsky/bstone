@@ -3776,13 +3776,6 @@ restartgame:
 }
 
 // BBi
-std::string xy_to_string(
-	int x,
-	int y)
-{
-	return '(' + std::to_string(x) + ", " + std::to_string(y) + ')';
-}
-
 static void fix_level_inplace()
 {
 	if (loadedgame)
@@ -3819,8 +3812,7 @@ static void fix_level_inplace()
 				mapsegs[1][index] = 157;
 
 				bstone::globals::logger->log_information(
-					("[FIX][E2L6] Changing bio-tech at " + xy_to_string(x, y) +
-						" from standing to moving.").c_str());
+					"[FIX][E2L6] Changing bio-tech at ({}, {}) from standing to moving.", x, y);
 			}
 		}
 
@@ -3836,8 +3828,7 @@ static void fix_level_inplace()
 				mapsegs[1][index] = 157;
 
 				bstone::globals::logger->log_information(
-					("[FIX][E2L6] Changing bio-tech at " + xy_to_string(x, y) +
-						" from standing to moving.").c_str());
+					"[FIX][E2L6] Changing bio-tech at ({}, {}) from standing to moving.", x, y);
 			}
 		}
 	}
@@ -3862,8 +3853,7 @@ static void fix_level_inplace()
 			std::swap(mapsegs[1][old_index], mapsegs[1][new_index]);
 
 			bstone::globals::logger->log_information(
-				("[FIX][E5L2] Moving bio-tech at " + xy_to_string(old_x, y) +
-					" one tile to the left.").c_str());
+				"[FIX][E5L2] Moving bio-tech at ({}, {}) one tile to the left.", old_x, y);
 		}
 	}
 }

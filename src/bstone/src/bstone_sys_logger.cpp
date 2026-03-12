@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -9,6 +9,11 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_logger.h"
 
 namespace bstone::sys {
+
+thread_local std::string Logger::tls_string_(std::string::size_type{256}, '\0');
+thread_local StdStringFormatIterator Logger::tls_format_iterator_{tls_string_};
+
+// ======================================
 
 void Logger::log_information()
 {
