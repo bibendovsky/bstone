@@ -48,13 +48,7 @@ VulkanMgrSdl::VulkanMgrSdl(Logger& logger)
 	logger_.log_information("Starting SDL Vulkan manager.");
 	if (!SDL_Vulkan_LoadLibrary(nullptr))
 	{
-		std::string message{};
-		message.reserve(256);
-		message += '[';
-		message += "SDL_Vulkan_LoadLibrary";
-		message += "] ";
-		message += SDL_GetError();
-		logger_.log_information(message.c_str());
+		logger_.log_information("[SDL_Vulkan_LoadLibrary] {}", SDL_GetError());
 		return;
 	}
 	is_vulkan_available_ = true;

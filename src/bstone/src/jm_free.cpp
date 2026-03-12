@@ -619,8 +619,8 @@ void log_found_content(
 		name_and_version += version;
 	}
 
-	bstone::globals::logger->log_information(("Found " + name_and_version + '.').c_str());
-	bstone::globals::logger->log_information(("Content source: " + found_content.search_path->source_name).c_str());
+	bstone::globals::logger->log_information("Found {}.", name_and_version);
+	bstone::globals::logger->log_information("Content source: {}", found_content.search_path->source_name);
 }
 
 void find_contents()
@@ -1416,11 +1416,7 @@ void deserialize_cvars_from_cli(const bstone::Cl& args, bstone::CVarMgr& cvar_mg
 
 		if (option.args.size() != 1)
 		{
-			auto message = std::string{};
-			message += "Expected one argument for option \"";
-			message.append(option.name.data(), option.name.size());
-			message += "\".";
-			bstone::globals::logger->log_warning(message.c_str());
+			bstone::globals::logger->log_warning("Expected one argument for option {}.", option.name);
 			continue;
 		}
 
@@ -1451,10 +1447,10 @@ void freed_main()
 	find_contents();
 
 	bstone::globals::logger->log_information();
-	bstone::globals::logger->log_information(("Data path: \"" + data_dir_ + "\"").c_str());
-	bstone::globals::logger->log_information(("Mod path: \"" + mod_dir_ + "\"").c_str());
-	bstone::globals::logger->log_information(("Profile path: \"" + get_profile_dir() + "\"").c_str());
-	bstone::globals::logger->log_information(("Screenshot path: \"" + get_screenshot_dir() + "\"").c_str());
+	bstone::globals::logger->log_information("Data path: {}", data_dir_);
+	bstone::globals::logger->log_information("Mod path: {}", mod_dir_);
+	bstone::globals::logger->log_information("Profile path: {}", get_profile_dir());
+	bstone::globals::logger->log_information("Screenshot path: {}", get_screenshot_dir());
 
 	// BBi
 	{

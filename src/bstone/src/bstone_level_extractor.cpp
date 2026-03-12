@@ -23,7 +23,7 @@ void LevelExtractor::extract_levels(const std::string& destination_dir)
 	globals::logger->log_information();
 	globals::logger->log_information("<<< ================");
 	globals::logger->log_information("Extracting levels.");
-	globals::logger->log_information(("Destination dir: \"" + destination_dir + "\"").c_str());
+	globals::logger->log_information("Destination dir: {}", destination_dir);
 
 	const std::string normalized_destination_dir = fs_utils::normalize_path(destination_dir);
 	sys::create_directories(normalized_destination_dir.c_str());
@@ -45,8 +45,7 @@ void LevelExtractor::extract_levels(const std::string& destination_dir)
 	{
 		if (!ca_is_level_exists(static_cast<int>(level_index)))
 		{
-			const std::string message = "Missing level #" + std::to_string(level_index);
-			globals::logger->log_warning(message.c_str());
+			globals::logger->log_warning("Missing level #{}", level_index);
 			continue;
 		}
 
@@ -103,7 +102,7 @@ void LevelExtractor::extract_levels(const std::string& destination_dir)
 		++level_counter;
 	}
 
-	globals::logger->log_information(("Extracted " + std::to_string(level_counter) + " levels.").c_str());
+	globals::logger->log_information("Extracted {} levels.", level_counter);
 	globals::logger->log_information(">>> ================");
 }
 

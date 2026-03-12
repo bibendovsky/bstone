@@ -102,7 +102,7 @@ void ImageExtractorImpl::extract_vga_palette(const std::string& destination_dir)
 {
 	logger_.log_information();
 	logger_.log_information("Extracting VGA palette.");
-	logger_.log_information(std::format("Destination dir: {}", destination_dir).c_str());
+	logger_.log_information("Destination dir: {}", destination_dir);
 	dst_directory_ = fs_utils::normalize_path(destination_dir);
 	sys::create_directories(dst_directory_.c_str());
 	impl_extract_palette();
@@ -114,8 +114,8 @@ void ImageExtractorImpl::extract_walls(const std::string& destination_dir)
 	const int wall_count = vswap_.get_wall_count();
 	logger_.log_information();
 	logger_.log_information("Extracting walls.");
-	logger_.log_information(std::format("Destination dir: {}", destination_dir).c_str());
-	logger_.log_information(std::format("Wall count: {}", wall_count).c_str());
+	logger_.log_information("Destination dir: {}", destination_dir);
+	logger_.log_information("Wall count: {}", wall_count);
 	dst_directory_ = fs_utils::normalize_path(destination_dir);
 	sys::create_directories(dst_directory_.c_str());
 	for (int i = 0; i < wall_count; ++i)
@@ -130,8 +130,8 @@ void ImageExtractorImpl::extract_sprites(const std::string& destination_dir)
 	const int sprite_count = std::max(vswap_.get_sprite_count(), 0);
 	logger_.log_information();
 	logger_.log_information("Extracting sprites.");
-	logger_.log_information(std::format("Destination dir: {}", destination_dir).c_str());
-	logger_.log_information(std::format("File count: {}", sprite_count).c_str());
+	logger_.log_information("Destination dir: {}", destination_dir);
+	logger_.log_information("File count: {}", sprite_count);
 	dst_directory_ = fs_utils::normalize_path(destination_dir);
 	sys::create_directories(dst_directory_.c_str());
 	for (int i = 1; i < sprite_count; ++i)

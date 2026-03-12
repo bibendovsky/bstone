@@ -1,15 +1,17 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-// A logger.
+// Logger
 
 #ifndef BSTONE_LOGGER_INCLUDED
 #define BSTONE_LOGGER_INCLUDED
 
+#include "bstone_format.h"
+#include <format>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -74,7 +76,40 @@ public:
 	// (blocks the calling thread)
 	virtual void flush() = 0;
 
+	// Writes a formatted informational message.
+	template<typename... TArgs>
+	requires (sizeof...(TArgs) > 0)
+	void log_information(std::format_string<TArgs...> format_string, TArgs&&... args)
+	{
+		tls_string_.clear();
+		std::vformat_to(tls_format_iterator_, format_string.get(), std::make_format_args(args...));
+		log(LoggerMessageType::information, tls_string_);
+	}
+
+	// Writes a formatted warning message.
+	template<typename... TArgs>
+	requires (sizeof...(TArgs) > 0)
+	void log_warning(std::format_string<TArgs...> format_string, TArgs&&... args)
+	{
+		tls_string_.clear();
+		std::vformat_to(tls_format_iterator_, format_string.get(), std::make_format_args(args...));
+		log(LoggerMessageType::warning, tls_string_);
+	}
+
+	// Writes a formatted error message.
+	template<typename... TArgs>
+	requires (sizeof...(TArgs) > 0)
+	void log_error(std::format_string<TArgs...> format_string, TArgs&&... args)
+	{
+		tls_string_.clear();
+		std::vformat_to(tls_format_iterator_, format_string.get(), std::make_format_args(args...));
+		log(LoggerMessageType::error, tls_string_);
+	}
+
 private:
+	static thread_local std::string tls_string_;
+	static thread_local StdStringFormatIterator tls_format_iterator_;
+
 	void log_exception_internal(std::exception_ptr exception_ptr, std::string& message_buffer);
 };
 
