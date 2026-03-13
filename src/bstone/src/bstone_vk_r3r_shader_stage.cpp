@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -25,8 +25,6 @@ SPDX-License-Identifier: MIT
 #include <unordered_set>
 #include <utility>
 #include <vector>
-
-// ======================================
 
 namespace bstone {
 
@@ -62,7 +60,7 @@ private:
 			shader_stage_{shader_stage}
 		{}
 
-		~PostPresentObserver() override {}
+		~PostPresentObserver() override = default;
 
 		void update() override
 		{
@@ -81,6 +79,7 @@ private:
 		VkR3rBufferResource uniform_buffer;
 		void* uniform_mapped_memory;
 	};
+
 	using ShaderVars = std::vector<R3rShaderVarUPtr>;
 	using DescriptorSetLayoutBindings = std::vector<VkDescriptorSetLayoutBinding>;
 	using DescriptorContexts = std::vector<DescriptorContext>;
@@ -212,20 +211,17 @@ VkDescriptorSet VkR3rShaderStageImpl::acquire_vk_descriptor_set()
 		return descriptor_context.descriptor_set.get();
 	}
 	VkDescriptorSetLayout const vk_descriptor_set_layout = descriptor_set_layout_.get();
-	const VkDescriptorSetAllocateInfo vk_descriptor_set_allocate_info
-	{
-		/* sType */              VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
-		/* pNext */              nullptr,
-		/* descriptorPool */     context_.descriptor_pool.get(),
-		/* descriptorSetCount */ 1,
-		/* pSetLayouts */        &vk_descriptor_set_layout,
-	};
+	const VkDescriptorSetAllocateInfo vk_descriptor_set_allocate_info{
+		.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+		.pNext              = nullptr,
+		.descriptorPool     = context_.descriptor_pool.get(),
+		.descriptorSetCount = 1,
+		.pSetLayouts        = &vk_descriptor_set_layout};
 	VkDescriptorSet vk_descriptor_set{};
 	const VkResult vk_result = context_.vkAllocateDescriptorSets(
 		/* device */          context_.device.get(),
 		/* pAllocateInfo */   &vk_descriptor_set_allocate_info,
-		/* pDescriptorSets */ &vk_descriptor_set
-	);
+		/* pDescriptorSets */ &vk_descriptor_set);
 	context_.ensure_success_vk_result(vk_result, "vkAllocateDescriptorSets");
 	DescriptorContext descriptor_context{};
 	descriptor_context.descriptor_set.reset(vk_descriptor_set, VkR3rDescriptorSetDeleter{context_});
@@ -250,8 +246,7 @@ VkDescriptorSet VkR3rShaderStageImpl::acquire_vk_descriptor_set()
 		/* descriptorWriteCount */ static_cast<std::uint32_t>(write_descriptor_sets_.size()),
 		/* pDescriptorWrites */    write_descriptor_sets_.data(),
 		/* descriptorCopyCount */  0,
-		/* pDescriptorCopies */    nullptr
-	);
+		/* pDescriptorCopies */    nullptr);
 	descriptor_contexts_.emplace_back(std::move(descriptor_context));
 	++used_descriptor_set_count_;
 	return vk_descriptor_set;
@@ -260,17 +255,17 @@ VkDescriptorSet VkR3rShaderStageImpl::acquire_vk_descriptor_set()
 template<int N>
 int VkR3rShaderStageImpl::pot_align(int value)
 {
-	constexpr int alignment_minus_one = (1 << N) - 1;
-	return (value + alignment_minus_one) & (~alignment_minus_one);
+	return ((value + N - 1) / N) * N;
 }
 
 int VkR3rShaderStageImpl::align(int value, int alignment)
 {
 	switch (alignment)
 	{
-		case 4: return pot_align<2>(value);
-		case 8: return pot_align<3>(value);
-		case 16: return pot_align<4>(value);
+		case 4: return pot_align<4>(value);
+		case 8: return pot_align<8>(value);
+		case 16: return pot_align<16>(value);
+		case 32: return pot_align<32>(value);
 		default: return ((value + alignment - 1) / alignment) * alignment;
 	}
 }
@@ -292,7 +287,8 @@ int VkR3rShaderStageImpl::calculate_member_alignment(R3rShaderVarTypeId shader_v
 }
 
 int VkR3rShaderStageImpl::get_unit_size(R3rShaderVarTypeId type_id)
-try {
+try
+{
 	switch (type_id)
 	{
 		case R3rShaderVarTypeId::int32:
@@ -305,7 +301,8 @@ try {
 		case R3rShaderVarTypeId::mat4: return 4 * 4 * 4;
 		default: BSTONE_THROW_STATIC_SOURCE("Unsupported type.");
 	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VkR3rShaderStageImpl::initialize(const R3rShaderStageInitParam& param)
 {
@@ -446,38 +443,29 @@ void VkR3rShaderStageImpl::initialize(const R3rShaderStageInitParam& param)
 						BSTONE_THROW_STATIC_SOURCE("Unknown shader stage type.");
 				}
 				descriptor_set_layout_bindings.emplace_back(
-					VkDescriptorSetLayoutBinding
-					{
-						/* binding */            vk_binding,
-						/* descriptorType */     VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-						/* descriptorCount */    1,
-						/* stageFlags */         vk_stage,
-						/* pImmutableSamplers */ nullptr,
-					}
-				);
+					VkDescriptorSetLayoutBinding{
+						.binding            = vk_binding,
+						.descriptorType     = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+						.descriptorCount    = 1,
+						.stageFlags         = vk_stage,
+						.pImmutableSamplers = nullptr});
 				descriptor_buffer_infos_.emplace_back(
-					VkDescriptorBufferInfo
-					{
-						/* buffer */ VkBuffer{},
-						/* offset */ static_cast<VkDeviceSize>(old_uniform_buffer_offset),
-						/* range */  static_cast<VkDeviceSize>(uniform_buffer_offset - old_uniform_buffer_offset),
-					}
-				);
+					VkDescriptorBufferInfo{
+						.buffer = VkBuffer{},
+						.offset = static_cast<VkDeviceSize>(old_uniform_buffer_offset),
+						.range  = static_cast<VkDeviceSize>(uniform_buffer_offset - old_uniform_buffer_offset)});
 				write_descriptor_sets_.emplace_back(
-					VkWriteDescriptorSet
-					{
-						/* sType */            VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-						/* pNext */            nullptr,
-						/* dstSet */           VkDescriptorSet{},
-						/* dstBinding */       vk_binding,
-						/* dstArrayElement */  0,
-						/* descriptorCount */  1,
-						/* descriptorType */   VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-						/* pImageInfo */       nullptr,
-						/* pBufferInfo */      &descriptor_buffer_infos_.back(),
-						/* pTexelBufferView */ nullptr,
-					}
-				);
+					VkWriteDescriptorSet{
+						.sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+						.pNext            = nullptr,
+						.dstSet           = VkDescriptorSet{},
+						.dstBinding       = vk_binding,
+						.dstArrayElement  = 0,
+						.descriptorCount  = 1,
+						.descriptorType   = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+						.pImageInfo       = nullptr,
+						.pBufferInfo      = &descriptor_buffer_infos_.back(),
+						.pTexelBufferView = nullptr});
 			}
 		}
 	}
@@ -504,15 +492,12 @@ void VkR3rShaderStageImpl::initialize(const R3rShaderStageInitParam& param)
 				}
 				vk_image_binding_ = static_cast<std::uint32_t>(binding_to_info.first);
 				descriptor_set_layout_bindings.emplace_back(
-					VkDescriptorSetLayoutBinding
-					{
-						/* binding */            vk_image_binding_,
-						/* descriptorType */     VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-						/* descriptorCount */    1,
-						/* stageFlags */         VK_SHADER_STAGE_FRAGMENT_BIT,
-						/* pImmutableSamplers */ nullptr,
-					}
-				);
+					VkDescriptorSetLayoutBinding{
+						.binding            = vk_image_binding_,
+						.descriptorType     = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+						.descriptorCount    = 1,
+						.stageFlags         = VK_SHADER_STAGE_FRAGMENT_BIT,
+						.pImmutableSamplers = nullptr});
 			}
 		}
 	}
@@ -521,21 +506,18 @@ void VkR3rShaderStageImpl::initialize(const R3rShaderStageInitParam& param)
 		BSTONE_THROW_STATIC_SOURCE("Expected a sampler.");
 	}
 	VkResult vk_result;
-	const VkDescriptorSetLayoutCreateInfo vk_descriptor_set_layout_create_info
-	{
-		/* sType */        VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
-		/* pNext */        nullptr,
-		/* flags */        VkDescriptorSetLayoutCreateFlags{},
-		/* bindingCount */ static_cast<std::uint32_t>(descriptor_set_layout_bindings.size()),
-		/* pBindings */    descriptor_set_layout_bindings.data(),
-	};
+	const VkDescriptorSetLayoutCreateInfo vk_descriptor_set_layout_create_info{
+		.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+		.pNext        = nullptr,
+		.flags        = VkDescriptorSetLayoutCreateFlags{},
+		.bindingCount = static_cast<std::uint32_t>(descriptor_set_layout_bindings.size()),
+		.pBindings    = descriptor_set_layout_bindings.data()};
 	VkDescriptorSetLayout vk_descriptor_set_layout{};
 	vk_result = context_.vkCreateDescriptorSetLayout(
 		/* device */      context_.device.get(),
 		/* pCreateInfo */ &vk_descriptor_set_layout_create_info,
 		/* pAllocator */  nullptr,
-		/* pSetLayout */  &vk_descriptor_set_layout
-	);
+		/* pSetLayout */  &vk_descriptor_set_layout);
 	context_.ensure_success_vk_result(vk_result, "vkCreateDescriptorSetLayout");
 	descriptor_set_layout_.reset(vk_descriptor_set_layout, VkR3rDescriptorSetLayoutDeleter{context_});
 	for (auto& stage_to_type : stage_to_type_map)

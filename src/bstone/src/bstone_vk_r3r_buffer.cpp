@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -23,7 +23,7 @@ class VkR3rBufferImpl final : public VkR3rBuffer
 {
 public:
 	VkR3rBufferImpl(VkR3rContext& context, const R3rBufferInitParam& param);
-	~VkR3rBufferImpl() override {}
+	~VkR3rBufferImpl() override = default;
 
 	R3rBufferType get_type() const override;
 	R3rBufferUsageType get_usage_type() const override;
@@ -95,7 +95,8 @@ int VkR3rBufferImpl::get_size() const
 }
 
 void VkR3rBufferImpl::update(const R3rUpdateBufferParam& param)
-try {
+try
+{
 	if (param.offset < 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Negative offset.");
@@ -108,8 +109,9 @@ try {
 	{
 		BSTONE_THROW_STATIC_SOURCE("Range out of bounds.");
 	}
-	std::memcpy(static_cast<unsigned char*>(mapped_memory_) + param.offset, param.data, param.size);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	std::memcpy(static_cast<std::byte*>(mapped_memory_) + param.offset, param.data, param.size);
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 VkBuffer VkR3rBufferImpl::get_vk_buffer() const
 {
@@ -121,8 +123,10 @@ VkBuffer VkR3rBufferImpl::get_vk_buffer() const
 // ======================================
 
 VkR3rBufferUPtr make_vk_r3r_buffer(VkR3rContext& context, const R3rBufferInitParam& param)
-try {
+try
+{
 	return std::make_unique<VkR3rBufferImpl>(context, param);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

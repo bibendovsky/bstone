@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -32,7 +32,7 @@ public:
 	const VkPipelineVertexInputStateCreateInfo& get_vk_create_info() const override;
 
 private:
-	static constexpr std::uint32_t default_value_size = sizeof(R3rVec4);
+	constinit static const std::uint32_t default_value_size = sizeof(R3rVec4);
 
 	using VkAttributeDescriptions = std::vector<VkVertexInputAttributeDescription>;
 	using VkVertexInputBindingDescriptions = std::vector<VkVertexInputBindingDescription>;
@@ -86,14 +86,11 @@ try
 		if (descr.is_default)
 		{
 			vk_attribute_descriptions_.emplace_back(
-				VkVertexInputAttributeDescription
-				{
-					/* location */ static_cast<std::uint32_t>(descr.location),
-					/* binding */  1,
-					/* format */   VK_FORMAT_R32G32B32A32_SFLOAT,
-					/* offset */   vk_generic_offset,
-				}
-			);
+				VkVertexInputAttributeDescription{
+					.location = static_cast<std::uint32_t>(descr.location),
+					.binding  = 1,
+					.format   = VK_FORMAT_R32G32B32A32_SFLOAT,
+					.offset   = vk_generic_offset});
 			default_values.emplace_back(descr.default_value);
 			vk_generic_offset += default_value_size;
 			continue;
@@ -136,47 +133,38 @@ try
 			BSTONE_THROW_STATIC_SOURCE("Stride out of range.");
 		}
 		vk_attribute_descriptions_.emplace_back(
-			VkVertexInputAttributeDescription
-			{
-				/* location */ static_cast<std::uint32_t>(descr.location),
-				/* binding */  0,
-				/* format */   vk_format,
-				/* offset */   static_cast<std::uint32_t>(descr.offset),
-			});
+			VkVertexInputAttributeDescription{
+				.location = static_cast<std::uint32_t>(descr.location),
+				.binding  = 0,
+				.format   = vk_format,
+				.offset   = static_cast<std::uint32_t>(descr.offset)});
 	}
 	index_buffer_ = static_cast<VkR3rBuffer*>(param.index_buffer);
 	vertex_buffer_ = static_cast<VkR3rBuffer*>(last_vertex_buffer);
 	vk_vertex_input_binding_descriptions_.emplace_back(
-		VkVertexInputBindingDescription
-		{
-			/* binding */   0,
-			/* stride */    last_stride,
-			/* inputRate */ VK_VERTEX_INPUT_RATE_VERTEX,
-		}
-	);
+		VkVertexInputBindingDescription{
+			.binding   = 0,
+			.stride    = last_stride,
+			.inputRate = VK_VERTEX_INPUT_RATE_VERTEX});
 	if (vk_generic_offset > 0)
 	{
 		vk_vertex_input_binding_descriptions_.emplace_back(
-			VkVertexInputBindingDescription
-			{
-				/* binding */   1,
-				/* stride */    0,
-				/* inputRate */ VK_VERTEX_INPUT_RATE_VERTEX,
-			}
-		);
+			VkVertexInputBindingDescription{
+				.binding   = 1,
+				.stride    = 0,
+				.inputRate = VK_VERTEX_INPUT_RATE_VERTEX});
 		initialize_generic_buffer(default_values);
 	}
-	vk_pipeline_vertex_input_state_create_info_ = VkPipelineVertexInputStateCreateInfo
-	{
-		/* sType */                           VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
-		/* pNext */                           nullptr,
-		/* flags */                           VkPipelineVertexInputStateCreateFlags{},
-		/* vertexBindingDescriptionCount */   static_cast<std::uint32_t>(vk_vertex_input_binding_descriptions_.size()),
-		/* pVertexBindingDescriptions */      vk_vertex_input_binding_descriptions_.data(),
-		/* vertexAttributeDescriptionCount */ static_cast<std::uint32_t>(vk_attribute_descriptions_.size()),
-		/* pVertexAttributeDescriptions */    vk_attribute_descriptions_.data(),
-	};
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+	vk_pipeline_vertex_input_state_create_info_ = VkPipelineVertexInputStateCreateInfo{
+		.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+		.pNext                           = nullptr,
+		.flags                           = VkPipelineVertexInputStateCreateFlags{},
+		.vertexBindingDescriptionCount   = static_cast<std::uint32_t>(vk_vertex_input_binding_descriptions_.size()),
+		.pVertexBindingDescriptions      = vk_vertex_input_binding_descriptions_.data(),
+		.vertexAttributeDescriptionCount = static_cast<std::uint32_t>(vk_attribute_descriptions_.size()),
+		.pVertexAttributeDescriptions    = vk_attribute_descriptions_.data()};
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 VkR3rBuffer* VkR3rVertexInputImpl::get_index_buffer() const
 {
@@ -208,7 +196,7 @@ void VkR3rVertexInputImpl::initialize_generic_buffer(const DefaultValues& defaul
 		generic_buffer_resource_,
 		generic_buffer_memory_resource_);
 	void* const mapped_memory = context_.map_memory(generic_buffer_memory_resource_.get());
-	memcpy(mapped_memory, default_values.data(), resource_size);
+	std::memcpy(mapped_memory, default_values.data(), resource_size);
 	context_.unmap_memory(generic_buffer_memory_resource_.get());
 }
 

@@ -1,10 +1,10 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Vulkan 3D renderer: Outputs various information about Vulkan.
+// Vulkan 3D renderer: Outputs various information about Vulkan
 
 #include "bstone_vk_r3r_info.h"
 #include "vulkan/vulkan.h"
@@ -286,8 +286,7 @@ constexpr VkFormat vk_r3r_info_impl_vk_formats[] = {
 	VK_FORMAT_R14X2G14X2_UNORM_2PACK16_ARM,
 	VK_FORMAT_R14X2G14X2B14X2A14X2_UNORM_4PACK16_ARM,
 	VK_FORMAT_G14X2_B14X2R14X2_2PLANE_420_UNORM_3PACK16_ARM,
-	VK_FORMAT_G14X2_B14X2R14X2_2PLANE_422_UNORM_3PACK16_ARM,
-};
+	VK_FORMAT_G14X2_B14X2R14X2_2PLANE_422_UNORM_3PACK16_ARM};
 
 } // namespace
 
@@ -297,7 +296,6 @@ class VkR3rInfo::Impl
 {
 public:
 	Impl(sys::Logger& logger, const VkR3rContext& context);
-	~Impl();
 
 	void log_validation_layers();
 	void log_enabled_validation_layers();
@@ -478,7 +476,7 @@ void VkR3rInfo::Impl::append_flags_property(VkFlags flags, const char* caption, 
 		if ((flags & 1) != 0)
 		{
 			append_indentation();
-			const char* flag_name = flag_name_func(static_cast<TFlagBits>(flag));
+			const char* const flag_name = flag_name_func(static_cast<TFlagBits>(flag));
 			if (flag_name != nullptr)
 			{
 				append_line(flag_name);
@@ -538,8 +536,8 @@ void VkR3rInfo::Impl::append_extent_2d_property(const VkExtent2D& value, const c
 
 void VkR3rInfo::Impl::append_vk_format(VkFormat vk_format)
 {
-	const char* const vk_format_string = VkR3rEnumStrings::get_VkFormat(vk_format);
-	if (vk_format_string != nullptr)
+	if (const char* const vk_format_string = VkR3rEnumStrings::get_VkFormat(vk_format);
+		vk_format_string != nullptr)
 	{
 		append(vk_format_string);
 	}
@@ -551,8 +549,8 @@ void VkR3rInfo::Impl::append_vk_format(VkFormat vk_format)
 
 void VkR3rInfo::Impl::append_vk_color_space_khr(VkColorSpaceKHR vk_color_space_khr)
 {
-	const char* const vk_color_space_khr_string = VkR3rEnumStrings::get_VkColorSpaceKHR(vk_color_space_khr);
-	if (vk_color_space_khr_string != nullptr)
+	if (const char* const vk_color_space_khr_string = VkR3rEnumStrings::get_VkColorSpaceKHR(vk_color_space_khr);
+		vk_color_space_khr_string != nullptr)
 	{
 		append(vk_color_space_khr_string);
 	}
@@ -564,8 +562,8 @@ void VkR3rInfo::Impl::append_vk_color_space_khr(VkColorSpaceKHR vk_color_space_k
 
 void VkR3rInfo::Impl::append_vk_present_mode_khr(VkPresentModeKHR vk_present_mode_khr)
 {
-	const char* const vk_present_mode_khr_string = VkR3rEnumStrings::get_VkPresentModeKHR(vk_present_mode_khr);
-	if (vk_present_mode_khr_string != nullptr)
+	if (const char* const vk_present_mode_khr_string = VkR3rEnumStrings::get_VkPresentModeKHR(vk_present_mode_khr);
+		vk_present_mode_khr_string != nullptr)
 	{
 		append(vk_present_mode_khr_string);
 	}
@@ -637,11 +635,9 @@ VkR3rInfo::Impl::Impl(sys::Logger& logger, const VkR3rContext& context)
 {
 	logger_ = &logger;
 	context_ = &context;
-	string_builder_.reserve(1048576);
+	string_builder_.reserve(1'048'576);
 	clear_indentation();
 }
-
-VkR3rInfo::Impl::~Impl() = default;
 
 void VkR3rInfo::Impl::log_validation_layers()
 {
@@ -653,16 +649,13 @@ void VkR3rInfo::Impl::log_validation_layers()
 	bool is_first = true;
 	for (const VkLayerProperties& layer : layers)
 	{
-		if (is_first)
-		{
-			is_first = false;
-		}
-		else
+		if (!is_first)
 		{
 			append_newline();
 		}
 		append_indentation();
 		append(layer.layerName);
+		is_first = false;
 	}
 	logger_->log_information(string_builder_.get_string().c_str());
 }
@@ -674,18 +667,15 @@ void VkR3rInfo::Impl::log_enabled_validation_layers()
 	append_line("Enabled validation layers:");
 	increase_indentation();
 	bool is_first = true;
-	for (const char* layer_name : context_->enabled_layers)
+	for (const char* const layer_name : context_->enabled_layers)
 	{
-		if (is_first)
-		{
-			is_first = false;
-		}
-		else
+		if (!is_first)
 		{
 			append_newline();
 		}
 		append_indentation();
 		append(layer_name);
+		is_first = false;
 	}
 	logger_->log_information(string_builder_.get_string().c_str());
 }
@@ -697,19 +687,15 @@ void VkR3rInfo::Impl::log_enabled_extensions()
 	append_line("Enabled extensions:");
 	increase_indentation();
 	bool is_first = true;
-	for (const char* extensions_name : context_->enabled_extensions)
+	for (const char* const extensions_name : context_->enabled_extensions)
 	{
-		if (is_first)
-		{
-			is_first = false;
-		}
-		else
+		if (!is_first)
 		{
 			append_newline();
 		}
-
 		append_indentation();
 		append(extensions_name);
+		is_first = false;
 	}
 	logger_->log_information(string_builder_.get_string().c_str());
 }
@@ -724,16 +710,13 @@ void VkR3rInfo::Impl::log_extensions()
 	bool is_first = true;
 	for (const VkExtensionProperties& extension : extensions)
 	{
-		if (is_first)
-		{
-			is_first = false;
-		}
-		else
+		if (!is_first)
 		{
 			append_newline();
 		}
 		append_indentation();
 		append(extension.extensionName);
+		is_first = false;
 	}
 	logger_->log_information(string_builder_.get_string().c_str());
 }
@@ -787,7 +770,7 @@ void VkR3rInfo::Impl::log_physical_devices()
 		append_line(')');
 		append_physical_device(physical_device);
 		decrease_indentation();
-		++device_number;
+		device_number += 1;
 	}
 	logger_->log_information(string_builder_.get_string().c_str());
 }

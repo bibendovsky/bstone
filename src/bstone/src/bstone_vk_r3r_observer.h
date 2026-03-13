@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -68,7 +68,7 @@ class VkR3rPostPresentSubject final : public VkR3rSubject<void>
 {
 public:
 	VkR3rPostPresentSubject();
-	~VkR3rPostPresentSubject() override {};
+	~VkR3rPostPresentSubject() override = default;;
 
 	void attach(Observer& observer) override;
 	void detach(Observer& observer) override;

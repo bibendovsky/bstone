@@ -1,10 +1,10 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Vulkan 3D renderer: Outputs various information about Vulkan.
+// Vulkan 3D renderer: Outputs various information about Vulkan
 
 #ifndef BSTONE_VK_R3R_INFO_INCLUDED
 #define BSTONE_VK_R3R_INFO_INCLUDED

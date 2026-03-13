@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -35,6 +35,7 @@ public:
 	using ImageLayouts = std::vector<VkImageLayout>;
 	using Framebuffers = std::vector<VkR3rFramebufferResource>;
 	using StringPointers = std::vector<const char*>;
+
 	struct ShaderVarDrawState
 	{
 		R3rShaderVarTypeId type_id;
@@ -49,7 +50,9 @@ public:
 			R3rMat4 mat4_value;
 		};
 	};
+
 	using ShaderVarsDrawState = std::vector<ShaderVarDrawState>;
+
 	struct DrawState
 	{
 		bool is_culling_enabled;
@@ -165,7 +168,7 @@ public:
 
 	R3rDeviceFeatures r3r_device_features{};
 	VkFormat surface_format{};
-	int sample_count_bitmask{};
+	unsigned int sample_count_bitmask{};
 	int sample_count{};
 	VkPresentModeKHR vk_present_mode_khr{};
 

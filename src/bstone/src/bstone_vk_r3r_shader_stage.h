@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -22,7 +22,7 @@ class VkR3rShader;
 class VkR3rShaderStage : public R3rShaderStage
 {
 public:
-	~VkR3rShaderStage() override {}
+	~VkR3rShaderStage() override = default;
 
 	virtual std::uint32_t get_vk_image_binding() const = 0;
 	virtual VkR3rShader* get_vertex_shader() const = 0;
@@ -31,7 +31,7 @@ public:
 	virtual VkDescriptorSet acquire_vk_descriptor_set() = 0;
 
 protected:
-	VkR3rShaderStage() {}
+	VkR3rShaderStage() = default;
 };
 
 // ======================================

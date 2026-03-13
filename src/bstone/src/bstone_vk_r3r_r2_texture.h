@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -23,12 +23,12 @@ class VkR3rContext;
 class VkR3rR2Texture : public R3rR2Texture
 {
 public:
-	~VkR3rR2Texture() override {}
+	~VkR3rR2Texture() override = default;
 
 	virtual VkImageView get_vk_image_view() const = 0;
 
 protected:
-	VkR3rR2Texture() {}
+	VkR3rR2Texture() = default;
 };
 
 // ======================================

@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -15,8 +15,6 @@ SPDX-License-Identifier: MIT
 #include <cstdint>
 #include <algorithm>
 
-// ======================================
-
 namespace bstone {
 
 namespace {
@@ -25,14 +23,14 @@ class VkR3rSamplerImpl final : public VkR3rSampler
 {
 public:
 	VkR3rSamplerImpl(VkR3rContext& context, const R3rSamplerInitParam& param);
-	~VkR3rSamplerImpl() override {}
+	~VkR3rSamplerImpl() override = default;
 
 	void update(const R3rSamplerUpdateParam& param) override;
 	const R3rSamplerState& get_state() const override;
 	VkSampler get_vk_sampler() const override;
 
 private:
-	static const int min_anisotropy;
+	static constexpr int min_anisotropy = 1;
 
 	VkR3rContext& context_;
 	R3rSamplerState state_{};
@@ -47,10 +45,6 @@ private:
 
 // --------------------------------------
 
-const int VkR3rSamplerImpl::min_anisotropy = 1;
-
-// --------------------------------------
-
 VkR3rSamplerImpl::VkR3rSamplerImpl(VkR3rContext& context, const R3rSamplerInitParam& param)
 try
 	:
@@ -58,7 +52,8 @@ try
 	state_{param.state}
 {
 	update_internal();
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VkR3rSamplerImpl::update(const R3rSamplerUpdateParam& param)
 {
@@ -71,7 +66,6 @@ void VkR3rSamplerImpl::update(const R3rSamplerUpdateParam& param)
 	{
 		return;
 	}
-
 	state_ = param.state;
 	update_internal();
 }
@@ -135,14 +129,11 @@ void VkR3rSamplerImpl::update_internal()
 	{
 		vk_sampler_mipmap_mode = map_mipmap_mode(state_.mipmap_mode);
 		vk_max_lod = VK_LOD_CLAMP_NONE;
-
 		const float clamped_anisotropy = clamp_anisotropy(state_.anisotropy);
-
 		vk_anisotropy_enable =
 			context_.physical_device_features.samplerAnisotropy != VK_FALSE &&
 			context_.physical_device_properties.limits.maxSamplerAnisotropy > 1.0F &&
 			clamped_anisotropy > 1.0F;
-
 		vk_max_anisotropy = clamped_anisotropy;
 	}
 	else
@@ -152,30 +143,31 @@ void VkR3rSamplerImpl::update_internal()
 		vk_anisotropy_enable = false;
 		vk_max_anisotropy = 0.0F;
 	}
-	const VkSamplerCreateInfo vk_sampler_create_info
-	{
-		/* sType */                   VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-		/* pNext */                   nullptr,
-		/* flags */                   VkSamplerCreateFlags{},
-		/* magFilter */               map_filter(state_.mag_filter),
-		/* minFilter */               map_filter(state_.min_filter),
-		/* mipmapMode */              vk_sampler_mipmap_mode,
-		/* addressModeU */            map_address_mode(state_.address_mode_u),
-		/* addressModeV */            map_address_mode(state_.address_mode_v),
-		/* addressModeW */            VK_SAMPLER_ADDRESS_MODE_REPEAT,
-		/* mipLodBias */              0.0F,
-		/* anisotropyEnable */        vk_anisotropy_enable,
-		/* maxAnisotropy */           vk_max_anisotropy,
-		/* compareEnable */           false,
-		/* compareOp */               VkCompareOp{},
-		/* minLod */                  0.0F,
-		/* maxLod */                  vk_max_lod,
-		/* borderColor */             VK_BORDER_COLOR_INT_OPAQUE_BLACK,
-		/* unnormalizedCoordinates */ false,
-	};
+	const VkSamplerCreateInfo vk_sampler_create_info{
+		.sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+		.pNext                   = nullptr,
+		.flags                   = VkSamplerCreateFlags{},
+		.magFilter               = map_filter(state_.mag_filter),
+		.minFilter               = map_filter(state_.min_filter),
+		.mipmapMode              = vk_sampler_mipmap_mode,
+		.addressModeU            = map_address_mode(state_.address_mode_u),
+		.addressModeV            = map_address_mode(state_.address_mode_v),
+		.addressModeW            = VK_SAMPLER_ADDRESS_MODE_REPEAT,
+		.mipLodBias              = 0.0F,
+		.anisotropyEnable        = vk_anisotropy_enable,
+		.maxAnisotropy           = vk_max_anisotropy,
+		.compareEnable           = false,
+		.compareOp               = VkCompareOp{},
+		.minLod                  = 0.0F,
+		.maxLod                  = vk_max_lod,
+		.borderColor             = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
+		.unnormalizedCoordinates = false};
 	VkSampler vk_sampler{};
 	const VkResult vk_result = context_.vkCreateSampler(
-		context_.device.get(), &vk_sampler_create_info, nullptr, &vk_sampler);
+		/* device      */ context_.device.get(),
+		/* pCreateInfo */ &vk_sampler_create_info,
+		/* pAllocator  */ nullptr,
+		/* pSampler    */ &vk_sampler);
 	VkR3rContext::ensure_success_vk_result(vk_result, "vkCreateSampler");
 	sampler_resource_.reset(vk_sampler, VkR3rSamplerDeleter{context_});
 }
