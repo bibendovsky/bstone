@@ -23,9 +23,11 @@ public:
 	bool is_empty() const;
 	const std::string& get_string() const;
 	void reserve(int capacity);
+	void clear_string();
 	void increase_indent();
 	void decrease_indent();
 	void reset_indent();
+	void set_indent(int width);
 
 	template<typename T>
 	void add(T&& value)
