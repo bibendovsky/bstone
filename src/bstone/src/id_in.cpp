@@ -1,7 +1,7 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
@@ -23,17 +23,17 @@ SPDX-License-Identifier: GPL-2.0-or-later
 //      DEBUG - there are more globals
 //
 
-#include <cstring>
-#include <iterator>
 #include "id_ca.h"
 #include "id_heads.h"
 #include "id_in.h"
 #include "id_sd.h"
 #include "id_vl.h"
-#include "bstone_ascii.h"
-#include "bstone_char_conv.h"
 #include "bstone_globals.h"
+#include "bstone_string_builder.h"
 #include "bstone_sys_keyboard_key.h"
+#include <cstring>
+#include <charconv>
+#include <format>
 
 #define KeyInt 9 // The keyboard ISR number
 
@@ -1453,18 +1453,19 @@ auto in_clear_bindings_ccmd = bstone::CCmd{in_clear_bindings_sv, in_clear_bindin
 
 std::intptr_t in_parse_binding_slot_index(std::string_view slot_index_name_sv)
 try {
-	auto slot_index = std::intptr_t{};
-	bstone::from_chars(slot_index_name_sv.cbegin(), slot_index_name_sv.cend(), slot_index);
-
+	int slot_index;
+	const auto [ptr, ec] = std::from_chars(
+		slot_index_name_sv.data(),
+		slot_index_name_sv.data() + slot_index_name_sv.size(),
+		slot_index);
+	if (ec != std::errc{})
+	{
+		BSTONE_THROW_DYNAMIC_SOURCE(std::format("Invalid slot index string: {}", slot_index_name_sv).c_str());
+	}
 	if (slot_index < 0 || slot_index > k_max_binding_keys)
 	{
-		auto message = std::string{};
-		message += "Slot index \"";
-		message.append(slot_index_name_sv.data(), slot_index_name_sv.size());
-		message += "\" out of range.";
-		BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+		BSTONE_THROW_DYNAMIC_SOURCE(std::format("Slot index out of range: {}", slot_index).c_str());
 	}
-
 	return slot_index;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -1801,62 +1802,32 @@ void in_serialize_bindings(bstone::TextWriter& text_writer)
 	{
 		in_set_default_bindings();
 	}
-
-	auto text_buffer = std::string{};
-	text_buffer.reserve(1024);
-
-	text_buffer = '\n';
-	text_writer.write(text_buffer);
-
-	// Clear bindings.
+	bstone::StringBuilder string_builder{};
+	string_builder.reserve(1024);
+	string_builder.add_line();
 	{
-		text_buffer.assign(in_clear_bindings_sv.data(), in_clear_bindings_sv.size());
-		text_buffer += '\n';
-		text_writer.write(text_buffer);
+		// Clear bindings.
+		string_builder.add_line(in_clear_bindings_sv);
 	}
-
-	// Write out bindings.
 	{
-		constexpr auto slot_index_max_chars = 11;
-		char slot_index_chars[slot_index_max_chars];
-
-		auto raw_binding_id = static_cast<std::intptr_t>(BindingId{});
-
-		for (const auto& binding_slots : in_bindings)
+		// Write out bindings.
+		int raw_binding_id = static_cast<int>(BindingId{});
+		for (const Binding& binding_slots : in_bindings)
 		{
-			const auto binding_id = static_cast<BindingId>(raw_binding_id);
-			const auto binding_name_sv = in_binding_id_to_name(binding_id);
-			auto slot_index = 0;
-
-			for (const auto& binding_slot : binding_slots)
+			const BindingId binding_id = static_cast<BindingId>(raw_binding_id);
+			const std::string_view binding_name_sv = in_binding_id_to_name(binding_id);
+			int slot_index = 0;
+			for (const ScanCode& binding_slot : binding_slots)
 			{
 				if (binding_slot != ScanCode::sc_none)
 				{
-					const auto scan_code_sv = in_scan_code_id_to_name(binding_slot);
-
-					const auto slot_index_char_count = bstone::to_chars(
-						slot_index,
-						std::begin(slot_index_chars),
-						std::end(slot_index_chars)) - slot_index_chars;
-
-					text_buffer.clear();
-					text_buffer.append(in_bind_sv.data(), in_bind_sv.size());
-					text_buffer += " \"";
-					text_buffer.append(scan_code_sv.data(), scan_code_sv.size());
-					text_buffer += "\" \"";
-					text_buffer.append(binding_name_sv.data(), binding_name_sv.size());
-					text_buffer += "\" \"";
-					text_buffer.append(
-						slot_index_chars,
-						static_cast<std::size_t>(slot_index_char_count));
-					text_buffer += "\"\n";
-					text_writer.write(text_buffer);
+					const std::string_view scan_code_sv = in_scan_code_id_to_name(binding_slot);
+					string_builder.add_line("{} \"{}\" \"{}\" \"{}\"", in_bind_sv, scan_code_sv, binding_name_sv, slot_index);
 				}
-
 				slot_index += 1;
 			}
-
 			raw_binding_id += 1;
 		}
 	}
+	text_writer.write(string_builder.get_string());
 }
