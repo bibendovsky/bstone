@@ -1,16 +1,15 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2022-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
 #include <algorithm>
+#include <charconv>
 #include <exception>
 #include <iterator>
 #include <limits>
-#include <span>
 #include <utility>
-#include "bstone_char_conv.h"
 #include "bstone_cvalidator.h"
 #include "bstone_cvar.h"
 #include "bstone_exception.h"
@@ -304,26 +303,28 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void CVar::set_string_from_int32()
-try
 {
 	char chars[max_int32_chars];
-	const auto char_count = to_chars(int32_value_, std::begin(chars), std::end(chars)) - chars;
-	string_value_ = std::string_view{chars, static_cast<std::size_t>(char_count)};
-}
-catch (...)
-{
-	string_value_ = string_default_value_;
+	if (const auto [chars_end, ec] = std::to_chars(std::begin(chars), std::end(chars), int32_value_);
+		ec == std::errc{})
+	{
+		const std::intptr_t char_count = chars_end - chars;
+		string_value_ = std::string_view{chars, static_cast<std::size_t>(char_count)};
+	}
+	else
+	{
+		string_value_ = string_default_value_;
+	}
 }
 
 void CVar::set_int32_from_string()
-try
 {
-	const auto string = string_value_.get();
-	from_chars(string.cbegin(), string.cend(), int32_value_, 0);
-}
-catch (...)
-{
-	int32_value_ = int32_default_value_;
+	const std::string_view string = string_value_.get();
+	if (const auto [string_end, ec] = std::from_chars(string.data(), string.data() + string.size(), int32_value_);
+		ec != std::errc{})
+	{
+		int32_value_ = int32_default_value_;
+	}
 }
 
 bool CVar::has_string(std::string_view string)
