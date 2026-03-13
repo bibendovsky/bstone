@@ -9,6 +9,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstdint>
 #include <algorithm>
 #include <chrono>
+#include <format>
 #include <functional>
 #include <iterator>
 #include <stdexcept>
@@ -25,7 +26,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_archiver.h"
 #include "bstone_ascii.h"
 #include "bstone_assert.h"
-#include "bstone_char_conv.h"
 #include "bstone_endian.h"
 #include "bstone_entry_point.h"
 #include "bstone_exception.h"
@@ -7348,9 +7348,6 @@ private:
 	};
 
 private:
-	static constexpr auto max_number_digits = 21;
-
-private:
 	std::intptr_t line_number_{};
 	std::intptr_t column_number_{};
 	const char* line_begin_iter_{};
@@ -7363,28 +7360,7 @@ private:
 private:
 	[[noreturn]] void fail_line_and_column(const char* message)
 	{
-		char line_buffer[max_number_digits];
-
-		const auto number_size = bstone::to_chars(
-			line_number_,
-			std::begin(line_buffer),
-			std::end(line_buffer)) - line_buffer;
-
-		char column_buffer[max_number_digits];
-
-		const auto column_size = bstone::to_chars(
-			column_number_,
-			std::begin(column_buffer),
-			std::end(column_buffer)) - column_buffer;
-
-		auto message_buffer = std::string{};
-		message_buffer += '[';
-		message_buffer.append(line_buffer, static_cast<std::size_t>(number_size));
-		message_buffer += ':';
-		message_buffer.append(column_buffer, static_cast<std::size_t>(column_size));
-		message_buffer += "] ";
-		message_buffer += message;
-		BSTONE_THROW_DYNAMIC_SOURCE(message_buffer.c_str());
+		BSTONE_THROW_DYNAMIC_SOURCE(std::format("[{}:{}] {}", line_number_, column_number_, message).c_str());
 	}
 
 private:
