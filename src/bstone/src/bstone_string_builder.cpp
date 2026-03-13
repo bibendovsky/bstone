@@ -11,14 +11,19 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
+bool StringBuilder::is_empty() const
+{
+	return string_.empty();
+}
+
 const std::string& StringBuilder::get_string() const
 {
-	return message_;
+	return string_;
 }
 
 void StringBuilder::reserve(int capacity)
 {
-	message_.reserve(static_cast<std::size_t>(capacity));
+	string_.reserve(static_cast<std::size_t>(capacity));
 }
 
 void StringBuilder::increase_indent()

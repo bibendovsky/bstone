@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2023-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -11,17 +11,15 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-struct GlR3rError
+class GlR3rError
 {
+public:
 	// Enables checking for OpenGL errors.
 	static void enable_checking(bool is_enable);
-
 	// Clears OpenGL error flags and throws an exception if there were any error.
 	static void ensure_no_errors();
-
 	// Checks for OpenGL errors only if check is enabled.
 	static void check_optionally();
-
 	// Checks for OpenGL errors only if NDEBUG not defined.
 	static void ensure_no_errors_assert();
 };

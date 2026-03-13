@@ -20,6 +20,7 @@ namespace bstone {
 class StringBuilder
 {
 public:
+	bool is_empty() const;
 	const std::string& get_string() const;
 	void reserve(int capacity);
 	void increase_indent();
@@ -29,7 +30,7 @@ public:
 	template<typename T>
 	void add(T&& value)
 	{
-		message_ += std::forward<T>(value);
+		string_ += std::forward<T>(value);
 	}
 
 	void add_line();
@@ -93,9 +94,9 @@ public:
 private:
 	constinit inline static int indent_step = 2;
 
-	std::string message_{};
+	std::string string_{};
 	std::string indent_{};
-	StdStringFormatIterator iterator_{message_};
+	StdStringFormatIterator iterator_{string_};
 
 	void add_internal(std::string_view string_view, std::format_args format_args)
 	{
