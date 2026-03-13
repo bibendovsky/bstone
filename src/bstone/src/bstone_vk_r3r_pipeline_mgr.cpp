@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -23,13 +23,14 @@ class VkR3rPipelineMgrImpl final : public VkR3rPipelineMgr
 {
 public:
 	VkR3rPipelineMgrImpl(VkR3rContext& context);
-	~VkR3rPipelineMgrImpl() override {}
+	~VkR3rPipelineMgrImpl() override = default;
 
 	void clear() override;
 	VkR3rPipeline* acquire_pipeline() override;
 
 private:
 	using PipelineMapKey = VkR3rContext::DrawState;
+
 	class ByteHasher
 	{
 	public:
@@ -41,7 +42,6 @@ private:
 		void update(const void* data, int data_size)
 		{
 			const unsigned char* const bytes = static_cast<const unsigned char*>(data);
-
 			for (int i = 0; i < data_size; ++i)
 			{
 				hash_ = hash_ * 31 + bytes[i] + 1;
@@ -57,6 +57,7 @@ private:
 	private:
 		std::size_t hash_{};
 	};
+
 	struct PipelineMapKeyHasher
 	{
 		std::size_t operator()(const PipelineMapKey& key) const
@@ -71,6 +72,7 @@ private:
 			return hasher.get();
 		}
 	};
+
 	struct PipelineMapKeyComparer
 	{
 		bool operator()(const PipelineMapKey& a, const PipelineMapKey& b) const
@@ -84,6 +86,7 @@ private:
 				a.shader_stage == b.shader_stage;
 		}
 	};
+
 	using PipelineMap = std::unordered_map<
 		PipelineMapKey,
 		VkR3rPipelineUPtr,
@@ -110,8 +113,8 @@ void VkR3rPipelineMgrImpl::clear()
 
 VkR3rPipeline* VkR3rPipelineMgrImpl::acquire_pipeline()
 {
-	const auto pipeline_map_iter = pipeline_map_.find(context_.draw_state);
-	if (pipeline_map_iter != pipeline_map_.cend())
+	if (const auto pipeline_map_iter = pipeline_map_.find(context_.draw_state);
+		pipeline_map_iter != pipeline_map_.cend())
 	{
 		return pipeline_map_iter->second.get();
 	}

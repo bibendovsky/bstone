@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -23,7 +23,7 @@ class VkR3rContext;
 class VkR3rVertexInput : public R3rVertexInput
 {
 public:
-	~VkR3rVertexInput() override {}
+	~VkR3rVertexInput() override = default;
 
 	virtual VkR3rBuffer* get_index_buffer() const = 0;
 	virtual VkR3rBuffer* get_vertex_buffer() const = 0;
@@ -31,7 +31,7 @@ public:
 	virtual const VkPipelineVertexInputStateCreateInfo& get_vk_create_info() const = 0;
 
 protected:
-	VkR3rVertexInput() {}
+	VkR3rVertexInput() = default;
 };
 
 // ======================================

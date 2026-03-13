@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -26,7 +26,7 @@ public:
 		int index,
 		const char* name,
 		void* mapped_memory);
-	~VkR3rShaderVarImpl() override {}
+	~VkR3rShaderVarImpl() override = default;
 
 	R3rShaderVarType get_type() const override;
 	R3rShaderVarTypeId get_type_id() const override;
@@ -106,10 +106,12 @@ void VkR3rShaderVarImpl::set_vec2(const float* value)
 }
 
 void VkR3rShaderVarImpl::set_vec3([[maybe_unused]] const float* value)
-try {
+try
+{
 	ensure_is_not_vertex_attribute();
 	BSTONE_THROW_STATIC_SOURCE("Unsupported shader var type id.");
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VkR3rShaderVarImpl::set_vec4(const float* value)
 {
@@ -129,12 +131,14 @@ void VkR3rShaderVarImpl::set_r2_sampler([[maybe_unused]] std::int32_t value)
 }
 
 void VkR3rShaderVarImpl::ensure_is_not_vertex_attribute() const
-try {
+try
+{
 	if (type_ == R3rShaderVarType::attribute)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Updating an attribute not supported.");
 	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace
 

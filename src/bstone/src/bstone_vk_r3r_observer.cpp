@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -15,20 +15,24 @@ VkR3rPostPresentSubject::VkR3rPostPresentSubject()
 }
 
 void VkR3rPostPresentSubject::attach(Observer& observer)
-try {
+try
+{
 	if (!observers_.emplace(&observer).second)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Duplicate observer.");
 	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VkR3rPostPresentSubject::detach(Observer& observer)
-try {
+try
+{
 	if (observers_.erase(&observer) == 0)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Detached observer.");
 	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void VkR3rPostPresentSubject::notify()
 {

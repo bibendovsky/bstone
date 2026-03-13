@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -211,7 +211,7 @@ void VkR3rR2TextureImpl::transition_image_layouts(VkCommandBuffer vk_command_buf
 			{
 				break;
 			}
-			++run_length;
+			run_length += 1;
 		}
 		if (run_image_layout != new_vk_image_layout)
 		{

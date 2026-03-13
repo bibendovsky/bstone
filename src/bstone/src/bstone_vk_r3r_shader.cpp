@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -22,7 +22,7 @@ class VkR3rShaderImpl final : public VkR3rShader
 {
 public:
 	VkR3rShaderImpl(VkR3rContext& context, const R3rShaderInitParam& param);
-	~VkR3rShaderImpl() override {}
+	~VkR3rShaderImpl() override = default;
 
 	R3rShaderType get_type() const override;
 	VkShaderModule get_vk_shader_module() const override;
@@ -40,17 +40,18 @@ VkR3rShaderImpl::VkR3rShaderImpl(VkR3rContext& context, const R3rShaderInitParam
 	context_{context},
 	type_{param.type}
 {
-	const VkShaderModuleCreateInfo vk_shader_module_create_info
-	{
-		/* sType */    VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-		/* pNext */    nullptr,
-		/* flags */    VkShaderModuleCreateFlags{},
-		/* codeSize */ static_cast<std::size_t>(param.source.size),
-		/* pCode */    static_cast<const std::uint32_t*>(param.source.data),
-	};
+	const VkShaderModuleCreateInfo vk_shader_module_create_info{
+		.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+		.pNext    = nullptr,
+		.flags    = VkShaderModuleCreateFlags{},
+		.codeSize = static_cast<std::size_t>(param.source.size),
+		.pCode    = static_cast<const std::uint32_t*>(param.source.data)};
 	VkShaderModule vk_shader_module{};
 	const VkResult vk_result = context_.vkCreateShaderModule(
-		context_.device.get(), &vk_shader_module_create_info, nullptr, &vk_shader_module);
+		/* device        */ context_.device.get(),
+		/* pCreateInfo   */ &vk_shader_module_create_info,
+		/* pAllocator    */ nullptr,
+		/* pShaderModule */ &vk_shader_module);
 	VkR3rContext::ensure_success_vk_result(vk_result, "vkCreateShaderModule");
 	shader_.reset(vk_shader_module, VkR3rShaderModuleDeleter{context_});
 }
