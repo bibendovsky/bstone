@@ -1,7 +1,7 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
@@ -37,9 +37,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <cstring>
 
-#include <atomic>
-#include <iterator>
-#include <tuple>
+#include <charconv>
 
 #include "id_heads.h"
 #include "id_in.h"
@@ -47,7 +45,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_vh.h"
 #include "id_vl.h"
 
-#include "bstone_char_conv.h"
 #include "bstone_logger.h"
 
 long long sys_get_time_ns();
@@ -132,16 +129,36 @@ void US_Print(const char* s)
 // Prints an unsigned long
 void US_PrintUnsigned(std::uint32_t n)
 {
-	constexpr auto max_chars = 12;
-	char chars[max_chars] = {};
-	bstone::to_chars(n, std::begin(chars), std::end(chars));
+	constexpr int max_chars = 11;
+	char chars[max_chars];
+	if (const auto [chars_end, ec] = std::to_chars(chars, chars + max_chars - 1, n);
+		ec == std::errc{})
+	{
+		*chars_end = '\0';
+	}
+	else
+	{
+		chars[0] = '?';
+		chars[1] = '\0';
+	}
 	US_Print(chars);
 }
 
 void US_PrintF64(double f64)
 {
-	const auto& buffer = std::to_string(f64);
-	US_Print(buffer.c_str());
+	constexpr int max_chars = 32;
+	char chars[max_chars];
+	if (const auto [chars_end, ec] = std::to_chars(chars, chars + max_chars - 1, f64);
+		ec == std::errc{})
+	{
+		*chars_end = '\0';
+	}
+	else
+	{
+		chars[0] = '?';
+		chars[1] = '\0';
+	}
+	US_Print(chars);
 }
 
 // Prints a string in the center of the given rect
