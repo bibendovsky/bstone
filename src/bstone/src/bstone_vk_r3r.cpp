@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2025 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2025-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -8,12 +8,11 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_vk_r3r.h"
 #include "bstone_assert.h"
-#include "bstone_ascii.h"
-#include "bstone_char_conv.h"
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"
 #include "bstone_r3r_cmd_buffer.h"
 #include "bstone_r3r_limits.h"
+#include "bstone_string_builder.h"
 #include "bstone_sys_logger.h"
 #include "bstone_vk_r3r_array_extractor.h"
 #include "bstone_vk_r3r_buffer.h"
@@ -32,6 +31,7 @@ SPDX-License-Identifier: MIT
 #include <cstring>
 #include <algorithm>
 #include <array>
+#include <format>
 #include <memory>
 #include <string>
 #include <type_traits>
@@ -127,12 +127,7 @@ public:
 
 		if (symbol_void == nullptr)
 		{
-			std::string message{};
-			message.reserve(256);
-			message += "Symbol ";
-			message += name;
-			message += " not found.";
-			BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+			BSTONE_THROW_DYNAMIC_SOURCE(std::format("Symbol not found: {}", name).c_str());
 		}
 
 		symbol = reinterpret_cast<T>(symbol_void);
@@ -713,55 +708,56 @@ VkBool32 VKAPI_PTR VkR3rImpl::vk_debug_utils_messenger_callback(
 	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 	void* pUserData)
 {
-	std::string message{};
-	message.reserve(1024);
+	StringBuilder string_builder{};
+	string_builder.reserve(1024);
 	for (
 		const VkDebugUtilsMessengerCallbackDataEXT* data = pCallbackData;
 		data != nullptr;
 		data = static_cast<const VkDebugUtilsMessengerCallbackDataEXT*>(data->pNext))
 	{
-		if (!message.empty())
+		if (!string_builder.is_empty())
 		{
-			message += '\n';
+			string_builder.add_line();
 		}
-		message += "[VK] [";
-		std::string severity_string{};
+		string_builder.add("[VK] [");
+		bool has_severity = false;
 		if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) != 0)
 		{
-			severity_string += 'V';
+			has_severity = true;
+			string_builder.add('V');
 		}
 		if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) != 0)
 		{
-			severity_string += 'I';
+			has_severity = true;
+			string_builder.add('I');
 		}
 		if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) != 0)
 		{
-			severity_string += 'W';
+			has_severity = true;
+			string_builder.add('W');
 		}
 		if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) != 0)
 		{
-			severity_string += 'E';
+			has_severity = true;
+			string_builder.add('E');
 		}
-		if (!severity_string.empty())
+		if (has_severity)
 		{
-			message += severity_string;
-			message += ':';
+			string_builder.add(':');
 		}
-		message += std::to_string(pCallbackData->messageIdNumber);
+		string_builder.add("{}", pCallbackData->messageIdNumber);
 		if (pCallbackData->pMessageIdName != nullptr)
 		{
-			message += ':';
-			message += pCallbackData->pMessageIdName;
+			string_builder.add(":{}", pCallbackData->pMessageIdName);
 		}
-		message += ']';
+		string_builder.add(']');
 		if (pCallbackData->pMessage != nullptr)
 		{
-			message += ' ';
-			message += pCallbackData->pMessage;
+			string_builder.add(" {}", pCallbackData->pMessage);
 		}
 	}
 	sys::Logger& logger = *static_cast<sys::Logger*>(pUserData);
-	logger.log_information(message.c_str());
+	logger.log_information(string_builder.get_string().c_str());
 	return VK_FALSE;
 }
 #endif // NDEBUG
@@ -785,20 +781,15 @@ void VkR3rImpl::ensure_vk_result(VkResult vk_result, const char* vk_name)
 	{
 		return;
 	}
-	std::string message{};
-	message.reserve(128);
-	message += '[';
-	message += vk_name;
-	message += "] Result code: ";
-	message += std::to_string(vk_result);
+	StringBuilder string_builder{};
+	string_builder.reserve(128);
+	string_builder.add("[{}] Result code: {}", vk_name, static_cast<int>(vk_result));
 	const char* const vk_result_string = VkR3rEnumStrings::get_VkResult(vk_result);
 	if (vk_result_string != nullptr)
 	{
-		message += '(';
-		message += vk_result_string;
-		message += ')';
+		string_builder.add(" ({})", vk_result_string);
 	}
-	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+	BSTONE_THROW_DYNAMIC_SOURCE(string_builder.get_string().c_str());
 }
 
 int VkR3rImpl::get_max_sample_count() const
@@ -2555,12 +2546,7 @@ void VkR3rImpl::submit_draw_indexed(const R3rDrawIndexedCmd& r3r_cmd)
 
 [[noreturn]] void VkR3rImpl::submit_unknown_command(R3rCmdId cmd_id)
 {
-	std::string message{};
-	message.reserve(64);
-	message += "Unknown command id (id=";
-	message += std::to_string(static_cast<std::underlying_type_t<R3rCmdId>>(cmd_id));
-	message += ").";
-	BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
+	BSTONE_THROW_DYNAMIC_SOURCE(std::format("Unknown command id: {}", static_cast<std::underlying_type_t<R3rCmdId>>(cmd_id)).c_str());
 }
 
 } // namespace
