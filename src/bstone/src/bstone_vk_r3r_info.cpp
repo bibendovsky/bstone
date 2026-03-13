@@ -8,15 +8,13 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_vk_r3r_info.h"
 #include "vulkan/vulkan.h"
-#include "bstone_ascii.h"
-#include "bstone_assert.h"
 #include "bstone_char_conv.h"
+#include "bstone_string_builder.h"
 #include "bstone_sys_logger.h"
 #include "bstone_vk_r3r_array_extractor.h"
 #include "bstone_vk_r3r_context.h"
 #include "bstone_vk_r3r_enum_strings.h"
 #include <cstdint>
-#include <cstdio>
 #include <string>
 #include <type_traits>
 
@@ -317,8 +315,7 @@ private:
 
 	sys::Logger* logger_{};
 	const VkR3rContext* context_{};
-	std::string indentation_{};
-	std::string string_{};
+	StringBuilder string_builder_{};
 
 	template<typename T>
 	void append_number(T value);
@@ -402,39 +399,24 @@ const std::string& VkR3rInfo::Impl::prefix = "[VK] ";
 template<typename T>
 void VkR3rInfo::Impl::append_number(T value)
 {
-	constexpr int buffer_size = 32;
-	char char_buffer[buffer_size];
-	char* const char_end_iter = to_chars(value, char_buffer, &char_buffer[buffer_size]);
-	const std::size_t char_count = static_cast<std::size_t>(char_end_iter - char_buffer);
-	string_.append(char_buffer, char_count);
+	string_builder_.add("{}", value);
 }
 
 void VkR3rInfo::Impl::append_number(float value)
 {
-	constexpr std::size_t max_buffer_size = 64;
-	char char_buffer[max_buffer_size];
-	const int written_count = snprintf(char_buffer, max_buffer_size, "%f", value);
-	string_.append(char_buffer, static_cast<std::size_t>(written_count));
+	string_builder_.add("{}", value);
 }
 
 template<typename T>
 void VkR3rInfo::Impl::append_number_hex(T value)
 {
-	constexpr int buffer_size = 32;
-	char char_buffer[buffer_size];
-	char* const char_end_iter = to_chars(value, char_buffer, &char_buffer[buffer_size], 16);
-	const std::size_t char_count = static_cast<std::size_t>(char_end_iter - char_buffer);
-	ascii::to_upper(char_buffer, char_end_iter);
-	string_.append(char_buffer, char_count);
+	string_builder_.add("{:X}", value);
 }
 
 template<typename T>
 void VkR3rInfo::Impl::append_number_dec_hex(T value)
 {
-	append_number(value);
-	append(" (0x");
-	append_number_hex(value);
-	append(')');
+	string_builder_.add("{0} (0x{0:X})", value);
 }
 
 void VkR3rInfo::Impl::append_api_version_property(std::uint32_t api_version, const char* name)
@@ -655,8 +637,8 @@ VkR3rInfo::Impl::Impl(sys::Logger& logger, const VkR3rContext& context)
 {
 	logger_ = &logger;
 	context_ = &context;
-	string_.reserve(1048576);
-	indentation_.resize(prefix.size(), ' ');
+	string_builder_.reserve(1048576);
+	clear_indentation();
 }
 
 VkR3rInfo::Impl::~Impl() = default;
@@ -682,7 +664,7 @@ void VkR3rInfo::Impl::log_validation_layers()
 		append_indentation();
 		append(layer.layerName);
 	}
-	logger_->log_information(string_.c_str());
+	logger_->log_information(string_builder_.get_string().c_str());
 }
 
 void VkR3rInfo::Impl::log_enabled_validation_layers()
@@ -705,7 +687,7 @@ void VkR3rInfo::Impl::log_enabled_validation_layers()
 		append_indentation();
 		append(layer_name);
 	}
-	logger_->log_information(string_.c_str());
+	logger_->log_information(string_builder_.get_string().c_str());
 }
 
 void VkR3rInfo::Impl::log_enabled_extensions()
@@ -729,7 +711,7 @@ void VkR3rInfo::Impl::log_enabled_extensions()
 		append_indentation();
 		append(extensions_name);
 	}
-	logger_->log_information(string_.c_str());
+	logger_->log_information(string_builder_.get_string().c_str());
 }
 
 void VkR3rInfo::Impl::log_extensions()
@@ -753,7 +735,7 @@ void VkR3rInfo::Impl::log_extensions()
 		append_indentation();
 		append(extension.extensionName);
 	}
-	logger_->log_information(string_.c_str());
+	logger_->log_information(string_builder_.get_string().c_str());
 }
 
 void VkR3rInfo::Impl::log_surface_capabilities()
@@ -780,7 +762,7 @@ void VkR3rInfo::Impl::log_surface_capabilities()
     BSTONE_APPEND_CALP(supportedCompositeAlpha);
     BSTONE_APPEND_IMGU(supportedUsageFlags);
 	decrease_indentation();
-	logger_->log_information(string_.c_str());
+	logger_->log_information(string_builder_.get_string().c_str());
 #undef BSTONE_APPEND_NUM
 #undef BSTONE_APPEND_EXT2
 #undef BSTONE_APPEND_TRNS
@@ -807,55 +789,53 @@ void VkR3rInfo::Impl::log_physical_devices()
 		decrease_indentation();
 		++device_number;
 	}
-	logger_->log_information(string_.c_str());
+	logger_->log_information(string_builder_.get_string().c_str());
 }
 
 void VkR3rInfo::Impl::clear()
 {
-	string_.clear();
-	clear_indentation();
+	string_builder_.clear_string();
+	string_builder_.reset_indent();
 }
 
 void VkR3rInfo::Impl::append_prefix()
 {
-	string_ += prefix;
+	string_builder_.add(prefix);
 }
 
 void VkR3rInfo::Impl::clear_indentation()
 {
-	indentation_.clear();
-	indentation_.resize(prefix.size(), ' ');
+	string_builder_.set_indent(static_cast<int>(prefix.size()));
 }
 
 void VkR3rInfo::Impl::append_indentation()
 {
-	string_ += indentation_;
+	string_builder_.add_indent();
 }
 
 void VkR3rInfo::Impl::increase_indentation()
 {
-	indentation_.resize(indentation_.size() + indentation_delta, ' ');
+	string_builder_.increase_indent();
 }
 
 void VkR3rInfo::Impl::decrease_indentation()
 {
-	BSTONE_ASSERT(indentation_.size() >= prefix.size() + indentation_delta);
-	indentation_.resize(indentation_.size() - indentation_delta, ' ');
+	string_builder_.decrease_indent();
 }
 
 void VkR3rInfo::Impl::append(char ch)
 {
-	string_ += ch;
+	string_builder_.add(ch);
 }
 
 void VkR3rInfo::Impl::append(const char* string)
 {
-	string_ += string;
+	string_builder_.add(string);
 }
 
 void VkR3rInfo::Impl::append(const std::string& string)
 {
-	string_ += string;
+	string_builder_.add(string);
 }
 
 void VkR3rInfo::Impl::append_line(char ch)
@@ -878,12 +858,12 @@ void VkR3rInfo::Impl::append_line(const std::string& string)
 
 void VkR3rInfo::Impl::append_newline()
 {
-	append('\n');
+	string_builder_.add_line();
 }
 
 void VkR3rInfo::Impl::append_newline_if_not_empty()
 {
-	if (!string_.empty())
+	if (!string_builder_.is_empty())
 	{
 		append_newline();
 	}

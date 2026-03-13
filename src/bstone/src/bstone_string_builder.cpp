@@ -26,6 +26,11 @@ void StringBuilder::reserve(int capacity)
 	string_.reserve(static_cast<std::size_t>(capacity));
 }
 
+void StringBuilder::clear_string()
+{
+	string_.clear();
+}
+
 void StringBuilder::increase_indent()
 {
 	indent_.resize(indent_.size() + indent_step, ' ');
@@ -42,6 +47,11 @@ void StringBuilder::decrease_indent()
 void StringBuilder::reset_indent()
 {
 	indent_.clear();
+}
+
+void StringBuilder::set_indent(int width)
+{
+	indent_.resize(width, ' ');
 }
 
 void StringBuilder::add_indent()
