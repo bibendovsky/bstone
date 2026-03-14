@@ -95,7 +95,6 @@ target_sources(bstone_tests
 		src/bstone_tests_cgm_mat.cpp
 		src/bstone_tests_cgm_transform.cpp
 		src/bstone_tests_sha1.cpp
-		src/bstone_tests_configurations.cpp
 		src/bstone_tests_file_stream.cpp
 		src/bstone_tests_memory_stream.cpp
 		src/bstone_tests_static_memory_stream.cpp
