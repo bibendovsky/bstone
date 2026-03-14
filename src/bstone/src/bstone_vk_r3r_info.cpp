@@ -16,6 +16,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_vk_r3r_enum_strings.h"
 #include <cstdint>
 #include <string>
+#include <string_view>
 #include <type_traits>
 
 namespace bstone {
@@ -290,7 +291,7 @@ constexpr VkFormat vk_r3r_info_impl_vk_formats[] = {
 
 } // namespace
 
-// ======================================
+// =====================================
 
 class VkR3rInfo::Impl
 {
@@ -309,7 +310,7 @@ private:
 	static constexpr const char* const colon_space = ": ";
 	static constexpr int uuid_byte_count = 16;
 
-	static const std::string& prefix;
+	inline constinit static const std::string_view prefix = "[VK] ";
 
 	sys::Logger* logger_{};
 	const VkR3rContext* context_{};
@@ -317,7 +318,6 @@ private:
 
 	template<typename T>
 	void append_number(T value);
-	void append_number(float value);
 	template<typename T>
 	void append_number_hex(T value);
 	template<typename T>
@@ -388,19 +388,10 @@ private:
 	void append_physical_device(VkPhysicalDevice physical_device);
 };
 
-// --------------------------------------
-
-const std::string& VkR3rInfo::Impl::prefix = "[VK] ";
-
-// --------------------------------------
+// -------------------------------------
 
 template<typename T>
 void VkR3rInfo::Impl::append_number(T value)
-{
-	string_builder_.add("{}", value);
-}
-
-void VkR3rInfo::Impl::append_number(float value)
 {
 	string_builder_.add("{}", value);
 }
@@ -445,14 +436,14 @@ void VkR3rInfo::Impl::append_flag_property(TFlag flag, const char* caption, cons
 	append(": ");
 	if (flag_name != nullptr)
 	{
-		append_line(flag_name);
+		append(flag_name);
 	}
 	else
 	{
 		append("0x");
 		append_number_hex(static_cast<FlagInt>(flag));
-		append_newline();
 	}
+	append_newline();
 }
 
 template<typename TFlagBits>
@@ -460,11 +451,7 @@ void VkR3rInfo::Impl::append_flags_property(VkFlags flags, const char* caption, 
 {
 	if (caption != nullptr)
 	{
-		append_indentation();
-		append(caption);
-		append(": (0x");
-		append_number_hex(flags);
-		append_line(")");
+		string_builder_.add_indented_line("{}: (0x{:X})", caption, flags);
 	}
 	// "Only the low-order 31 bits (bit positions zero through 30) are available for use as flag bits."
 	flags &= 0x7FFFFFFFU;
@@ -479,14 +466,14 @@ void VkR3rInfo::Impl::append_flags_property(VkFlags flags, const char* caption, 
 			const char* const flag_name = flag_name_func(static_cast<TFlagBits>(flag));
 			if (flag_name != nullptr)
 			{
-				append_line(flag_name);
+				append(flag_name);
 			}
 			else
 			{
 				append("0x");
 				append_number_hex(flag);
-				append_newline();
 			}
+			append_newline();
 		}
 		++bit_index;
 	}
@@ -525,13 +512,7 @@ void VkR3rInfo::Impl::append_composite_alphas_property(VkCompositeAlphaFlagsKHR 
 
 void VkR3rInfo::Impl::append_extent_2d_property(const VkExtent2D& value, const char* name)
 {
-	append_indentation();
-	append(name);
-	append(": [");
-	append_number(value.width);
-	append(", ");
-	append_number(value.height);
-	append_line(']');
+	string_builder_.add_indented_line("{}: [{}, {}]", name, value.width, value.height);
 }
 
 void VkR3rInfo::Impl::append_vk_format(VkFormat vk_format)
@@ -576,11 +557,7 @@ void VkR3rInfo::Impl::append_vk_present_mode_khr(VkPresentModeKHR vk_present_mod
 template<typename T>
 void VkR3rInfo::Impl::append_number_property(T number, const char* name)
 {
-	append_indentation();
-	append(name);
-	append(": ");
-	append_number(number);
-	append_newline();
+	string_builder_.add_indented_line("{}: {}", name, number);
 }
 
 template<typename T, std::size_t N>
@@ -629,7 +606,7 @@ void VkR3rInfo::Impl::append_vk_color_space_khr_property(VkColorSpaceKHR vk_colo
 	append_newline();
 }
 
-// ==========================================================================
+// =====================================
 
 VkR3rInfo::Impl::Impl(sys::Logger& logger, const VkR3rContext& context)
 {
@@ -860,14 +837,12 @@ void VkR3rInfo::Impl::append_api_version(std::uint32_t api_version)
 	const std::uint32_t version_patch = VK_API_VERSION_PATCH(api_version);
 	if (version_variant != 0)
 	{
-		append_number(version_variant);
-		append('.');
+		string_builder_.add("{}.{}.{}.{}", version_variant, version_major, version_minor, version_patch);
 	}
-	append_number(version_major);
-	append('.');
-	append_number(version_minor);
-	append('.');
-	append_number(version_patch);
+	else
+	{
+		string_builder_.add("{}.{}.{}", version_major, version_minor, version_patch);
+	}
 }
 
 void VkR3rInfo::Impl::append_uuid(const std::uint8_t (&uuid_bytes)[uuid_byte_count])
@@ -1356,14 +1331,14 @@ void VkR3rInfo::Impl::append_physical_device(VkPhysicalDevice physical_device)
 	decrease_indentation();
 }
 
-// ==========================================================================
+// =====================================
 
 void VkR3rInfo::ImplDeleter::operator()(Impl* impl) const
 {
 	delete impl;
 }
 
-// ==========================================================================
+// =====================================
 
 VkR3rInfo::VkR3rInfo(sys::Logger& logger, const VkR3rContext& context)
 	:
