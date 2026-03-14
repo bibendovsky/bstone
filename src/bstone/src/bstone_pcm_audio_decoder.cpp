@@ -24,8 +24,8 @@ namespace
 class PcmAudioDecoder final : public AudioDecoder
 {
 public:
-	PcmAudioDecoder();
-	~PcmAudioDecoder() override;
+	PcmAudioDecoder() = default;
+	~PcmAudioDecoder() override = default;
 
 	bool initialize(const AudioDecoderInitParam& param) override;
 	void uninitialize() override;
@@ -46,10 +46,6 @@ private:
 }; // PcmAudioDecoder
 
 // --------------------------------------------------------------------------
-
-PcmAudioDecoder::PcmAudioDecoder() = default;
-
-PcmAudioDecoder::~PcmAudioDecoder() = default;
 
 bool PcmAudioDecoder::initialize(const AudioDecoderInitParam& param)
 {

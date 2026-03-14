@@ -26,7 +26,7 @@ class VkR3rR2TextureImpl final : public VkR3rR2Texture
 {
 public:
 	VkR3rR2TextureImpl(VkR3rContext& context, const R3rR2TextureInitParam& param);
-	~VkR3rR2TextureImpl() override {}
+	~VkR3rR2TextureImpl() override = default;
 
 	void update(const R3rR2TextureUpdateParam& param) override;
 	void generate_mipmap() override;

@@ -52,7 +52,7 @@ public:
 		GlR3rShaderStage& shader_stage,
 		const GlR3rShaderVarInitParam& param);
 
-	~GlR3rShaderVarImpl() override {};
+	~GlR3rShaderVarImpl() override = default;
 
 	R3rShaderVarType get_type() const override;
 	R3rShaderVarTypeId get_type_id() const override;

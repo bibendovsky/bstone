@@ -16,14 +16,10 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-StaticMemoryStream::StaticMemoryStream() = default;
-
 StaticMemoryStream::StaticMemoryStream(void* buffer, std::intptr_t size)
 {
 	open(buffer, size);
 }
-
-StaticMemoryStream::~StaticMemoryStream() = default;
 
 const std::uint8_t* StaticMemoryStream::get_data() const
 {

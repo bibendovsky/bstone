@@ -16,14 +16,10 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-StaticRoMemoryStream::StaticRoMemoryStream() = default;
-
 StaticRoMemoryStream::StaticRoMemoryStream(const void* buffer, std::intptr_t buffer_size)
 {
 	open(buffer, buffer_size);
 }
-
-StaticRoMemoryStream::~StaticRoMemoryStream() = default;
 
 const std::uint8_t* StaticRoMemoryStream::get_data() const
 {

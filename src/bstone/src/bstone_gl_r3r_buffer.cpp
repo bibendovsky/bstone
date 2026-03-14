@@ -29,7 +29,7 @@ class GlR3rBufferImpl final : public GlR3rBuffer
 {
 public:
 	GlR3rBufferImpl(GlR3rContext& context, const R3rBufferInitParam& param);
-	~GlR3rBufferImpl() override {}
+	~GlR3rBufferImpl() override = default;
 
 	R3rBufferType get_type() const override;
 	R3rBufferUsageType get_usage_type() const override;

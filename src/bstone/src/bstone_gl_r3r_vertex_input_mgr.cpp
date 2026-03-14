@@ -25,7 +25,7 @@ class GlR3rVertexInputMgrImpl final : public GlR3rVertexInputMgr
 {
 public:
 	GlR3rVertexInputMgrImpl(GlR3rContext& context);
-	~GlR3rVertexInputMgrImpl() override {}
+	~GlR3rVertexInputMgrImpl() override = default;
 
 	GlR3rContext& get_context() const override;
 	R3rVertexInputUPtr create(const R3rCreateVertexInputParam& param) override;

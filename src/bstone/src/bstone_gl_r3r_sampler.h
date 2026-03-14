@@ -20,10 +20,10 @@ class GlR3rContext;
 class GlR3rSampler : public R3rSampler
 {
 protected:
-	GlR3rSampler() {}
+	GlR3rSampler() = default;
 
 public:
-	~GlR3rSampler() override {}
+	~GlR3rSampler() override = default;
 
 	virtual void set() = 0;
 };

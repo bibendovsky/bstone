@@ -13,8 +13,6 @@ namespace bstone {
 
 const std::intptr_t CVarString::initial_capacity = 32;
 
-CVarString::CVarString() = default;
-
 CVarString::CVarString(std::string_view string_view)
 {
 	set(string_view);

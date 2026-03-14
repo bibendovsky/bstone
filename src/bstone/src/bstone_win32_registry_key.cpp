@@ -136,8 +136,6 @@ void RegistryKeyHandleDeleter::operator()(RegistryKeyHandle* handle) const
 
 // ==========================================================================
 
-RegistryKey::RegistryKey() = default;
-
 RegistryKey::RegistryKey(
 	const char* subkey_name,
 	RegistryRootKeyType root_key_type,

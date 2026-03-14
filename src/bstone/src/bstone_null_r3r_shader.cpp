@@ -22,7 +22,7 @@ class NullR3rShaderImpl final : public R3rShader
 {
 public:
 	NullR3rShaderImpl(const R3rShaderInitParam& param);
-	~NullR3rShaderImpl() override {}
+	~NullR3rShaderImpl() override = default;
 
 	R3rShaderType get_type() const override;
 

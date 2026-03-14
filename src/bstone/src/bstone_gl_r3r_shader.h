@@ -22,10 +22,10 @@ class GlR3rShaderStage;
 class GlR3rShader : public R3rShader
 {
 protected:
-	GlR3rShader() {}
+	GlR3rShader() = default;
 
 public:
-	~GlR3rShader() override {}
+	~GlR3rShader() override = default;
 
 
 	virtual GLuint get_gl_name() const = 0;

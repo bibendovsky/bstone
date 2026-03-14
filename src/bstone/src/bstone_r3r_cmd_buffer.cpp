@@ -18,7 +18,7 @@ class R3rCmdBufferImpl final : public R3rCmdBuffer
 {
 public:
 	R3rCmdBufferImpl(const R3rCmdBufferInitParam& param);
-	~R3rCmdBufferImpl() override;
+	~R3rCmdBufferImpl() override = default;
 
 	int get_count() const override;
 
@@ -184,8 +184,6 @@ try {
 
 	data_.resize(size_);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-R3rCmdBufferImpl::~R3rCmdBufferImpl() = default;
 
 int R3rCmdBufferImpl::get_count() const
 {

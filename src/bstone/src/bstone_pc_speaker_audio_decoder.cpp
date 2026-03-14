@@ -22,7 +22,7 @@ namespace
 class PcSpeakerAudioDecoder final : public AudioDecoder
 {
 public:
-	~PcSpeakerAudioDecoder() override;
+	~PcSpeakerAudioDecoder() override = default;
 
 	bool initialize(const AudioDecoderInitParam& param) override;
 	void uninitialize() override;
@@ -59,8 +59,6 @@ private:
 }; // PcSpeakerAudioDecoder
 
 // --------------------------------------------------------------------------
-
-PcSpeakerAudioDecoder::~PcSpeakerAudioDecoder() = default;
 
 bool PcSpeakerAudioDecoder::initialize(const AudioDecoderInitParam& param)
 {

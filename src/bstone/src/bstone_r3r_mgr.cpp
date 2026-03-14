@@ -25,7 +25,7 @@ class R3rMgrImpl final : public R3rMgr
 {
 public:
 	R3rMgrImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr);
-	~R3rMgrImpl() override;
+	~R3rMgrImpl() override = default;
 
 	R3r* make_renderer(const R3rInitParam& param) override;
 
@@ -36,8 +36,6 @@ private:
 };
 
 // --------------------------------------------------------------------------
-
-R3rMgrImpl::~R3rMgrImpl() = default;
 
 R3rMgrImpl::R3rMgrImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr)
 	:

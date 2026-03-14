@@ -20,14 +20,6 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-Exception::~Exception() = default;
-
-// ==========================================================================
-
-SourceException::~SourceException() = default;
-
-// ==========================================================================
-
 StaticSourceException::StaticSourceException(const std::source_location& source_location, const char* message)
 	:
 	source_location_{source_location},
@@ -53,8 +45,6 @@ StaticSourceException& StaticSourceException::operator=(const StaticSourceExcept
 	message_ = rhs.message_;
 	return *this;
 }
-
-StaticSourceException::~StaticSourceException() = default;
 
 const std::source_location& StaticSourceException::get_source_location() const
 {

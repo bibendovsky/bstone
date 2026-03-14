@@ -19,7 +19,7 @@ public:
 	CCmdMgrImpl(std::intptr_t max_ccmds);
 	CCmdMgrImpl(const CCmdMgrImpl&) = delete;
 	CCmdMgrImpl& operator=(const CCmdMgrImpl&) = delete;
-	~CCmdMgrImpl() override;
+	~CCmdMgrImpl() override = default;
 
 	CCmd* find(std::string_view name) const override;
 	CCmdMgrCCmds get_all() override;
@@ -42,8 +42,6 @@ CCmdMgrImpl::CCmdMgrImpl(std::intptr_t max_ccmds)
 	:
 	max_ccmds_{max_ccmds}
 {}
-
-CCmdMgrImpl::~CCmdMgrImpl() = default;
 
 CCmd* CCmdMgrImpl::find(std::string_view name) const
 {

@@ -22,7 +22,7 @@ class NullR3rR2TextureImpl final : public R3rR2Texture
 {
 public:
 	NullR3rR2TextureImpl(const R3rR2TextureInitParam& param);
-	~NullR3rR2TextureImpl() override {}
+	~NullR3rR2TextureImpl() override = default;
 
 	void update(const R3rR2TextureUpdateParam& param) override;
 	void generate_mipmap() override;

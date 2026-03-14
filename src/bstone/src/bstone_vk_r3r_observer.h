@@ -68,7 +68,7 @@ class VkR3rPostPresentSubject final : public VkR3rSubject<void>
 {
 public:
 	VkR3rPostPresentSubject();
-	~VkR3rPostPresentSubject() override = default;;
+	~VkR3rPostPresentSubject() override = default;
 
 	void attach(Observer& observer) override;
 	void detach(Observer& observer) override;

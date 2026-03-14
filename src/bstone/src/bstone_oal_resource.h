@@ -121,7 +121,7 @@ private:
 class OalDeviceDeleter
 {
 public:
-	OalDeviceDeleter();
+	OalDeviceDeleter() = default;
 	OalDeviceDeleter(const OalDeviceDeleter& rhs);
 	explicit OalDeviceDeleter(const OalAlSymbols& al_symbols);
 	void operator=(OalDeviceDeleter&& rhs) noexcept;
@@ -140,7 +140,7 @@ OalDeviceResource make_oal_device(const OalAlSymbols& al_symbols, const char* de
 class OalContextDeleter
 {
 public:
-	OalContextDeleter();
+	OalContextDeleter() = default;
 	OalContextDeleter(const OalContextDeleter& rhs);
 	explicit OalContextDeleter(const OalAlSymbols& al_symbols);
 	void operator=(OalContextDeleter&& rhs) noexcept;
@@ -159,7 +159,7 @@ OalContextResource make_oal_context(const OalAlSymbols& al_symbols, ALCdevice& a
 class OalBufferDeleter
 {
 public:
-	OalBufferDeleter();
+	OalBufferDeleter() = default;
 	OalBufferDeleter(const OalBufferDeleter& rhs);
 	explicit OalBufferDeleter(const OalAlSymbols& al_symbols);
 	void operator=(OalBufferDeleter&& rhs) noexcept;
@@ -178,7 +178,7 @@ OalBufferResource make_oal_buffer(const OalAlSymbols& oal_al_symbols);
 class OalSourceDeleter
 {
 public:
-	OalSourceDeleter();
+	OalSourceDeleter() = default;
 	OalSourceDeleter(const OalSourceDeleter& rhs);
 	explicit OalSourceDeleter(const OalAlSymbols& al_symbols);
 	void operator=(OalSourceDeleter&& rhs) noexcept;

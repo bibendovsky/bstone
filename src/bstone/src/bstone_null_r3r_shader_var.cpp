@@ -26,7 +26,7 @@ public:
 		R3rShaderVarTypeId type_id,
 		int index,
 		const char* name);
-	~NullR3rShaderVarImpl() override {}
+	~NullR3rShaderVarImpl() override = default;
 
 	R3rShaderVarType get_type() const override;
 	R3rShaderVarTypeId get_type_id() const override;

@@ -22,7 +22,7 @@ class NullR3rSamplerImpl final : public R3rSampler
 {
 public:
 	NullR3rSamplerImpl(const R3rSamplerInitParam& param);
-	~NullR3rSamplerImpl() override {}
+	~NullR3rSamplerImpl() override = default;
 
 	void update(const R3rSamplerUpdateParam& param) override;
 	const R3rSamplerState& get_state() const override;
