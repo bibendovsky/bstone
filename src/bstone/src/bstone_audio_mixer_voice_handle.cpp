@@ -11,8 +11,6 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
-AudioMixerVoiceHandle::AudioMixerVoiceHandle() = default;
-
 AudioMixerVoiceHandleValue AudioMixerVoiceHandle::get() const
 {
 	return value_;

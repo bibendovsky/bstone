@@ -18,8 +18,8 @@ namespace bstone::sys {
 class WindowSdlInternal : public Window
 {
 public:
-	WindowSdlInternal() {}
-	~WindowSdlInternal() override {}
+	WindowSdlInternal() = default;
+	~WindowSdlInternal() override = default;
 
 	virtual void* get_native_handle() const = 0;
 	virtual void* get_sdl_window() const = 0;

@@ -22,7 +22,7 @@ class NullR3rBufferImpl final : public R3rBuffer
 {
 public:
 	NullR3rBufferImpl(const R3rBufferInitParam& param);
-	~NullR3rBufferImpl() override {}
+	~NullR3rBufferImpl() override = default;
 
 	R3rBufferType get_type() const override;
 	R3rBufferUsageType get_usage_type() const override;

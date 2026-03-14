@@ -20,7 +20,7 @@ class VoiceGroupImpl final : public VoiceGroup
 {
 public:
 	VoiceGroupImpl(AudioMixer& audio_mixer);
-	~VoiceGroupImpl() override;
+	~VoiceGroupImpl() override = default;
 
 	bool is_any_playing() override;
 	void set_gain(double gain) override;
@@ -49,8 +49,6 @@ VoiceGroupImpl::VoiceGroupImpl(AudioMixer& audio_mixer)
 	audio_mixer_{&audio_mixer},
 	gain_{audio_mixer_max_gain}
 {}
-
-VoiceGroupImpl::~VoiceGroupImpl() = default;
 
 bool VoiceGroupImpl::is_any_playing()
 {

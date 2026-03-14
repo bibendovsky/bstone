@@ -17,13 +17,13 @@ namespace bstone {
 class FileStream final : public Stream
 {
 public:
-	FileStream();
+	FileStream() = default;
 
 	FileStream(const char* path, sys::FileMode mode);
 
-	FileStream(FileStream&&) noexcept;
-	FileStream& operator=(FileStream&&) noexcept;
-	~FileStream() override;
+	FileStream(FileStream&&) noexcept = default;
+	FileStream& operator=(FileStream&&) noexcept = default;
+	~FileStream() override = default;
 
 	bool open(const char* path, sys::FileMode mode);
 

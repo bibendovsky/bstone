@@ -28,7 +28,7 @@ class NullR3rImpl final : public R3r
 {
 public:
 	NullR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param);
-	~NullR3rImpl() override;
+	~NullR3rImpl() override = default;
 
 	R3rType get_type() const override;
 	std::string_view get_name() const override;
@@ -79,8 +79,6 @@ private:
 };
 
 // --------------------------------------------------------------------------
-
-NullR3rImpl::~NullR3rImpl() = default;
 
 NullR3rImpl::NullR3rImpl([[maybe_unused]] sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param)
 try

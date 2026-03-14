@@ -26,7 +26,7 @@ class NullR3rShaderStageImpl final : public R3rShaderStage
 {
 public:
 	NullR3rShaderStageImpl(const R3rShaderStageInitParam& param);
-	~NullR3rShaderStageImpl() override {}
+	~NullR3rShaderStageImpl() override = default;
 
 	R3rShaderVar* find_var(const char* name) override;
 	R3rShaderVar* find_int32_var(const char* name) override;

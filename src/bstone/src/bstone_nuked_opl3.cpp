@@ -29,7 +29,7 @@ namespace
 class NukedOpl3 final : public Opl3
 {
 public:
-	~NukedOpl3() override;
+	~NukedOpl3() override = default;
 
 	Opl3Type get_type() const override;
 
@@ -72,8 +72,6 @@ private:
 }; // NukedOpl3
 
 // --------------------------------------------------------------------------
-
-NukedOpl3::~NukedOpl3() = default;
 
 Opl3Type NukedOpl3::get_type() const
 {

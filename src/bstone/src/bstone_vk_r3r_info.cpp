@@ -1365,14 +1365,10 @@ void VkR3rInfo::ImplDeleter::operator()(Impl* impl) const
 
 // ==========================================================================
 
-VkR3rInfo::VkR3rInfo() = default;
-
 VkR3rInfo::VkR3rInfo(sys::Logger& logger, const VkR3rContext& context)
 	:
 	impl_{new Impl(logger, context)}
 {}
-
-VkR3rInfo::~VkR3rInfo() = default;
 
 void VkR3rInfo::log_validation_layers()
 {

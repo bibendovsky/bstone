@@ -29,7 +29,7 @@ public:
 	VkR3rInfo(sys::Logger& logger, const VkR3rContext& context);
 	VkR3rInfo(const VkR3rInfo&) = delete;
 	VkR3rInfo& operator=(const VkR3rInfo&) = delete;
-	~VkR3rInfo();
+	~VkR3rInfo() = default;
 
 	void log_validation_layers();
 	void log_enabled_validation_layers();
@@ -48,7 +48,7 @@ private:
 
 	ImplUPtr impl_{};
 
-	VkR3rInfo();
+	VkR3rInfo() = default;
 };
 
 } // namespace bstone

@@ -33,7 +33,7 @@ class GlR3rExtensionMgrImpl final : public GlR3rExtensionMgr
 {
 public:
 	GlR3rExtensionMgrImpl(const sys::GlSymbolResolver& symbol_resolver);
-	~GlR3rExtensionMgrImpl() override {}
+	~GlR3rExtensionMgrImpl() override = default;
 
 	int get_count() const override;
 	const std::string& get_name(int extension_index) const override;

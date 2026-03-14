@@ -24,7 +24,7 @@ class VkR3rVertexInputImpl final : public VkR3rVertexInput
 {
 public:
 	VkR3rVertexInputImpl(VkR3rContext& context, const R3rCreateVertexInputParam& param);
-	~VkR3rVertexInputImpl() override {}
+	~VkR3rVertexInputImpl() override = default;
 
 	VkR3rBuffer* get_index_buffer() const override;
 	VkR3rBuffer* get_vertex_buffer() const override;

@@ -45,7 +45,7 @@ class GlR3rImpl final : public R3r
 {
 public:
 	GlR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param);
-	~GlR3rImpl() override {}
+	~GlR3rImpl() override = default;
 
 	R3rType get_type() const override;
 	std::string_view get_name() const override;
@@ -84,7 +84,7 @@ private:
 	class FboDeleter
 	{
 	public:
-		FboDeleter();
+		FboDeleter() = default;
 		explicit FboDeleter(PFNGLDELETEFRAMEBUFFERSPROC gl_func);
 		void operator()(GLuint gl_name);
 
@@ -97,7 +97,7 @@ private:
 	class RboDeleter
 	{
 	public:
-		RboDeleter();
+		RboDeleter() = default;
 		explicit RboDeleter(PFNGLDELETERENDERBUFFERSPROC gl_func);
 		void operator()(GLuint gl_name);
 
@@ -671,8 +671,6 @@ try {
 	GlR3rError::ensure_no_errors_assert();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-GlR3rImpl::FboDeleter::FboDeleter() = default;
-
 GlR3rImpl::FboDeleter::FboDeleter(PFNGLDELETEFRAMEBUFFERSPROC gl_func)
 	:
 	gl_func_{gl_func}
@@ -684,8 +682,6 @@ void GlR3rImpl::FboDeleter::operator()(GLuint gl_name)
 	gl_func_(1, &gl_name);
 	GlR3rError::ensure_no_errors_assert();
 }
-
-GlR3rImpl::RboDeleter::RboDeleter() = default;
 
 GlR3rImpl::RboDeleter::RboDeleter(PFNGLDELETERENDERBUFFERSPROC gl_func)
 	:

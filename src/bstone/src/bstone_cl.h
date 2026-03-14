@@ -29,7 +29,7 @@ using ClOptions = std::span<const ClOption>;
 class Cl
 {
 public:
-	Cl();
+	Cl() = default;
 
 	std::string_view operator[](int index) const;
 

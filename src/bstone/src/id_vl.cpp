@@ -380,7 +380,7 @@ class SaveScreenshotMtTask final :
 	public bstone::MtTask
 {
 public:
-	~SaveScreenshotMtTask() override;
+	~SaveScreenshotMtTask() override = default;
 
 	// ----------------------------------------------------------------------
 	// MtTask
@@ -423,9 +423,6 @@ private:
 	ScreenshotBuffer src_pixels_rgb_888_{};
 	bool is_flipped_vertically_{};
 }; // SaveScreenshotMtTask
-
-
-SaveScreenshotMtTask::~SaveScreenshotMtTask() = default;
 
 void SaveScreenshotMtTask::execute()
 try

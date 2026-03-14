@@ -15,8 +15,6 @@ SPDX-License-Identifier: MIT
 namespace bstone
 {
 
-OalDeviceDeleter::OalDeviceDeleter() = default;
-
 OalDeviceDeleter::OalDeviceDeleter(const OalDeviceDeleter& rhs)
 	:
 	al_symbols_{rhs.al_symbols_}
@@ -66,8 +64,6 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
-
-OalContextDeleter::OalContextDeleter() = default;
 
 OalContextDeleter::OalContextDeleter(const OalContextDeleter& rhs)
 	:
@@ -124,8 +120,6 @@ try {
 
 // ==========================================================================
 
-OalBufferDeleter::OalBufferDeleter() = default;
-
 OalBufferDeleter::OalBufferDeleter(const OalBufferDeleter& rhs)
 	:
 	al_symbols_{rhs.al_symbols_}
@@ -179,8 +173,6 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
-
-OalSourceDeleter::OalSourceDeleter() = default;
 
 OalSourceDeleter::OalSourceDeleter(const OalSourceDeleter& rhs)
 	:

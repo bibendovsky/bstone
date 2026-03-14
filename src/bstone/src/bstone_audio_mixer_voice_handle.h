@@ -21,7 +21,7 @@ constexpr auto audio_mixer_voice_invalid_handle_value = AudioMixerVoiceHandleVal
 class AudioMixerVoiceHandle
 {
 public:
-	AudioMixerVoiceHandle();
+	AudioMixerVoiceHandle() = default;
 
 	AudioMixerVoiceHandleValue get() const;
 	bool is_valid() const;

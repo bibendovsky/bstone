@@ -26,7 +26,7 @@ class GlR3rSamplerMgrImpl final : public GlR3rSamplerMgr
 {
 public:
 	GlR3rSamplerMgrImpl(GlR3rContext& context);
-	~GlR3rSamplerMgrImpl() override {}
+	~GlR3rSamplerMgrImpl() override = default;
 
 	R3rSamplerUPtr create(const R3rSamplerInitParam& param) override;
 

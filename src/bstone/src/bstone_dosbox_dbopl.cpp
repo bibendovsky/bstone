@@ -28,8 +28,8 @@ namespace
 class DosboxDbopl final : public Opl3
 {
 public:
-	DosboxDbopl();
-	~DosboxDbopl() override;
+	DosboxDbopl() = default;
+	~DosboxDbopl() override = default;
 
 	Opl3Type get_type() const override;
 
@@ -74,9 +74,6 @@ private:
 }; // DosboxDbopl
 
 // --------------------------------------------------------------------------
-
-DosboxDbopl::DosboxDbopl() = default;
-DosboxDbopl::~DosboxDbopl() = default;
 
 Opl3Type DosboxDbopl::get_type() const
 {

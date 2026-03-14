@@ -132,7 +132,7 @@ namespace {
 class LoggerImplQueue
 {
 public:
-	LoggerImplQueue();
+	LoggerImplQueue() = default;
 
 	void set_block_size(std::intptr_t block_size);
 
@@ -157,8 +157,6 @@ private:
 };
 
 // --------------------------------------------------------------------------
-
-LoggerImplQueue::LoggerImplQueue() = default;
 
 void LoggerImplQueue::set_block_size(std::intptr_t block_size)
 {

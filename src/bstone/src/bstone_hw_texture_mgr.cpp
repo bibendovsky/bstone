@@ -56,7 +56,7 @@ class HwTextureMgrXbrzTask final :
 	public MtTask
 {
 public:
-	~HwTextureMgrXbrzTask() override;
+	~HwTextureMgrXbrzTask() override = default;
 
 	void execute() override;
 
@@ -101,9 +101,6 @@ private:
 
 using XbrzTasks = std::vector<HwTextureMgrXbrzTask>;
 using XbrzTaskPtrs = std::vector<MtTask*>;
-
-
-HwTextureMgrXbrzTask::~HwTextureMgrXbrzTask() = default;
 
 void HwTextureMgrXbrzTask::execute()
 try {

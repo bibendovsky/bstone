@@ -31,7 +31,7 @@ class GlR3rR2TextureImpl final : public GlR3rR2Texture
 {
 public:
 	GlR3rR2TextureImpl(GlR3rContext& context, const R3rR2TextureInitParam& param);
-	~GlR3rR2TextureImpl() override {}
+	~GlR3rR2TextureImpl() override = default;
 
 	void update(const R3rR2TextureUpdateParam& param) override;
 	void generate_mipmap() override;

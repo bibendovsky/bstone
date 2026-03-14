@@ -18,8 +18,6 @@ constexpr auto cl_option_prefix = std::string_view{"--"};
 
 } // namespace
 
-Cl::Cl() = default;
-
 std::string_view Cl::operator[](int index) const
 {
 	return get_argument(index);

@@ -55,7 +55,7 @@ private:
 class TextureLockSdl::Storage
 {
 public:
-	Storage() {};
+	Storage() {}
 	void* allocate(std::size_t size);
 	void deallocate(void* pointer);
 	static Storage& get_singleton();

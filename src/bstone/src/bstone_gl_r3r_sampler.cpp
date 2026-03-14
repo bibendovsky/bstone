@@ -30,7 +30,7 @@ class GlR3rSamplerImpl final : public GlR3rSampler
 public:
 	GlR3rSamplerImpl(GlR3rContext& context, const R3rSamplerInitParam& param);
 	GlR3rSamplerImpl(const GlR3rSampler& rhs) = delete;
-	~GlR3rSamplerImpl() override {}
+	~GlR3rSamplerImpl() override = default;
 
 	void set() override;
 

@@ -20,10 +20,10 @@ class GlR3rContext;
 class GlR3rBuffer : public R3rBuffer
 {
 protected:
-	GlR3rBuffer() {};
+	GlR3rBuffer() = default;
 
 public:
-	~GlR3rBuffer() override {}
+	~GlR3rBuffer() override = default;
 
 	virtual void set(bool is_set) = 0;
 };

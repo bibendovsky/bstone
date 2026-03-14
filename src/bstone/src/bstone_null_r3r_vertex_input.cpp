@@ -22,7 +22,7 @@ class NullR3rVertexInputImpl final : public R3rVertexInput
 {
 public:
 	NullR3rVertexInputImpl(const R3rCreateVertexInputParam& param);
-	~NullR3rVertexInputImpl() override {}
+	~NullR3rVertexInputImpl() override = default;
 };
 
 // --------------------------------------------------------------------------

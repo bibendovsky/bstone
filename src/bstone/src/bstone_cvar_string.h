@@ -17,7 +17,7 @@ namespace bstone {
 class CVarString
 {
 public:
-	CVarString();
+	CVarString() = default;
 	explicit CVarString(std::string_view string_view);
 	CVarString(const CVarString& rhs);
 	CVarString(CVarString&& rhs) noexcept;

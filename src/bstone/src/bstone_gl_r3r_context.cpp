@@ -38,7 +38,7 @@ public:
 		const GlR3rDeviceFeatures& gl_device_features);
 
 	GlR3rContextImpl(const GlR3rContextImpl& rhs) = delete;
-	~GlR3rContextImpl() override {}
+	~GlR3rContextImpl() override = default;
 
 	const R3rDeviceFeatures& get_device_features() const override;
 	const GlR3rDeviceFeatures& get_gl_device_features() const override;
