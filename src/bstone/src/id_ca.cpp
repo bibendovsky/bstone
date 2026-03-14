@@ -940,8 +940,8 @@ std::string ca_calculate_hash(
 	}
 
 	sha1.finish();
-
-	return bstone::StringHelper::array_to_hex_string(sha1.get_digest());
+	const bstone::Sha1Digest& sha1_digest = sha1.get_digest();
+	return bstone::StringHelper::bytes_to_hex_string(sha1_digest.get_data(), sha1_digest.get_size());
 }
 
 std::string ca_calculate_hash(
