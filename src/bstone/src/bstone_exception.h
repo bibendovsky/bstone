@@ -50,6 +50,11 @@ public:
 	[[noreturn]] static void fail(const std::source_location& source_location, const char* message);
 	[[noreturn]] static void fail_nested(const std::source_location& source_location);
 
+	consteval static const char* ensure_static(const char* message) noexcept
+	{
+		return message;
+	}
+
 private:
 	std::source_location source_location_{};
 	const char* message_{""};
@@ -97,7 +102,8 @@ private:
 
 #ifndef BSTONE_THROW_STATIC_SOURCE
 	#define BSTONE_THROW_STATIC_SOURCE(message) \
-	::bstone::StaticSourceException::fail(BSTONE_MAKE_SOURCE_LOCATION(), message)
+	::bstone::StaticSourceException::fail( \
+		BSTONE_MAKE_SOURCE_LOCATION(), ::bstone::StaticSourceException::ensure_static(message))
 #endif
 
 #ifndef BSTONE_THROW_DYNAMIC_SOURCE
