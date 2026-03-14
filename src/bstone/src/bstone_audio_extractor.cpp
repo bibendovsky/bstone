@@ -333,7 +333,8 @@ void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, con
 	auto sha1 = Sha1{};
 	sha1.process(audio_chunk.data, audio_chunk.data_size);
 	sha1.finish();
-	const auto sha1_string = StringHelper::array_to_hex_string(sha1.get_digest());
+	const Sha1Digest& sha1_digest = sha1.get_digest();
+	const auto sha1_string = StringHelper::bytes_to_hex_string(sha1_digest.get_data(), sha1_digest.get_size());
 
 	globals::logger->log_information("\tSHA1: {}", sha1_string);
 }

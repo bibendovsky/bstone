@@ -8981,9 +8981,10 @@ bool LoadTheGame(
 
 			auto levels_hash_digest = bstone::Sha1Digest{};
 			archiver.read_uint8_array(
-				levels_hash_digest.data(),
-				static_cast<int>(levels_hash_digest.size()));
-			const auto& levels_hash_string = bstone::StringHelper::array_to_hex_string(levels_hash_digest);
+				levels_hash_digest.get_data(),
+				levels_hash_digest.get_size());
+			const auto& levels_hash_string = bstone::StringHelper::bytes_to_hex_string(
+				levels_hash_digest.get_data(), levels_hash_digest.get_size());
 
 			const auto& assets_info = get_assets_info();
 
@@ -9157,12 +9158,12 @@ bool SaveTheGame(
 		bstone::hex_chars_to_bytes(
 			levels_hash_string.data(),
 			levels_hash_string.data() + levels_hash_string.size(),
-			levels_digest.data(),
-			levels_digest.data() + levels_digest.size());
+			levels_digest.get_data(),
+			levels_digest.get_data() + levels_digest.get_size());
 
 		archiver.write_uint8_array(
-			levels_digest.data(),
-			static_cast<std::intptr_t>(levels_digest.size()));
+			levels_digest.get_data(),
+			levels_digest.get_size());
 
 		// Other stuff.
 		//
