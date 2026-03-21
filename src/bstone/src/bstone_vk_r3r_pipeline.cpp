@@ -207,9 +207,9 @@ VkR3rPipelineImpl::VkR3rPipelineImpl(VkR3rContext& context)
 		.pPushConstantRanges    = nullptr};
 	VkPipelineLayout vk_pipeline_layout{};
 	vk_result = context_.vkCreatePipelineLayout(
-		/* device */          context_.device.get(),
-		/* pCreateInfo */     &vk_pipeline_layout_create_info,
-		/* pAllocator */      nullptr,
+		/* device          */ context_.device.get(),
+		/* pCreateInfo     */ &vk_pipeline_layout_create_info,
+		/* pAllocator      */ nullptr,
 		/* pPipelineLayout */ &vk_pipeline_layout);
 	context_.ensure_success_vk_result(vk_result, "vkCreatePipelineLayout");
 	VkR3rPipelineLayoutResource pipeline_layout{vk_pipeline_layout, VkR3rPipelineLayoutDeleter{context_}};
@@ -236,12 +236,12 @@ VkR3rPipelineImpl::VkR3rPipelineImpl(VkR3rContext& context)
 		.basePipelineIndex   = 0};
 	VkPipeline vk_pipeline{};
 	vk_result = context_.vkCreateGraphicsPipelines(
-		/* device */          context.device.get(),
-		/* pipelineCache */   VkPipelineCache{},
+		/* device          */ context.device.get(),
+		/* pipelineCache   */ VkPipelineCache{},
 		/* createInfoCount */ 1,
-		/* pCreateInfos */    &vk_graphics_pipeline_create_info,
-		/* pAllocator */      nullptr,
-		/* pPipelines */      &vk_pipeline);
+		/* pCreateInfos    */ &vk_graphics_pipeline_create_info,
+		/* pAllocator      */ nullptr,
+		/* pPipelines      */ &vk_pipeline);
 	context_.ensure_success_vk_result(vk_result, "vkCreateGraphicsPipelines");
 	VkR3rPipelineResource pipeline{vk_pipeline, VkR3rPipelineDeleter{context_}};
 	//
@@ -263,9 +263,9 @@ void VkR3rPipelineImpl::draw_indexed(const VkR3rPipelineDrawIndexedParam& param)
 void VkR3rPipelineImpl::enqueue_bind_pipeline()
 {
 	context_.vkCmdBindPipeline(
-		/* commandBuffer */     context_.command_buffer,
+		/* commandBuffer     */ context_.command_buffer,
 		/* pipelineBindPoint */ VK_PIPELINE_BIND_POINT_GRAPHICS,
-		/* pipeline */          pipeline_.get());
+		/* pipeline          */ pipeline_.get());
 }
 
 void VkR3rPipelineImpl::enqueue_viewport()
@@ -274,16 +274,16 @@ void VkR3rPipelineImpl::enqueue_viewport()
 		/* commandBuffer */ context_.command_buffer,
 		/* firstViewport */ 0,
 		/* viewportCount */ 1,
-		/* pViewports */    &context_.draw_state.viewport);
+		/* pViewports    */ &context_.draw_state.viewport);
 }
 
 void VkR3rPipelineImpl::enqueue_scissor()
 {
 	context_.vkCmdSetScissor(
 		/* commandBuffer */ context_.command_buffer,
-		/* firstScissor */  0,
-		/* scissorCount */  1,
-		/* pScissors */     &context_.draw_state.scissor);
+		/* firstScissor  */ 0,
+		/* scissorCount  */ 1,
+		/* pScissors     */ &context_.draw_state.scissor);
 }
 
 void VkR3rPipelineImpl::enqueue_bind_index_buffer(const VkR3rPipelineDrawIndexedParam& param)
@@ -293,9 +293,9 @@ void VkR3rPipelineImpl::enqueue_bind_index_buffer(const VkR3rPipelineDrawIndexed
 	const VkIndexType vk_index_type = param.index_byte_depth <= 2 ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32;
 	context_.vkCmdBindIndexBuffer(
 		/* commandBuffer */ context_.command_buffer,
-		/* buffer */        vk_index_buffer,
-		/* offset */        static_cast<std::uint32_t>(param.index_buffer_offset),
-		/* indexType */     vk_index_type);
+		/* buffer        */ vk_index_buffer,
+		/* offset        */ static_cast<std::uint32_t>(param.index_buffer_offset),
+		/* indexType     */ vk_index_type);
 }
 
 void VkR3rPipelineImpl::enqueue_bind_vertex_buffer()
@@ -307,10 +307,10 @@ void VkR3rPipelineImpl::enqueue_bind_vertex_buffer()
 	constexpr VkDeviceSize vk_offsets[2] = {0, 0};
 	context_.vkCmdBindVertexBuffers(
 		/* commandBuffer */ context_.command_buffer,
-		/* firstBinding */  0,
-		/* bindingCount */  1 + has_generic_buffer,
-		/* pBuffers */      vk_vertex_buffers,
-		/* pOffsets */      vk_offsets);
+		/* firstBinding  */ 0,
+		/* bindingCount  */ 1 + has_generic_buffer,
+		/* pBuffers      */ vk_vertex_buffers,
+		/* pOffsets      */ vk_offsets);
 }
 
 void VkR3rPipelineImpl::enqueue_bind_descriptor_set()
@@ -336,30 +336,30 @@ void VkR3rPipelineImpl::enqueue_bind_descriptor_set()
 		.pBufferInfo      = nullptr,
 		.pTexelBufferView = nullptr};
 	context_.vkUpdateDescriptorSets(
-		/* device */               context_.device.get(),
+		/* device               */ context_.device.get(),
 		/* descriptorWriteCount */ 1,
-		/* pDescriptorWrites */    &vk_write_descriptor_set,
-		/* descriptorCopyCount */  0,
-		/* pDescriptorCopies */    nullptr);
+		/* pDescriptorWrites    */ &vk_write_descriptor_set,
+		/* descriptorCopyCount  */ 0,
+		/* pDescriptorCopies    */ nullptr);
 	context_.vkCmdBindDescriptorSets(
-		/* commandBuffer */      context_.command_buffer,
-		/* pipelineBindPoint */  VK_PIPELINE_BIND_POINT_GRAPHICS,
-		/* layout */             pipeline_layout_.get(),
-		/* firstSet */           0,
+		/* commandBuffer      */ context_.command_buffer,
+		/* pipelineBindPoint  */ VK_PIPELINE_BIND_POINT_GRAPHICS,
+		/* layout             */ pipeline_layout_.get(),
+		/* firstSet           */ 0,
 		/* descriptorSetCount */ 1,
-		/* pDescriptorSets */    &vk_descriptor_set,
+		/* pDescriptorSets    */ &vk_descriptor_set,
 		/* dynamicOffsetCount */ 0,
-		/* pDynamicOffsets */    nullptr);
+		/* pDynamicOffsets    */ nullptr);
 }
 
 void VkR3rPipelineImpl::enqueue_draw_indexed(const VkR3rPipelineDrawIndexedParam& param)
 {
 	context_.vkCmdDrawIndexed(
 		/* commandBuffer */ context_.command_buffer,
-		/* indexCount */    static_cast<std::uint32_t>(param.vertex_count),
+		/* indexCount    */ static_cast<std::uint32_t>(param.vertex_count),
 		/* instanceCount */ 1,
-		/* firstIndex */    param.index_offset,
-		/* vertexOffset */  0,
+		/* firstIndex    */ param.index_offset,
+		/* vertexOffset  */ 0,
 		/* firstInstance */ 0);
 }
 

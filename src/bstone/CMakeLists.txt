@@ -72,6 +72,22 @@ endif()
 			-S frag -V100 -e main ${bstone_vulkan_shaders_options}
 			-o ${bstone_vulkan_shaders_output_dir}/default_frag.spv
 			${bstone_vulkan_shaders_source_dir}/default_frag.txt
+		COMMAND glslangValidator
+			-S vert -V100 -e main ${bstone_vulkan_shaders_options}
+			-o ${bstone_vulkan_shaders_output_dir}/post_vert.spv
+			${bstone_vulkan_shaders_source_dir}/post_vert.txt
+		COMMAND glslangValidator
+			-S frag -V100 -e main ${bstone_vulkan_shaders_options}
+			-o ${bstone_vulkan_shaders_output_dir}/post_frag.spv
+			${bstone_vulkan_shaders_source_dir}/post_frag.txt
+		COMMAND glslangValidator
+			-S vert -V100 -e main ${bstone_vulkan_shaders_options} -DMULTISAMPLE
+			-o ${bstone_vulkan_shaders_output_dir}/post_ms_vert.spv
+			${bstone_vulkan_shaders_source_dir}/post_vert.txt
+		COMMAND glslangValidator
+			-S frag -V100 -e main ${bstone_vulkan_shaders_options} -DMULTISAMPLE
+			-o ${bstone_vulkan_shaders_output_dir}/post_ms_frag.spv
+			${bstone_vulkan_shaders_source_dir}/post_frag.txt
 		COMMAND bstone_bin2c
 			-aa "alignas(std::uint32_t)"
 			-aa static
@@ -82,22 +98,54 @@ endif()
 			-aa static
 			-i ${bstone_vulkan_shaders_output_dir}/default_frag.spv
 			-o ${bstone_vulkan_shaders_output_dir}/default_frag.spv.h
+		COMMAND bstone_bin2c
+			-aa "alignas(std::uint32_t)"
+			-aa static
+			-i ${bstone_vulkan_shaders_output_dir}/post_vert.spv
+			-o ${bstone_vulkan_shaders_output_dir}/post_vert.spv.h
+		COMMAND bstone_bin2c
+			-aa "alignas(std::uint32_t)"
+			-aa static
+			-i ${bstone_vulkan_shaders_output_dir}/post_frag.spv
+			-o ${bstone_vulkan_shaders_output_dir}/post_frag.spv.h
+		COMMAND bstone_bin2c
+			-aa "alignas(std::uint32_t)"
+			-aa static
+			-i ${bstone_vulkan_shaders_output_dir}/post_ms_vert.spv
+			-o ${bstone_vulkan_shaders_output_dir}/post_ms_vert.spv.h
+		COMMAND bstone_bin2c
+			-aa "alignas(std::uint32_t)"
+			-aa static
+			-i ${bstone_vulkan_shaders_output_dir}/post_ms_frag.spv
+			-o ${bstone_vulkan_shaders_output_dir}/post_ms_frag.spv.h
 		VERBATIM
 		SOURCES
 			${bstone_vulkan_shaders_source_dir}/default_vert.txt
 			${bstone_vulkan_shaders_source_dir}/default_frag.txt
+			${bstone_vulkan_shaders_source_dir}/post_vert.txt
+			${bstone_vulkan_shaders_source_dir}/post_frag.txt
 	)
 
 	add_dependencies(bstone_vulkan_compile_shaders bstone_bin2c)
 	install(FILES
 		${bstone_vulkan_shaders_source_dir}/default_vert.txt
 		${bstone_vulkan_shaders_source_dir}/default_frag.txt
+		${bstone_vulkan_shaders_source_dir}/post_vert.txt
+		${bstone_vulkan_shaders_source_dir}/post_frag.txt
 		DESTINATION bstone_vulkan/src)
 	install(FILES
 		${bstone_vulkan_shaders_output_dir}/default_vert.spv
 		${bstone_vulkan_shaders_output_dir}/default_vert.spv.h
 		${bstone_vulkan_shaders_output_dir}/default_frag.spv
 		${bstone_vulkan_shaders_output_dir}/default_frag.spv.h
+		${bstone_vulkan_shaders_output_dir}/post_vert.spv
+		${bstone_vulkan_shaders_output_dir}/post_vert.spv.h
+		${bstone_vulkan_shaders_output_dir}/post_frag.spv
+		${bstone_vulkan_shaders_output_dir}/post_frag.spv.h
+		${bstone_vulkan_shaders_output_dir}/post_ms_vert.spv
+		${bstone_vulkan_shaders_output_dir}/post_ms_vert.spv.h
+		${bstone_vulkan_shaders_output_dir}/post_ms_frag.spv
+		${bstone_vulkan_shaders_output_dir}/post_ms_frag.spv.h
 		DESTINATION bstone_vulkan/bin)
 endif()
 
@@ -539,6 +587,8 @@ set(BSTONE_BSTONE_RENDERER_3D_VK_SOURCES
 	src/bstone_vk_r3r_sampler.h
 	src/bstone_vk_r3r_shader.cpp
 	src/bstone_vk_r3r_shader.h
+	src/bstone_vk_r3r_shader_registry.cpp
+	src/bstone_vk_r3r_shader_registry.h
 	src/bstone_vk_r3r_shader_stage.cpp
 	src/bstone_vk_r3r_shader_stage.h
 	src/bstone_vk_r3r_shader_var.cpp
@@ -555,6 +605,8 @@ source_group("bstone/renderer/3d/vk" FILES ${BSTONE_BSTONE_RENDERER_3D_VK_SOURCE
 set(BSTONE_BSTONE_RENDERER_3D_VK_SHADER_SOURCES
 	src/resources/vulkan/src/default_frag.txt
 	src/resources/vulkan/src/default_vert.txt
+	src/resources/vulkan/src/post_frag.txt
+	src/resources/vulkan/src/post_vert.txt
 )
 
 target_sources(bstone PRIVATE ${BSTONE_BSTONE_RENDERER_3D_VK_SHADER_SOURCES})

@@ -7,6 +7,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_ascii.h"
 #include "bstone_cvalidator.h"
 #include "bstone_exception.h"
+#include <cmath>
 
 namespace bstone {
 
@@ -44,5 +45,25 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Expected at least one underscore or alpha character for name.");
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+void CValidator::validate_float32_category(float value)
+try
+{
+	switch (std::fpclassify(value))
+	{
+		case FP_NORMAL:
+		case FP_ZERO:
+			break;
+		case FP_SUBNORMAL:
+			BSTONE_THROW_STATIC_SOURCE("Subnormal float32.");
+		case FP_INFINITE:
+			BSTONE_THROW_STATIC_SOURCE("Infinite float32.");
+		case FP_NAN:
+			BSTONE_THROW_STATIC_SOURCE("NaN float32.");
+		default:
+			BSTONE_THROW_STATIC_SOURCE("Unsupported float32 category.");
+	}
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

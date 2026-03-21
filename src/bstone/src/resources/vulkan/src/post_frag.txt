@@ -1,0 +1,47 @@
+#version 450
+
+#ifdef MULTISAMPLE
+#define U_SAMPLER sampler2DMS
+#else
+#define U_SAMPLER sampler2D
+#endif
+
+layout(binding=0) uniform U_SAMPLER u_sampler;
+
+layout(binding=1,std140) uniform Ubo {
+    int sample_count;
+    float brightness;
+    float contrast;
+    float saturation;
+} ubo;
+
+#ifndef MULTISAMPLE
+layout(location=0) in vec2 o_tx_coords;
+#endif
+
+layout(location=0) out vec4 frag_color;
+
+#ifdef MULTISAMPLE
+vec4 resolve()
+{
+    ivec2 tx_coords = ivec2(gl_FragCoord.xy);
+    vec4 texel = vec4(0.0);
+    for (int i = 0; i < ubo.sample_count; ++i)
+    {
+        texel += texelFetch(u_sampler, tx_coords, i);
+    }
+    return texel / ubo.sample_count;
+}
+#else
+vec4 resolve()
+{
+    return texture(u_sampler, o_tx_coords);
+}
+#endif
+
+void main()
+{
+    vec4 color;
+    color = resolve();
+    frag_color = color;
+}

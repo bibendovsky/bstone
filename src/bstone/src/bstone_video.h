@@ -83,6 +83,10 @@ public:
 
 	virtual void apply_filler_color_index() = 0;
 
+	virtual void apply_brightness() = 0;
+	virtual void apply_contrast() = 0;
+	virtual void apply_saturation() = 0;
+
 
 	// HW
 	//

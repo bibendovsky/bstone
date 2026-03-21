@@ -322,6 +322,54 @@ auto vid_check_r3_api_call_for_errors_cvar = bstone::CVar{
 	bstone::CVarFlags::archive,
 	vid_check_r3_api_call_for_errors_cvar_default};
 
+// vid_brightness
+
+constexpr std::string_view vid_brightness_cvar_name{"vid_brightness"};
+constexpr float vid_brightness_cvar_min = 0.1F;
+constexpr float vid_brightness_cvar_mid = 1.0F;
+constexpr float vid_brightness_cvar_max = 2.0F;
+constexpr float vid_brightness_cvar_default = vid_brightness_cvar_mid;
+
+bstone::CVar vid_brightness_cvar{
+	bstone::CVarFloat32Tag{},
+	vid_brightness_cvar_name,
+	bstone::CVarFlags::archive,
+	vid_brightness_cvar_default,
+	vid_brightness_cvar_min,
+	vid_brightness_cvar_max};
+
+// vid_contrast
+
+constexpr std::string_view vid_contrast_cvar_name{"vid_contrast"};
+constexpr float vid_contrast_cvar_min = 0.1F;
+constexpr float vid_contrast_cvar_mid = 1.0F;
+constexpr float vid_contrast_cvar_max = 2.0F;
+constexpr float vid_contrast_cvar_default = vid_contrast_cvar_mid;
+
+bstone::CVar vid_contrast_cvar{
+	bstone::CVarFloat32Tag{},
+	vid_contrast_cvar_name,
+	bstone::CVarFlags::archive,
+	vid_contrast_cvar_default,
+	vid_contrast_cvar_min,
+	vid_contrast_cvar_max};
+
+// vid_saturation
+
+constexpr std::string_view vid_saturation_cvar_name{"vid_saturation"};
+constexpr float vid_saturation_cvar_min = 0.0F;
+constexpr float vid_saturation_cvar_mid = 1.0F;
+constexpr float vid_saturation_cvar_max = 2.0F;
+constexpr float vid_saturation_cvar_default = vid_saturation_cvar_mid;
+
+bstone::CVar vid_saturation_cvar{
+	bstone::CVarFloat32Tag{},
+	vid_saturation_cvar_name,
+	bstone::CVarFlags::archive,
+	vid_saturation_cvar_default,
+	vid_saturation_cvar_min,
+	vid_saturation_cvar_max};
+
 } // namespace
 
 extern bool is_full_menu_active;
@@ -939,6 +987,9 @@ void vid_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 	cvar_mgr.add(vid_filler_color_index_cvar);
 	cvar_mgr.add(vid_external_textures_cvar);
 	cvar_mgr.add(vid_check_r3_api_call_for_errors_cvar);
+	cvar_mgr.add(vid_brightness_cvar);
+	cvar_mgr.add(vid_contrast_cvar);
+	cvar_mgr.add(vid_saturation_cvar);
 }
 
 namespace
@@ -2139,6 +2190,66 @@ void vid_check_r3_api_call_for_errors(bool is_enabled)
 	vid_check_r3_api_call_for_errors_cvar.set_bool(is_enabled);
 }
 
+float vid_cfg_get_brightness()
+{
+	return vid_brightness_cvar.get_float32();
+}
+
+float vid_cfg_get_brightness_min()
+{
+	return vid_brightness_cvar_min;
+}
+
+float vid_cfg_get_brightness_max()
+{
+	return vid_brightness_cvar_max;
+}
+
+void vid_cfg_set_brightness(float brightness)
+{
+	vid_brightness_cvar.set_float32(brightness);
+}
+
+float vid_cfg_get_contrast()
+{
+	return vid_contrast_cvar.get_float32();
+}
+
+float vid_cfg_get_contrast_min()
+{
+	return vid_contrast_cvar_min;
+}
+
+float vid_cfg_get_contrast_max()
+{
+	return vid_contrast_cvar_max;
+}
+
+void vid_cfg_set_contrast(float contrast)
+{
+	vid_contrast_cvar.set_float32(contrast);
+}
+
+float vid_cfg_get_saturation()
+{
+	return vid_saturation_cvar.get_float32();
+}
+
+float vid_cfg_get_saturation_min()
+{
+	return vid_saturation_cvar_min;
+}
+
+float vid_cfg_get_saturation_max()
+{
+	return vid_saturation_cvar_max;
+}
+
+void vid_cfg_set_saturation(float saturation)
+{
+	vid_saturation_cvar.set_float32(saturation);
+}
+
 void vid_set_ui_mask(
 	bool value)
 {
@@ -2613,6 +2724,27 @@ void vid_apply_external_textures()
 try {
 	g_video->apply_external_textures();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+void vid_apply_brightness()
+try
+{
+	g_video->apply_brightness();
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+void vid_apply_contrast()
+try
+{
+	g_video->apply_contrast();
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+void vid_apply_saturation()
+try
+{
+	g_video->apply_saturation();
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void vid_schedule_take_screenshot()
 {

@@ -1,7 +1,7 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
@@ -10,6 +10,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstring>
 
 #include <algorithm>
+#include <charconv>
+#include <iterator>
 #include <map>
 #include <stdexcept>
 #include <vector>
@@ -124,6 +126,7 @@ enum MenuVideoLables
 {
 	mvl_mode,
 	mvl_texturing,
+	mvl_adjust_colors,
 	mvl_widescreen,
 	mvl_stretch_ui,
 	mvl_filler_color,
@@ -415,9 +418,17 @@ CP_iteminfo NewItems = {NM_X, NM_Y, 4, 1, 0, 16, {60, -2, 105, 16, 1}};
 CP_iteminfo SwitchItems = {MENU_X, 0, 0, 0, 0, 9, {87, -1, 132, 7, 1}};
 
 // BBi
-CP_iteminfo video_items = {MENU_X, MENU_Y + 30, 5, 0, 0, 9, {77, -1, 154, 7, 1}};
+CP_iteminfo video_items = {MENU_X, MENU_Y + 30, 6, 0, 0, 9, {77, -1, 154, 7, 1}};
 CP_iteminfo video_mode_items = {MENU_X - 31, MENU_Y + 10, 8, 0, 0, 9, {67, -1, 184, 7, 1}};
 CP_iteminfo texturing_items = {MENU_X, MENU_Y + 10, 7, 0, 0, 9, {77, -1, 154, 7, 1}};
+CP_iteminfo adjust_colors_items{
+	.x = MENU_X,
+	.y = MENU_Y + 10,
+	.amount = 3,
+	.curpos = 0,
+	.indent = 0,
+	.y_spacing = 9,
+	.cursor = CP_cursortype{.x = 77, .y_ofs = -1, .width = 154, .height = 7, .on = 1}};
 CP_iteminfo switches2_items = {MENU_X, MENU_Y + 30, 5, 0, 0, 9, {87, -1, 132, 7, 1}};
 // BBi
 
@@ -589,6 +600,8 @@ void video_menu_mode_routine(
 void texturing_routine(
 	std::int16_t index);
 
+void adjust_colors_routine(std::int16_t index);
+
 void filler_color_routine(
 	std::int16_t index);
 
@@ -596,6 +609,7 @@ CP_itemtype video_menu[] =
 {
 	{AT_ENABLED, "MODE", video_menu_mode_routine},
 	{AT_ENABLED, "TEXTURING", texturing_routine},
+	{AT_ENABLED, "ADJUST COLORS", adjust_colors_routine},
 	{AT_ENABLED, "WIDESCREEN", nullptr},
 	{AT_ENABLED, "STRETCH UI", nullptr},
 	{AT_ENABLED, "FILLER COLOR", filler_color_routine},
@@ -4818,6 +4832,7 @@ void draw_video_descriptions(
 	const char* instructions[] = {
 		"CHANGES THE VIDEO MODE",
 		"CHANGES TEXTURING OPTIONS",
+		"CHANGES COLOR SETTINGS",
 		"TOGGLES BETWEEN WIDESCREEN AND 4X3 MODES",
 		"TOGGLES STRETCHING OF USER INTERFACE",
 		"SELECTS FILLER'S COLOR",
@@ -4880,6 +4895,7 @@ void video_draw_switch(
 			{
 				case mvl_mode:
 				case mvl_texturing:
+				case mvl_adjust_colors:
 				case mvl_filler_color:
 					continue;
 
@@ -6029,6 +6045,238 @@ void texturing_routine(
 	MenuFadeOut();
 }
 
+// -------------------------------------
+
+enum AdjustColorsMenuIndices
+{
+	adjust_colors_menu_brightness_index,
+	adjust_colors_menu_contrast_index,
+	adjust_colors_menu_saturation_index
+};
+
+CP_itemtype adjust_colors_menu[] =
+{
+	CP_itemtype{
+		.active = AT_ENABLED,
+		.string = "BRIGHTNESS",
+		.routine = nullptr,
+		.fontnumber = 0,
+		.height = 0,
+		.carousel_func = nullptr},
+	CP_itemtype{
+		.active = AT_ENABLED,
+		.string = "CONTRAST",
+		.routine = nullptr,
+		.fontnumber = 0,
+		.height = 0,
+		.carousel_func = nullptr},
+	CP_itemtype{
+		.active = AT_ENABLED,
+		.string = "SATURATION",
+		.routine = nullptr,
+		.fontnumber = 0,
+		.height = 0,
+		.carousel_func = nullptr}
+};
+
+void adjust_colors_draw_descriptions(std::int16_t which)
+{
+	constinit static const char* const instructions[] = {
+		"CHANGES THE BRIGHTNESS",
+		"CHANGES THE CONTRAST",
+		"CHANGES THE SATURATION"};
+	fontnumber = 2;
+	WindowX = 48;
+	WindowY = 144;
+	WindowW = 236;
+	WindowH = 8;
+	VWB_Bar(WindowX, WindowY - 1, WindowW, WindowH, menu_background_color);
+	SETFONTCOLOR(TERM_SHADOW_COLOR, TERM_BACK_COLOR);
+	US_PrintCentered(instructions[which]);
+	WindowX -= 1;
+	WindowY -= 1;
+	SETFONTCOLOR(INSTRUCTIONS_TEXT_COLOR, TERM_BACK_COLOR);
+	US_PrintCentered(instructions[which]);
+}
+
+std::string adjust_colors_float_to_string(float value)
+{
+	constexpr int max_chars = 32;
+	char chars[max_chars];
+	if (const auto [chars_end, ec] = std::to_chars(std::begin(chars), std::end(chars), value, std::chars_format::general, 3);
+		ec == std::errc{})
+	{
+		const std::size_t char_count = static_cast<std::size_t>(chars_end - chars);
+		return std::string{chars, char_count};
+	}
+	return std::string{};
+}
+
+void adjust_colors_draw_switch(std::int16_t which)
+{
+	for (int i = 0; i < adjust_colors_items.amount; ++i)
+	{
+		if (adjust_colors_menu[i].string.empty())
+		{
+			continue;
+		}
+		std::uint16_t Shape = C_NOTSELECTEDPIC;
+		if (adjust_colors_items.cursor.on)
+		{
+			if (i == which)
+			{
+				Shape += 2;
+			}
+		}
+		switch (i)
+		{
+			case adjust_colors_menu_brightness_index:
+				draw_carousel(
+					i,
+					&adjust_colors_items,
+					adjust_colors_menu,
+					adjust_colors_float_to_string(vid_cfg_get_brightness()));
+				continue;
+			case adjust_colors_menu_contrast_index:
+				draw_carousel(
+					i,
+					&adjust_colors_items,
+					adjust_colors_menu,
+					adjust_colors_float_to_string(vid_cfg_get_contrast()));
+				continue;
+			case adjust_colors_menu_saturation_index:
+				draw_carousel(
+					i,
+					&adjust_colors_items,
+					adjust_colors_menu,
+					adjust_colors_float_to_string(vid_cfg_get_saturation()));
+				continue;
+			default:
+				break;
+		}
+		VWB_DrawPic(
+			adjust_colors_items.x - 16,
+			adjust_colors_items.y + (i * texturing_items.y_spacing) - 1,
+			Shape);
+	}
+	adjust_colors_draw_descriptions(which);
+}
+
+void adjust_colors_draw_menu()
+{
+	CA_CacheScreen(BACKGROUND_SCREENPIC);
+	ClearMScreen();
+	DrawMenuTitle("ADJUST COLORS");
+	DrawInstructions(IT_STANDARD);
+	DrawMenu(&adjust_colors_items, adjust_colors_menu);
+	VW_UpdateScreen();
+}
+
+void adjust_colors_update_menu()
+{
+	ClearMScreen();
+	DrawMenuTitle("ADJUST COLORS");
+	DrawInstructions(IT_STANDARD);
+	DrawMenu(&adjust_colors_items, adjust_colors_menu);
+}
+
+float adjust_colors_calculate_next_value(
+	float value,
+	float min_value,
+	float max_value,
+	bool is_left,
+	bool is_right)
+{
+	int value_int = static_cast<int>(std::clamp(value, min_value, max_value) * 10.0F);
+	if (is_right)
+	{
+		value_int += 1;
+	}
+	else if (is_left)
+	{
+		value_int -= 1;
+	}
+	return std::clamp(value_int / 10.0F, min_value, max_value);
+}
+
+void adjust_colors_brightness_carousel(int item_index, bool is_left, bool is_right)
+{
+	const float old_value = vid_cfg_get_brightness();
+	const float new_value = adjust_colors_calculate_next_value(
+		old_value,
+		vid_cfg_get_brightness_min(),
+		vid_cfg_get_brightness_max(),
+		is_left,
+		is_right);
+	if (new_value != old_value)
+	{
+		vid_cfg_set_brightness(new_value);
+		vid_apply_brightness();
+	}
+	adjust_colors_update_menu();
+	adjust_colors_draw_switch(static_cast<std::int16_t>(item_index));
+	TicDelay(20);
+}
+
+void adjust_colors_contrast_carousel(int item_index, bool is_left, bool is_right)
+{
+	const float old_value = vid_cfg_get_contrast();
+	const float new_value = adjust_colors_calculate_next_value(
+		old_value,
+		vid_cfg_get_contrast_min(),
+		vid_cfg_get_contrast_max(),
+		is_left,
+		is_right);
+	if (new_value != old_value)
+	{
+		vid_cfg_set_contrast(new_value);
+		vid_apply_contrast();
+	}
+	adjust_colors_update_menu();
+	adjust_colors_draw_switch(static_cast<std::int16_t>(item_index));
+	TicDelay(20);
+}
+
+void adjust_colors_saturation_carousel(int item_index, bool is_left, bool is_right)
+{
+	const float old_value = vid_cfg_get_saturation();
+	const float new_value = adjust_colors_calculate_next_value(
+		old_value,
+		vid_cfg_get_saturation_min(),
+		vid_cfg_get_saturation_max(),
+		is_left,
+		is_right);
+	if (new_value != old_value)
+	{
+		vid_cfg_set_saturation(new_value);
+		vid_apply_saturation();
+	}
+	adjust_colors_update_menu();
+	adjust_colors_draw_switch(static_cast<std::int16_t>(item_index));
+	TicDelay(20);
+}
+
+void adjust_colors_routine(std::int16_t)
+{
+	CA_CacheScreen(BACKGROUND_SCREENPIC);
+	adjust_colors_draw_menu();
+	MenuFadeIn();
+	WaitKeyUp();
+	adjust_colors_menu[adjust_colors_menu_brightness_index].carousel_func = &adjust_colors_brightness_carousel;
+	adjust_colors_menu[adjust_colors_menu_contrast_index].carousel_func = &adjust_colors_contrast_carousel;
+	adjust_colors_menu[adjust_colors_menu_saturation_index].carousel_func = &adjust_colors_saturation_carousel;
+	for (;;)
+	{
+		if (HandleMenu(&adjust_colors_items, adjust_colors_menu, adjust_colors_draw_switch) < 0)
+		{
+			break;
+		}
+	};
+	MenuFadeOut();
+}
+
+// -------------------------------------
+
 ///
 void cp_video(
 	std::int16_t)
@@ -6048,6 +6296,7 @@ void cp_video(
 		{
 			case mvl_mode:
 			case mvl_texturing:
+			case mvl_adjust_colors:
 				video_draw_menu();
 				MenuFadeIn();
 				WaitKeyUp();

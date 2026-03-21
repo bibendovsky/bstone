@@ -10,6 +10,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_vk_r3r_enum_strings.h"
+#include <cstring>
 #include <string>
 
 namespace bstone {
@@ -48,6 +49,21 @@ void VkR3rContext::ensure_success_vk_result(VkResult vk_result, const char* mess
 bool VkR3rContext::has_swapchain() const
 {
 	return !swapchain.is_empty();
+}
+
+bool VkR3rContext::has_post() const
+{
+	return has_swapchain();
+}
+
+bool VkR3rContext::supports_multisample() const
+{
+	return sample_count_bitmask > VK_SAMPLE_COUNT_1_BIT;
+}
+
+VkDeviceSize VkR3rContext::get_uniform_offset_alignment() const
+{
+	return physical_device_properties.limits.minUniformBufferOffsetAlignment;
 }
 
 std::uint32_t VkR3rContext::find_memory_type_index(
@@ -232,6 +248,24 @@ try {
 	buffer_resource.swap(local_buffer_resource);
 	device_memory_resource.swap(local_device_memory_resource);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+VkR3rShaderModuleResource VkR3rContext::create_shader_module(const unsigned char* bytes, int byte_count) const
+{
+	const VkShaderModuleCreateInfo vk_shader_module_create_info{
+		.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+		.pNext    = nullptr,
+		.flags    = VkShaderModuleCreateFlags{},
+		.codeSize = static_cast<std::size_t>(byte_count),
+		.pCode    = reinterpret_cast<const std::uint32_t*>(bytes)};
+	VkShaderModule vk_shader_module{};
+	const VkResult vk_result = vkCreateShaderModule(
+		/* device        */ device.get(),
+		/* pCreateInfo   */ &vk_shader_module_create_info,
+		/* pAllocator    */ nullptr,
+		/* pShaderModule */ &vk_shader_module);
+	VkR3rContext::ensure_success_vk_result(vk_result, "vkCreateShaderModule");
+	return VkR3rShaderModuleResource{vk_shader_module, VkR3rShaderModuleDeleter{*this}};
+}
 
 void VkR3rContext::cmd_copy_buffer(
 	VkCommandBuffer vk_command_buffer,
@@ -494,6 +528,11 @@ void VkR3rContext::draw_state_update_scissor()
 void VkR3rContext::update_draw_state()
 {
 	shader_vars_draw_state.clear();
+}
+
+void VkR3rContext::copy_to_mapped_memory(const void* raw_object, std::size_t object_size, void* mapped_memory)
+{
+	std::memcpy(mapped_memory, raw_object, object_size);
 }
 
 } // namespace bstone
