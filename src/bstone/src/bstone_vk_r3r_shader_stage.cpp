@@ -242,11 +242,11 @@ VkDescriptorSet VkR3rShaderStageImpl::acquire_vk_descriptor_set()
 		descriptor_buffer_info.buffer = descriptor_context.uniform_buffer.get();
 	}
 	context_.vkUpdateDescriptorSets(
-		/* device */               context_.device.get(),
+		/* device               */ context_.device.get(),
 		/* descriptorWriteCount */ static_cast<std::uint32_t>(write_descriptor_sets_.size()),
-		/* pDescriptorWrites */    write_descriptor_sets_.data(),
-		/* descriptorCopyCount */  0,
-		/* pDescriptorCopies */    nullptr);
+		/* pDescriptorWrites    */ write_descriptor_sets_.data(),
+		/* descriptorCopyCount  */ 0,
+		/* pDescriptorCopies    */ nullptr);
 	descriptor_contexts_.emplace_back(std::move(descriptor_context));
 	++used_descriptor_set_count_;
 	return vk_descriptor_set;
@@ -391,8 +391,7 @@ void VkR3rShaderStageImpl::initialize(const R3rShaderStageInitParam& param)
 		}
 		binding_to_info_iter->second.emplace_back(Info{&info, 0});
 	}
-	const int uniform_buffer_offset_alignment = static_cast<int>(
-		context_.physical_device_properties.limits.minUniformBufferOffsetAlignment);
+	const int uniform_buffer_offset_alignment = static_cast<int>(context_.get_uniform_offset_alignment());
 	int uniform_buffer_offset = 0;
 	using DescriptorSetLayoutBindings = std::vector<VkDescriptorSetLayoutBinding>;
 	DescriptorSetLayoutBindings descriptor_set_layout_bindings{};

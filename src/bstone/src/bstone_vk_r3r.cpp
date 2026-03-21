@@ -24,6 +24,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_vk_r3r_r2_texture.h"
 #include "bstone_vk_r3r_sampler.h"
 #include "bstone_vk_r3r_shader.h"
+#include "bstone_vk_r3r_shader_registry.h"
 #include "bstone_vk_r3r_shader_stage.h"
 #include "bstone_vk_r3r_vertex_input.h"
 #include <cstddef>
@@ -84,6 +85,7 @@ public:
 	void submit_commands(std::span<R3rCmdBuffer*> command_buffers) override;
 	void wait_for_device() override;
 
+private:
 	using StringPointers = std::vector<const char*>;
 	using QueueFamilies = std::vector<VkQueueFamilyProperties>;
 
@@ -188,6 +190,27 @@ public:
 	void initialize_render_pass();
 	void terminate_offscreen_framebuffer();
 	void initialize_offscreen_framebuffer();
+
+	void terminate_post_framebuffers();
+	void terminate_post_pipelines();
+	void initialize_post_defaults();
+	void initialize_post_sampler();
+	void initialize_post_uniform_buffer();
+	void initialize_post_descriptor_set_layout();
+	void initialize_post_descriptor_set();
+	void initialize_post_render_pass();
+	void initialize_post_add_framebuffer(VkImageView vk_image_view);
+	void initialize_post_framebuffers();
+	void initialize_post_shader_modules();
+	void initialize_post_pipeline_layout();
+	void initialize_post_pipelines();
+	void initialize_post();
+	void post_ubo_submit();
+	void post_ubo_set_and_submit_sample_count(int sample_count);
+	void post_update_descriptor_set();
+	void post_draw();
+	void post_enqueue_render_pass();
+
 	void terminate_screenshot_buffer();
 	void initialize_screenshot_buffer();
 	void terminate_screenshot_image();
@@ -207,7 +230,6 @@ public:
 	void wait_for_previous_frame();
 	void swapchain_acquire_next_image();
 	void recreate_swapchain();
-	void blit_offscreen();
 
 	void frame_state_record_command_buffer_internal();
 	void frame_state_record_command_buffer();
@@ -284,7 +306,9 @@ try
 	initialize_sync_objects();
 	initialize_descriptor_pool();
 	initialize_pipeline_mgr();
+	initialize_post();
 	initialize_r3r_device_features();
+	post_ubo_submit();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 R3rType VkR3rImpl::get_type() const
@@ -340,6 +364,7 @@ try
 		initialize_offscreen_framebuffer();
 		context_.draw_state_update_scissor();
 		recreate_swapchain();
+		post_update_descriptor_set();
 	}
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -373,6 +398,8 @@ void VkR3rImpl::set_anti_aliasing(R3rAaType aa_type, int aa_value)
 	pipeline_mgr_->clear();
 	initialize_render_pass();
 	initialize_offscreen_framebuffer();
+	post_update_descriptor_set();
+	post_ubo_set_and_submit_sample_count(context_.sample_count);
 }
 
 void VkR3rImpl::read_pixels(
@@ -393,14 +420,24 @@ void VkR3rImpl::read_pixels(
 	// In the end release Vulkan resources.
 	const auto screenshot_image_sentinel = make_scope_exit(
 		[this]()
-		{
-			terminate_screenshot_image();
-			terminate_screenshot_buffer();
-		});
+	{
+		terminate_screenshot_image();
+		terminate_screenshot_buffer();
+	});
 	VkR3rCommandBufferResource command_buffer_resource = context_.cmd_begin_single_time_commands();
 	VkImage src_image;
 	// We need the stage buffer anyway.
 	initialize_screenshot_buffer();
+	// Transite offscreen image layout.
+	context_.cmd_image_memory_barrier(
+		command_buffer_resource.get(),
+		context_.offscreen_color_image.get(),
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+		VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+		0,
+		1,
+		VK_PIPELINE_STAGE_TRANSFER_BIT,
+		VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
 	if (context_.sample_count > 1)
 	{
 		// Make image resource.
@@ -418,24 +455,21 @@ void VkR3rImpl::read_pixels(
 		// Resolve offscreen framebuffer to the image resource.
 		const VkImageResolve vk_image_resolve{
 			.srcSubresource = VkImageSubresourceLayers{
-				.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT,
-				.mipLevel       = 0,
+				.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+				.mipLevel = 0,
 				.baseArrayLayer = 0,
-				.layerCount     = 1
-			},
+				.layerCount = 1},
 			.srcOffset = VkOffset3D{.x = 0, .y = 0, .z = 0},
 			.dstSubresource = VkImageSubresourceLayers{
-				.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT,
-				.mipLevel       = 0,
+				.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+				.mipLevel = 0,
 				.baseArrayLayer = 0,
-				.layerCount     = 1
-			},
+				.layerCount = 1},
 			.dstOffset = VkOffset3D{.x = 0, .y = 0, .z = 0},
 			.extent = VkExtent3D{
-				.width  = context_.vk_offscreen_width,
+				.width = context_.vk_offscreen_width,
 				.height = context_.vk_offscreen_height,
-				.depth  = 1
-			}};
+				.depth = 1}};
 		context_.vkCmdResolveImage(
 			/* commandBuffer  */ command_buffer_resource.get(),
 			/* srcImage       */ context_.offscreen_color_image.get(),
@@ -444,7 +478,7 @@ void VkR3rImpl::read_pixels(
 			/* dstImageLayout */ VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 			/* regionCount    */ 1,
 			/* pRegions       */ &vk_image_resolve);
-		// Prepare the image resource for reading.
+		// Transite screenshot image layout.
 		context_.cmd_image_memory_barrier(
 			command_buffer_resource.get(),
 			src_image,
@@ -468,21 +502,31 @@ void VkR3rImpl::read_pixels(
 		context_.vk_offscreen_height,
 		VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
 		context_.screenshot_buffer.get());
+	// Transite offscreen image layout.
+	context_.cmd_image_memory_barrier(
+		command_buffer_resource.get(),
+		context_.offscreen_color_image.get(),
+		VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+		0,
+		1,
+		VK_PIPELINE_STAGE_TRANSFER_BIT,
+		VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
 	context_.cmd_end_single_time_commands(command_buffer_resource.get());
 	// Map stage buffer.
 	const void* const vk_pixels = context_.map_memory(context_.screenshot_buffer_memory.get());
-	const std::size_t pixel_count = std::size_t{1} * context_.vk_offscreen_width * context_.vk_offscreen_height;
+	const std::size_t pixel_count = std::size_t{1} *context_.vk_offscreen_width * context_.vk_offscreen_height;
 	const std::size_t data_size = pixel_count * 4;
 	// Create the intermediate buffer.
 	// Converting directly from the mapped memory to the user buffer is significantly slower (about 10 times).
 	void* const intermediate_pixels = ::operator new(data_size);
 	const auto intermediate_buffer_sentinel = make_scope_exit(
 		[intermediate_pixels]()
-		{
-			::operator delete(intermediate_pixels);
-		});
+	{
+		::operator delete(intermediate_pixels);
+	});
 	// Copy all pixels.
-	std::memcpy(intermediate_pixels, vk_pixels, data_size);
+	VkR3rContext::copy_to_mapped_memory(vk_pixels, data_size, intermediate_pixels);
 	// Convert to RGB.
 	struct RgbPixel
 	{
@@ -544,14 +588,14 @@ void VkR3rImpl::present()
 		};
 		const VkSwapchainKHR swapchains[1] = {context_.swapchain.get()};
 		const VkPresentInfoKHR vk_present_info_khr{
-			.sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
-			.pNext              = nullptr,
+			.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+			.pNext = nullptr,
 			.waitSemaphoreCount = 1,
-			.pWaitSemaphores    = wait_semaphores,
-			.swapchainCount     = 1,
-			.pSwapchains        = swapchains,
-			.pImageIndices      = &context_.swapchain_image_index,
-			.pResults           = nullptr};
+			.pWaitSemaphores = wait_semaphores,
+			.swapchainCount = 1,
+			.pSwapchains = swapchains,
+			.pImageIndices = &context_.swapchain_image_index,
+			.pResults = nullptr};
 		vk_result = context_.vkQueuePresentKHR(
 			/* queue */        context_.queue,
 			/* pPresentInfo */ &vk_present_info_khr);
@@ -919,24 +963,24 @@ void VkR3rImpl::begin_submit_commands()
 		/* flags */         VkCommandBufferResetFlags{});
 	ensure_vk_result(vk_result, "vkResetCommandBuffer");
 	const VkCommandBufferBeginInfo vk_command_buffer_begin_info{
-		.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-		.pNext            = nullptr,
-		.flags            = VkCommandBufferUsageFlags{},
+		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+		.pNext = nullptr,
+		.flags = VkCommandBufferUsageFlags{},
 		.pInheritanceInfo = nullptr};
 	vk_result = context_.vkBeginCommandBuffer(
 		/* commandBuffer */ context_.command_buffer,
 		/* pBeginInfo */    &vk_command_buffer_begin_info);
 	ensure_vk_result(vk_result, "vkBeginCommandBuffer");
 	const VkRenderPassBeginInfo vk_render_pass_begin_info{
-		.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
-		.pNext           = nullptr,
-		.renderPass      = context_.render_pass.get(),
-		.framebuffer     = context_.offscreen_framebuffer.get(),
-		.renderArea      = VkRect2D{
+		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+		.pNext = nullptr,
+		.renderPass = context_.render_pass.get(),
+		.framebuffer = context_.offscreen_framebuffer.get(),
+		.renderArea = VkRect2D{
 			.offset = VkOffset2D{.x = 0, .y = 0},
 			.extent = VkExtent2D{.width = context_.vk_offscreen_width, .height = context_.vk_offscreen_height}},
-		.clearValueCount = 0,
-		.pClearValues    = nullptr};
+			.clearValueCount = 0,
+			.pClearValues = nullptr};
 	context_.vkCmdBeginRenderPass(
 		/* commandBuffer    */ context_.command_buffer,
 		/* pRenderPassBegin */ &vk_render_pass_begin_info,
@@ -948,6 +992,7 @@ void VkR3rImpl::end_submit_commands()
 	VkResult vk_result;
 	context_.vkCmdEndRenderPass(
 		/* commandBuffer */ context_.command_buffer);
+	post_enqueue_render_pass();
 	vk_result = context_.vkEndCommandBuffer(
 		/* commandBuffer */ context_.command_buffer);
 	ensure_vk_result(vk_result, "vkEndCommandBuffer");
@@ -968,15 +1013,15 @@ void VkR3rImpl::end_submit_commands()
 	}
 	const VkPipelineStageFlags vk_pipeline_stage_flags = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
 	const VkSubmitInfo vk_submit_info{
-		.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-		.pNext                = nullptr,
-		.waitSemaphoreCount   = wait_semaphore_count,
-		.pWaitSemaphores      = wait_semaphores_ptr,
-		.pWaitDstStageMask    = &vk_pipeline_stage_flags,
-		.commandBufferCount   = 1,
-		.pCommandBuffers      = &context_.command_buffer,
+		.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+		.pNext = nullptr,
+		.waitSemaphoreCount = wait_semaphore_count,
+		.pWaitSemaphores = wait_semaphores_ptr,
+		.pWaitDstStageMask = &vk_pipeline_stage_flags,
+		.commandBufferCount = 1,
+		.pCommandBuffers = &context_.command_buffer,
 		.signalSemaphoreCount = signal_semaphore_count,
-		.pSignalSemaphores    = signal_semaphores_ptr};
+		.pSignalSemaphores = signal_semaphores_ptr};
 	vk_result = context_.vkQueueSubmit(
 		/* queue */       context_.queue,
 		/* submitCount */ 1,
@@ -991,6 +1036,7 @@ void VkR3rImpl::initialize_defaults()
 	context_.vk_surface_height = 0;
 	context_.vk_offscreen_width = static_cast<std::uint32_t>(R3rLimits::min_viewport_width);
 	context_.vk_offscreen_height = static_cast<std::uint32_t>(R3rLimits::min_viewport_height);
+	initialize_post_defaults();
 }
 
 void VkR3rImpl::initialize_vulkan_manager()
@@ -1090,37 +1136,37 @@ void VkR3rImpl::initialize_instance()
 	initialize_enabled_global_layers();
 	initialize_enabled_global_extensions();
 	const VkApplicationInfo vk_application_info{
-		.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-		.pNext              = nullptr,
-		.pApplicationName   = nullptr,
+		.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
+		.pNext = nullptr,
+		.pApplicationName = nullptr,
 		.applicationVersion = 0,
-		.pEngineName        = nullptr,
-		.engineVersion      = 0,
-		.apiVersion         = VK_API_VERSION_1_0};
+		.pEngineName = nullptr,
+		.engineVersion = 0,
+		.apiVersion = VK_API_VERSION_1_0};
 #ifndef NDEBUG
 	const VkDebugUtilsMessengerCreateInfoEXT vk_debug_utils_messenger_create_info{
-		.sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
-		.pNext           = nullptr,
-		.flags           = VkDebugUtilsMessengerCreateFlagsEXT{},
+		.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+		.pNext = nullptr,
+		.flags = VkDebugUtilsMessengerCreateFlagsEXT{},
 		.messageSeverity =
-			VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-			VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-			VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
-		.messageType     =
-			VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-			VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-			VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+		VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+		VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+		VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+		.messageType =
+		VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+		VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+		VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
 		.pfnUserCallback = vk_debug_utils_messenger_callback,
-		.pUserData       = &logger_};
+		.pUserData = &logger_};
 #endif // NDEBUG
 	VkInstanceCreateInfo vk_instance_create_info{
-		.sType                   = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
-		.pNext                   = nullptr,
-		.flags                   = VkInstanceCreateFlags{},
-		.pApplicationInfo        = nullptr,
-		.enabledLayerCount       = 0,
-		.ppEnabledLayerNames     = nullptr,
-		.enabledExtensionCount   = 0,
+		.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+		.pNext = nullptr,
+		.flags = VkInstanceCreateFlags{},
+		.pApplicationInfo = nullptr,
+		.enabledLayerCount = 0,
+		.ppEnabledLayerNames = nullptr,
+		.enabledExtensionCount = 0,
 		.ppEnabledExtensionNames = nullptr};
 #ifndef NDEBUG
 	if (context_.has_ext_debug_utils)
@@ -1162,6 +1208,7 @@ void VkR3rImpl::initialize_instance_symbols()
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCmdCopyBuffer));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCmdCopyBufferToImage));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCmdCopyImageToBuffer));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCmdDraw));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCmdDrawIndexed));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCmdEndRenderPass));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCmdPipelineBarrier));
@@ -1242,19 +1289,19 @@ void VkR3rImpl::initialize_debug_utils_messenger()
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCreateDebugUtilsMessengerEXT));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkDestroyDebugUtilsMessengerEXT));
 	const VkDebugUtilsMessengerCreateInfoEXT vk_debug_utils_messenger_create_info_ext{
-		.sType           = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
-		.pNext           = nullptr,
-		.flags           = VkDebugUtilsMessengerCreateFlagsEXT{},
+		.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+		.pNext = nullptr,
+		.flags = VkDebugUtilsMessengerCreateFlagsEXT{},
 		.messageSeverity =
-			VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-			VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-			VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
-		.messageType     =
-			VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-			VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-			VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+		VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+		VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+		VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+		.messageType =
+		VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+		VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+		VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
 		.pfnUserCallback = vk_debug_utils_messenger_callback,
-		.pUserData       = &logger_};
+		.pUserData = &logger_};
 	VkDebugUtilsMessengerEXT vk_debug_utils_messenger_ext{};
 	const VkResult vk_result = context_.vkCreateDebugUtilsMessengerEXT(
 		/* instance */    context_.instance.get(),
@@ -1364,7 +1411,7 @@ void VkR3rImpl::choose_physical_device()
 		constexpr VkImageUsageFlags required_surface_usage_flags = VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 		const bool has_suitable_surface_usage_flags =
 			(context_.surface_capabilities.supportedUsageFlags & required_surface_usage_flags) ==
-				required_surface_usage_flags;
+			required_surface_usage_flags;
 		bool has_suitable_surface_format = false;
 		const auto surface_formats = vk_r3r_extract_array(
 			context_.vkGetPhysicalDeviceSurfaceFormatsKHR, physical_device, context_.surface.get());
@@ -1450,25 +1497,25 @@ void VkR3rImpl::initialize_logical_device()
 	initialize_enabled_device_extensions();
 	const float queue_priorities[1] = {1.0F};
 	const VkDeviceQueueCreateInfo vk_device_queue_create_info{
-		.sType            = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-		.pNext            = nullptr,
-		.flags            = VkDeviceQueueCreateFlags{},
+		.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+		.pNext = nullptr,
+		.flags = VkDeviceQueueCreateFlags{},
 		.queueFamilyIndex = context_.queue_family_index,
-		.queueCount       = 1,
+		.queueCount = 1,
 		.pQueuePriorities = queue_priorities};
 	VkPhysicalDeviceFeatures vk_physical_device_features{};
 	vk_physical_device_features.samplerAnisotropy = context_.physical_device_features.samplerAnisotropy;
 	const VkDeviceCreateInfo vk_device_create_info{
-		.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-		.pNext                   = nullptr,
-		.flags                   = VkDeviceCreateFlags{},
-		.queueCreateInfoCount    = 1,
-		.pQueueCreateInfos       = &vk_device_queue_create_info,
-		.enabledLayerCount       = static_cast<std::uint32_t>(context_.enabled_layers.size()),
-		.ppEnabledLayerNames     = context_.enabled_layers.data(),
-		.enabledExtensionCount   = static_cast<std::uint32_t>(context_.enabled_device_extensions.size()),
+		.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+		.pNext = nullptr,
+		.flags = VkDeviceCreateFlags{},
+		.queueCreateInfoCount = 1,
+		.pQueueCreateInfos = &vk_device_queue_create_info,
+		.enabledLayerCount = static_cast<std::uint32_t>(context_.enabled_layers.size()),
+		.ppEnabledLayerNames = context_.enabled_layers.data(),
+		.enabledExtensionCount = static_cast<std::uint32_t>(context_.enabled_device_extensions.size()),
 		.ppEnabledExtensionNames = context_.enabled_device_extensions.data(),
-		.pEnabledFeatures        = &vk_physical_device_features};
+		.pEnabledFeatures = &vk_physical_device_features};
 	VkDevice vk_device{};
 	const VkResult vk_result = context_.vkCreateDevice(
 		/* physicalDevice */ context_.physical_device,
@@ -1498,24 +1545,24 @@ void VkR3rImpl::initialize_swapchain()
 	}
 	const std::uint32_t vk_queue_family_indices[1] = {context_.queue_family_index};
 	const VkSwapchainCreateInfoKHR vk_swapchain_create_info_khr{
-		.sType                 = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
-		.pNext                 = nullptr,
-		.flags                 = VkSwapchainCreateFlagsKHR{},
-		.surface               = context_.surface.get(),
-		.minImageCount         = context_.surface_capabilities.minImageCount,
-		.imageFormat           = context_.surface_format,
-		.imageColorSpace       = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
-		.imageExtent           = VkExtent2D{.width  = context_.vk_surface_width, .height = context_.vk_surface_height},
-		.imageArrayLayers      = 1,
-		.imageUsage            = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
-		.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE,
+		.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+		.pNext = nullptr,
+		.flags = VkSwapchainCreateFlagsKHR{},
+		.surface = context_.surface.get(),
+		.minImageCount = context_.surface_capabilities.minImageCount,
+		.imageFormat = context_.surface_format,
+		.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR,
+		.imageExtent = VkExtent2D{.width = context_.vk_surface_width, .height = context_.vk_surface_height},
+		.imageArrayLayers = 1,
+		.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
+		.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
 		.queueFamilyIndexCount = 1,
-		.pQueueFamilyIndices   = vk_queue_family_indices,
-		.preTransform          = context_.surface_capabilities.currentTransform,
-		.compositeAlpha        = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
-		.presentMode           = context_.vk_present_mode_khr,
-		.clipped               = true,
-		.oldSwapchain          = context_.old_swapchain.get()};
+		.pQueueFamilyIndices = vk_queue_family_indices,
+		.preTransform = context_.surface_capabilities.currentTransform,
+		.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+		.presentMode = context_.vk_present_mode_khr,
+		.clipped = true,
+		.oldSwapchain = context_.old_swapchain.get()};
 	VkSwapchainKHR vk_swapchain_khr{};
 	const VkResult vk_result = context_.vkCreateSwapchainKHR(
 		/* device */      context_.device.get(),
@@ -1573,62 +1620,62 @@ void VkR3rImpl::initialize_render_pass()
 	AttachmentDescriptions vk_attachment_descriptions{};
 	// Color.
 	vk_attachment_descriptions[0] = VkAttachmentDescription{
-		.flags          = VkAttachmentDescriptionFlags{},
-		.format         = context_.surface_format,
-		.samples        = static_cast<VkSampleCountFlagBits>(context_.sample_count),
-		.loadOp         = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-		.storeOp        = VK_ATTACHMENT_STORE_OP_STORE,
-		.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		.flags = VkAttachmentDescriptionFlags{},
+		.format = context_.surface_format,
+		.samples = static_cast<VkSampleCountFlagBits>(context_.sample_count),
+		.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+		.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 		.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-		.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED,
-		.finalLayout    = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL};
+		.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+		.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
 	// Depth-stencil.
 	vk_attachment_descriptions[1] = VkAttachmentDescription{
-		.flags          = VkAttachmentDescriptionFlags{},
-		.format         = VK_FORMAT_D16_UNORM,
-		.samples        = static_cast<VkSampleCountFlagBits>(context_.sample_count),
-		.loadOp         = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
-		.storeOp        = VK_ATTACHMENT_STORE_OP_STORE,
-		.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		.flags = VkAttachmentDescriptionFlags{},
+		.format = VK_FORMAT_D16_UNORM,
+		.samples = static_cast<VkSampleCountFlagBits>(context_.sample_count),
+		.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+		.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 		.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-		.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED,
-		.finalLayout    = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
+		.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+		.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
 	//
 	const VkAttachmentReference vk_color_attachment_reference{
 		.attachment = VkR3rContext::color_attachment_index,
-		.layout     = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
+		.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
 	const VkAttachmentReference vk_depth_attachment_reference{
 		.attachment = VkR3rContext::depth_attachment_index,
-		.layout     = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
+		.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL};
 	const VkSubpassDescription vk_subpass_description{
-		.flags                   = VkSubpassDescriptionFlags{},
-		.pipelineBindPoint       = VK_PIPELINE_BIND_POINT_GRAPHICS,
-		.inputAttachmentCount    = 0,
-		.pInputAttachments       = nullptr,
-		.colorAttachmentCount    = 1,
-		.pColorAttachments       = &vk_color_attachment_reference,
-		.pResolveAttachments     = nullptr,
+		.flags = VkSubpassDescriptionFlags{},
+		.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+		.inputAttachmentCount = 0,
+		.pInputAttachments = nullptr,
+		.colorAttachmentCount = 1,
+		.pColorAttachments = &vk_color_attachment_reference,
+		.pResolveAttachments = nullptr,
 		.pDepthStencilAttachment = &vk_depth_attachment_reference,
 		.preserveAttachmentCount = 0,
-		.pPreserveAttachments    = nullptr};
+		.pPreserveAttachments = nullptr};
 	const VkSubpassDependency vk_subpass_dependency{
-		.srcSubpass      = VK_SUBPASS_EXTERNAL,
-		.dstSubpass      = 0,
-		.srcStageMask    = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-		.dstStageMask    = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-		.srcAccessMask   = VkAccessFlags{},
-		.dstAccessMask   = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+		.srcSubpass = VK_SUBPASS_EXTERNAL,
+		.dstSubpass = 0,
+		.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		.srcAccessMask = VkAccessFlags{},
+		.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
 		.dependencyFlags = VkDependencyFlags{}};
 	const VkRenderPassCreateInfo vk_render_pass_create_info{
-		.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
-		.pNext           = nullptr,
-		.flags           = VkRenderPassCreateFlags{},
+		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+		.pNext = nullptr,
+		.flags = VkRenderPassCreateFlags{},
 		.attachmentCount = static_cast<std::uint32_t>(vk_attachment_descriptions.size()),
-		.pAttachments    = vk_attachment_descriptions.data(),
-		.subpassCount    = 1,
-		.pSubpasses      = &vk_subpass_description,
+		.pAttachments = vk_attachment_descriptions.data(),
+		.subpassCount = 1,
+		.pSubpasses = &vk_subpass_description,
 		.dependencyCount = 1,
-		.pDependencies   = &vk_subpass_dependency};
+		.pDependencies = &vk_subpass_dependency};
 	VkRenderPass vk_render_pass{};
 	const VkResult vk_result = context_.vkCreateRenderPass(
 		/* device */      context_.device.get(),
@@ -1659,7 +1706,7 @@ void VkR3rImpl::initialize_offscreen_framebuffer()
 		1,
 		static_cast<VkSampleCountFlagBits>(context_.sample_count),
 		VK_IMAGE_TILING_OPTIMAL,
-		VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+		VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
 		context_.offscreen_color_image,
 		context_.offscreen_color_image_memory);
@@ -1686,15 +1733,15 @@ void VkR3rImpl::initialize_offscreen_framebuffer()
 		context_.offscreen_color_image_view.get(),
 		context_.offscreen_depth_image_view.get()};
 	const VkFramebufferCreateInfo vk_framebuffer_create_info{
-		.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-		.pNext           = nullptr,
-		.flags           = VkFramebufferCreateFlags{},
-		.renderPass      = context_.render_pass.get(),
+		.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+		.pNext = nullptr,
+		.flags = VkFramebufferCreateFlags{},
+		.renderPass = context_.render_pass.get(),
 		.attachmentCount = static_cast<std::uint32_t>(std::extent<decltype(attachments)>::value),
-		.pAttachments    = attachments,
-		.width           = context_.vk_offscreen_width,
-		.height          = context_.vk_offscreen_height,
-		.layers          = 1};
+		.pAttachments = attachments,
+		.width = context_.vk_offscreen_width,
+		.height = context_.vk_offscreen_height,
+		.layers = 1};
 	VkFramebuffer vk_framebuffer{};
 	const VkResult vk_result = context_.vkCreateFramebuffer(
 		/* device */ context_.device.get(),
@@ -1705,6 +1752,586 @@ void VkR3rImpl::initialize_offscreen_framebuffer()
 	context_.offscreen_framebuffer.reset(vk_framebuffer, VkR3rFramebufferDeleter{context_});
 }
 
+void VkR3rImpl::terminate_post_framebuffers()
+{
+	context_.post_framebuffers.clear();
+}
+
+void VkR3rImpl::terminate_post_pipelines()
+{
+	context_.post_pipeline = vk_r3r_resource_null;
+	context_.post_pipeline_ms = vk_r3r_resource_null;
+}
+
+void VkR3rImpl::initialize_post_defaults()
+{
+	context_.post_ubo_ = VkR3rContext::PostUbo{
+		.sample_count = 1};
+}
+
+void VkR3rImpl::initialize_post_sampler()
+{
+	const VkSamplerCreateInfo vk_sampler_create_info{
+		.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
+		.pNext = nullptr,
+		.flags = VkSamplerCreateFlags{},
+		.magFilter = VK_FILTER_NEAREST,
+		.minFilter = VK_FILTER_NEAREST,
+		.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST,
+		.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+		.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+		.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+		.mipLodBias = 0.0F,
+		.anisotropyEnable = VK_FALSE,
+		.maxAnisotropy = 0.0F,
+		.compareEnable = false,
+		.compareOp = VkCompareOp{},
+		.minLod = 0.0F,
+		.maxLod = 0.0F,
+		.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK,
+		.unnormalizedCoordinates = false};
+	VkSampler vk_sampler{};
+	const VkResult vk_result = context_.vkCreateSampler(
+		/* device      */ context_.device.get(),
+		/* pCreateInfo */ &vk_sampler_create_info,
+		/* pAllocator  */ nullptr,
+		/* pSampler    */ &vk_sampler);
+	VkR3rContext::ensure_success_vk_result(vk_result, "vkCreateSampler");
+	context_.post_sampler.reset(vk_sampler, VkR3rSamplerDeleter{context_});
+}
+
+void VkR3rImpl::initialize_post_uniform_buffer()
+{
+	const VkDeviceSize ubo_size = sizeof(VkR3rContext::PostUbo);
+	const VkDeviceSize alignment = context_.get_uniform_offset_alignment();
+	const VkDeviceSize size = ((ubo_size + alignment - 1) / alignment) * alignment;
+	context_.create_buffer_resource(
+		size,
+		VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+		VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+		context_.post_uniform_buffer,
+		context_.post_uniform_memory_);
+	context_.post_uniform_mapped_memory_ = context_.map_memory(context_.post_uniform_memory_.get());
+}
+
+void VkR3rImpl::initialize_post_descriptor_set_layout()
+{
+	const VkDescriptorSetLayoutBinding vk_descriptor_set_layout_bindings[] = {
+		VkDescriptorSetLayoutBinding{
+			.binding            = 0,
+			.descriptorType     = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			.descriptorCount    = 1,
+			.stageFlags         = VK_SHADER_STAGE_FRAGMENT_BIT,
+			.pImmutableSamplers = nullptr},
+		VkDescriptorSetLayoutBinding{
+			.binding            = 1,
+			.descriptorType     = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+			.descriptorCount    = 1,
+			.stageFlags         = VK_SHADER_STAGE_FRAGMENT_BIT,
+			.pImmutableSamplers = nullptr}};
+	const VkDescriptorSetLayoutCreateInfo vk_descriptor_set_layout_create_info{
+		.sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
+		.pNext        = nullptr,
+		.flags        = VkDescriptorSetLayoutCreateFlags{},
+		.bindingCount = static_cast<std::uint32_t>(std::extent_v<decltype(vk_descriptor_set_layout_bindings)>),
+		.pBindings    = vk_descriptor_set_layout_bindings};
+	VkDescriptorSetLayout vk_descriptor_set_layout{};
+	const VkResult vk_result = context_.vkCreateDescriptorSetLayout(
+		/* device */      context_.device.get(),
+		/* pCreateInfo */ &vk_descriptor_set_layout_create_info,
+		/* pAllocator */  nullptr,
+		/* pSetLayout */  &vk_descriptor_set_layout);
+	context_.ensure_success_vk_result(vk_result, "vkCreateDescriptorSetLayout");
+	context_.post_descriptor_set_layout.reset(vk_descriptor_set_layout, VkR3rDescriptorSetLayoutDeleter{context_});
+}
+
+void VkR3rImpl::initialize_post_descriptor_set()
+{
+	const VkDescriptorSetLayout vk_descriptor_set_layout = context_.post_descriptor_set_layout.get();
+	const VkDescriptorSetAllocateInfo vk_descriptor_set_allocate_info{
+		.sType              = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
+		.pNext              = nullptr,
+		.descriptorPool     = context_.descriptor_pool.get(),
+		.descriptorSetCount = 1,
+		.pSetLayouts        = &vk_descriptor_set_layout};
+	VkDescriptorSet vk_descriptor_set{};
+	const VkResult vk_result = context_.vkAllocateDescriptorSets(
+		/* device */          context_.device.get(),
+		/* pAllocateInfo */   &vk_descriptor_set_allocate_info,
+		/* pDescriptorSets */ &vk_descriptor_set);
+	context_.ensure_success_vk_result(vk_result, "vkAllocateDescriptorSets");
+	context_.post_descriptor_set.reset(vk_descriptor_set, VkR3rDescriptorSetDeleter{context_});
+}
+
+void VkR3rImpl::initialize_post_render_pass()
+{
+	const VkAttachmentDescription vk_attachment_description{
+		.flags = VkAttachmentDescriptionFlags{},
+		.format = context_.surface_format,
+		.samples = VK_SAMPLE_COUNT_1_BIT,
+		.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+		.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+		.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+		.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+		.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR};
+	const VkAttachmentReference vk_attachment_reference{
+		.attachment = 0,
+		.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL};
+	const VkSubpassDescription vk_subpass_description{
+		.flags = VkSubpassDescriptionFlags{},
+		.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+		.inputAttachmentCount = 0,
+		.pInputAttachments = nullptr,
+		.colorAttachmentCount = 1,
+		.pColorAttachments = &vk_attachment_reference,
+		.pResolveAttachments = nullptr,
+		.pDepthStencilAttachment = nullptr,
+		.preserveAttachmentCount = 0,
+		.pPreserveAttachments = nullptr};
+	const VkSubpassDependency vk_subpass_dependency{
+		.srcSubpass = VK_SUBPASS_EXTERNAL,
+		.dstSubpass = 0,
+		.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		.srcAccessMask = VkAccessFlags{},
+		.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+		.dependencyFlags = VkDependencyFlags{}};
+	const VkRenderPassCreateInfo vk_render_pass_create_info{
+		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+		.pNext = nullptr,
+		.flags = VkRenderPassCreateFlags{},
+		.attachmentCount = 1,
+		.pAttachments = &vk_attachment_description,
+		.subpassCount = 1,
+		.pSubpasses = &vk_subpass_description,
+		.dependencyCount = 1,
+		.pDependencies = &vk_subpass_dependency};
+	VkRenderPass vk_render_pass{};
+	const VkResult vk_result = context_.vkCreateRenderPass(
+		/* device */      context_.device.get(),
+		/* pCreateInfo */ &vk_render_pass_create_info,
+		/* pAllocator */  nullptr,
+		/* pRenderPass */ &vk_render_pass);
+	ensure_vk_result(vk_result, "vkCreateRenderPass");
+	context_.post_render_pass.reset(vk_render_pass, VkR3rRenderPassDeleter{context_});
+}
+
+void VkR3rImpl::initialize_post_add_framebuffer(VkImageView vk_image_view)
+{
+	const VkImageView vk_attachments[1] = {vk_image_view};
+	const VkFramebufferCreateInfo vk_framebuffer_create_info{
+		.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+		.pNext = nullptr,
+		.flags = VkFramebufferCreateFlags{},
+		.renderPass = context_.post_render_pass.get(),
+		.attachmentCount = 1,
+		.pAttachments = vk_attachments,
+		.width = context_.vk_surface_width,
+		.height = context_.vk_surface_height,
+		.layers = 1};
+	VkFramebuffer vk_framebuffer{};
+	const VkResult vk_result = context_.vkCreateFramebuffer(
+		/* device */ context_.device.get(),
+		/* pCreateInfo */ &vk_framebuffer_create_info,
+		/* pAllocator */ nullptr,
+		/* pFramebuffer */ &vk_framebuffer);
+	context_.ensure_success_vk_result(vk_result, "vkCreateFramebuffer");
+	context_.post_framebuffers.emplace_back(VkR3rFramebufferResource{vk_framebuffer, VkR3rFramebufferDeleter{context_}});
+}
+
+void VkR3rImpl::initialize_post_framebuffers()
+{
+	context_.post_framebuffers.reserve(context_.swapchain_image_views.size());
+	for (const VkR3rImageViewResource& vk_image_view_resource : context_.swapchain_image_views)
+	{
+		initialize_post_add_framebuffer(vk_image_view_resource.get());
+	}
+}
+
+void VkR3rImpl::initialize_post_shader_modules()
+{
+	// Single-sample.
+	{
+		const VkR3rShaderCodeInfo code_info = VkR3rShaderRegistry::get_post_vert();
+		context_.post_vertex_shader_module = context_.create_shader_module(code_info.bytes, code_info.byte_count);
+	}
+	{
+		const VkR3rShaderCodeInfo code_info = VkR3rShaderRegistry::get_post_frag();
+		context_.post_fragment_shader_module = context_.create_shader_module(code_info.bytes, code_info.byte_count);
+	}
+	// Multisample.
+	{
+		const VkR3rShaderCodeInfo code_info = VkR3rShaderRegistry::get_post_ms_vert();
+		context_.post_vertex_shader_module_ms = context_.create_shader_module(code_info.bytes, code_info.byte_count);
+	}
+	{
+		const VkR3rShaderCodeInfo code_info = VkR3rShaderRegistry::get_post_ms_frag();
+		context_.post_fragment_shader_module_ms = context_.create_shader_module(code_info.bytes, code_info.byte_count);
+	}
+}
+
+void VkR3rImpl::initialize_post_pipeline_layout()
+{
+	const VkDescriptorSetLayout vk_descriptor_set_layout = context_.post_descriptor_set_layout.get();
+	const VkPipelineLayoutCreateInfo vk_pipeline_layout_create_info{
+		.sType                  = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+		.pNext                  = nullptr,
+		.flags                  = VkPipelineLayoutCreateFlags{},
+		.setLayoutCount         = 1,
+		.pSetLayouts            = &vk_descriptor_set_layout,
+		.pushConstantRangeCount = 0,
+		.pPushConstantRanges    = nullptr};
+	VkPipelineLayout vk_pipeline_layout{};
+	const VkResult vk_result = context_.vkCreatePipelineLayout(
+		/* device */          context_.device.get(),
+		/* pCreateInfo */     &vk_pipeline_layout_create_info,
+		/* pAllocator */      nullptr,
+		/* pPipelineLayout */ &vk_pipeline_layout);
+	context_.ensure_success_vk_result(vk_result, "vkCreatePipelineLayout");
+	context_.post_pipeline_layout.reset(vk_pipeline_layout, VkR3rPipelineLayoutDeleter{context_});
+}
+
+void VkR3rImpl::initialize_post_pipelines()
+{
+	if (!context_.has_post())
+	{
+		return;
+	}
+	const std::uint32_t vk_surface_width = context_.vk_surface_width;
+	const std::uint32_t vk_surface_height = context_.vk_surface_height;
+	const float vk_surface_width_f = static_cast<float>(vk_surface_width);
+	const float vk_surface_height_f = static_cast<float>(vk_surface_height);
+	// Stages.
+	constexpr const char* shader_entry_name = "main";
+	const VkPipelineShaderStageCreateInfo vk_pipeline_shader_stage_create_infos[] = {
+		VkPipelineShaderStageCreateInfo{
+			.sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+			.pNext               = nullptr,
+			.flags               = VkPipelineShaderStageCreateFlags{},
+			.stage               = VK_SHADER_STAGE_VERTEX_BIT,
+			.module              = context_.post_vertex_shader_module.get(),
+			.pName               = shader_entry_name,
+			.pSpecializationInfo = nullptr},
+		VkPipelineShaderStageCreateInfo{
+			.sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+			.pNext               = nullptr,
+			.flags               = VkPipelineShaderStageCreateFlags{},
+			.stage               = VK_SHADER_STAGE_FRAGMENT_BIT,
+			.module              = context_.post_fragment_shader_module.get(),
+			.pName               = shader_entry_name,
+			.pSpecializationInfo = nullptr}};
+	// Stages (multisample).
+	const VkPipelineShaderStageCreateInfo vk_pipeline_shader_stage_create_infos_ms[] = {
+		VkPipelineShaderStageCreateInfo{
+			.sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+			.pNext               = nullptr,
+			.flags               = VkPipelineShaderStageCreateFlags{},
+			.stage               = VK_SHADER_STAGE_VERTEX_BIT,
+			.module              = context_.post_vertex_shader_module_ms.get(),
+			.pName               = shader_entry_name,
+			.pSpecializationInfo = nullptr},
+		VkPipelineShaderStageCreateInfo{
+			.sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+			.pNext               = nullptr,
+			.flags               = VkPipelineShaderStageCreateFlags{},
+			.stage               = VK_SHADER_STAGE_FRAGMENT_BIT,
+			.module              = context_.post_fragment_shader_module_ms.get(),
+			.pName               = shader_entry_name,
+			.pSpecializationInfo = nullptr}};
+	constexpr std::uint32_t stage_count = std::extent<decltype(vk_pipeline_shader_stage_create_infos)>::value;
+	// Vertex input state.
+	const VkPipelineVertexInputStateCreateInfo vk_pipeline_vertex_input_state_create_info{
+		.sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
+		.pNext                           = nullptr,
+		.flags                           = VkPipelineVertexInputStateCreateFlags{},
+		.vertexBindingDescriptionCount   = 0,
+		.pVertexBindingDescriptions      = nullptr,
+		.vertexAttributeDescriptionCount = 0,
+		.pVertexAttributeDescriptions    = nullptr};
+	// Input assembly.
+	const VkPipelineInputAssemblyStateCreateInfo vk_pipeline_input_assembly_state_create_info{
+		.sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
+		.pNext                  = nullptr,
+		.flags                  = VkPipelineInputAssemblyStateCreateFlags{},
+		.topology               = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+		.primitiveRestartEnable = VK_FALSE};
+	// Viewport state.
+	const VkViewport vk_viewport{
+		.x        = 0.0F,
+		.y        = 0.0F,
+		.width    = vk_surface_width_f,
+		.height   = vk_surface_height_f,
+		.minDepth = 0.0F,
+		.maxDepth = 0.0F};
+	const VkRect2D vk_scissor{
+		.offset = VkOffset2D{.x = 0, .y = 0},
+		.extent = VkExtent2D{.width  = vk_surface_width, .height = vk_surface_height}};
+	const VkPipelineViewportStateCreateInfo vk_pipeline_viewport_state_create_info{
+		.sType         = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
+		.pNext         = nullptr,
+		.flags         = VkPipelineViewportStateCreateFlags{},
+		.viewportCount = 1,
+		.pViewports    = &vk_viewport,
+		.scissorCount  = 1,
+		.pScissors     = &vk_scissor};
+	// Rasterization state.
+	const VkCullModeFlags vk_cull_mode_flags = VK_CULL_MODE_NONE;
+	const VkPipelineRasterizationStateCreateInfo vk_pipeline_rasterization_state_create_info{
+		.sType                   = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,
+		.pNext                   = nullptr,
+		.flags                   = VkPipelineRasterizationStateCreateFlags{},
+		.depthClampEnable        = VK_FALSE,
+		.rasterizerDiscardEnable = VK_FALSE,
+		.polygonMode             = VK_POLYGON_MODE_FILL,
+		.cullMode                = vk_cull_mode_flags,
+		.frontFace               = VK_FRONT_FACE_COUNTER_CLOCKWISE,
+		.depthBiasEnable         = VK_FALSE,
+		.depthBiasConstantFactor = 0.0F,
+		.depthBiasClamp          = 0.0F,
+		.depthBiasSlopeFactor    = 0.0F,
+		.lineWidth               = 1.0F};
+	// Multisample state.
+	const VkPipelineMultisampleStateCreateInfo vk_pipeline_multisample_state_create_info{
+		.sType                 = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
+		.pNext                 = nullptr,
+		.flags                 = VkPipelineMultisampleStateCreateFlags{},
+		.rasterizationSamples  = VK_SAMPLE_COUNT_1_BIT,
+		.sampleShadingEnable   = VK_FALSE,
+		.minSampleShading      = 1.0F,
+		.pSampleMask           = nullptr,
+		.alphaToCoverageEnable = VK_FALSE,
+		.alphaToOneEnable      = VK_FALSE};
+	// Depth-stencil state.
+	const VkPipelineDepthStencilStateCreateInfo vk_pipeline_depth_stencil_state_create_info{
+		.sType                 = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
+		.pNext                 = nullptr,
+		.flags                 = VkPipelineDepthStencilStateCreateFlags{},
+		.depthTestEnable       = VK_FALSE,
+		.depthWriteEnable      = VK_FALSE,
+		.depthCompareOp        = VK_COMPARE_OP_NEVER,
+		.depthBoundsTestEnable = VK_FALSE,
+		.stencilTestEnable     = VK_FALSE,
+		.front                 = VkStencilOpState{
+			.failOp      = VkStencilOp{},
+			.passOp      = VkStencilOp{},
+			.depthFailOp = VkStencilOp{},
+			.compareOp   = VkCompareOp{},
+			.compareMask = 0,
+			.writeMask   = 0,
+			.reference   = 0},
+		.back                  = VkStencilOpState{
+			.failOp      = VkStencilOp{},
+			.passOp      = VkStencilOp{},
+			.depthFailOp = VkStencilOp{},
+			.compareOp   = VkCompareOp{},
+			.compareMask = 0,
+			.writeMask   = 0,
+			.reference   = 0},
+		.minDepthBounds        = 0.0F,
+		.maxDepthBounds        = 1.0F};
+	// Color blend state.
+	const VkPipelineColorBlendAttachmentState vk_pipeline_color_blend_attachment_state{
+		.blendEnable         = VK_FALSE,
+		.srcColorBlendFactor = VK_BLEND_FACTOR_ZERO,
+		.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO,
+		.colorBlendOp        = VK_BLEND_OP_ADD,
+		.srcAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
+		.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
+		.alphaBlendOp        = VK_BLEND_OP_ADD,
+		.colorWriteMask      =
+			VK_COLOR_COMPONENT_R_BIT |
+			VK_COLOR_COMPONENT_G_BIT |
+			VK_COLOR_COMPONENT_B_BIT |
+			VK_COLOR_COMPONENT_A_BIT};
+	const VkPipelineColorBlendStateCreateInfo vk_pipeline_color_blend_state_create_info{
+		.sType           = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+		.pNext           = nullptr,
+		.flags           = VkPipelineColorBlendStateCreateFlags{},
+		.logicOpEnable   = VK_FALSE,
+		.logicOp         = VK_LOGIC_OP_CLEAR,
+		.attachmentCount = 1,
+		.pAttachments    = &vk_pipeline_color_blend_attachment_state,
+		.blendConstants  = {0.0F, 0.0F, 0.0F, 0.0F}};
+	// Graphics pipelines.
+	const VkGraphicsPipelineCreateInfo vk_graphics_pipeline_create_infos[2] = {
+		VkGraphicsPipelineCreateInfo{
+			.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+			.pNext               = nullptr,
+			.flags               = VkPipelineCreateFlags{},
+			.stageCount          = stage_count,
+			.pStages             = vk_pipeline_shader_stage_create_infos,
+			.pVertexInputState   = &vk_pipeline_vertex_input_state_create_info,
+			.pInputAssemblyState = &vk_pipeline_input_assembly_state_create_info,
+			.pTessellationState  = nullptr,
+			.pViewportState      = &vk_pipeline_viewport_state_create_info,
+			.pRasterizationState = &vk_pipeline_rasterization_state_create_info,
+			.pMultisampleState   = &vk_pipeline_multisample_state_create_info,
+			.pDepthStencilState  = &vk_pipeline_depth_stencil_state_create_info,
+			.pColorBlendState    = &vk_pipeline_color_blend_state_create_info,
+			.pDynamicState       = nullptr,
+			.layout              = context_.post_pipeline_layout.get(),
+			.renderPass          = context_.post_render_pass.get(),
+			.subpass             = 0,
+			.basePipelineHandle  = VkPipeline{},
+			.basePipelineIndex   = 0},
+		VkGraphicsPipelineCreateInfo{
+			.sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
+			.pNext               = nullptr,
+			.flags               = VkPipelineCreateFlags{},
+			.stageCount          = stage_count,
+			.pStages             = vk_pipeline_shader_stage_create_infos_ms,
+			.pVertexInputState   = &vk_pipeline_vertex_input_state_create_info,
+			.pInputAssemblyState = &vk_pipeline_input_assembly_state_create_info,
+			.pTessellationState  = nullptr,
+			.pViewportState      = &vk_pipeline_viewport_state_create_info,
+			.pRasterizationState = &vk_pipeline_rasterization_state_create_info,
+			.pMultisampleState   = &vk_pipeline_multisample_state_create_info,
+			.pDepthStencilState  = &vk_pipeline_depth_stencil_state_create_info,
+			.pColorBlendState    = &vk_pipeline_color_blend_state_create_info,
+			.pDynamicState       = nullptr,
+			.layout              = context_.post_pipeline_layout.get(),
+			.renderPass          = context_.post_render_pass.get(),
+			.subpass             = 0,
+			.basePipelineHandle  = VkPipeline{},
+			.basePipelineIndex   = 0}};
+	VkPipeline vk_pipelines[2] = {};
+	const VkResult vk_result = context_.vkCreateGraphicsPipelines(
+		/* device */          context_.device.get(),
+		/* pipelineCache */   VkPipelineCache{},
+		/* createInfoCount */ 1 + context_.supports_multisample(),
+		/* pCreateInfos */    vk_graphics_pipeline_create_infos,
+		/* pAllocator */      nullptr,
+		/* pPipelines */      vk_pipelines);
+	context_.ensure_success_vk_result(vk_result, "vkCreateGraphicsPipelines");
+	//
+	context_.post_pipeline.reset(vk_pipelines[0], VkR3rPipelineDeleter{context_});
+	context_.post_pipeline_ms.reset(vk_pipelines[1], VkR3rPipelineDeleter{context_});
+}
+
+void VkR3rImpl::initialize_post()
+{
+	if (!context_.has_swapchain())
+	{
+		return;
+	}
+	initialize_post_sampler();
+	initialize_post_uniform_buffer();
+	initialize_post_descriptor_set_layout();
+	initialize_post_descriptor_set();
+	initialize_post_render_pass();
+	initialize_post_framebuffers();
+	initialize_post_shader_modules();
+	initialize_post_pipeline_layout();
+	initialize_post_pipelines();
+	post_update_descriptor_set();
+}
+
+void VkR3rImpl::post_ubo_submit()
+{
+	VkR3rContext::copy_object_to_mapped_memory(context_.post_ubo_, context_.post_uniform_mapped_memory_);
+}
+
+void VkR3rImpl::post_ubo_set_and_submit_sample_count(int sample_count)
+{
+	context_.post_ubo_.sample_count = sample_count;
+	post_ubo_submit();
+}
+
+void VkR3rImpl::post_update_descriptor_set()
+{
+	const VkDescriptorSet vk_descriptor_set = context_.post_descriptor_set.get();
+	const VkDescriptorImageInfo vk_descriptor_image_info{
+		.sampler     = context_.post_sampler.get(),
+		.imageView   = context_.offscreen_color_image_view.get(),
+		.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
+	const VkDescriptorBufferInfo vk_ubo_buffer_info{
+		.buffer = context_.post_uniform_buffer.get(),
+		.offset = 0,
+		.range  = sizeof(VkR3rContext::PostUbo)};
+	const VkWriteDescriptorSet vk_write_descriptor_sets[] = {
+		VkWriteDescriptorSet{
+			.sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+			.pNext            = nullptr,
+			.dstSet           = vk_descriptor_set,
+			.dstBinding       = 0,
+			.dstArrayElement  = 0,
+			.descriptorCount  = 1,
+			.descriptorType   = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			.pImageInfo       = &vk_descriptor_image_info,
+			.pBufferInfo      = nullptr,
+			.pTexelBufferView = nullptr},
+		VkWriteDescriptorSet{
+			.sType            = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+			.pNext            = nullptr,
+			.dstSet           = vk_descriptor_set,
+			.dstBinding       = 1,
+			.dstArrayElement  = 0,
+			.descriptorCount  = 1,
+			.descriptorType   = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+			.pImageInfo       = nullptr,
+			.pBufferInfo      = &vk_ubo_buffer_info,
+			.pTexelBufferView = nullptr}};
+	context_.vkUpdateDescriptorSets(
+		/* device               */ context_.device.get(),
+		/* descriptorWriteCount */ static_cast<std::uint32_t>(std::extent_v<decltype(vk_write_descriptor_sets)>),
+		/* pDescriptorWrites    */ vk_write_descriptor_sets,
+		/* descriptorCopyCount  */ 0,
+		/* pDescriptorCopies    */ nullptr);
+}
+
+void VkR3rImpl::post_draw()
+{
+	const bool is_multisample = (context_.supports_multisample() && context_.sample_count > 1);
+	const VkPipeline vk_pipeline = (is_multisample ? context_.post_pipeline_ms.get() : context_.post_pipeline.get());
+	context_.vkCmdBindPipeline(
+		/* commandBuffer     */ context_.command_buffer,
+		/* pipelineBindPoint */ VK_PIPELINE_BIND_POINT_GRAPHICS,
+		/* pipeline          */ vk_pipeline);
+	const VkDescriptorSet vk_descriptor_set = context_.post_descriptor_set.get();
+	context_.vkCmdBindDescriptorSets(
+		/* commandBuffer      */ context_.command_buffer,
+		/* pipelineBindPoint  */ VK_PIPELINE_BIND_POINT_GRAPHICS,
+		/* layout             */ context_.post_pipeline_layout.get(),
+		/* firstSet           */ 0,
+		/* descriptorSetCount */ 1,
+		/* pDescriptorSets    */ &vk_descriptor_set,
+		/* dynamicOffsetCount */ 0,
+		/* pDynamicOffsets    */ nullptr);
+	context_.vkCmdDraw(
+		/* commandBuffer */ context_.command_buffer,
+		/* vertexCount   */ 3,
+		/* instanceCount */ 1,
+		/* firstVertex   */ 0,
+		/* firstInstance */ 0);
+}
+
+void VkR3rImpl::post_enqueue_render_pass()
+{
+	if (!context_.has_post())
+	{
+		return;
+	}
+	BSTONE_ASSERT(context_.swapchain_image_index < context_.post_framebuffers.size());
+	const VkRenderPassBeginInfo vk_render_pass_begin_info{
+		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,
+		.pNext = nullptr,
+		.renderPass = context_.post_render_pass.get(),
+		.framebuffer = context_.post_framebuffers[context_.swapchain_image_index].get(),
+		.renderArea = VkRect2D{
+			.offset = VkOffset2D{.x = 0, .y = 0},
+			.extent = VkExtent2D{.width = context_.vk_surface_width, .height = context_.vk_surface_height}},
+			.clearValueCount = 0,
+			.pClearValues = nullptr};
+	context_.vkCmdBeginRenderPass(
+		/* commandBuffer    */ context_.command_buffer,
+		/* pRenderPassBegin */ &vk_render_pass_begin_info,
+		/* contents         */ VK_SUBPASS_CONTENTS_INLINE);
+	post_draw();
+	context_.vkCmdEndRenderPass(
+		/* commandBuffer */ context_.command_buffer);
+}
+
 void VkR3rImpl::terminate_screenshot_buffer()
 {
 	context_.screenshot_buffer = vk_r3r_resource_null;
@@ -1712,7 +2339,7 @@ void VkR3rImpl::terminate_screenshot_buffer()
 
 void VkR3rImpl::initialize_screenshot_buffer()
 {
-	const VkDeviceSize vk_buffer_size = VkDeviceSize{4} * context_.vk_offscreen_width * context_.vk_offscreen_height;
+	const VkDeviceSize vk_buffer_size = VkDeviceSize{4} *context_.vk_offscreen_width * context_.vk_offscreen_height;
 	context_.create_buffer_resource(
 		vk_buffer_size,
 		VK_BUFFER_USAGE_TRANSFER_DST_BIT,
@@ -1755,10 +2382,10 @@ void VkR3rImpl::initialize_command_pool()
 void VkR3rImpl::initialize_command_buffer()
 {
 	const VkCommandBufferAllocateInfo vk_command_buffer_allocate_info{
-		.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-		.pNext              = nullptr,
-		.commandPool        = context_.command_pool.get(),
-		.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		.pNext = nullptr,
+		.commandPool = context_.command_pool.get(),
+		.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
 		.commandBufferCount = 1};
 	const VkResult vk_result = context_.vkAllocateCommandBuffers(
 		/* device */          context_.device.get(),
@@ -1792,21 +2419,21 @@ void VkR3rImpl::initialize_sync_objects()
 void VkR3rImpl::initialize_descriptor_pool()
 {
 	const VkDescriptorPoolSize vk_sampler_descriptor_pool_size{
-		.type            = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+		.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 		.descriptorCount = R3rLimits::max_textures};
 	const VkDescriptorPoolSize vk_ubo_descriptor_pool_size{
-		.type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+		.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 		.descriptorCount = R3rLimits::max_textures};
 	const VkDescriptorPoolSize descriptor_pool_sizes[] = {
 		vk_sampler_descriptor_pool_size,
 		vk_ubo_descriptor_pool_size};
 	const VkDescriptorPoolCreateInfo vk_descriptor_pool_create_info{
-		.sType         = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
-		.pNext         = nullptr,
-		.flags         = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
-		.maxSets       = R3rLimits::max_textures,
+		.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO,
+		.pNext = nullptr,
+		.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT,
+		.maxSets = R3rLimits::max_textures,
 		.poolSizeCount = static_cast<std::uint32_t>(std::extent<decltype(descriptor_pool_sizes)>::value),
-		.pPoolSizes    = descriptor_pool_sizes};
+		.pPoolSizes = descriptor_pool_sizes};
 	VkDescriptorPool vk_descriptor_pool{};
 	const VkResult vk_result = context_.vkCreateDescriptorPool(
 		/* device */          context_.device.get(),
@@ -1876,14 +2503,11 @@ void VkR3rImpl::initialize_r3r_device_features()
 	r3r_features.can_generate_mipmap = true;
 	r3r_features.is_sampler_available = true;
 	//
-	const int vk_sample_count = std::min(
-		vk_props.limits.framebufferColorSampleCounts,
-		vk_props.limits.framebufferDepthSampleCounts);
-	const int sample_count = std::min(std::max(vk_sample_count, 1), R3rLimits::max_aa);
-	r3r_features.is_msaa_available = (sample_count > 1);
+	const int max_sample_count = get_max_sample_count();
+	r3r_features.is_msaa_available = (max_sample_count > 1);
 	r3r_features.is_msaa_render_to_window = false;
 	r3r_features.is_msaa_requires_restart = false;
-	r3r_features.max_msaa_degree = get_max_sample_count();
+	r3r_features.max_msaa_degree = max_sample_count;
 	//
 	r3r_features.max_vertex_input_locations = static_cast<int>(vk_limits.maxVertexInputAttributes);
 }
@@ -1930,6 +2554,8 @@ void VkR3rImpl::swapchain_acquire_next_image()
 void VkR3rImpl::recreate_swapchain()
 {
 	impl_wait_for_device();
+	terminate_post_pipelines();
+	terminate_post_framebuffers();
 	terminate_swapchain_image_views();
 	terminate_swapchain_images();
 	terminate_swapchain();
@@ -1942,107 +2568,9 @@ void VkR3rImpl::recreate_swapchain()
 		initialize_swapchain_images();
 		initialize_swapchain_image_views();
 		initialize_swapchain_sync_objects();
+		initialize_post_framebuffers();
+		initialize_post_pipelines();
 	}
-}
-
-void VkR3rImpl::blit_offscreen()
-{
-	if (!context_.has_swapchain())
-	{
-		return;
-	}
-	VkR3rCommandBufferResource command_buffer_resource = context_.cmd_begin_single_time_commands();
-	VkImage const vk_swapchain_image = context_.swapchain_images[context_.swapchain_image_index];
-	VkImageLayout& vk_swapchain_image_layout = context_.swapchain_image_layouts[context_.swapchain_image_index];
-	if (vk_swapchain_image_layout == VK_IMAGE_LAYOUT_UNDEFINED ||
-		vk_swapchain_image_layout == VK_IMAGE_LAYOUT_PRESENT_SRC_KHR)
-	{
-		context_.cmd_image_memory_barrier(
-			command_buffer_resource.get(),
-			vk_swapchain_image,
-			vk_swapchain_image_layout,
-			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			0,
-			1,
-			VK_PIPELINE_STAGE_TRANSFER_BIT,
-			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
-		vk_swapchain_image_layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-	}
-	else
-	{
-		BSTONE_THROW_STATIC_SOURCE("Invalid swapchain image layout.");
-	}
-	if (context_.sample_count > 1)
-	{
-		const VkImageResolve vk_image_resolve{
-			.srcSubresource = VkImageSubresourceLayers{
-				.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT,
-				.mipLevel       = 0,
-				.baseArrayLayer = 0,
-				.layerCount     = 1},
-			.srcOffset = VkOffset3D{.x = 0, .y = 0, .z = 0},
-			.dstSubresource = VkImageSubresourceLayers{
-				.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT,
-				.mipLevel       = 0,
-				.baseArrayLayer = 0,
-				.layerCount     = 1},
-			.dstOffset = VkOffset3D{.x = 0, .y = 0, .z = 0},
-			.extent = VkExtent3D{.width  = context_.vk_surface_width, .height = context_.vk_surface_height, .depth  = 1}};
-		context_.vkCmdResolveImage(
-			/* commandBuffer  */ command_buffer_resource.get(),
-			/* srcImage       */ context_.offscreen_color_image.get(),
-			/* srcImageLayout */ VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-			/* dstImage       */ vk_swapchain_image,
-			/* dstImageLayout */ VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			/* regionCount    */ 1,
-			/* pRegions       */ &vk_image_resolve);
-	}
-	else
-	{
-		VkImageBlit vk_image_blit{
-			.srcSubresource = VkImageSubresourceLayers{
-				.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT,
-				.mipLevel       = 0,
-				.baseArrayLayer = 0,
-				.layerCount     = 1},
-			.srcOffsets = {
-				VkOffset3D{.x = 0, .y = 0, .z = 0},
-				VkOffset3D{
-					.x = static_cast<std::int32_t>(context_.vk_offscreen_width),
-					.y = static_cast<std::int32_t>(context_.vk_offscreen_height),
-					.z = 1}},
-			.dstSubresource = VkImageSubresourceLayers{
-				.aspectMask      = VK_IMAGE_ASPECT_COLOR_BIT,
-				.mipLevel        = 0,
-				.baseArrayLayer  = 0,
-				.layerCount      = 1},
-			.dstOffsets = {
-				VkOffset3D{.x = 0, .y = 0, .z = 0},
-				VkOffset3D{
-					.x = static_cast<std::int32_t>(context_.vk_surface_width),
-					.y = static_cast<std::int32_t>(context_.vk_surface_height),
-					.z = 1}}};
-		context_.vkCmdBlitImage(
-			/* commandBuffer */  command_buffer_resource.get(),
-			/* srcImage */       context_.offscreen_color_image.get(),
-			/* srcImageLayout */ VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-			/* dstImage */       vk_swapchain_image,
-			/* dstImageLayout */ VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-			/* regionCount */    1,
-			/* pRegions */       &vk_image_blit,
-			/* filter */         VK_FILTER_NEAREST);
-	}
-	context_.cmd_image_memory_barrier(
-		command_buffer_resource.get(),
-		vk_swapchain_image,
-		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-		VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-		0,
-		1,
-		VK_PIPELINE_STAGE_TRANSFER_BIT,
-		VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
-	vk_swapchain_image_layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-	context_.cmd_end_single_time_commands(command_buffer_resource.get());
 }
 
 void VkR3rImpl::frame_state_record_command_buffer_internal()
@@ -2082,7 +2610,6 @@ void VkR3rImpl::frame_state_pre_present()
 		end_submit_commands();
 		frame_state_.is_recorded_any_command = true;
 	}
-	blit_offscreen();
 }
 
 void VkR3rImpl::frame_state_reset()
@@ -2114,9 +2641,9 @@ void VkR3rImpl::submit_clear_command(const R3rClearCmd& r3r_cmd)
 	const VkClearRect vk_clear_rect{
 		.rect = VkRect2D{
 			.offset = VkOffset2D{.x = 0, .y = 0},
-			.extent = VkExtent2D{.width  = context_.vk_offscreen_width, .height = context_.vk_offscreen_height}},
-		.baseArrayLayer = 0,
-		.layerCount     = 1};
+			.extent = VkExtent2D{.width = context_.vk_offscreen_width, .height = context_.vk_offscreen_height}},
+			.baseArrayLayer = 0,
+			.layerCount = 1};
 	ClearRects vk_clear_rects{};
 	vk_clear_rects.fill(vk_clear_rect);
 	context_.vkCmdClearAttachments(
@@ -2162,10 +2689,10 @@ void VkR3rImpl::submit_set_viewport(const R3rSetViewportCmd& r3r_cmd)
 		BSTONE_THROW_STATIC_SOURCE("Viewport max depth out of range.");
 	}
 	context_.draw_state.viewport = VkViewport{
-		.x        = static_cast<float>(viewport.x),
-		.y        = static_cast<float>(static_cast<int>(context_.vk_surface_height) - viewport.y - viewport.height),
-		.width    = static_cast<float>(viewport.width),
-		.height   = static_cast<float>(viewport.height),
+		.x = static_cast<float>(viewport.x),
+		.y = static_cast<float>(static_cast<int>(context_.vk_surface_height) - viewport.y - viewport.height),
+		.width = static_cast<float>(viewport.width),
+		.height = static_cast<float>(viewport.height),
 		.minDepth = static_cast<float>(viewport.min_depth),
 		.maxDepth = static_cast<float>(viewport.max_depth)};
 }
@@ -2375,10 +2902,10 @@ void VkR3rImpl::submit_draw_indexed(const R3rDrawIndexedCmd& r3r_cmd)
 	{
 		VkR3rPipeline* pipeline = pipeline_mgr_->acquire_pipeline();
 		const VkR3rPipelineDrawIndexedParam param{
-			.vertex_count        = draw_indexed.vertex_count,
-			.index_byte_depth    = draw_indexed.index_byte_depth,
+			.vertex_count = draw_indexed.vertex_count,
+			.index_byte_depth = draw_indexed.index_byte_depth,
 			.index_buffer_offset = draw_indexed.index_buffer_offset,
-			.index_offset        = draw_indexed.index_offset};
+			.index_offset = draw_indexed.index_offset};
 		pipeline->draw_indexed(param);
 	}
 	context_.update_draw_state();

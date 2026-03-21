@@ -398,6 +398,21 @@ void vid_cfg_set_is_external_textures_enabled(bool is_enabled);
 bool vid_check_r3_api_call_for_errors();
 void vid_check_r3_api_call_for_errors(bool is_enabled);
 
+float vid_cfg_get_brightness();
+float vid_cfg_get_brightness_min();
+float vid_cfg_get_brightness_max();
+void vid_cfg_set_brightness(float brightness);
+
+float vid_cfg_get_contrast();
+float vid_cfg_get_contrast_min();
+float vid_cfg_get_contrast_max();
+void vid_cfg_set_contrast(float contrast);
+
+float vid_cfg_get_saturation();
+float vid_cfg_get_saturation_min();
+float vid_cfg_get_saturation_max();
+void vid_cfg_set_saturation(float saturation);
+
 void vid_set_ui_mask(
 	bool value);
 
@@ -529,6 +544,10 @@ int vid_clamp_filler_color_index(
 void vid_apply_filler_color();
 
 void vid_apply_external_textures();
+
+void vid_apply_brightness();
+void vid_apply_contrast();
+void vid_apply_saturation();
 
 void vid_schedule_take_screenshot();
 

@@ -14,7 +14,9 @@ SPDX-License-Identifier: MIT
 #include "bstone_r3r_shader_var.h"
 #include "bstone_vk_r3r_observer.h"
 #include "bstone_vk_r3r_raii.h"
+#include <cstddef>
 #include <unordered_map>
+#include <type_traits>
 #include <vector>
 
 namespace bstone {
@@ -65,6 +67,11 @@ public:
 		R3rSampler* sampler;
 		R3rVertexInput* vertex_input;
 		R3rShaderStage* shader_stage;
+	};
+
+	struct PostUbo
+	{
+		std::int32_t sample_count;
 	};
 
 	PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr{};
@@ -152,6 +159,7 @@ public:
 	PFN_vkCmdBindVertexBuffers vkCmdBindVertexBuffers{};
 	PFN_vkCmdBindDescriptorSets vkCmdBindDescriptorSets{};
 	PFN_vkCmdBindPipeline vkCmdBindPipeline{};
+	PFN_vkCmdDraw vkCmdDraw{};
 	PFN_vkCmdDrawIndexed vkCmdDrawIndexed{};
 	PFN_vkCmdBlitImage vkCmdBlitImage{};
 	PFN_vkCmdResolveImage vkCmdResolveImage{};
@@ -201,6 +209,7 @@ public:
 	VkR3rImageResource offscreen_depth_image{};
 	VkR3rImageViewResource offscreen_depth_image_view{};
 	VkR3rFramebufferResource offscreen_framebuffer{};
+
 	VkR3rDeviceMemoryResource screenshot_buffer_memory{};
 	VkR3rBufferResource screenshot_buffer{};
 	VkR3rDeviceMemoryResource screenshot_image_memory{};
@@ -221,8 +230,28 @@ public:
 	VkR3rDescriptorPoolResource descriptor_pool{};
 	VkR3rPostPresentSubject post_present_subject{};
 
+	VkR3rSamplerResource post_sampler{};
+	VkR3rDescriptorSetLayoutResource post_descriptor_set_layout{};
+	VkR3rDescriptorSetResource post_descriptor_set{};
+	PostUbo post_ubo_{};
+	void* post_uniform_mapped_memory_{};
+	VkR3rDeviceMemoryResource post_uniform_memory_{};
+	VkR3rBufferResource post_uniform_buffer{};
+	Framebuffers post_framebuffers{};
+	VkR3rShaderModuleResource post_vertex_shader_module{};
+	VkR3rShaderModuleResource post_fragment_shader_module{};
+	VkR3rShaderModuleResource post_vertex_shader_module_ms{};
+	VkR3rShaderModuleResource post_fragment_shader_module_ms{};
+	VkR3rPipelineLayoutResource post_pipeline_layout{};
+	VkR3rPipelineResource post_pipeline{};
+	VkR3rPipelineResource post_pipeline_ms{};
+	VkR3rRenderPassResource post_render_pass{};
+
 	static void ensure_success_vk_result(VkResult vk_result, const char* message);
 	bool has_swapchain() const;
+	bool has_post() const;
+	bool supports_multisample() const;
+	VkDeviceSize get_uniform_offset_alignment() const;
 	std::uint32_t find_memory_type_index(
 		std::uint32_t memory_type_bits,
 		VkMemoryPropertyFlags memory_property_flags) const;
@@ -241,6 +270,7 @@ public:
 		VkMemoryPropertyFlags vk_memory_property_flags,
 		VkR3rBufferResource& buffer_resource,
 		VkR3rDeviceMemoryResource& device_memory_resource) const;
+	VkR3rShaderModuleResource create_shader_module(const unsigned char* bytes, int byte_count) const;
 	void cmd_copy_buffer(
 		VkCommandBuffer vk_command_buffer,
 		VkBuffer vk_src_buffer,
@@ -299,6 +329,15 @@ public:
 		VkPipelineStageFlags vk_dst_stage_flags) const;
 	void draw_state_update_scissor();
 	void update_draw_state();
+
+	static void copy_to_mapped_memory(const void* raw_object, std::size_t object_size, void* mapped_memory);
+
+	template<typename T>
+	requires (std::is_trivially_copyable_v<T> && !std::is_pointer_v<T>)
+	static void copy_object_to_mapped_memory(const T& object, void* mapped_memory)
+	{
+		copy_to_mapped_memory(static_cast<const void*>(&object), sizeof(T), mapped_memory);
+	}
 };
 
 } // namespace bstone

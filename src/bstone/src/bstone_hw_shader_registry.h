@@ -47,6 +47,10 @@ public:
 	static const char* get_u_view_direction_name();
 	static const char* get_u_view_position_name();
 
+	static const char* get_u_brightness_name();
+	static const char* get_u_contrast_name();
+	static const char* get_u_saturation_name();
+
 	static const R3rShaderSource& get_fragment(R3rType renderer_type);
 	static const R3rShaderSource& get_vertex(R3rType renderer_type);
 

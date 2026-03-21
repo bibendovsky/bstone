@@ -15,6 +15,7 @@ class CValidator
 {
 public:
 	static void validate_name(std::string_view name);
+	static void validate_float32_category(float value);
 };
 
 } // namespace bstone

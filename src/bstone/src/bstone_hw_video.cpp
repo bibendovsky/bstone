@@ -74,6 +74,10 @@ public:
 	void apply_window_mode() override;
 	void apply_filler_color_index() override;
 
+	void apply_brightness() override;
+	void apply_contrast() override;
+	void apply_saturation() override;
+
 	const Rgba8Palette& get_default_palette() const override;
 
 	void enable_fizzle_fx(bool is_enabled) override;
@@ -455,6 +459,14 @@ private:
 	using BsViewPositionMod = ModValue<cgm::Vec2D>;
 	BsViewPositionMod bs_view_position_;
 
+	float old_brightness_factor_;
+	float old_contrast_factor_;
+	float old_saturation_factor_;
+
+	float brightness_factor_;
+	float contrast_factor_;
+	float saturation_factor_;
+
 	cgm::Mat4D r2_matrix_model_{};
 	cgm::Mat4D r2_matrix_view_{};
 	cgm::Mat4D r2_matrix_projection_{};
@@ -678,6 +690,9 @@ private:
 	R3rShaderVar* extra_lighting_uniform_{};
 	R3rShaderVar* view_direction_uniform_{};
 	R3rShaderVar* view_position_uniform_{};
+	R3rShaderVar* brightness_uniform_{};
+	R3rShaderVar* contrast_uniform_{};
+	R3rShaderVar* saturation_uniform_{};
 
 	static cgm::Mat4D make_gl_ortho_matrix(int width, int height);
 	static cgm::Mat4D make_vk_ortho_matrix(int width, int height);
@@ -848,6 +863,9 @@ private:
 
 	void uninitialize_shading_uniforms();
 	void initialize_shading_uniforms();
+
+	void uninitialize_color_setting_uniforms();
+	void initialize_color_setting_uniforms();
 
 	void uninitialize_uniforms();
 	void initialize_uniforms();
@@ -1789,6 +1807,21 @@ try {
 	create_2d_fillers_vb();
 	create_2d_fillers_vi();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+void HwVideo::apply_brightness()
+{
+	brightness_factor_ = vid_cfg_get_brightness();
+}
+
+void HwVideo::apply_contrast()
+{
+	contrast_factor_ = vid_cfg_get_contrast();
+}
+
+void HwVideo::apply_saturation()
+{
+	saturation_factor_ = vid_cfg_get_saturation();
+}
 
 const Rgba8Palette& HwVideo::get_default_palette() const
 {
@@ -2869,6 +2902,7 @@ void HwVideo::uninitialize_uniforms()
 	uninitialize_view_mat_uniform();
 	uninitialize_projection_mat_uniform();
 	uninitialize_shading_uniforms();
+	uninitialize_color_setting_uniforms();
 }
 
 void HwVideo::initialize_uniforms()
@@ -2877,7 +2911,30 @@ try {
 	initialize_view_mat_uniform();
 	initialize_projection_mat_uniform();
 	initialize_shading_uniforms();
+	initialize_color_setting_uniforms();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+void HwVideo::uninitialize_color_setting_uniforms()
+{
+	uninitialize_uniform(brightness_uniform_);
+	uninitialize_uniform(contrast_uniform_);
+	uninitialize_uniform(saturation_uniform_);
+}
+
+void HwVideo::initialize_color_setting_uniforms()
+{
+	old_brightness_factor_ = 0.0F;
+	old_contrast_factor_ = 0.0F;
+	old_saturation_factor_ = 0.0F;
+
+	brightness_factor_ = 1.0F;
+	contrast_factor_ = 1.0F;
+	saturation_factor_ = 1.0F;
+
+	initialize_uniform(R3rShaderVarTypeId::float32, HwShaderRegistry::get_u_brightness_name(), brightness_uniform_);
+	initialize_uniform(R3rShaderVarTypeId::float32, HwShaderRegistry::get_u_contrast_name(), contrast_uniform_);
+	initialize_uniform(R3rShaderVarTypeId::float32, HwShaderRegistry::get_u_saturation_name(), saturation_uniform_);
+}
 
 void HwVideo::uninitialize_program()
 {
@@ -5015,6 +5072,31 @@ try {
 		auto& command = command_buffer->write_set_vec2_uniform();
 		command.var = view_position_uniform_;
 		convert(bs_view_position_, command.value);
+	}
+
+	// Brightness.
+	if (brightness_factor_ != old_brightness_factor_)
+	{
+		old_brightness_factor_ = brightness_factor_;
+		auto& command = command_buffer->write_set_f32_uniform();
+		command.var = brightness_uniform_;
+		command.value = brightness_factor_;
+	}
+	// Contrast.
+	if (contrast_factor_ != old_contrast_factor_)
+	{
+		old_contrast_factor_ = contrast_factor_;
+		auto& command = command_buffer->write_set_f32_uniform();
+		command.var = contrast_uniform_;
+		command.value = contrast_factor_;
+	}
+	// Saturation.
+	if (saturation_factor_ != old_saturation_factor_)
+	{
+		old_saturation_factor_ = saturation_factor_;
+		auto& command = command_buffer->write_set_f32_uniform();
+		command.var = saturation_uniform_;
+		command.value = saturation_factor_;
 	}
 
 	// Finalize.
@@ -10401,6 +10483,9 @@ try {
 
 	apply_external_textures();
 	apply_texture_upscale();
+	apply_brightness();
+	apply_contrast();
+	apply_saturation();
 
 	auto& window = renderer_->get_window();
 	const auto window_title = vid_get_window_title_for_renderer(renderer_->get_name());

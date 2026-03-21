@@ -14,6 +14,10 @@ layout(binding=2,std140) uniform Ubo {
 
     vec2 u_view_direction;
     vec2 u_view_position;
+
+    float u_brightness;
+    float u_contrast;
+    float u_saturation;
 } ubo;
 
 layout(location=0) in vec2 o_position;
@@ -76,6 +80,23 @@ float calculate_shading_weight()
     }
 }
 
+vec4 adjust_brightness_contrast_saturation(vec4 color)
+{
+    vec3 dst_rgb = color.rgb;
+
+    // Adjust brightness.
+    dst_rgb *= ubo.u_brightness;
+
+    // Adjust contrast.
+    dst_rgb = (dst_rgb - 0.5) * ubo.u_contrast + 0.5;
+
+    // Adjust saturation.
+    float luminance = dot(dst_rgb, vec3(0.2126, 0.7152, 0.0722)); // BT.709 coefficients.
+    dst_rgb = mix(vec3(luminance), dst_rgb, ubo.u_saturation);
+
+    return vec4(dst_rgb, color.a);
+}
+
 void main()
 {
     float shading_weight = calculate_shading_weight();
@@ -83,4 +104,6 @@ void main()
     float alpha = frag_color.a;
     frag_color *= 1.0 - shading_weight;
     frag_color.a = alpha;
+    frag_color = adjust_brightness_contrast_saturation(frag_color);
+    //frag_color = vec4(0.0, 0.25, 0.0, 1.0);
 }

@@ -1,0 +1,21 @@
+#version 450
+
+#ifndef MULTISAMPLE
+layout(location=0) out vec2 o_tx_coords;
+#endif
+
+void main()
+{
+#ifndef MULTISAMPLE
+    const vec2 tx_coords[3] = vec2[](
+        vec2(0.0, 0.0),
+        vec2(2.0, 0.0),
+        vec2(0.0, 2.0));
+    o_tx_coords = tx_coords[gl_VertexIndex];
+#endif
+    const vec2 positions[3] = vec2[](
+        vec2(-1.0, -1.0),
+        vec2( 3.0, -1.0),
+        vec2(-1.0,  3.0));
+    gl_Position = vec4(positions[gl_VertexIndex], 0.0, 1.0);
+}

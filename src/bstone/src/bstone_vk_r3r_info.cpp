@@ -24,6 +24,8 @@ namespace bstone {
 namespace {
 
 constexpr VkFormat vk_r3r_info_impl_vk_formats[] = {
+	// Vulkan 1.0 formats
+
 	VK_FORMAT_R4G4_UNORM_PACK8,
 	VK_FORMAT_R4G4B4A4_UNORM_PACK16,
 	VK_FORMAT_B4G4R4A4_UNORM_PACK16,
@@ -208,6 +210,13 @@ constexpr VkFormat vk_r3r_info_impl_vk_formats[] = {
 	VK_FORMAT_ASTC_12x10_SRGB_BLOCK,
 	VK_FORMAT_ASTC_12x12_UNORM_BLOCK,
 	VK_FORMAT_ASTC_12x12_SRGB_BLOCK,
+	/*
+	The rest of formats requires a special treatment.
+	Some of them defined in higher version of Vulkan, the othera are defined in extensions.
+	If the core version is not available or the required extension are not enabled the
+	validation layer will complain about the format passed to vkGetPhysicalDeviceFormatProperties.
+	*/
+	/*
 	VK_FORMAT_G8B8G8R8_422_UNORM,
 	VK_FORMAT_B8G8R8G8_422_UNORM,
 	VK_FORMAT_G8_B8_R8_3PLANE_420_UNORM,
@@ -287,7 +296,7 @@ constexpr VkFormat vk_r3r_info_impl_vk_formats[] = {
 	VK_FORMAT_R14X2G14X2_UNORM_2PACK16_ARM,
 	VK_FORMAT_R14X2G14X2B14X2A14X2_UNORM_4PACK16_ARM,
 	VK_FORMAT_G14X2_B14X2R14X2_2PLANE_420_UNORM_3PACK16_ARM,
-	VK_FORMAT_G14X2_B14X2R14X2_2PLANE_422_UNORM_3PACK16_ARM};
+	VK_FORMAT_G14X2_B14X2R14X2_2PLANE_422_UNORM_3PACK16_ARM*/};
 
 } // namespace
 

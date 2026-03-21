@@ -672,6 +672,21 @@ Notes:
   Values: `0` (disable), `1` (enable).  
   Default: `0`
 
+* `--vid_brightness value`  
+  Changes global brightness.  
+  Values: [`0.1`..`2.0`]  
+  Default: `1.0`
+
+* `--vid_contrast value`  
+  Changes global contrast.  
+  Values: [`0.1`..`2.0`]  
+  Default: `1.0`
+
+* `--vid_saturation value`  
+  Changes global saturation.  
+  Values: [`0.0`..`2.0`]  
+  Default: `1.0`
+
 * `--snd_is_disabled value`  
   Enables or disables audio subsystem.  
   Values: `0` (disable) or `1` (enable)  

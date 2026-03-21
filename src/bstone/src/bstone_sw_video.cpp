@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 // Software accelerated video (SW).
 
+#include <cmath>
 #include <algorithm>
 #include <span>
 #include <utility>
@@ -60,6 +61,10 @@ public:
 
 	void fade_out(int start, int end, int red, int green, int blue, int steps) override;
 	void fade_in(int start, int end, const std::uint8_t* palette, int steps) override;
+
+	void apply_brightness() override;
+	void apply_contrast() override;
+	void apply_saturation() override;
 
 	// HW
 	//
@@ -128,7 +133,13 @@ private:
 	void initialize_palette();
 	void calculate_dimensions(int window_width, int window_height);
 	void uninitialize_vga_buffer();
-	void update_palette_from_vga(int offset, int count);
+	static std::uint32_t convert_vga_color_to_u32(const VgaColor& vga_color);
+	void update_should_adjust_color();
+	void update_palette_range_from_vga(int offset, int count);
+	std::uint32_t adjust_color_u32(std::uint32_t color_u32) const;
+	void update_palette_entry_from_vga(int entry_index);
+	void update_palette_from_vga();
+	void initialize_brightness_contrast_saturation();
 
 private:
 	sys::WindowMgr& window_mgr_;
@@ -157,6 +168,10 @@ private:
 	std::array<sys::FRect, 4> filler_hud_rects_{};
 	sys::FRect screen_dst_rect_{};
 	sys::Color filler_color_{};
+	float brightness_factor_ = 1.0F;
+	float contrast_factor_ = 1.0F;
+	float saturation_factor_ = 1.0F;
+	bool should_adjust_color_{};
 
 
 	// HW
@@ -429,7 +444,7 @@ void SwVideo::fill_palette(int r, int g, int b)
 		vga_color[2] = static_cast<std::uint8_t>(b);
 	}
 
-	update_palette_from_vga(0, 256);
+	update_palette_range_from_vga(0, 256);
 }
 
 void SwVideo::set_palette(int offset, int count, const std::uint8_t* vga_palette)
@@ -446,7 +461,7 @@ try {
 		count,
 		vga_palette_.begin() + offset);
 
-	update_palette_from_vga(offset, count);
+	update_palette_range_from_vga(offset, count);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::apply_window_mode()
@@ -597,6 +612,27 @@ try {
 	screenfaded = false;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
+void SwVideo::apply_brightness()
+{
+	brightness_factor_ = vid_cfg_get_brightness();
+	update_should_adjust_color();
+	update_palette_from_vga();
+}
+
+void SwVideo::apply_contrast()
+{
+	contrast_factor_ = vid_cfg_get_contrast();
+	update_should_adjust_color();
+	update_palette_from_vga();
+}
+
+void SwVideo::apply_saturation()
+{
+	saturation_factor_ = vid_cfg_get_saturation();
+	update_should_adjust_color();
+	update_palette_from_vga();
+}
+
 // HW
 //
 
@@ -682,6 +718,7 @@ try {
 	initialize_palette();
 	initialize_vga_buffer();
 	vid_initialize_ui_buffer();
+	initialize_brightness_contrast_saturation();
 
 	renderer_name_buffer_.reserve(128);
 	renderer_name_buffer_ += "sw (";
@@ -968,19 +1005,84 @@ void SwVideo::uninitialize_vga_buffer()
 	vga_memory = nullptr;
 }
 
-void SwVideo::update_palette_from_vga(int offset, int count)
+std::uint32_t SwVideo::convert_vga_color_to_u32(const VgaColor& vga_color)
 {
-	for (auto i = 0; i < count; ++i)
-	{
-		const auto& vga_color = vga_palette_[offset + i];
-		auto& color = palette_[offset + i];
+	const std::uint32_t vga_r = static_cast<std::uint32_t>(vga_color[0]) & 63;
+	const std::uint32_t vga_g = static_cast<std::uint32_t>(vga_color[1]) & 63;
+	const std::uint32_t vga_b = static_cast<std::uint32_t>(vga_color[2]) & 63;
+	return
+		   0xFF000000U               | // Opaque (alpha = 255).
+		(((255 * vga_r) / 63) << 16) |
+		(((255 * vga_g) / 63) <<  8) |
+		 ((255 * vga_b) / 63);
+}
 
-		color =
-			0xFF000000U |
-			((((255U * vga_color[0]) / 63U) & 0xFFU) << 16) |
-			((((255U * vga_color[1]) / 63U) & 0xFFU) << 8) |
-			(((255U * vga_color[2]) / 63U) & 0xFFU);
+void SwVideo::update_should_adjust_color()
+{
+	should_adjust_color_ = (brightness_factor_ != 1.0F || contrast_factor_ != 1.0F || saturation_factor_ != 1.0F);
+}
+
+void SwVideo::update_palette_range_from_vga(int offset, int count)
+{
+	for (int i = 0; i < count; ++i)
+	{
+		update_palette_entry_from_vga(offset + i);
 	}
+}
+
+std::uint32_t SwVideo::adjust_color_u32(std::uint32_t color_u32) const
+{
+	if (!should_adjust_color_)
+	{
+		return color_u32;
+	}
+	float r = static_cast<float>((color_u32 >> 16) & 0xFF) / 255.0F;
+	float g = static_cast<float>((color_u32 >>  8) & 0xFF) / 255.0F;
+	float b = static_cast<float>( color_u32        & 0xFF) / 255.0F;
+	// Brightness.
+	r *= brightness_factor_;
+	g *= brightness_factor_;
+	b *= brightness_factor_;
+	// Contrast.
+	r = std::fma(r - 0.5F, contrast_factor_, 0.5F);
+	g = std::fma(g - 0.5F, contrast_factor_, 0.5F);
+	b = std::fma(b - 0.5F, contrast_factor_, 0.5F);
+	// Saturation.
+	const float luminance = r * 0.2126F + g * 0.7152F + b * 0.0722F; // BT.709 coefficients.
+	r = std::lerp(luminance, r, saturation_factor_);
+	g = std::lerp(luminance, g, saturation_factor_);
+	b = std::lerp(luminance, b, saturation_factor_);
+	//
+	const std::uint32_t r_u32 = static_cast<std::uint32_t>(std::clamp(r, 0.0F, 1.0F) * 255.0F);
+	const std::uint32_t g_u32 = static_cast<std::uint32_t>(std::clamp(g, 0.0F, 1.0F) * 255.0F);
+	const std::uint32_t b_u32 = static_cast<std::uint32_t>(std::clamp(b, 0.0F, 1.0F) * 255.0F);
+	return
+		(color_u32 & 0xFF000000U) | // Keep alpha, mask RGB.
+		(r_u32 << 16)             |
+		(g_u32 <<  8)             |
+		 b_u32;
+}
+
+void SwVideo::update_palette_entry_from_vga(int entry_index)
+{
+	palette_[entry_index] = adjust_color_u32(convert_vga_color_to_u32(vga_palette_[entry_index]));
+}
+
+void SwVideo::update_palette_from_vga()
+{
+	for (int i = 0; i < 256; ++i)
+	{
+		update_palette_entry_from_vga(i);
+	}
+}
+
+void SwVideo::initialize_brightness_contrast_saturation()
+{
+	brightness_factor_ = vid_cfg_get_brightness();
+	contrast_factor_ = vid_cfg_get_contrast();
+	saturation_factor_ = vid_cfg_get_saturation();
+	update_should_adjust_color();
+	update_palette_from_vga();
 }
 
 } // namespace

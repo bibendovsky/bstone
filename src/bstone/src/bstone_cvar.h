@@ -7,6 +7,7 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_CVAR_INCLUDED
 #define BSTONE_CVAR_INCLUDED
 
+#include <optional>
 #include <vector>
 #include <span>
 #include <string_view>
@@ -19,10 +20,12 @@ enum class CVarType
 {
 	none = 0,
 	int32,
+	float32,
 	string,
 };
 
 struct CVarInt32Tag {};
+struct CVarFloat32Tag {};
 struct CVarBoolTag {};
 struct CVarStringTag {};
 
@@ -62,6 +65,15 @@ public:
 	// Defines an int32 CVAR with a maximum range.
 	CVar(CVarInt32Tag, std::string_view name, CVarFlags flags, std::int32_t default_value);
 
+	// Defines float32 CVAR with a specified range.
+	CVar(
+		CVarFloat32Tag,
+		std::string_view name,
+		CVarFlags flags,
+		float default_value,
+		float min_value,
+		float max_value);
+
 	// Defines a boolean CVAR.
 	CVar(CVarBoolTag, std::string_view name, CVarFlags flags, bool default_value);
 
@@ -92,6 +104,9 @@ public:
 	void set_int32(std::int32_t value);
 	CVarInt32Values get_int32_values() const;
 
+	float get_float32() const;
+	void set_float32(float value);
+
 	std::string_view get_string() const;
 	void set_string(std::string_view value);
 	CVarStringValues get_string_values() const;
@@ -100,8 +115,11 @@ public:
 
 private:
 	static constexpr auto max_int32_chars = 11;
+	static constexpr auto max_float32_chars = 32;
 
-private:
+	using OptionalInt32 = std::optional<std::int32_t>;
+	using OptionalFloat32 = std::optional<float>;
+
 	CVarType type_{};
 	std::string_view name_{};
 	CVarFlags flags_{};
@@ -112,14 +130,17 @@ private:
 	CVarInt32Values int32_values_{};
 	std::int32_t int32_value_{};
 
+	float float32_default_value_{};
+	float float32_min_value_{};
+	float float32_max_value_{};
+	float float32_value_{};
+
 	std::string_view string_default_value_{};
 	CVarStringValues string_values_{};
 	CVarString string_value_{};
 
-private:
 	[[noreturn]] static void fail_unknown_type();
 
-private:
 	CVar(
 		CVarInt32Tag,
 		std::string_view name,
@@ -129,12 +150,17 @@ private:
 		std::int32_t max_value,
 		CVarInt32Values values);
 
+	static OptionalInt32 parse_int32(std::string_view string);
+	static OptionalFloat32 parse_float32(std::string_view string);
 	void set_string_from_int32();
 	void set_int32_from_string();
-	bool has_string(std::string_view string);
+	void set_float32_from_string();
+	void set_string_from_float32();
+	static bool has_string(std::string_view string, CVarStringValues string_values);
+	bool has_string(std::string_view string) const;
 	void ensure_string();
 };
 
 } // namespace bstone
 
-#endif // !BSTONE_CVAR_INCLUDED
+#endif // BSTONE_CVAR_INCLUDED

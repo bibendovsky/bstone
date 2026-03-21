@@ -30,7 +30,7 @@ struct R3rLimits
 
 	static constexpr int max_shaders = 2;
 	static constexpr int max_shader_stages = 1;
-	static constexpr int max_shader_vars = 16;
+	static constexpr int max_shader_vars = 20;
 
 	static constexpr int max_vertex_inputs = 16;
 	static constexpr int max_vertex_attributes = 16;
