@@ -116,7 +116,7 @@ void NukedOpl3::write(int fm_port, int fm_value)
 		return;
 	}
 
-	OPL3_WriteReg(&emulator_, static_cast<std::uint16_t>(fm_port), static_cast<std::uint8_t>(fm_value));
+	OPL3_WriteRegBuffered(&emulator_, static_cast<std::uint16_t>(fm_port), static_cast<std::uint8_t>(fm_value));
 }
 
 bool NukedOpl3::generate(int count, std::int16_t* buffer)
