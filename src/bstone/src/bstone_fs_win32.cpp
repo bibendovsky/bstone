@@ -111,7 +111,8 @@ void create_directories(const char* path)
 		{
 			continue;
 		}
-
+		if (w_chars > w_path.get_data() && w_chars[-1] == ':')
+			continue;
 		const auto w_old_char = w_char;
 		w_char = L'\0';
 
