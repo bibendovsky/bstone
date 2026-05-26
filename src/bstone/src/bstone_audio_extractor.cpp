@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 
 #include <algorithm>
+#include <vector>
 
 #include "audio.h"
 #include "id_ca.h"
@@ -63,13 +64,14 @@ private:
 	DecodeBuffer decode_buffer_{};
 
 	bool write_wav_header(int data_size, int bit_depth, int sample_rate, bstone::Stream& stream);
-	void write_non_digitized_audio_chunk(const AudioChunk& sfx_info, bstone::Stream& stream);
+	void write_non_digitized_audio_chunk(const AudioChunk& sfx_info, bstone::Stream& stream, Opl3Type opl3_type);
 	void write_digitized_audio_chunk(const AudioChunk& sfx_info, bstone::Stream& stream);
 
 	static const char* make_file_name_prefix(AudioChunkType audio_chunk_type);
+	static const char* make_opl3_type_string(Opl3Type opl3_type);
 	static const char* make_file_extension(ExtensionType extension_type);
 	static std::string make_number_string(int number);
-	static std::string make_file_name(const AudioChunk& audio_chunk, ExtensionType extension_type);
+	static std::string make_file_name(const AudioChunk& audio_chunk, ExtensionType extension_type, Opl3Type opl3_type);
 
 	void extract_raw_audio_chunk(const std::string& dst_dir, const AudioChunk& audio_chunk);
 	void extract_decoded_audio_chunk(const std::string& dst_dir, const AudioChunk& audio_chunk);
@@ -141,7 +143,7 @@ bool AudioExtractorImpl::write_wav_header(int data_size, int bit_depth, int samp
 	return result;
 }
 
-void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio_chunk, bstone::Stream& stream)
+void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio_chunk, bstone::Stream& stream, Opl3Type opl3_type)
 {
 	auto audio_decoder_type = AudioDecoderType{};
 	auto dst_rate = 0;
@@ -167,7 +169,7 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 			BSTONE_THROW_STATIC_SOURCE("Unsupported audio chunk type.");
 	}
 
-	auto audio_decoder = bstone::make_audio_decoder(audio_decoder_type, Opl3Type::dbopl);
+	auto audio_decoder = bstone::make_audio_decoder(audio_decoder_type, opl3_type);
 
 	if (!audio_decoder)
 	{
@@ -281,6 +283,17 @@ const char* AudioExtractorImpl::make_file_name_prefix(AudioChunkType audio_chunk
 	}
 }
 
+const char* AudioExtractorImpl::make_opl3_type_string(Opl3Type opl3_type)
+{
+	switch (opl3_type)
+	{
+		case Opl3Type::none: return "";
+		case Opl3Type::dbopl: return "dosbox";
+		case Opl3Type::nuked: return "nuked";
+		default: BSTONE_THROW_STATIC_SOURCE("Unknown OPL3 type.");
+	}
+}
+
 const char* AudioExtractorImpl::make_file_extension(ExtensionType extension_type)
 {
 	switch (extension_type)
@@ -297,18 +310,21 @@ std::string AudioExtractorImpl::make_number_string(int number)
 	return StringHelper::make_left_padded_with_zero(number, 8);
 }
 
-std::string AudioExtractorImpl::make_file_name(const AudioChunk& audio_chunk, ExtensionType extension_type)
+std::string AudioExtractorImpl::make_file_name(const AudioChunk& audio_chunk, ExtensionType extension_type, Opl3Type opl3_type)
 {
 	const auto file_name_prefix = make_file_name_prefix(audio_chunk.type);
+	std::string opl3_type_string = make_opl3_type_string(opl3_type);
+	if (!opl3_type_string.empty())
+		opl3_type_string.insert(0, 1, '_');
 	const auto number_string = make_number_string(audio_chunk.audio_index);
 	const auto file_extension = make_file_extension(extension_type);
-	const auto file_name = std::string{} + file_name_prefix + '_' + number_string + file_extension;
+	const auto file_name = std::string{} + file_name_prefix + opl3_type_string + '_' + number_string + file_extension;
 	return file_name;
 }
 
 void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, const AudioChunk& audio_chunk)
 {
-	const auto file_name = make_file_name(audio_chunk, ExtensionType::data);
+	const auto file_name = make_file_name(audio_chunk, ExtensionType::data, Opl3Type::none);
 	globals::logger->log_information(file_name.c_str());
 	const auto dst_file_name = fs_utils::append_path(dst_dir, file_name);
 
@@ -343,38 +359,55 @@ void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, con
 
 void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir, const AudioChunk& audio_chunk)
 {
-	const auto file_name = make_file_name(audio_chunk, ExtensionType::wav);
-	globals::logger->log_information(file_name.c_str());
-	const auto dst_file_name = fs_utils::append_path(dst_dir, file_name);
-
-	FileStream file_stream(
-		dst_file_name.c_str(),
-		file_flags_create | file_flags_truncate | file_flags_exclusive);
-
-	if (!file_stream.is_open())
-	{
-		std::string error_message;
-		error_message.reserve(1024);
-		error_message += "Failed to open a file \"";
-		error_message += dst_file_name;
-		error_message += "\".";
-		BSTONE_THROW_DYNAMIC_SOURCE(error_message.c_str());
-	}
-
+	using Opl3Types = std::vector<Opl3Type>;
+	Opl3Types opl3_types{};
+	opl3_types.reserve(2);
 	switch (audio_chunk.type)
 	{
 		case AudioChunkType::adlib_music:
 		case AudioChunkType::adlib_sfx:
-		case AudioChunkType::pc_speaker:
-			write_non_digitized_audio_chunk(audio_chunk, file_stream);
+			opl3_types.emplace_back(Opl3Type::dbopl);
+			opl3_types.emplace_back(Opl3Type::nuked);
 			break;
-
-		case AudioChunkType::digitized:
-			write_digitized_audio_chunk(audio_chunk, file_stream);
-			break;
-
 		default:
-			BSTONE_THROW_STATIC_SOURCE("Unsupported audio chunk type.");
+			opl3_types.emplace_back(Opl3Type::none);
+			break;
+	}
+	for (Opl3Type opl3_type : opl3_types)
+	{
+		const auto file_name = make_file_name(audio_chunk, ExtensionType::wav, opl3_type);
+		globals::logger->log_information(file_name.c_str());
+		const auto dst_file_name = fs_utils::append_path(dst_dir, file_name);
+
+		FileStream file_stream(
+			dst_file_name.c_str(),
+			file_flags_create | file_flags_truncate | file_flags_exclusive);
+
+		if (!file_stream.is_open())
+		{
+			std::string error_message;
+			error_message.reserve(1024);
+			error_message += "Failed to open a file \"";
+			error_message += dst_file_name;
+			error_message += "\".";
+			BSTONE_THROW_DYNAMIC_SOURCE(error_message.c_str());
+		}
+
+		switch (audio_chunk.type)
+		{
+			case AudioChunkType::adlib_music:
+			case AudioChunkType::adlib_sfx:
+			case AudioChunkType::pc_speaker:
+				write_non_digitized_audio_chunk(audio_chunk, file_stream, opl3_type);
+				break;
+
+			case AudioChunkType::digitized:
+				write_digitized_audio_chunk(audio_chunk, file_stream);
+				break;
+
+			default:
+				BSTONE_THROW_STATIC_SOURCE("Unsupported audio chunk type.");
+		}
 	}
 }
 
