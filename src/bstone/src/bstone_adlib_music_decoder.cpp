@@ -202,7 +202,7 @@ int AdlibMusicDecoder::decode(int dst_count, std::int16_t* dst_data)
 				const auto command_port = static_cast<int>(reader_.read_u8());
 				const auto command_value = static_cast<int>(reader_.read_u8());
 				delay = bstone::endian::to_little(reader_.read_u16());
-				emulator_->write(command_port, command_value);
+				emulator_->write_buffered(command_port, command_value);
 				++command_index_;
 			}
 

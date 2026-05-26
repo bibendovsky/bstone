@@ -40,6 +40,7 @@ public:
 	int get_sample_rate() const noexcept override;
 
 	void write(int fm_port, int fm_value) override;
+	void write_buffered(int fm_port, int fm_value) override;
 
 	bool generate(int count, std::int16_t* buffer) override;
 	bool generate(int count, float* buffer) override;
@@ -116,7 +117,13 @@ void NukedOpl3::write(int fm_port, int fm_value)
 		return;
 	}
 
-	OPL3_WriteRegBuffered(&emulator_, static_cast<std::uint16_t>(fm_port), static_cast<std::uint8_t>(fm_value));
+	OPL3_WriteReg(&emulator_, static_cast<std::uint16_t>(fm_port), static_cast<std::uint8_t>(fm_value));
+}
+
+void NukedOpl3::write_buffered(int fm_port, int fm_value)
+{
+	if (is_initialized_)
+		OPL3_WriteRegBuffered(&emulator_, static_cast<std::uint16_t>(fm_port), static_cast<std::uint8_t>(fm_value));
 }
 
 bool NukedOpl3::generate(int count, std::int16_t* buffer)

@@ -220,12 +220,12 @@ int AdlibSfxDecoder::decode(int dst_count, std::int16_t* dst_data)
 
 				if (lf > 0)
 				{
-					emulator_->write(adlib::al_freq_l, lf);
-					emulator_->write(adlib::al_freq_h, hf_);
+					emulator_->write_buffered(adlib::al_freq_l, lf);
+					emulator_->write_buffered(adlib::al_freq_h, hf_);
 				}
 				else
 				{
-					emulator_->write(adlib::al_freq_h, 0x00);
+					emulator_->write_buffered(adlib::al_freq_h, 0x00);
 				}
 
 				++command_index_;

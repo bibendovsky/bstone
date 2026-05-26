@@ -58,6 +58,9 @@ public:
 	// Writes a value into a register.
 	virtual void write(int port, int value) = 0;
 
+	// Writes a value into a register with delay.
+	virtual void write_buffered(int port, int value) = 0;
+
 	// Generates number of mono samples into a provided buffer.
 	// Returns false on error.
 	virtual bool generate(int count, std::int16_t* buffer) = 0;

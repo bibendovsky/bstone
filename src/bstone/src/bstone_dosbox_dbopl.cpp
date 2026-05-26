@@ -40,6 +40,7 @@ public:
 	int get_sample_rate() const noexcept override;
 
 	void write(int fm_port, int fm_value) override;
+	void write_buffered(int fm_port, int fm_value) override;
 	bool generate(int count, std::int16_t* buffer) override;
 	bool generate(const int count, float* buffer) override;
 
@@ -120,6 +121,12 @@ void DosboxDbopl::write(int fm_port, int fm_value)
 	}
 
 	emulator_.WriteReg(static_cast<Bit32u>(fm_port), static_cast<Bit8u>(fm_value));
+}
+
+void DosboxDbopl::write_buffered(int fm_port, int fm_value)
+{
+	if (is_initialized_)
+		emulator_.WriteReg(static_cast<Bit32u>(fm_port), static_cast<Bit8u>(fm_value));
 }
 
 bool DosboxDbopl::generate(int count, std::int16_t* buffer)
