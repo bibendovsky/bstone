@@ -110,7 +110,7 @@ bool AdlibMusicDecoder::initialize(const AudioDecoderInitParam& param)
 
 	command_index_ = 0;
 	commands_count_ = commands_size / 4;
-	samples_per_tick_ = emulator_->get_sample_rate() / get_tick_rate();
+	samples_per_tick_ = 0;
 	remains_count_ = 0;
 
 	auto ticks_count = 0;
@@ -121,7 +121,8 @@ bool AdlibMusicDecoder::initialize(const AudioDecoderInitParam& param)
 		ticks_count += bstone::endian::to_little(reader_.read_u16());
 	}
 
-	dst_length_in_samples_ = ticks_count * samples_per_tick_;
+	dst_length_in_samples_ = static_cast<int>(static_cast<long long>(ticks_count) * emulator_->get_sample_rate() / get_tick_rate());
+
 	reader_.set_position(2);
 	is_initialized_ = true;
 	return true;
@@ -148,6 +149,7 @@ bool AdlibMusicDecoder::rewind()
 	reader_.set_position(2);
 	command_index_ = 0;
 	remains_count_ = 0;
+	samples_per_tick_ = 0;
 	return true;
 }
 
@@ -208,7 +210,10 @@ int AdlibMusicDecoder::decode(int dst_count, std::int16_t* dst_data)
 
 			if (delay > 0)
 			{
-				remains_count_ = delay * samples_per_tick_;
+				const int tick_rate = get_tick_rate();
+				samples_per_tick_ += delay * emulator_->get_sample_rate();
+				remains_count_ = samples_per_tick_ / tick_rate;
+				samples_per_tick_ %= tick_rate;
 			}
 		}
 

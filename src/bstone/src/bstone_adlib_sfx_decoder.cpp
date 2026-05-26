@@ -56,7 +56,6 @@ private:
 	int samples_per_tick_{};
 	int remains_count_{};
 	int hf_{};
-
 	int dst_length_in_samples_{};
 
 	void uninitialize_internal();
@@ -138,8 +137,8 @@ bool AdlibSfxDecoder::initialize(const AudioDecoderInitParam& param)
 	adlib::set_instrument(emulator_.get(), instrument_);
 	command_index_ = 0;
 	commands_count_ = sfx_length;
-	samples_per_tick_ = emulator_->get_sample_rate() / get_tick_rate();
-	dst_length_in_samples_ = samples_per_tick_ * sfx_length;
+	samples_per_tick_ = 0;
+	dst_length_in_samples_ = commands_count_ * emulator_->get_sample_rate() / get_tick_rate();
 	remains_count_ = 0;
 	is_initialized_ = true;
 	return true;
@@ -161,6 +160,7 @@ bool AdlibSfxDecoder::rewind()
 	adlib::set_instrument(emulator_.get(), instrument_);
 	command_index_ = 0;
 	remains_count_ = 0;
+	samples_per_tick_ = 0;
 	reader_.set_position(get_header_size());
 	return true;
 }
@@ -229,7 +229,10 @@ int AdlibSfxDecoder::decode(int dst_count, std::int16_t* dst_data)
 				}
 
 				++command_index_;
-				remains_count_ = samples_per_tick_;
+				const int tick_rate = get_tick_rate();
+				samples_per_tick_ += emulator_->get_sample_rate();
+				remains_count_ = samples_per_tick_ / tick_rate;
+				samples_per_tick_ %= tick_rate;
 			}
 		}
 
