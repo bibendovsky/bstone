@@ -2,6 +2,14 @@
 # Changelog
 
 
+## [1.3.4] - 2026-05-27
+### Fixed
+- [#550] Nuked OPL3 audio decoding
+
+### Added
+- Extract AdLib audio with Nuked OPL3 too.
+
+
 ## [1.3.3] - 2026-01-25
 ### Fixed
 - [#529] Slow doors and slow enemies, and slow weapon firing speed in OpenBSD
