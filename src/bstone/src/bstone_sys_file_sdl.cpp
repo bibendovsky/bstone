@@ -7,6 +7,7 @@ SPDX-License-Identifier: MIT
 // File primitive (SDL)
 
 #include "bstone_sys_file.h"
+#include "bstone_assert.h"
 #include <cstddef>
 #include <memory>
 #include "SDL3/SDL_iostream.h"
@@ -56,6 +57,7 @@ bool File::open(const char* path, FileMode mode)
 			sdl_mode = "wb";
 			break;
 		default:
+			BSTONE_ASSERT(false && "Unknown mode.");
 			return false;
 	}
 	handle_ = SDL_IOFromFile(path, sdl_mode);
@@ -70,6 +72,9 @@ void File::close()
 
 int File::read(void* buffer, int size) const
 {
+	BSTONE_ASSERT(is_open());
+	BSTONE_ASSERT(buffer != nullptr);
+	BSTONE_ASSERT(size >= 0);
 	const std::size_t sdl_read_size = SDL_ReadIO(
 		static_cast<SDL_IOStream*>(handle_),
 		buffer,
@@ -78,15 +83,16 @@ int File::read(void* buffer, int size) const
 	{
 		const SDL_IOStatus sdl_io_status = SDL_GetIOStatus(static_cast<SDL_IOStream*>(handle_));
 		if (!(sdl_io_status == SDL_IO_STATUS_READY || sdl_io_status == SDL_IO_STATUS_EOF))
-		{
 			return -1;
-		}
 	}
 	return static_cast<int>(sdl_read_size);
 }
 
 bool File::read_exactly(void* buffer, int size) const
 {
+	BSTONE_ASSERT(is_open());
+	BSTONE_ASSERT(buffer != nullptr);
+	BSTONE_ASSERT(size >= 0);
 	for (int offset = 0; offset < size;)
 	{
 		const std::size_t sdl_read_size = SDL_ReadIO(
@@ -94,9 +100,7 @@ bool File::read_exactly(void* buffer, int size) const
 			static_cast<std::byte*>(buffer) + offset,
 			static_cast<std::size_t>(size - offset));
 		if (sdl_read_size == 0)
-		{
 			return false;
-		}
 		offset += static_cast<int>(sdl_read_size);
 	}
 	return true;
@@ -104,6 +108,9 @@ bool File::read_exactly(void* buffer, int size) const
 
 int File::write(const void* buffer, int size) const
 {
+	BSTONE_ASSERT(is_open());
+	BSTONE_ASSERT(buffer != nullptr);
+	BSTONE_ASSERT(size >= 0);
 	const std::size_t sdl_written_size = SDL_WriteIO(
 		static_cast<SDL_IOStream*>(handle_),
 		buffer,
@@ -112,15 +119,16 @@ int File::write(const void* buffer, int size) const
 	{
 		const SDL_IOStatus sdl_io_status = SDL_GetIOStatus(static_cast<SDL_IOStream*>(handle_));
 		if (sdl_io_status != SDL_IO_STATUS_READY)
-		{
 			return -1;
-		}
 	}
 	return static_cast<int>(sdl_written_size);
 }
 
 bool File::write_exactly(const void* buffer, int size) const
 {
+	BSTONE_ASSERT(is_open());
+	BSTONE_ASSERT(buffer != nullptr);
+	BSTONE_ASSERT(size >= 0);
 	for (int offset = 0; offset < size;)
 	{
 		const std::size_t sdl_written_size = SDL_WriteIO(
@@ -128,9 +136,7 @@ bool File::write_exactly(const void* buffer, int size) const
 			static_cast<const std::byte*>(buffer) + offset,
 			static_cast<std::size_t>(size - offset));
 		if (sdl_written_size == 0)
-		{
 			return false;
-		}
 		offset += static_cast<int>(sdl_written_size);
 	}
 	return true;
@@ -138,6 +144,7 @@ bool File::write_exactly(const void* buffer, int size) const
 
 std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 {
+	BSTONE_ASSERT(is_open());
 	SDL_IOWhence sdl_io_whence;
 	switch (origin)
 	{
@@ -151,6 +158,7 @@ std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 			sdl_io_whence = SDL_IO_SEEK_END;
 			break;
 		default:
+			BSTONE_ASSERT(false && "Unknown origin.");
 			return -1;
 	}
 	return SDL_SeekIO(static_cast<SDL_IOStream*>(handle_), offset, sdl_io_whence);
@@ -158,26 +166,32 @@ std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 
 std::int64_t File::skip(std::int64_t offset) const
 {
+	BSTONE_ASSERT(is_open());
 	return SDL_SeekIO(static_cast<SDL_IOStream*>(handle_), offset, SDL_IO_SEEK_CUR);
 }
 
 std::int64_t File::get_position() const
 {
+	BSTONE_ASSERT(is_open());
 	return SDL_TellIO(static_cast<SDL_IOStream*>(handle_));
 }
 
 bool File::set_position(std::int64_t position) const
 {
+	BSTONE_ASSERT(is_open());
+	BSTONE_ASSERT(position >= 0);
 	return SDL_SeekIO(static_cast<SDL_IOStream*>(handle_), position, SDL_IO_SEEK_SET) >= 0;
 }
 
 std::int64_t File::get_size() const
 {
+	BSTONE_ASSERT(is_open());
 	return SDL_GetIOSize(static_cast<SDL_IOStream*>(handle_));
 }
 
 bool File::flush() const
 {
+	BSTONE_ASSERT(is_open());
 	return SDL_FlushIO(static_cast<SDL_IOStream*>(handle_));
 }
 

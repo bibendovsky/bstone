@@ -289,6 +289,7 @@ target_link_libraries(bstone
 		bstone::lib::nuked_opl3
 		bstone::lib::openal_soft
 		bstone::lib::xbrz
+		bstone::lib::zlib
 		bstone::vulkan
 )
 
@@ -849,6 +850,31 @@ source_group("bstone/cvar" FILES ${BSTONE_BSTONE_CVAR_SOURCES})
 
 # ---------------------------------------------------------------------------
 
+set(BSTONE_BSTONE_ARCHIVE_FILE_SOURCES
+	src/bstone_archive_file.h
+	src/bstone_archive_file_entry_stream.h
+	src/bstone_archive_file_entry_stream_inflate.cpp
+	src/bstone_archive_file_entry_stream_store.cpp
+	src/bstone_archive_file_input_stream.h
+	src/bstone_archive_file_input_stream_file.cpp
+	src/bstone_archive_file_input_stream_memory.cpp
+)
+target_sources(bstone PRIVATE ${BSTONE_BSTONE_ARCHIVE_FILE_SOURCES})
+source_group("bstone/archive_file" FILES ${BSTONE_BSTONE_ARCHIVE_FILE_SOURCES})
+
+# ---------------------------------------------------------------------------
+
+set(BSTONE_BSTONE_ARCHIVE_FILE_ZIP_SOURCES
+	src/bstone_zip_archive_file.cpp
+	src/bstone_zip_archive_file.h
+	src/bstone_zip_archive_file_crc_32.cpp
+	src/bstone_zip_archive_file_crc_32.h
+)
+target_sources(bstone PRIVATE ${BSTONE_BSTONE_ARCHIVE_FILE_ZIP_SOURCES})
+source_group("bstone/archive_file/zip" FILES ${BSTONE_BSTONE_ARCHIVE_FILE_ZIP_SOURCES})
+
+# ---------------------------------------------------------------------------
+
 set(BSTONE_BSTONE_SOURCES
 	src/bstone_archiver.cpp
 	src/bstone_archiver.h
@@ -905,6 +931,8 @@ set(BSTONE_BSTONE_SOURCES
 	src/bstone_text_writer.h
 	src/bstone_version.cpp
 	src/bstone_version.h
+	src/bstone_vfs.cpp
+	src/bstone_vfs.h
 	src/bstone_vswap.cpp
 	src/bstone_vswap.h
 )

@@ -9,6 +9,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_cvar_mgr.h"
 #include "bstone_logger.h"
 #include "bstone_vswap.h"
+#include "bstone_vfs.h"
 #include "bstone_sys_polling_audio_device.h"
 #include "bstone_sys_system_mgr.h"
 
@@ -30,6 +31,7 @@ extern sys::MouseMgr* sys_mouse_mgr;
 extern sys::WindowMgr* sys_window_mgr;
 
 extern LoggerUPtr logger;
+extern bstone::VfsUPtr vfs;
 
 } // globals
 } // bstone

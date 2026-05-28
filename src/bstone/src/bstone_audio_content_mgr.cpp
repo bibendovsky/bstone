@@ -153,35 +153,29 @@ const AudioChunk& AudioContentMgrImpl::get_adlib_music_chunk(int chunk_number) c
 
 AudioContentMgrImpl::AudiotData AudioContentMgrImpl::load_audiot_data()
 {
-	FileStream audiot_file{};
-	ca_open_resource(AssetsResourceType::audiot, audiot_file);
-	const int audiot_size = static_cast<int>(audiot_file.get_size());
+	const VfsInputStreamUPtr audiot_file = ca_open_resource(AssetsResourceType::audiot);
+	const int audiot_size = audiot_file->get_size();
 	AudiotData audiot_data{};
 	audiot_data.resize(audiot_size);
-	audiot_file.read_exactly(audiot_data.data(), audiot_size);
+	audiot_file->read_exactly(audiot_data.data(), audiot_size);
 	return audiot_data;
 }
 
 AudioContentMgrImpl::AudioChunks AudioContentMgrImpl::make_audio_chunks(const AudiotData& audiot_data)
 {
 	constexpr int audiohed_item_size = 4;
-	FileStream audiohed_file{};
-	ca_open_resource(AssetsResourceType::audiohed, audiohed_file);
-	const int audiohed_size = static_cast<int>(audiohed_file.get_size());
+	const VfsInputStreamUPtr audiohed_file = ca_open_resource(AssetsResourceType::audiohed);
+	const int audiohed_size = audiohed_file->get_size();
 	if ((audiohed_size % audiohed_item_size) != 0)
-	{
 		BSTONE_THROW_STATIC_SOURCE("Invalid TOC file size.");
-	}
 	const int audiohed_count = audiohed_size / audiohed_item_size;
 	const int audio_chunk_count = audiohed_count - 1;
 	if (audio_chunk_count <= adlib_music_chunk_base_index)
-	{
 		BSTONE_THROW_STATIC_SOURCE("Invalid audio chunk count.");
-	}
 	using Audiohed = std::vector<std::uint8_t>;
 	Audiohed audiohed_data{};
 	audiohed_data.resize(audiohed_size);
-	audiohed_file.read_exactly(audiohed_data.data(), audiohed_size);
+	audiohed_file->read_exactly(audiohed_data.data(), audiohed_size);
 	AudioChunks audio_chunks{};
 	audio_chunks.resize(audio_chunk_count);
 	int chunk_offset = 0;

@@ -36,7 +36,9 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_version.h"
 #include "bstone_content_path.h"
 #include "bstone_fs_utils.h"
+#include "bstone_sha1.h"
 #include "bstone_sys_message_box.h"
+#include "bstone_vfs.h"
 
 
 extern SpanStart spanstart;
@@ -96,682 +98,466 @@ const std::string& get_message_box_title()
 }
 
 
-namespace
+namespace {
+
+struct AssetBundle
 {
+	const bstone::VfsSearchPath* vfs_search_path;
+	AssetsVersion assets_version;
 
-int get_vgahead_offset_count()
-{
-	const auto& assets_info = get_assets_info();
-	const auto& assets_resource = assets_info.find_resource(AssetsResourceType::vgahead);
-
-	auto file_stream = bstone::FileStream{};
-	const auto is_open = ca_open_resource_non_fatal(assets_resource.file_name, file_stream);
-
-	if (!is_open)
+	bool is_empty() const
 	{
-		return 0;
+		return vfs_search_path == nullptr || assets_version == AssetsVersion::none;
+	}
+};
+
+class AssetBundleMgr
+{
+public:
+	AssetBundleMgr(bstone::Logger& logger, bstone::Vfs& vfs)
+		:
+		logger_{logger},
+		vfs_{vfs}
+	{
+		logger_.log_information("Find the asset bundles.");
+		initialize_versions();
+		initialize_filenames();
+		initialize_versions_hashes();
+		probe();
 	}
 
-	auto file_size = file_stream.get_size();
+	AssetBundleMgr(const AssetBundleMgr& that) = delete;
 
-	if ((file_size % FILEPOSSIZE) != 0)
+	const AssetBundle& get_aog_sw_asset_bundle() const
 	{
-		return 0;
+		return aog_sw_asset_bundle_;
 	}
 
-	return static_cast<int>(file_size / FILEPOSSIZE);
-}
-
-bool check_vgahead_offset_count()
-{
-	const auto& assets_info = get_assets_info();
-	const auto offset_count = get_vgahead_offset_count();
-	return offset_count == assets_info.get_gfx_header_offset_count();
-}
-
-
-struct SearchPath
-{
-	std::string source_name;
-	std::string path;
-}; // SearchPath
-
-using SearchPaths = std::vector<SearchPath>;
-
-using Games = std::vector<Game>;
-
-struct FoundContent
-{
-	Game game;
-	AssetsVersion version;
-	const SearchPath* search_path;
-}; // FoundContent
-
-using FoundContents = std::vector<FoundContent>;
-
-
-void add_search_path(
-	const std::string& source_name,
-	const std::string& path,
-	SearchPaths& search_paths)
-try {
-	if (source_name.empty())
+	const AssetBundle& get_aog_asset_bundle() const
 	{
-		BSTONE_THROW_STATIC_SOURCE("Empty source name.");
+		return aog_asset_bundle_;
 	}
 
-	if (path.empty())
+	const AssetBundle& get_ps_asset_bundle() const
 	{
-		BSTONE_THROW_STATIC_SOURCE("Empty path.");
+		return ps_asset_bundle_;
 	}
 
-	search_paths.emplace_back();
-	auto& search_path = search_paths.back();
-	search_path.source_name = source_name;
-	search_path.path = path;
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-bool has_resources(
-	const SearchPath& search_path,
-	const AssetsResources& assets_resources)
-{
-	auto file_stream = bstone::FileStream{};
-
-	for (const auto& assets_resource : assets_resources)
+	static const char* get_bundle_version_string(AssetsVersion bundle_version)
 	{
-		const auto is_resource_open = ca_open_resource_non_fatal(
-			search_path.path,
-			assets_resource.file_name,
-			file_stream
-		);
-
-		if (!is_resource_open)
+		switch (bundle_version)
 		{
+			case AssetsVersion::aog_sw_v1_0: return "Blake Stone: Aliens of Gold v1.0 (shareware)";
+			case AssetsVersion::aog_sw_v2_0: return "Blake Stone: Aliens of Gold v2.0 (shareware)";
+			case AssetsVersion::aog_sw_v2_1: return "Blake Stone: Aliens of Gold v2.1 (shareware)";
+			case AssetsVersion::aog_sw_v3_0: return "Blake Stone: Aliens of Gold v3.0 (shareware)";
+			case AssetsVersion::aog_full_v1_0: return "Blake Stone: Aliens of Gold v1.0";
+			case AssetsVersion::aog_full_v2_0: return "Blake Stone: Aliens of Gold v2.0";
+			case AssetsVersion::aog_full_v2_1: return "Blake Stone: Aliens of Gold v2.1";
+			case AssetsVersion::aog_full_v3_0: return "Blake Stone: Aliens of Gold v3.0";
+			case AssetsVersion::ps: return "Blake Stone: Planet Strike";
+			default: return "Unknown Blake Stone";
+		}
+	}
+
+private:
+	using Versions = std::vector<AssetsVersion>;
+	using Filenames = std::vector<const char*>;
+	using Hashes = std::vector<bstone::Sha1Digest>;
+	using VersionsHashes = std::vector<Hashes>;
+	using AssetBundles = std::vector<AssetBundle>;
+	using Sha1DigestBuffer = std::vector<bstone::Sha1Digest>;
+
+	bstone::Logger& logger_;
+	bstone::Vfs& vfs_;
+	Versions aog_sw_versions_{};
+	Versions aog_versions_{};
+	Versions ps_versions_{};
+	Filenames aog_sw_filenames_{};
+	Filenames aog_filenames_{};
+	Filenames ps_filenames_{};
+	VersionsHashes aog_sw_versions_hashes_{};
+	VersionsHashes aog_versions_hashes_{};
+	VersionsHashes ps_versions_hashes_{};
+	AssetBundle aog_sw_asset_bundle_{};
+	AssetBundle aog_asset_bundle_{};
+	AssetBundle ps_asset_bundle_{};
+
+	void initialize_versions()
+	{
+		aog_sw_versions_ = {
+			AssetsVersion::aog_sw_v1_0,
+			AssetsVersion::aog_sw_v2_0,
+			AssetsVersion::aog_sw_v2_1,
+			AssetsVersion::aog_sw_v3_0};
+		aog_versions_ = {
+			AssetsVersion::aog_full_v1_0,
+			AssetsVersion::aog_full_v2_0,
+			AssetsVersion::aog_full_v2_1,
+			AssetsVersion::aog_full_v3_0};
+		ps_versions_ = {AssetsVersion::ps};
+	}
+
+	void initialize_filenames(const AssetsResources& assets_resources, Filenames& filenames)
+	{
+		filenames.clear();
+		filenames.reserve(assets_resources.size());
+		for (const AssetsResource& assets_resource : assets_resources)
+			filenames.emplace_back(assets_resource.file_name);
+	}
+
+	void initialize_filenames()
+	{
+		initialize_filenames(Assets::get_aog_sw_v1_0_resources(), aog_sw_filenames_);
+		initialize_filenames(Assets::get_aog_full_v1_0_resources(), aog_filenames_);
+		initialize_filenames(Assets::get_ps_resources(), ps_filenames_);
+	}
+
+	void initialize_versions_hashes(std::span<const AssetsResources*> versions_assets_resources, VersionsHashes& versions_hashes)
+	{
+		versions_hashes.clear();
+		versions_hashes.reserve(versions_assets_resources.size());
+		for (const AssetsResources* assets_resources : versions_assets_resources)
+		{
+			Hashes& hashes = versions_hashes.emplace_back();
+			hashes.reserve(assets_resources->size());
+			for (const AssetsResource& assets_resource : *assets_resources)
+				hashes.emplace_back(bstone::make_sha1_digest(assets_resource.hash_string));
+		}
+	}
+
+	void initialize_aog_sw_version_hashes()
+	{
+		const AssetsResources* versions_assets_resources[] = {
+			&Assets::get_aog_sw_v1_0_resources(),
+			&Assets::get_aog_sw_v2_0_resources(),
+			&Assets::get_aog_sw_v2_1_resources(),
+			&Assets::get_aog_sw_v3_0_resources()};
+		std::span<const AssetsResources*> versions_assets_resources_span{versions_assets_resources};
+		initialize_versions_hashes(versions_assets_resources_span, aog_sw_versions_hashes_);
+	}
+
+	void initialize_aog_version_hashes()
+	{
+		const AssetsResources* versions_assets_resources[] = {
+			&Assets::get_aog_full_v1_0_resources(),
+			&Assets::get_aog_full_v2_0_resources(),
+			&Assets::get_aog_full_v2_1_resources(),
+			&Assets::get_aog_full_v3_0_resources()};
+		std::span<const AssetsResources*> versions_assets_resources_span{versions_assets_resources};
+		initialize_versions_hashes(versions_assets_resources_span, aog_versions_hashes_);
+	}
+
+	void initialize_ps_version_hashes()
+	{
+		const AssetsResources* versions_assets_resources[] = {&Assets::get_ps_resources()};
+		std::span<const AssetsResources*> versions_assets_resources_span{versions_assets_resources};
+		initialize_versions_hashes(versions_assets_resources_span, ps_versions_hashes_);
+	}
+
+	void initialize_versions_hashes()
+	{
+		initialize_aog_sw_version_hashes();
+		initialize_aog_version_hashes();
+		initialize_ps_version_hashes();
+	}
+
+	bool calculate_sha1_digest(bstone::VfsInputStream* vfs_stream, bstone::Sha1Digest& sha1_digest)
+	{
+		if (!vfs_stream->rewind())
 			return false;
-		}
-	}
-
-	return true;
-}
-
-bool has_content(
-	const SearchPath& search_path,
-	const AssetsResources& assets_resources)
-{
-	if (!has_resources(search_path, assets_resources))
-	{
-		return false;
-	}
-
-	for (const auto& assets_resource : assets_resources)
-	{
-		const auto& hash = ca_calculate_hash(
-			search_path.path,
-			assets_resource.file_name
-		);
-
-		if (hash != assets_resource.hash_string)
-		{
+		const int file_size = vfs_stream->get_size();
+		if (file_size < 0)
 			return false;
-		}
-	}
-
-	return true;
-}
-
-FoundContent find_aog_content(
-	const SearchPath& search_path)
-{
-	const auto& assets = Assets{};
-
-	auto result = FoundContent{};
-	result.game = Game::aog;
-	result.search_path = &search_path;
-
-	// v2.1
-	{
-		const auto is_match = has_content(
-			search_path,
-			assets.get_aog_full_v2_1_resources()
-		);
-
-		if (is_match)
+		constexpr int buffer_size = 1024;
+		unsigned char buffer[buffer_size];
+		bstone::Sha1 sha1{};
+		int file_offset = 0;
+		for (;;)
 		{
-			result.version = AssetsVersion::aog_full_v2_1;
-			return result;
+			const int read_size = vfs_stream->read(buffer, buffer_size);
+			if (read_size < 0)
+				return false;
+			if (read_size == 0)
+				break;
+			sha1.process(buffer, read_size);
+			file_offset += read_size;
 		}
+		if (file_offset != file_size)
+			return false;
+		sha1.finish();
+		sha1_digest = sha1.get_digest();
+		return true;
 	}
 
-	// v3.0
+	void probe(
+		const bstone::VfsSearchPath& vfs_search_path,
+		const Filenames& file_names,
+		const Versions& bundle_versions,
+		const VersionsHashes& bundle_sha1_digests,
+		Sha1DigestBuffer& sha1_digest_buffer,
+		AssetBundle& found_asset_bundle)
 	{
-		const auto is_match = has_content(
-			search_path,
-			assets.get_aog_full_v3_0_resources()
-		);
-
-		if (is_match)
+		found_asset_bundle = AssetBundle{
+			.vfs_search_path = nullptr,
+			.assets_version = AssetsVersion::none};
+		const int asset_count = static_cast<int>(file_names.size());
+		for (int i_asset = 0; i_asset < asset_count; ++i_asset)
 		{
-			result.version = AssetsVersion::aog_full_v3_0;
-			return result;
-		}
-	}
-
-	// v2.0
-	{
-		const auto is_match = has_content(
-			search_path,
-			assets.get_aog_full_v2_0_resources()
-		);
-
-		if (is_match)
-		{
-			result.version = AssetsVersion::aog_full_v2_0;
-			return result;
-		}
-	}
-
-	// v1.0
-	{
-		const auto is_match = has_content(
-			search_path,
-			assets.get_aog_full_v1_0_resources()
-		);
-
-		if (is_match)
-		{
-			result.version = AssetsVersion::aog_full_v1_0;
-			return result;
-		}
-	}
-
-	return FoundContent{};
-}
-
-FoundContent find_aog_sw_content(
-	const SearchPath& search_path)
-{
-	const auto& assets = Assets{};
-
-	auto result = FoundContent{};
-	result.game = Game::aog_sw;
-	result.search_path = &search_path;
-
-	// v2.1
-	{
-		const auto is_match = has_content(
-			search_path,
-			assets.get_aog_sw_v2_1_resources()
-		);
-
-		if (is_match)
-		{
-			result.version = AssetsVersion::aog_sw_v2_1;
-			return result;
-		}
-	}
-
-	// v3.0
-	{
-		const auto is_match = has_content(
-			search_path,
-			assets.get_aog_sw_v3_0_resources()
-		);
-
-		if (is_match)
-		{
-			result.version = AssetsVersion::aog_sw_v3_0;
-			return result;
-		}
-	}
-
-	// v2.0
-	{
-		const auto is_match = has_content(
-			search_path,
-			assets.get_aog_sw_v2_0_resources()
-		);
-
-		if (is_match)
-		{
-			result.version = AssetsVersion::aog_sw_v2_0;
-			return result;
-		}
-	}
-
-	// v1.0
-	{
-		const auto is_match = has_content(
-			search_path,
-			assets.get_aog_sw_v1_0_resources()
-		);
-
-		if (is_match)
-		{
-			result.version = AssetsVersion::aog_sw_v1_0;
-			return result;
-		}
-	}
-
-	return FoundContent{};
-}
-
-FoundContent find_ps_content(
-	const SearchPath& search_path)
-{
-	const auto& assets = Assets{};
-
-	auto result = FoundContent{};
-	result.game = Game::ps;
-	result.search_path = &search_path;
-
-	{
-		const auto is_match = has_content(
-			search_path,
-			assets.get_ps_resources()
-		);
-
-		if (is_match)
-		{
-			result.version = AssetsVersion::ps;
-			return result;
-		}
-	}
-
-
-	return FoundContent{};
-}
-
-FoundContent find_assets(
-	Game game,
-	const SearchPath& search_path)
-{
-	switch (game)
-	{
-		case Game::aog:
-			return find_aog_content(search_path);
-
-		case Game::aog_sw:
-			return find_aog_sw_content(search_path);
-
-		case Game::ps:
-			return find_ps_content(search_path);
-
-		default:
-			BSTONE_THROW_STATIC_SOURCE("Unsupported game.");
-	}
-}
-
-const char* get_content_acronym(
-	Game game)
-{
-	switch (game)
-	{
-		case Game::aog:
-			return "AOG";
-
-		case Game::aog_sw:
-			return "AOG (SW)";
-
-		case Game::ps:
-			return "PS";
-
-		default:
-			BSTONE_THROW_STATIC_SOURCE("Unsupported game.");
-	}
-}
-
-const FoundContent* choose_content(
-	const FoundContents& found_contents)
-{
-	if (found_contents.empty())
-	{
-		BSTONE_THROW_STATIC_SOURCE("No content.");
-	}
-
-	if (found_contents.size() == 1)
-	{
-		return found_contents.data();
-	}
-
-	bstone::globals::logger->log_information("Found multiple contents.");
-
-	using Button = bstone::sys::MessageBoxButton;
-	using LocalButtons = std::vector<Button>;
-
-	auto buttons = LocalButtons{};
-	buttons.reserve(found_contents.size() + 1);
-
-	auto button_id = 0;
-
-	for (const auto& found_content : found_contents)
-	{
-		buttons.emplace_back();
-		auto& button = buttons.back();
-		button.id = button_id++;
-		button.text = get_content_acronym(found_content.game);
-	}
-
-	{
-		buttons.emplace_back();
-		auto& button = buttons.back();
-		button.id = -1;
-		button.flags = bstone::sys::MessageBoxButtonFlags::default_for_escape_key;
-		button.text = "Cancel";
-	}
-
-	auto descriptor = bstone::sys::MessageBoxInitParam{};
-	descriptor.title = get_message_box_title().c_str();
-	descriptor.message = "Select content to play.";
-	descriptor.type = bstone::sys::MessageBoxType::information;
-	descriptor.buttons = std::span{buttons.data(), buttons.size()};
-
-	bstone::globals::logger->log_information("Waiting for user response.");
-	const auto selected_button_id = bstone::sys::MessageBox::show(descriptor);
-
-	if (selected_button_id < 0)
-	{
-		return nullptr;
-	}
-
-	return &found_contents[selected_button_id];
-}
-
-void set_assets_info(
-	const FoundContent& found_content)
-{
-	const auto& assets = Assets{};
-	auto& assets_info = get_assets_info();
-
-	switch (found_content.game)
-	{
-		case Game::aog:
-			switch (found_content.version)
+			const char* file_name = file_names[i_asset];
+			auto vfs_stream = vfs_.open_file(vfs_search_path, file_name);
+			if (vfs_stream == nullptr)
 			{
-				case AssetsVersion::aog_full_v1_0:
-					assets_info.set_resources(assets.get_aog_full_v1_0_resources());
-					break;
-
-				case AssetsVersion::aog_full_v2_0:
-					assets_info.set_resources(assets.get_aog_full_v2_0_resources());
-					break;
-
-				case AssetsVersion::aog_full_v2_1:
-					assets_info.set_resources(assets.get_aog_full_v2_1_resources());
-					break;
-
-				case AssetsVersion::aog_full_v3_0:
-					assets_info.set_resources(assets.get_aog_full_v3_0_resources());
-					break;
-
-				default:
-					BSTONE_THROW_STATIC_SOURCE("Unsupported game version.");
+				if (i_asset > 0)
+					logger_.log_error("Missing file. (filename={})", file_name);
+				return;
 			}
-
-			break;
-
-		case Game::aog_sw:
-			switch (found_content.version)
+			bstone::Sha1Digest& sha1_digest = sha1_digest_buffer[i_asset];
+			if (!calculate_sha1_digest(vfs_stream.get(), sha1_digest))
 			{
-				case AssetsVersion::aog_sw_v1_0:
-					assets_info.set_resources(assets.get_aog_sw_v1_0_resources());
-					break;
-
-				case AssetsVersion::aog_sw_v2_0:
-					assets_info.set_resources(assets.get_aog_sw_v2_0_resources());
-					break;
-
-				case AssetsVersion::aog_sw_v2_1:
-					assets_info.set_resources(assets.get_aog_sw_v2_1_resources());
-					break;
-
-				case AssetsVersion::aog_sw_v3_0:
-					assets_info.set_resources(assets.get_aog_sw_v3_0_resources());
-					break;
-
-				default:
-					BSTONE_THROW_STATIC_SOURCE("Unsupported game version.");
+				logger_.log_error("Failed to hash. (filename={})", file_name);
+				return;
 			}
-			break;
-
-		case Game::ps:
-			assets_info.set_resources(assets.get_ps_resources());
-			break;
-
-		default:
-			BSTONE_THROW_STATIC_SOURCE("Unsupported game.");
+		}
+		const int version_count = static_cast<int>(bundle_versions.size());
+		for (int i_version = 0; i_version < version_count; ++i_version)
+		{
+			bool is_found = true;
+			for (int i_asset = 0; i_asset < asset_count; ++i_asset)
+			{
+				if (bundle_sha1_digests[i_version][i_asset] != sha1_digest_buffer[i_asset])
+				{
+					is_found = false;
+					break;
+				}
+			}
+			if (is_found)
+			{
+				found_asset_bundle = AssetBundle{
+					.vfs_search_path = &vfs_search_path,
+					.assets_version = bundle_versions[i_version]};
+				return;
+			}
+		}
+		logger_.log_error("Unknown asset bundle version.");
 	}
 
-	assets_info.set_version(found_content.version);
-}
-
-void log_found_content(
-	const FoundContent& found_content)
-{
-	static const auto aog_title = std::string{"Aliens Of Gold"};
-	static const auto aog_sw_title = std::string{"Aliens Of Gold (shareware)"};
-	static const auto ps_title = std::string{"Planet Strike"};
-
-	static const auto v1_0 = std::string{"v1.0"};
-	static const auto v2_0 = std::string{"v2.0"};
-	static const auto v2_1 = std::string{"v2.1"};
-	static const auto v3_0 = std::string{"v3.0"};
-
-	auto title = std::string{};
-	auto version = std::string{};
-
-	switch (found_content.version)
+	void probe_aog_sw(const bstone::VfsSearchPath& vfs_search_path, Sha1DigestBuffer& sha1_digest_buffer)
 	{
-		case AssetsVersion::aog_sw_v1_0:
-			title = aog_sw_title;
-			version = v1_0;
-			break;
-
-		case AssetsVersion::aog_sw_v2_0:
-			title = aog_sw_title;
-			version = v2_0;
-			break;
-
-		case AssetsVersion::aog_sw_v2_1:
-			title = aog_sw_title;
-			version = v2_1;
-			break;
-
-		case AssetsVersion::aog_sw_v3_0:
-			title = aog_sw_title;
-			version = v3_0;
-			break;
-
-		case AssetsVersion::aog_full_v1_0:
-			title = aog_title;
-			version = v1_0;
-			break;
-
-		case AssetsVersion::aog_full_v2_0:
-			title = aog_title;
-			version = v2_0;
-			break;
-
-		case AssetsVersion::aog_full_v2_1:
-			title = aog_title;
-			version = v2_1;
-			break;
-
-		case AssetsVersion::aog_full_v3_0:
-			title = aog_title;
-			version = v3_0;
-			break;
-
-		case AssetsVersion::ps:
-			title = ps_title;
-			break;
-
-		default:
-			BSTONE_THROW_STATIC_SOURCE("Unsupported version.");
+		AssetBundle aog_sw_found_bundle;
+		probe(
+			vfs_search_path,
+			aog_sw_filenames_,
+			aog_sw_versions_,
+			aog_sw_versions_hashes_,
+			sha1_digest_buffer,
+			aog_sw_found_bundle);
+		if (aog_sw_found_bundle.vfs_search_path != nullptr && aog_sw_found_bundle.assets_version != AssetsVersion::none)
+		{
+			logger_.log_information("Found {}.", get_bundle_version_string(aog_sw_found_bundle.assets_version));
+			if (aog_sw_found_bundle.assets_version > aog_sw_asset_bundle_.assets_version)
+				aog_sw_asset_bundle_ = aog_sw_found_bundle;
+			if (aog_sw_found_bundle.assets_version == AssetsVersion::aog_sw_v2_1)
+				aog_sw_asset_bundle_ = aog_sw_found_bundle; // Always prefer v2.1.
+		}
 	}
 
-	auto name_and_version = std::string{"\"Blake Stone: "};
-	name_and_version += (title.empty() ? "???" : title);
-	name_and_version += '\"';
-
-	if (!version.empty())
+	void probe_aog(const bstone::VfsSearchPath& vfs_search_path, Sha1DigestBuffer& sha1_digest_buffer)
 	{
-		name_and_version += ' ';
-		name_and_version += version;
+		AssetBundle aog_found_bundle;
+		probe(
+			vfs_search_path,
+			aog_filenames_,
+			aog_versions_,
+			aog_versions_hashes_,
+			sha1_digest_buffer,
+			aog_found_bundle);
+		if (aog_found_bundle.vfs_search_path != nullptr && aog_found_bundle.assets_version != AssetsVersion::none)
+		{
+			logger_.log_information("Found {}.", get_bundle_version_string(aog_found_bundle.assets_version));
+			if (aog_found_bundle.assets_version > aog_asset_bundle_.assets_version)
+				aog_asset_bundle_ = aog_found_bundle;
+			if (aog_found_bundle.assets_version == AssetsVersion::aog_full_v2_1)
+				aog_asset_bundle_ = aog_found_bundle; // Always prefer v2.1.
+		}
 	}
 
-	bstone::globals::logger->log_information("Found {}.", name_and_version);
-	bstone::globals::logger->log_information("Content source: {}", found_content.search_path->source_name);
-}
+	void probe_ps(const bstone::VfsSearchPath& vfs_search_path, Sha1DigestBuffer& sha1_digest_buffer)
+	{
+		AssetBundle ps_found_bundle;
+		probe(
+			vfs_search_path,
+			ps_filenames_,
+			ps_versions_,
+			ps_versions_hashes_,
+			sha1_digest_buffer,
+			ps_found_bundle);
+		if (ps_found_bundle.vfs_search_path != nullptr && ps_found_bundle.assets_version != AssetsVersion::none)
+		{
+			logger_.log_information("Found {}.", get_bundle_version_string(ps_found_bundle.assets_version));
+			if (ps_found_bundle.assets_version > ps_asset_bundle_.assets_version)
+				ps_asset_bundle_ = ps_found_bundle;
+		}
+	}
+
+	void probe(const bstone::VfsSearchPath& vfs_search_path, Sha1DigestBuffer& sha1_digest_buffer)
+	{
+		probe_aog_sw(vfs_search_path, sha1_digest_buffer);
+		probe_aog(vfs_search_path, sha1_digest_buffer);
+		probe_ps(vfs_search_path, sha1_digest_buffer);
+	}
+
+	void probe()
+	{
+		Sha1DigestBuffer sha1_digest_buffer{};
+		sha1_digest_buffer.resize(std::max({aog_sw_filenames_.size(), aog_filenames_.size(), ps_filenames_.size()}));
+		int vfs_search_path_count = vfs_.get_search_path_count();
+		for (int i = 0; i < vfs_search_path_count; ++i)
+		{
+			const bstone::VfsSearchPath& vfs_search_path = vfs_.get_search_path(i);
+			logger_.log_information("Search path \"{}\".", vfs_search_path.path);
+			probe(vfs_search_path, sha1_digest_buffer);
+		}
+	}
+};
 
 void find_contents()
 {
-	bstone::globals::logger->log_information("Looking for game content.");
-
-	// Games to find.
-	//
-	const auto force_aog = g_args.has_option("aog");
-	const auto force_aog_sw = g_args.has_option("aog_sw");
-	const auto force_ps = g_args.has_option("ps");
-
-	const auto forced_game_count = force_aog + force_aog_sw + force_ps;
-
-	if (forced_game_count > 1)
+	bstone::Logger& logger = *bstone::globals::logger;
+	bstone::Vfs& vfs = *bstone::globals::vfs;
+	AssetBundleMgr asset_bundle_mgr{logger, vfs};
+	const bool force_aog_sw = g_args.has_option("aog_sw");
+	const bool force_aog = g_args.has_option("aog");
+	const bool force_ps = g_args.has_option("ps");
+	if (force_aog_sw + force_aog + force_ps > 1)
+		BSTONE_THROW_STATIC_SOURCE("Forced multiple products.");
+	std::vector<const AssetBundle*> products_to_choose{};
+	products_to_choose.reserve(3);
+	const AssetBundle& aog_sw_asset_bundle = asset_bundle_mgr.get_aog_sw_asset_bundle();
+	const AssetBundle& aog_asset_bundle = asset_bundle_mgr.get_aog_asset_bundle();
+	const AssetBundle& ps_asset_bundle = asset_bundle_mgr.get_ps_asset_bundle();
+	if (force_aog_sw || force_aog || force_ps)
 	{
-		BSTONE_THROW_STATIC_SOURCE("Multiple game modes defined.");
-	}
-
-	auto games_to_find = Games{};
-
-	if (forced_game_count == 0)
-	{
-		games_to_find = {Game::aog, Game::aog_sw, Game::ps};
+		if (force_aog_sw && !aog_sw_asset_bundle.is_empty())
+			products_to_choose.emplace_back(&aog_sw_asset_bundle);
+		if (force_aog && !aog_asset_bundle.is_empty())
+			products_to_choose.emplace_back(&aog_asset_bundle);
+		if (force_ps && !ps_asset_bundle.is_empty())
+			products_to_choose.emplace_back(&ps_asset_bundle);
 	}
 	else
 	{
-		if (force_aog)
-		{
-			games_to_find = {Game::aog};
-		}
-		else if (force_aog_sw)
-		{
-			games_to_find = {Game::aog_sw};
-		}
-		else
-		{
-			games_to_find = {Game::ps};
-		}
+		if (!aog_asset_bundle.is_empty())
+			products_to_choose.emplace_back(&aog_asset_bundle);
+		if (!ps_asset_bundle.is_empty())
+			products_to_choose.emplace_back(&ps_asset_bundle);
+		if (!aog_sw_asset_bundle.is_empty())
+			products_to_choose.emplace_back(&aog_sw_asset_bundle);
 	}
-
-
-	// Paths to search.
-	//
-	auto search_paths = SearchPaths{};
-
-	if (is_data_dir_custom_)
+	if (products_to_choose.empty())
+		BSTONE_THROW_STATIC_SOURCE("Compatible product not found.");
+	const AssetBundle* choosen_bundle = nullptr;
+	if (products_to_choose.size() > 1)
 	{
-		add_search_path("custom dir", data_dir_, search_paths);
-	}
-
-	{
-		const auto working_full_dir = bstone::fs_utils::append_path_separator(
-			bstone::fs_utils::get_working_dir());
-
-		add_search_path("working dir", working_full_dir, search_paths);
-	}
-
-	{
-		const auto profile_full_dir = get_profile_dir();
-
-		add_search_path("profile dir", profile_full_dir, search_paths);
-	}
-		
-	{
-		const auto source_name = std::string{"GOG"};
-		const auto content_path = bstone::make_content_path(bstone::ContentPathProvider::gog);
-
-		if (!content_path.aog.empty())
+		logger.log_information("Bundles to choose:");
+		std::vector<bstone::sys::MessageBoxButton> message_box_buttons{};
+		message_box_buttons.reserve(products_to_choose.size() + 1);
+		int button_id = 0;
+		for (const AssetBundle* const product_to_choose : products_to_choose)
 		{
-			add_search_path(source_name, content_path.aog, search_paths);
-		}
-
-		if (!content_path.ps.empty())
-		{
-			add_search_path(source_name, content_path.ps, search_paths);
-		}
-	}
-
-	{
-		const auto source_name = std::string{"Steam"};
-		const auto content_path = bstone::make_content_path(bstone::ContentPathProvider::steam);
-
-		if (!content_path.aog.empty())
-		{
-			add_search_path(source_name, content_path.aog, search_paths);
-		}
-
-		if (!content_path.ps.empty())
-		{
-			add_search_path(source_name, content_path.ps, search_paths);
-		}
-	}
-
-
-	// Find contents.
-	//
-	auto found_contents = FoundContents{};
-
-	for (const auto& search_path : search_paths)
-	{
-		for (const auto game : games_to_find)
-		{
-			const auto already_found = std::any_of(
-				found_contents.cbegin(),
-				found_contents.cend(),
-				[game](const auto& item)
-				{
-					return item.game == game;
-				}
-			);
-
-			if (already_found)
+			const char* button_title;
+			switch (product_to_choose->assets_version)
 			{
-				continue;
+				case AssetsVersion::aog_sw_v1_0:
+				case AssetsVersion::aog_sw_v2_0:
+				case AssetsVersion::aog_sw_v2_1:
+				case AssetsVersion::aog_sw_v3_0:
+					button_title = "AoG (shareware)";
+					break;
+				case AssetsVersion::aog_full_v1_0:
+				case AssetsVersion::aog_full_v2_0:
+				case AssetsVersion::aog_full_v2_1:
+				case AssetsVersion::aog_full_v3_0:
+					button_title = "AoG";
+					break;
+				case AssetsVersion::ps:
+					button_title = "PS";
+					break;
+				default:
+					button_title = "???";
+					break;
 			}
-
-			const auto& found_content = find_assets(game, search_path);
-
-			if (found_content.game != Game::none &&
-				found_content.search_path != nullptr &&
-				found_content.version != AssetsVersion::none)
-			{
-				found_contents.push_back(found_content);
-			}
+			bstone::sys::MessageBoxButtonFlags flags = bstone::sys::MessageBoxButtonFlags::none;
+			if (button_id == 0)
+				flags = bstone::sys::MessageBoxButtonFlags::default_for_return_key;
+			message_box_buttons.emplace_back(bstone::sys::MessageBoxButton{
+				.id = button_id,
+				.flags = flags,
+				.text = button_title});
+			++button_id;
+			const char* const version_string = AssetBundleMgr::get_bundle_version_string(product_to_choose->assets_version);
+			logger.log_information("{}) {} at {}", button_id, version_string, product_to_choose->vfs_search_path->path);
 		}
+		message_box_buttons.emplace_back(bstone::sys::MessageBoxButton{
+			.id = button_id,
+			.flags = bstone::sys::MessageBoxButtonFlags::default_for_escape_key,
+			.text = "Cancel"});
+		const bstone::sys::MessageBoxInitParam message_box_init_param{
+			.title = get_message_box_title().c_str(),
+			.message = "Choose a product.",
+			.type = bstone::sys::MessageBoxType::information,
+			.buttons = std::span{message_box_buttons.data(), message_box_buttons.size()}};
+		const int clicked_button_id = bstone::sys::MessageBox::show(message_box_init_param);
+		if (clicked_button_id == products_to_choose.size())
+		{
+			bstone::globals::logger->log_information("Cancelled by user.");
+			Quit();
+		}
+		choosen_bundle = products_to_choose[clicked_button_id];
+		const char* const version_string = AssetBundleMgr::get_bundle_version_string(choosen_bundle->assets_version);
+		logger.log_information("User chose {}.", version_string);
 	}
-
-	if (found_contents.empty())
+	else
 	{
-		BSTONE_THROW_STATIC_SOURCE("Content not found.");
+		choosen_bundle = products_to_choose.front();
+		const char* const version_string = AssetBundleMgr::get_bundle_version_string(choosen_bundle->assets_version);
+		logger.log_information("Chose {} at {}.", version_string, choosen_bundle->vfs_search_path->path);
 	}
-
-	const auto content = choose_content(found_contents);
-
-	if (content == nullptr)
+	AssetsInfo& assets_info = get_assets_info();
+	switch (choosen_bundle->assets_version)
 	{
-		bstone::globals::logger->log_information("Cancelled by user.");
-
-		Quit();
+		case AssetsVersion::aog_sw_v1_0:
+			assets_info.set_resources(Assets::get_aog_sw_v1_0_resources());
+			break;
+		case AssetsVersion::aog_sw_v2_0:
+			assets_info.set_resources(Assets::get_aog_sw_v2_0_resources());
+			break;
+		case AssetsVersion::aog_sw_v2_1:
+			assets_info.set_resources(Assets::get_aog_sw_v2_1_resources());
+			break;
+		case AssetsVersion::aog_sw_v3_0:
+			assets_info.set_resources(Assets::get_aog_sw_v3_0_resources());
+			break;
+		case AssetsVersion::aog_full_v1_0:
+			assets_info.set_resources(Assets::get_aog_full_v1_0_resources());
+			break;
+		case AssetsVersion::aog_full_v2_0:
+			assets_info.set_resources(Assets::get_aog_full_v2_0_resources());
+			break;
+		case AssetsVersion::aog_full_v2_1:
+			assets_info.set_resources(Assets::get_aog_full_v2_1_resources());
+			break;
+		case AssetsVersion::aog_full_v3_0:
+			assets_info.set_resources(Assets::get_aog_full_v3_0_resources());
+			break;
+		case AssetsVersion::ps:
+			assets_info.set_resources(Assets::get_ps_resources());
+			break;
+		default:
+			BSTONE_THROW_STATIC_SOURCE("Unknown version of the asset bundle.");
 	}
-
-	set_assets_info(*content);
-
-	data_dir_ = bstone::fs_utils::normalize_path(
-		bstone::fs_utils::append_path_separator(
-			content->search_path->path));
-
-	log_found_content(*content);
+	assets_info.set_version(choosen_bundle->assets_version);
 }
-
 
 } // namespace
 
@@ -865,161 +651,6 @@ void SetupWalls()
 	MirrorOfs().swap(mirrorofs);
 	mirrorofs.resize(k_half_height);
 }
-
-void CAL_SetupGrFile()
-{
-	if (!check_vgahead_offset_count())
-	{
-		BSTONE_THROW_STATIC_SOURCE("Mismatch GFX header offset count.");
-	}
-
-	bstone::FileStream handle;
-
-	//
-	// load ???dict.ext (huffman dictionary for graphics files)
-	//
-
-	ca_open_resource(AssetsResourceType::vgadict, handle);
-	handle.read(&grhuffman, sizeof(grhuffman));
-
-	//
-	// load the data offsets from ???head.ext
-	//
-	int grstarts_size = (NUMCHUNKS + 1) * FILEPOSSIZE;
-
-	grstarts.resize((grstarts_size + 3) / 4);
-
-	ca_open_resource(AssetsResourceType::vgahead, handle);
-	handle.read(grstarts.data(), grstarts_size);
-
-	//
-	// Open the graphics file, leaving it open until the game is finished
-	//
-	ca_open_resource(AssetsResourceType::vgagraph, grhandle);
-
-	//
-	// load the pic and sprite headers into the arrays in the data segment
-	//
-	pictable.resize(NUMPICS);
-	CAL_GetGrChunkLength(STRUCTPIC); // position file pointer
-
-	auto compseg = Buffer{};
-	compseg.resize(chunkcomplen);
-
-	grhandle.read(compseg.data(), chunkcomplen);
-
-	CAL_HuffExpand(
-		compseg.data(),
-		reinterpret_cast<std::uint8_t*>(pictable.data()),
-		NUMPICS * sizeof(pictabletype),
-		grhuffman);
-}
-
-static void cal_setup_map_data_file()
-{
-	auto& assets_info = get_assets_info();
-
-	auto has_mod = false;
-
-	if (!mod_dir_.empty())
-	{
-		const auto& modded_hash = ca_calculate_hash(mod_dir_, AssetsResourceType::maptemp);
-
-		if (!modded_hash.empty())
-		{
-			has_mod = true;
-
-			const auto are_official_levels = Assets::are_official_levels(modded_hash);
-
-			if (are_official_levels && modded_hash != assets_info.get_levels_hash_string())
-			{
-				BSTONE_THROW_STATIC_SOURCE("Mismatch official levels are not allowed in the mod directory.");
-			}
-
-			assets_info.set_levels_hash(modded_hash);
-		}
-	}
-
-	if (!has_mod)
-	{
-		const auto& assets_resource = assets_info.find_resource(AssetsResourceType::maptemp);
-		assets_info.set_levels_hash(assets_resource.hash_string);
-	}
-
-	OpenMapFile();
-}
-
-void CAL_SetupMapFile()
-{
-	std::int16_t i;
-	bstone::FileStream handle;
-	std::int32_t pos;
-	auto header = mapfiletype{};
-	maptype* map_header;
-
-	cal_setup_map_data_file();
-
-	//
-	// load maphead.ext (offsets and tileinfo for map file)
-	//
-
-	ca_open_resource(AssetsResourceType::maphead, handle);
-	handle.read(&header.RLEWtag, sizeof(header.RLEWtag));
-	handle.read(&header.headeroffsets, sizeof(header.headeroffsets));
-
-	rlew_tag = header.RLEWtag;
-
-	//
-	// load all map header
-	//
-	const auto& assets_info = get_assets_info();
-
-	const auto total_levels = assets_info.get_total_levels();
-
-	for (i = 0; i < total_levels; ++i)
-	{
-		pos = header.headeroffsets[i];
-
-		if (pos < 0)
-		{
-			continue;
-		}
-
-		mapheaderseg[i] = maptype{};
-		map_header = &mapheaderseg[i];
-
-		maphandle.set_position(pos);
-
-		maphandle.read(
-			&map_header->planestart,
-			sizeof(map_header->planestart));
-
-		maphandle.read(
-			&map_header->planelength,
-			sizeof(map_header->planelength));
-
-		maphandle.read(
-			&map_header->width,
-			sizeof(map_header->width));
-
-		maphandle.read(
-			&map_header->height,
-			sizeof(map_header->height));
-
-		maphandle.read(
-			&map_header->name,
-			sizeof(map_header->name));
-	}
-
-	//
-	// allocate space for 3 64*64 planes
-	//
-	for (i = 0; i < MAPPLANES; ++i)
-	{
-		mapsegs[i].resize(64 * 64);
-	}
-}
-
 
 // --------------------- Other general functions ------------------------
 
@@ -1447,8 +1078,6 @@ void freed_main()
 	find_contents();
 
 	bstone::globals::logger->log_information();
-	bstone::globals::logger->log_information("Data path: {}", data_dir_);
-	bstone::globals::logger->log_information("Mod path: {}", mod_dir_);
 	bstone::globals::logger->log_information("Profile path: {}", get_profile_dir());
 	bstone::globals::logger->log_information("Screenshot path: {}", get_screenshot_dir());
 

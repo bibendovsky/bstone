@@ -75,16 +75,12 @@ private:
 
 VswapImpl::VswapImpl()
 {
-	FileStream vswap_file{};
-	ca_open_resource(AssetsResourceType::vswap, vswap_file);
-	const std::int64_t file_size_s64 = vswap_file.get_size();
-	if (file_size_s64 < min_file_size || file_size_s64 > max_file_size)
-	{
+	const VfsInputStreamUPtr vswap_file = ca_open_resource(AssetsResourceType::vswap);
+	const int file_size = vswap_file->get_size();
+	if (file_size < min_file_size || file_size > max_file_size)
 		BSTONE_THROW_STATIC_SOURCE("Invalid file size.");
-	}
-	const int file_size = static_cast<int>(file_size_s64);
 	bytes_.reset(static_cast<unsigned char*>(::operator new(file_size)));
-	vswap_file.read_exactly(bytes_.get(), file_size);
+	vswap_file->read_exactly(bytes_.get(), file_size);
 	const int chunk_count = impl_get_chunk_count();
 	if (chunk_count < min_chunks || chunk_count > max_chunks)
 	{

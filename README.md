@@ -19,25 +19,26 @@ Contents
 6. Profile
 7. Audio  
    7.1 OpenAL driver
-8. External textures  
-   8.1 Aspect ratio  
-   8.2 Transparency  
-   8.3 Naming conventions  
-   8.4 Supported file formats  
-   8.5 File format search order
-9. Taking screenshots
-10. Compiling  
-   10.1. Generic instructions for Linux-based system or build environment (MinGW)
-11. Command-line options
-12. Cheat key
-13. Debug keys
-14. Third party use
-15. Credits
-16. Links  
-    16.1. Essentials  
-    16.2. General  
-    16.3. Add-ons for Aliens Of Gold (full)  
-    16.4. Add-ons for Planet Strike
+8. File archives
+9. External textures  
+   9.1 Aspect ratio  
+   9.2 Transparency  
+   9.3 Naming conventions  
+   9.4 Supported file formats  
+   9.5 File format search order
+10. Taking screenshots
+11. Compiling  
+   11.1. Generic instructions for Linux-based system or build environment (MinGW)
+12. Command-line options
+13. Cheat key
+14. Debug keys
+15. Third party use
+16. Credits
+17. Links  
+    17.1. Essentials  
+    17.2. General  
+    17.3. Add-ons for Aliens Of Gold (full)  
+    17.4. Add-ons for Planet Strike
 
 
 1 - Disclaimer
@@ -344,7 +345,49 @@ The port uses default device name.
 Set configuration string `snd_oal_device_name` to open specific device.
 
 
-8 - External textures
+8 - File archives
+=================
+
+The assets can be placed into ZIP file archive.
+
+Conventions:
+1) The following features of ZIP format are _not supported_:
+   - ZIP64 extension
+   - size of compressed or uncompressed data greater than 2147483647 bytes
+   - compression methods other than _store_ or _deflate_
+   - any encryption
+   - patched data
+   - language related extra records
+   - the archive splitted on multiple files
+2) Archive file extension is `.bstone_zip` (i.e. `my_data.bstone_zip`).
+3) File names starting with `bstone` are reserved (i.e. `bstone_aog.bstone_zip`).
+4) Supported character set (sorted by the code points for convinience):
+   - hyphen `-` (0x2D or 45)
+   - period `.` (0x2E or 46)
+   - numbers `0` to `9` (0x30-0x39 or 48-57)
+   - underscore `_` (0x5F or 95)
+   - lowercase `a` to `z` (0x61-0x7A or 97-122)
+5) The archive files in one directory adding to the search path in [lexicographical order](https://en.wikipedia.org/wiki/Lexicographic_order).  
+    Example
+      - Unordered file names:
+        - `map2.bstone_zip`
+        - `_sfx2.bstone_zip`
+        - `map10.bstone_zip`
+        - `-sfx2.bstone_zip`
+        - `7mus.bstone_zip`
+        - `.sfx2.bstone_zip`
+        - `3mus51.bstone_zip`
+      - Ordered file names:
+        - `-sfx2.bstone_zip`
+        - `.sfx2.bstone_zip`
+        - `3mus51.bstone_zip`
+        - `7mus.bstone_zip`
+        - `_sfx2.bstone_zip`
+        - `map10.bstone_zip`
+        - `map2.bstone_zip`
+
+
+9 - External textures
 =====================
 
 Allows to replace stocked textures with custom ones.
@@ -355,7 +398,7 @@ Option `GAME OPTIONS - VIDEO - TEXTURING - EXTERNAL TEXTURES` enables or disable
 WARNING Changing the option may take some time if the dimensions of loaded textures are high.
 
 
-8.1 - Aspect ratio
+9.1 - Aspect ratio
 ==================
 
 Both vanilla games ran only in a 320x200 video mode. On monitors, widely available at the time, this video mode took up the entire screen, which had a 4:3 physical aspect ratio. This meant that the 320x200 display, with a 16:10 logical ratio, was stretched vertically - each pixel was 20% taller than it was wide.
@@ -372,13 +415,13 @@ TLDR
 - Design flooring or ceiling image in 1:1 aspect ratio (i.e. 1280x1280), and export for the game in 1:1 aspect ratio (i.e. 1024x1024) too.
 
 
-8.2 - Transparency
+9.2 - Transparency
 ==================
 
 Images with alpha channel should be exported as [*premultiplied*](http://en.wikipedia.org/wiki/Alpha_compositing).
 
 
-8.3 - Naming conventions
+9.3 - Naming conventions
 ========================
 
 All letters *should be* lower case.
@@ -398,22 +441,22 @@ Examples:
 - `aog/wall_00000088.png` - "Aliens Of Gold" turned on south-north switch wall in PNG format.
 
 
-8.4 - Supported file formats
+9.4 - Supported file formats
 ============================
 
 - [Windows BMP](http://wikipedia.org/wiki/BMP_file_format)
 - [PNG](http://wikipedia.org/wiki/Portable_Network_Graphics)
 
 
-8.5 -  File format search order
+9.5 -  File format search order
 ===============================
 
 1. PNG
 2. BMP
 
 
-9 - Taking screenshots
-======================
+10 - Taking screenshots
+=======================
 
 Default key is <kbd>F5</kbd>.  
 Use menu to modify bindings.
@@ -423,8 +466,8 @@ Taken screenshots are placed in the profile directory.
 Supported format: [PNG](http://wikipedia.org/wiki/Portable_Network_Graphics)
 
 
-10 - Compiling
-=============
+11 - Compiling
+==============
 
 Minimum requirements:
 
@@ -480,8 +523,8 @@ Notes:
 * Use `ON` value to enable option and value `OFF` to disable option.
 
 
-10.1 - Generic instructions for Linux-based system or build environment (MinGW)
-=============================================================================
+11.1 - Generic instructions for Linux-based system or build environment (MinGW)
+===============================================================================
 
 1. Install minimum required software described above.
 
@@ -498,8 +541,8 @@ Notes:
 6. On success you will find executable and text files in the directory `~/bstone-x.y.z/build/install`.
 
 
-11 - Command-line options
-========================
+12 - Command-line options
+=========================
 
 * `--version`  
   Outputs the port's version to standard output and into message box.
@@ -769,14 +812,14 @@ Notes:
   Extracts all resources (walls, sprites, etc.) into directory `dir`.
 
 
-12 - Cheat key
+13 - Cheat key
 ==============
 
 <kbd>J</kbd> <kbd>A</kbd> <kbd>M</kbd> <kbd>Enter</kbd>  
 Press specified keys sequentially. Shows message "NOW you're jammin'!!", and gives to you all keys, all weapons and restores health to 100% but zeroes score points. Not available in shareware version.
 
 
-13 - Debug keys
+14 - Debug keys
 ===============
 
 Add option `--cheats` to enable these keys.
@@ -861,7 +904,7 @@ Add option `--cheats` to enable these keys.
   Dumps information into the log about remaining bonus items and enemies.
 
 
-14 - Third party use
+15 - Third party use
 ====================
 
 * [SDL (Simple DirectMedia Library)](http://libsdl.org/)  
@@ -882,7 +925,7 @@ Add option `--cheats` to enable these keys.
   See file `src/lib/nuked_opl3/LICENSE` for license information
 
 
-15 - Credits
+16 - Credits
 ============
 
 * [id Software](http://www.idsoftware.com/)  
@@ -903,18 +946,18 @@ Add option `--cheats` to enable these keys.
 * Various contributors for providing fixies, ideas, etc.
 
 
-16 - Links
+17 - Links
 ==========
 
 
-16.1 - Essentials
+17.1 - Essentials
 =================
 
 * [Home page](http://bibendovsky.github.io/bstone/)
 * [Precompiled binaries and their source code](http://github.com/bibendovsky/bstone/releases)
 
 
-16.1 - General
+17.2 - General
 ==============
 
 * [Blake Stone: Aliens Of Gold official site](http://legacy.3drealms.com/blake/index.html)
@@ -924,7 +967,7 @@ Add option `--cheats` to enable these keys.
 * [Repacked shareware Blake Stone: Aliens Of Gold (v3.0)](http://bibendovsky.github.io/bstone/files/official/repack/bs_aog_v3_0_sw.zip)
 
 
-16.2 - Add-ons for Aliens Of Gold (full)
+17.3 - Add-ons for Aliens Of Gold (full)
 ========================================
 
 * Add-on [BSE90](http://bibendovsky.github.io/bstone/files/community/aog/bse90.zip) by ack
@@ -932,7 +975,7 @@ Add option `--cheats` to enable these keys.
 * Ling's Blake Stone [Levels](http://bibendovsky.github.io/bstone/files/community/aog/lingstone.zip) by Ling Yan Li
 
 
-16.3 - Add-ons for Planet Strike
+17.4 - Add-ons for Planet Strike
 ================================
 
 * Add-on [BSE24](http://bibendovsky.github.io/bstone/files/community/ps/bse24.zip) by ack

@@ -313,20 +313,15 @@ bool Movie::play(MovieId movie_id, const std::uint8_t* palette)
 	IN_ClearKeysDown();
 	page_last_time_ns_ = sys_get_time_ns();
 	// Start the anim process
-	FileStream file_stream{};
 	const Descriptor& descriptor = get_descriptor(movie_id);
-	ca_open_resource(descriptor.assets_resource_type, file_stream);
-	const std::int64_t file_size = file_stream.get_size();
+	const VfsInputStreamUPtr vfs_stream = ca_open_resource(descriptor.assets_resource_type);
+	const int file_size = vfs_stream->get_size();
 	if (file_size < 0 || file_size > max_file_size)
-	{
 		return false;
-	}
-	const int data_size = static_cast<int>(file_size);
+	const int data_size = file_size;
 	data_.reset(static_cast<std::uint8_t*>(::operator new(data_size)));
-	if (file_stream.read(data_.get(), data_size) != data_size)
-	{
+	if (!vfs_stream->read_exactly(data_.get(), data_size))
 		return false;
-	}
 	binary_reader_ = MemoryBinaryReader{data_.get(), data_size};
 	while (!is_exit_)
 	{

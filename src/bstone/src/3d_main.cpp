@@ -13,7 +13,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <functional>
 #include <iterator>
 #include <stdexcept>
+#include <string>
+#include <string_view>
 #include <thread>
+#include <type_traits>
 #include "3d_def.h"
 #include "jm_lzh.h"
 #include "jm_tp.h"
@@ -26,6 +29,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_archiver.h"
 #include "bstone_ascii.h"
 #include "bstone_assert.h"
+#include "bstone_content_path.h"
 #include "bstone_endian.h"
 #include "bstone_entry_point.h"
 #include "bstone_exception.h"
@@ -50,6 +54,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_text_reader.h"
 #include "bstone_text_writer.h"
 #include "bstone_version.h"
+#include "bstone_vfs.h"
 
 
 namespace {
@@ -151,10 +156,6 @@ void ShowPromo();
 std::int16_t starting_episode;
 std::int16_t starting_level;
 std::int16_t starting_difficulty;
-
-bool is_data_dir_custom_ = false;
-std::string data_dir_;
-std::string mod_dir_;
 
 void InitPlaytemp();
 
@@ -9510,6 +9511,7 @@ void ShutdownId()
 	CA_Shutdown();
 
 	bstone::globals::vswap = nullptr;
+	bstone::globals::vfs = nullptr;
 }
 
 void CalcProjection(
@@ -10020,32 +10022,50 @@ int main(
 
 void InitDestPath()
 {
-	const auto requested_data_dir = g_args.get_option_value("data_dir");
-
-	if (requested_data_dir.empty())
-	{
-		data_dir_ = get_default_data_dir();
-	}
-	else
-	{
-		is_data_dir_custom_ = true;
-		data_dir_.assign(requested_data_dir.cbegin(), requested_data_dir.cend());
-	}
-
-	data_dir_ = bstone::fs_utils::normalize_path(
-		bstone::fs_utils::append_path_separator(data_dir_));
-
-	constexpr auto mod_dir_option_name = std::string_view{"mod_dir"};
-
+	// GOG
+	const bstone::AssetPath gog_asset_path = bstone::make_content_path(bstone::ContentPathProvider::gog);
+	// Steam
+	const bstone::AssetPath steam_asset_path = bstone::make_content_path(bstone::ContentPathProvider::steam);
+	// profile dir
+	const std::string& profile_pathname = get_profile_dir();
+	// data_dir
+	std::string data_dir{g_args.get_option_value("data_dir")};
+	if (data_dir.empty())
+		data_dir = get_default_data_dir();
+	data_dir = bstone::fs_utils::normalize_path(bstone::fs_utils::append_path_separator(data_dir));
+	// mod_dir
+	constexpr std::string_view mod_dir_option_name{"mod_dir"};
+	std::string mod_dir{};
 	if (g_args.has_option(mod_dir_option_name))
+		mod_dir = g_args.get_option_value(mod_dir_option_name);
+	mod_dir = bstone::fs_utils::normalize_path(bstone::fs_utils::append_path_separator(mod_dir));
+	// Virtual file system.
+	using SearchPaths = std::vector<const char*>;
+	SearchPaths search_paths{};
+	search_paths.reserve(16);
+	if (!gog_asset_path.aog.empty())
+		search_paths.emplace_back(gog_asset_path.aog.c_str());
+	if (!gog_asset_path.ps.empty())
+		search_paths.emplace_back(gog_asset_path.ps.c_str());
+	if (!steam_asset_path.aog.empty())
+		search_paths.emplace_back(steam_asset_path.aog.c_str());
+	if (!steam_asset_path.ps.empty())
+		search_paths.emplace_back(steam_asset_path.ps.c_str());
+	if (!profile_pathname.empty())
+		search_paths.emplace_back(profile_pathname.c_str());
+	if (!data_dir.empty())
+		search_paths.emplace_back(data_dir.c_str());
+	if (!mod_dir.empty())
+		search_paths.emplace_back(mod_dir.c_str());
+	const bstone::VfsInitParam vfs_open_param
 	{
-		const auto value = g_args.get_option_value(mod_dir_option_name);
-		mod_dir_.assign(value.cbegin(), value.cend());
-	}
-
-	mod_dir_ = bstone::fs_utils::normalize_path(
-		bstone::fs_utils::append_path_separator(
-			mod_dir_));
+		.logger = bstone::globals::logger.get(),
+		.search_paths = std::span{search_paths.data(), search_paths.size()},
+	};
+	bstone::globals::vfs = bstone::make_vfs();
+	bstone::Vfs& vfs = *bstone::globals::vfs;
+	if (!vfs.initialize(vfs_open_param))
+		BSTONE_THROW_STATIC_SOURCE("Failed to initialize a virtual file system.");
 }
 
 // BBi

@@ -21,6 +21,7 @@ sys::MouseMgr* sys_mouse_mgr{};
 sys::WindowMgr* sys_window_mgr{};
 
 LoggerUPtr logger{};
+bstone::VfsUPtr vfs{};
 
 } // globals
 } // bstone

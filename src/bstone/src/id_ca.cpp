@@ -26,6 +26,7 @@ loaded into the data segment
 #include <array>
 #include <algorithm>
 #include <format>
+#include <iterator>
 #include <memory>
 
 #include "id_heads.h"
@@ -47,6 +48,7 @@ loaded into the data segment
 #include "bstone_rlew_decoder.h"
 #include "bstone_sha1.h"
 #include "bstone_sprite_cache.h"
+#include "bstone_static_ro_memory_stream.h"
 #include "bstone_string_helper.h"
 #include "bstone_text_extractor.h"
 #include "bstone_sys_fs.h"
@@ -105,8 +107,10 @@ huffnode* grhuffman;
 huffnode grhuffman[255];
 #endif
 
-bstone::FileStream grhandle; // handle to EGAGRAPH
-bstone::FileStream maphandle; // handle to MAPTEMP / GAMEMAPS
+bstone::StaticRoMemoryStream grhandle; // handle to EGAGRAPH
+std::unique_ptr<unsigned char[]> grhandle_data{};
+bstone::StaticRoMemoryStream maphandle; // handle to MAPTEMP / GAMEMAPS
+std::unique_ptr<unsigned char[]> maphandle_data{};
 
 std::int32_t chunkcomplen;
 std::int32_t chunkexplen;
@@ -117,10 +121,17 @@ static const int BUFFERSIZE = 0x10000;
 
 
 // BBi
-std::string ca_make_padded_asset_number_string(
-	int number)
+std::string ca_make_padded_asset_number_string(int number)
 {
-	return std::format("{:08}", number);
+	std::string string{};
+	ca_append_padded_asset_number_string(number, string);
+	return string;
+}
+
+void ca_append_padded_asset_number_string(int number, std::string& dst_string)
+{
+	dst_string.reserve(dst_string.size() + 8);
+	std::format_to(std::back_inserter(dst_string), "{:08}", number);
 }
 
 void CAL_CarmackExpand(
@@ -160,7 +171,15 @@ void CloseGrFile()
 
 void OpenMapFile()
 {
-	ca_open_resource(AssetsResourceType::maptemp, maphandle);
+	constexpr int file_max_size = 1'000'000;
+	bstone::VfsInputStreamUPtr vfs_stream = ca_open_resource(AssetsResourceType::maptemp);
+	const int file_size = vfs_stream->get_size();
+	if (file_size < 0 || file_size > file_max_size)
+		BSTONE_THROW_STATIC_SOURCE("Invalid MAPTEMP size.");
+	maphandle_data = std::make_unique<unsigned char[]>(file_size);
+	if (!vfs_stream->read_exactly(maphandle_data.get(), file_size))
+		BSTONE_THROW_STATIC_SOURCE("Failed to load MAPTEMP into memory.");
+	maphandle.open(maphandle_data.get(), file_size);
 }
 
 void CloseMapFile()
@@ -580,10 +599,10 @@ void CA_CacheScreen(
 
 	source += 4; // skip over length
 
-//
-// allocate final space, decompress it, and free bigbuffer
-// Sprites need to have shifts made and various other junk
-//
+	//
+	// allocate final space, decompress it, and free bigbuffer
+	// Sprites need to have shifts made and various other junk
+	//
 	ca_huff_expand_on_screen(source, grhuffman);
 }
 
@@ -845,63 +864,24 @@ void initialize_ca_constants()
 	mapheaderseg.resize(total_level_count);
 }
 
-bool ca_open_resource_non_fatal(
-	const std::string& data_dir,
-	const std::string& file_name,
-	bstone::FileStream& file_stream)
+bstone::VfsInputStreamUPtr ca_open_resource_non_fatal(const std::string& pathname)
 {
-	const auto path = bstone::fs_utils::append_path(data_dir, file_name);
-
-	if (file_stream.open(path.c_str(), bstone::sys::FileMode::read))
-	{
-		return true;
-	}
-
-	auto&& file_name_lc = bstone::StringHelper::to_lower_ascii(file_name);
-	const auto path_lc = bstone::fs_utils::append_path(data_dir, file_name_lc);
-
-	if (file_stream.open(path_lc.c_str(), bstone::sys::FileMode::read))
-	{
-		return true;
-	}
-
-	return false;
+	return bstone::globals::vfs->open_file(pathname);
 }
 
-bool ca_open_resource_non_fatal(
-	const std::string& file_name,
-	bstone::FileStream& file_stream)
+bstone::VfsInputStreamUPtr ca_open_any_resource_non_fatal(std::span<std::string_view> pathnames)
 {
-	if (!mod_dir_.empty())
-	{
-		const auto mod_dir_result = ca_open_resource_non_fatal(mod_dir_, file_name, file_stream);
-
-		if (mod_dir_result)
-		{
-			return true;
-		}
-	}
-
-	const auto data_dir_result = ca_open_resource_non_fatal(data_dir_, file_name, file_stream);
-
-	return data_dir_result;
+	return bstone::globals::vfs->open_any_file(pathnames);
 }
 
-void ca_open_resource(
-	AssetsResourceType assets_resource_type,
-	bstone::FileStream& file_stream)
+bstone::VfsInputStreamUPtr ca_open_resource(AssetsResourceType assets_resource_type)
 {
-	const auto& assets_info = get_assets_info();
-	const auto& assets_resource = assets_info.find_resource(assets_resource_type);
-
-	const auto is_open = ca_open_resource_non_fatal(assets_resource.file_name, file_stream);
-
-	if (!is_open)
-	{
-		const auto path = data_dir_ + assets_resource.file_name;
-
-		CA_CannotOpen(path);
-	}
+	const AssetsInfo& assets_info = get_assets_info();
+	const AssetsResource& assets_resource = assets_info.find_resource(assets_resource_type);
+	bstone::VfsInputStreamUPtr stream = ca_open_resource_non_fatal(assets_resource.file_name);
+	if (stream == nullptr)
+		CA_CannotOpen(assets_resource.file_name);
+	return stream;
 }
 
 std::string ca_calculate_hash(
@@ -944,41 +924,40 @@ std::string ca_calculate_hash(
 	return bstone::StringHelper::bytes_to_hex_string(sha1_digest.get_data(), sha1_digest.get_size());
 }
 
-std::string ca_calculate_hash(
-	const std::string& file_name)
+std::string ca_calculate_hash(const std::string& pathname)
 {
-	auto file_stream = bstone::FileStream{};
-
-	if (!ca_open_resource_non_fatal(file_name, file_stream))
+	bstone::Vfs& vfs = *bstone::globals::vfs;
+	const bstone::VfsInputStreamUPtr vfs_stream = vfs.open_file(pathname);
+	if (vfs_stream == nullptr)
+		return std::string{};
+	const int file_size = vfs_stream->get_size();
+	if (file_size < 0 || file_size > Assets::max_size)
+		return std::string{};
+	constexpr int max_buffer_size = 16'384;
+	Buffer buffer{};
+	buffer.resize(max_buffer_size);
+	bstone::Sha1 sha1{};
+	for (int file_offset = 0; file_offset < file_size; )
 	{
-		return {};
+		const int to_read_size = std::min(file_size - file_offset, max_buffer_size);
+		const int read_size = vfs_stream->read(buffer.data(), to_read_size);
+		if (read_size < 0)
+			return std::string{};
+		if (read_size == 0)
+			break;
+		sha1.process(buffer.data(), read_size);
+		file_offset += read_size;
 	}
-
-	return ca_calculate_hash(file_stream);
+	sha1.finish();
+	const bstone::Sha1Digest& sha1_digest = sha1.get_digest();
+	return bstone::StringHelper::bytes_to_hex_string(sha1_digest.get_data(), sha1_digest.get_size());
 }
 
-std::string ca_calculate_hash(
-	const std::string& data_dir,
-	const std::string& file_name)
+std::string ca_calculate_hash(AssetsResourceType assets_resource_type)
 {
-	auto file_stream = bstone::FileStream{};
-
-	if (!ca_open_resource_non_fatal(data_dir, file_name, file_stream))
-	{
-		return {};
-	}
-
-	return ca_calculate_hash(file_stream);
-}
-
-std::string ca_calculate_hash(
-	const std::string& data_dir,
-	AssetsResourceType assets_resource_type)
-{
-	const auto& assets_info = get_assets_info();
-	const auto& assets_resource = assets_info.find_resource(assets_resource_type);
-
-	return ca_calculate_hash(data_dir, assets_resource.file_name);
+	const AssetsInfo& assets_info = get_assets_info();
+	const AssetsResource& assets_resource = assets_info.find_resource(assets_resource_type);
+	return ca_calculate_hash(assets_resource.file_name);
 }
 
 void ca_calculate_hashes()
@@ -1014,36 +993,36 @@ void AssetsInfo::set_version(
 
 	switch (version_)
 	{
-	case AssetsVersion::aog_sw_v1_0:
-		gfx_header_offset_count_ = 200;
-		break;
+		case AssetsVersion::aog_sw_v1_0:
+			gfx_header_offset_count_ = 200;
+			break;
 
-	case AssetsVersion::aog_sw_v3_0:
-	case AssetsVersion::aog_full_v1_0:
-		gfx_header_offset_count_ = 213;
-		break;
+		case AssetsVersion::aog_sw_v3_0:
+		case AssetsVersion::aog_full_v1_0:
+			gfx_header_offset_count_ = 213;
+			break;
 
-	case AssetsVersion::aog_sw_v2_0:
-	case AssetsVersion::aog_sw_v2_1:
-		gfx_header_offset_count_ = 211;
-		break;
+		case AssetsVersion::aog_sw_v2_0:
+		case AssetsVersion::aog_sw_v2_1:
+			gfx_header_offset_count_ = 211;
+			break;
 
-	case AssetsVersion::aog_full_v2_0:
-	case AssetsVersion::aog_full_v2_1:
-		gfx_header_offset_count_ = 224;
-		break;
+		case AssetsVersion::aog_full_v2_0:
+		case AssetsVersion::aog_full_v2_1:
+			gfx_header_offset_count_ = 224;
+			break;
 
-	case AssetsVersion::aog_full_v3_0:
-		gfx_header_offset_count_ = 226;
-		break;
+		case AssetsVersion::aog_full_v3_0:
+			gfx_header_offset_count_ = 226;
+			break;
 
-	case AssetsVersion::ps:
-		gfx_header_offset_count_ = 249;
-		break;
+		case AssetsVersion::ps:
+			gfx_header_offset_count_ = 249;
+			break;
 
-	default:
-		gfx_header_offset_count_ = 0;
-		break;
+		default:
+			gfx_header_offset_count_ = 0;
+			break;
 	}
 
 
@@ -1802,56 +1781,180 @@ int ca_map_aog_sw_sprite_id_to_aog_full(
 	return map[aog_sw_sprite_id];
 }
 
-void ca_make_resource_path(
-	const std::string& resource_name,
-	std::string& data_path,
-	std::string& mod_path)
-try {
-	if (resource_name.empty())
-	{
-		BSTONE_THROW_STATIC_SOURCE("Empty name.");
-	}
+namespace {
 
-	const auto& assets_info = get_assets_info();
-
-	data_path.clear();
-
-	if (!data_dir_.empty())
-	{
-		data_path = bstone::fs_utils::append_path(data_dir_, assets_info.get_base_path_name());
-		data_path = bstone::fs_utils::append_path(data_path, resource_name);
-	}
-
-	mod_path.clear();
-
-	if (!mod_dir_.empty())
-	{
-		mod_path = bstone::fs_utils::append_path(mod_dir_, assets_info.get_base_path_name());
-		mod_path = bstone::fs_utils::append_path(mod_path, resource_name);
-	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
-
-void ca_make_sprite_resource_path_name(
-	int sprite_id,
-	std::string& data_path,
-	std::string& mod_path)
+void ca_make_base_pathname(std::string& pathname)
 {
-	const auto& assets_info = get_assets_info();
-
-	if (assets_info.is_aog_sw())
-	{
-		sprite_id = ca_map_aog_sw_sprite_id_to_aog_full(sprite_id);
-	}
-
-	const auto id_string = ca_make_padded_asset_number_string(sprite_id);
-	ca_make_resource_path("sprite_" + id_string, data_path, mod_path);
+	const AssetsInfo& assets_info = get_assets_info();
+	const std::string& base_pathname = assets_info.get_base_path_name();
+	pathname.clear();
+	pathname += base_pathname;
+	pathname += '/';
 }
 
-void ca_make_wall_resource_path_name(
-	int wall_id,
-	std::string& data_path,
-	std::string& mod_path)
+} // namespace
+
+void ca_make_resource_path(const std::string& resource_name, std::string& pathname)
 {
-	const auto id_string = ca_make_padded_asset_number_string(wall_id);
-	ca_make_resource_path("wall_" + id_string, data_path, mod_path);
+	ca_make_base_pathname(pathname);
+	pathname += resource_name;
+}
+
+void ca_make_sprite_resource_path_name(int sprite_id, std::string& pathname)
+{
+	const AssetsInfo& assets_info = get_assets_info();
+	if (assets_info.is_aog_sw())
+		sprite_id = ca_map_aog_sw_sprite_id_to_aog_full(sprite_id);
+	ca_make_base_pathname(pathname);
+	pathname += "sprite_";
+	ca_append_padded_asset_number_string(sprite_id, pathname);
+}
+
+void ca_make_wall_resource_path_name(int wall_id, std::string& pathname)
+{
+	ca_make_base_pathname(pathname);
+	pathname += "wall_";
+	ca_append_padded_asset_number_string(wall_id, pathname);
+}
+
+namespace {
+
+int get_vgahead_offset_count()
+{
+	const AssetsInfo& assets_info = get_assets_info();
+	const AssetsResource& assets_resource = assets_info.find_resource(AssetsResourceType::vgahead);
+	bstone::VfsInputStreamUPtr vfs_stream = ca_open_resource_non_fatal(assets_resource.file_name);
+	if (vfs_stream == nullptr)
+		return 0;
+	const int file_size = vfs_stream->get_size();
+	if (file_size <= 0 || (file_size % FILEPOSSIZE) != 0)
+		return 0;
+	return file_size / FILEPOSSIZE;
+}
+
+bool check_vgahead_offset_count()
+{
+	const auto& assets_info = get_assets_info();
+	const auto offset_count = get_vgahead_offset_count();
+	return offset_count == assets_info.get_gfx_header_offset_count();
+}
+
+} // namespace
+
+void CAL_SetupGrFile()
+{
+	if (!check_vgahead_offset_count())
+		BSTONE_THROW_STATIC_SOURCE("Mismatch GFX header offset count.");
+	bstone::VfsInputStreamUPtr handle{};
+	// load ???DICT.??? (huffman dictionary for graphics files)
+	handle = ca_open_resource(AssetsResourceType::vgadict);
+	handle->read(&grhuffman, sizeof(grhuffman));
+	// load the data offsets from ???head.ext
+	int grstarts_size = (NUMCHUNKS + 1) * FILEPOSSIZE;
+	grstarts.resize((grstarts_size + 3) / 4);
+	handle = ca_open_resource(AssetsResourceType::vgahead);
+	handle->read(grstarts.data(), grstarts_size);
+	// Open the graphics file, leaving it open until the game is finished
+	handle = ca_open_resource(AssetsResourceType::vgagraph);
+	const int file_size = handle->get_size();
+	if (file_size < 0 || file_size > 1'000'000)
+		BSTONE_THROW_STATIC_SOURCE("Invalid VGAGRAPH size.");
+	grhandle_data = std::make_unique<unsigned char[]>(file_size);
+	if (!handle->read_exactly(grhandle_data.get(), file_size))
+		BSTONE_THROW_STATIC_SOURCE("Failed to read VGAGRAPH into memory.");
+	grhandle.open(grhandle_data.get(), file_size);
+	// load the pic and sprite headers into the arrays in the data segment
+	pictable.resize(NUMPICS);
+	CAL_GetGrChunkLength(STRUCTPIC); // position file pointer
+	Buffer compseg{};
+	compseg.resize(chunkcomplen);
+	grhandle.read(compseg.data(), chunkcomplen);
+	CAL_HuffExpand(
+		compseg.data(),
+		reinterpret_cast<std::uint8_t*>(pictable.data()),
+		NUMPICS * sizeof(pictabletype),
+		grhuffman);
+}
+
+namespace {
+
+void cal_setup_map_data_file()
+{
+	AssetsInfo& assets_info = get_assets_info();
+	const std::string& hash = ca_calculate_hash(AssetsResourceType::maptemp);
+	assets_info.set_levels_hash(hash);
+	OpenMapFile();
+}
+
+} // namespace
+
+void CAL_SetupMapFile()
+{
+	std::int16_t i;
+	std::int32_t pos;
+	auto header = mapfiletype{};
+	maptype* map_header;
+
+	cal_setup_map_data_file();
+
+	//
+	// load maphead.ext (offsets and tileinfo for map file)
+	//
+
+	bstone::VfsInputStreamUPtr vfs_stream = ca_open_resource(AssetsResourceType::maphead);
+	bstone::VfsInputStream& handle = *vfs_stream;
+	handle.read(&header.RLEWtag, sizeof(header.RLEWtag));
+	handle.read(&header.headeroffsets, sizeof(header.headeroffsets));
+
+	rlew_tag = header.RLEWtag;
+
+	//
+	// load all map header
+	//
+	const auto& assets_info = get_assets_info();
+
+	const auto total_levels = assets_info.get_total_levels();
+
+	for (i = 0; i < total_levels; ++i)
+	{
+		pos = header.headeroffsets[i];
+
+		if (pos < 0)
+		{
+			continue;
+		}
+
+		mapheaderseg[i] = maptype{};
+		map_header = &mapheaderseg[i];
+
+		maphandle.set_position(pos);
+
+		maphandle.read(
+			&map_header->planestart,
+			sizeof(map_header->planestart));
+
+		maphandle.read(
+			&map_header->planelength,
+			sizeof(map_header->planelength));
+
+		maphandle.read(
+			&map_header->width,
+			sizeof(map_header->width));
+
+		maphandle.read(
+			&map_header->height,
+			sizeof(map_header->height));
+
+		maphandle.read(
+			&map_header->name,
+			sizeof(map_header->name));
+	}
+
+	//
+	// allocate space for 3 64*64 planes
+	//
+	for (i = 0; i < MAPPLANES; ++i)
+	{
+		mapsegs[i].resize(64 * 64);
+	}
 }

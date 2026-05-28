@@ -10,16 +10,24 @@ SPDX-License-Identifier: MIT
 #define BSTONE_FS_UTILS_INCLUDED
 
 #include <string>
+#include <string_view>
 
 namespace bstone {
 namespace fs_utils {
 
 std::string normalize_path(const std::string& path);
+void normalize_separators_inplace(std::string& path);
 std::string append_path_separator(const std::string& path);
 std::string append_path(const std::string& path, const std::string& sub_path);
+void append_path_inplace(std::string& path, std::string_view sub_path);
 void replace_extension(std::string& path_name, const std::string& new_extension);
 std::string get_working_dir();
 void rename_with_overwrite(const std::string& old_path, const std::string& new_path);
+bool ends_with_non_root_separator(const std::string& path);
+std::string& trim_non_root_trailing_separator_inplace(std::string& pathname);
+std::string_view get_filename(std::string_view pathname);
+std::string_view get_extension(std::string_view pathname);
+void split_pathname_by_extension(std::string_view pathname, std::string_view& pathname_without_extension, std::string_view& extension);
 
 } // fs_utils
 } // bstone

@@ -7,6 +7,7 @@ SPDX-License-Identifier: MIT
 // File system management (SDL)
 
 #include "bstone_sys_fs.h"
+#include "bstone_assert.h"
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"
 #include "bstone_sdl.h"
@@ -34,7 +35,7 @@ try
 		BSTONE_THROW_STATIC_SOURCE("Buffer too small.");
 	}
 	std::copy_n(sdl_directoy, sdl_directoy_length, buffer);
-	return sdl_directoy_length;
+	return static_cast<int>(sdl_directoy_length);
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
@@ -84,22 +85,86 @@ BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool is_directory_exists(const char* path)
 {
-	if (SDL_PathInfo sdl_path_info;
-		SDL_GetPathInfo(path, &sdl_path_info))
-	{
-		return sdl_path_info.type == SDL_PATHTYPE_DIRECTORY;
-	}
+	if (FileType file_type;
+		get_file_type(path, file_type))
+		return file_type == FileType::directory;
 	return false;
 }
 
 bool is_regular_file_exists(const char* path)
 {
+	if (FileType file_type;
+		get_file_type(path, file_type))
+		return file_type == FileType::file;
+	return false;
+}
+
+bool get_file_type(const char* path, FileType& file_type)
+{
+	file_type = FileType::none;
 	if (SDL_PathInfo sdl_path_info;
 		SDL_GetPathInfo(path, &sdl_path_info))
 	{
-		return sdl_path_info.type == SDL_PATHTYPE_FILE;
+		switch(sdl_path_info.type)
+		{
+			case SDL_PATHTYPE_NONE:
+				file_type = FileType::none;
+				break;
+			case SDL_PATHTYPE_FILE:
+				file_type = FileType::file;
+				break;
+			case SDL_PATHTYPE_DIRECTORY:
+				file_type = FileType::directory;
+				break;
+			case SDL_PATHTYPE_OTHER:
+				file_type = FileType::other;
+				break;
+			default:
+				BSTONE_ASSERT(false && "Unknown path type.");
+				return false;
+		}
+		return true;
 	}
 	return false;
+}
+
+// =====================================
+
+namespace {
+
+struct EnumDirCallbackPayload
+{
+	void* user_data;
+	EnumDirCallback callback;
+};
+
+SDL_EnumerationResult SDLCALL sdl_enum_dir_callback(void* userdata, const char* dirname, const char* fname)
+{
+	BSTONE_ASSERT(userdata != nullptr);
+	const EnumDirCallbackPayload* payload = static_cast<const EnumDirCallbackPayload*>(userdata);
+	const EnumDirCallbackResult result = payload->callback(payload->user_data, dirname, fname);
+	switch (result)
+	{
+		case EnumDirCallbackResult::resume:
+			return SDL_ENUM_CONTINUE;
+		case EnumDirCallbackResult::success:
+			return SDL_ENUM_SUCCESS;
+		case EnumDirCallbackResult::failure:
+			return SDL_ENUM_FAILURE;
+		default:
+			BSTONE_ASSERT(false && "Unknown result.");
+			return SDL_ENUM_FAILURE;
+	}
+}
+
+} // namespace
+
+bool enumerate_directory(const char* path, EnumDirCallback callback, void* user_data)
+{
+	EnumDirCallbackPayload payload{
+		.user_data = user_data,
+		.callback = callback};
+	return SDL_EnumerateDirectory(path, sdl_enum_dir_callback, &payload);
 }
 
 } // namespace bstone::sys

@@ -16,6 +16,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <array>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "xbrz.h"
 
@@ -352,10 +353,11 @@ private:
 	{
 		std::string file_name_extension;
 		ImageDecoder* image_decoder;
+		std::string pathname;
 	}; // ExternalImageProbeItem
 
 	using ExternalImageProbeItems = std::vector<ExternalImageProbeItem>;
-
+	using ExternalImageVfsItems = std::vector<std::string_view>;
 
 	R3r* renderer_;
 	SpriteCache* sprite_cache_;
@@ -389,9 +391,7 @@ private:
 	ImageDecoderUPtr bmp_image_decoder_;
 	ImageDecoderUPtr png_image_decoder_;
 	ExternalImageProbeItems image_probe_items_;
-	std::string image_data_path_;
-	std::string image_mod_path_;
-
+	ExternalImageVfsItems vfs_pathnames_;
 
 	static void validate_upscale_filter(
 		HwTextureMgrUpscaleFilterType upscale_filter_type,
@@ -1634,112 +1634,67 @@ try {
 	missing_wall_r2_texture_item_ = std::move(r2_texture_item);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-HwTextureMgrImpl::R2TextureItem HwTextureMgrImpl::create_from_external_image(
-	int id,
-	ImageType type)
-try {
+HwTextureMgrImpl::R2TextureItem HwTextureMgrImpl::create_from_external_image(int id, ImageType type)
+try
+{
 	if (id < 0 || id > 99'999'999)
-	{
 		BSTONE_THROW_STATIC_SOURCE("Id out of range.");
-	}
-
-	using PathNameMaker = void (*)(
-		int id,
-		std::string& data_path,
-		std::string& mod_path);
-
-	auto path_name_maker = PathNameMaker{};
-
+	using PathNameMaker = void (*)(int id, std::string& pathname);
+	PathNameMaker path_name_maker{};
 	switch (type)
 	{
 		case ImageType::sprite:
 			path_name_maker = ca_make_sprite_resource_path_name;
 			break;
-
 		case ImageType::wall:
 			path_name_maker = ca_make_wall_resource_path_name;
 			break;
-
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported image type.");
 	}
-
-	path_name_maker(id, image_data_path_, image_mod_path_);
-
-	for (const auto& image_probe_item : image_probe_items_)
+	for (std::size_t i_probe = 0; i_probe < image_probe_items_.size(); ++i_probe)
 	{
-		sys::File image_file{};
-
-		if (!image_file.is_open() && !image_mod_path_.empty())
-		{
-			fs_utils::replace_extension(image_mod_path_, image_probe_item.file_name_extension);
-			image_file.open(image_mod_path_.c_str(), sys::FileMode::read);
-		}
-
-		if (!image_file.is_open() && !image_data_path_.empty())
-		{
-			fs_utils::replace_extension(image_data_path_, image_probe_item.file_name_extension);
-			image_file.open(image_data_path_.c_str(), sys::FileMode::read);
-		}
-
-		if (!image_file.is_open())
-		{
-			continue;
-		}
-
-		const auto image_file_size = image_file.get_size();
-
-		if (image_file_size <= 0)
-		{
-			continue;
-		}
-
-		if (image_buffer_.size() < static_cast<std::size_t>(image_file_size))
-		{
-			image_buffer_.resize(static_cast<std::size_t>(image_file_size));
-		}
-
-		const auto image_to_read_size = static_cast<int>(image_file_size);
-
-		if (!image_file.read_exactly(image_buffer_.data(), image_to_read_size))
-		{
-			continue;
-		}
-
-		auto width = 0;
-		auto height = 0;
-
-		try
-		{
-			image_probe_item.image_decoder->decode(
-				image_buffer_.data(),
-				static_cast<int>(image_to_read_size),
-				width,
-				height,
-				image_buffer_rgba8_
-			);
-
-			auto param = R2TextureProperties{};
-			param.image_pixel_format = R3rPixelFormat::rgba_8_unorm;
-			param.width = width;
-			param.height = height;
-			param.is_generate_mipmap = true;
-			param.mip_level_count = R3rUtils::calculate_mip_level_count(param.width, param.height);
-			param.rgba_8_pixels = image_buffer_rgba8_.data();
-
-			auto r2_texture_item = create_texture(param);
-
-			update_mipmap(r2_texture_item.properties, r2_texture_item.r2_texture);
-
-			return r2_texture_item;
-		}
-		catch (...)
-		{
-			continue;
-		}
+		ExternalImageProbeItem& image_probe_item = image_probe_items_[i_probe];
+		path_name_maker(id, image_probe_item.pathname);
+		fs_utils::replace_extension(image_probe_item.pathname, image_probe_item.file_name_extension);
+		vfs_pathnames_[i_probe] = image_probe_item.pathname;
 	}
-
-	return R2TextureItem{};
+	const VfsInputStreamUPtr vfs_stream = ca_open_any_resource_non_fatal(vfs_pathnames_);
+	if (vfs_stream == nullptr)
+		return R2TextureItem{};
+	const int image_file_size = vfs_stream->get_size();
+	if (image_file_size <= 0)
+		return R2TextureItem{};
+	if (image_buffer_.size() < static_cast<std::size_t>(image_file_size))
+		image_buffer_.resize(static_cast<std::size_t>(image_file_size));
+	if (!vfs_stream->read_exactly(image_buffer_.data(), image_file_size))
+		return R2TextureItem{};
+	try
+	{
+		int width = 0;
+		int height = 0;
+		ExternalImageProbeItem& image_probe_item = image_probe_items_[static_cast<std::size_t>(vfs_stream->get_pathname_index())];
+		image_probe_item.image_decoder->decode(
+			image_buffer_.data(),
+			image_file_size,
+			width,
+			height,
+			image_buffer_rgba8_);
+		R2TextureProperties param{};
+		param.image_pixel_format = R3rPixelFormat::rgba_8_unorm;
+		param.width = width;
+		param.height = height;
+		param.is_generate_mipmap = true;
+		param.mip_level_count = R3rUtils::calculate_mip_level_count(param.width, param.height);
+		param.rgba_8_pixels = image_buffer_rgba8_.data();
+		R2TextureItem r2_texture_item = create_texture(param);
+		update_mipmap(r2_texture_item.properties, r2_texture_item.r2_texture);
+		return r2_texture_item;
+	}
+	catch (...)
+	{
+		return R2TextureItem{};
+	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 HwTextureMgrImpl::R2TextureItem HwTextureMgrImpl::wall_create_texture(
@@ -1860,6 +1815,7 @@ try {
 		ExternalImageProbeItem{".png", png_image_decoder_.get()},
 		ExternalImageProbeItem{".bmp", bmp_image_decoder_.get()},
 	};
+	vfs_pathnames_.resize(image_probe_items_.size());
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwTextureMgrImpl::purge_cache(

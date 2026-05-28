@@ -1,0 +1,5 @@
+Based on https://zlib.net/zlib132.zip
+
+- Keep only essential files for compress/decompress without gzip support.
+- Define Z_SOLO by default.
+- Custom CMake script.

@@ -12,8 +12,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <memory>
 #include <span>
+#include <string_view>
 #include "3d_def.h"
 #include "bstone_file_stream.h"
+#include "bstone_vfs.h"
 
 
 const int MAPPLANES = 2;
@@ -322,19 +324,6 @@ extern void(*drawcachebox)(
 extern void(*updatecachebox)();
 extern void(*finishcachebox)();
 
-extern bstone::FileStream grhandle;
-extern bstone::FileStream maphandle;
-
-extern std::int32_t chunkcomplen;
-extern std::int32_t chunkexplen;
-
-#ifdef GRHEADERLINKED
-extern huffnode* grhuffman;
-#else
-extern huffnode grhuffman[255];
-#endif
-
-
 // ===========================================================================
 
 void CA_RLEWexpand(
@@ -379,26 +368,12 @@ std::string ca_load_script(
 	int chunk_id,
 	bool strip_xx = false);
 
-bool ca_open_resource_non_fatal(
-	const std::string& data_dir,
-	const std::string& file_name,
-	bstone::FileStream& file_stream);
+bstone::VfsInputStreamUPtr ca_open_resource_non_fatal(const std::string& pathname);
+bstone::VfsInputStreamUPtr ca_open_any_resource_non_fatal(std::span<std::string_view> pathnames);
+bstone::VfsInputStreamUPtr ca_open_resource(AssetsResourceType assets_resource_type);
 
-bool ca_open_resource_non_fatal(
-	const std::string& file_name,
-	bstone::FileStream& file_stream);
-
-void ca_open_resource(
-	AssetsResourceType assets_resource_type,
-	bstone::FileStream& file_stream);
-
-std::string ca_calculate_hash(
-	const std::string& data_dir,
-	const std::string& file_name);
-
-std::string ca_calculate_hash(
-	const std::string& data_dir,
-	AssetsResourceType assets_resource_type);
+std::string ca_calculate_hash(const std::string& pathname);
+std::string ca_calculate_hash(AssetsResourceType assets_resource_type);
 
 void ca_calculate_hashes();
 
@@ -425,21 +400,11 @@ void ca_extract_levels(const std::string& destination_dir);
 void ca_extract_all(
 	const std::string& destination_dir);
 
+void ca_make_resource_path(const std::string& resource_name, std::string& pathname);
+void ca_make_sprite_resource_path_name(int sprite_id, std::string& pathname);
+void ca_make_wall_resource_path_name(int wall_id, std::string& pathname);
 
-void ca_make_resource_path(const std::string& resource_name,
-	std::string& data_path,
-	std::string& mod_path);
-
-void ca_make_sprite_resource_path_name(
-	int sprite_id,
-	std::string& data_path,
-	std::string& mod_path);
-
-void ca_make_wall_resource_path_name(
-	int wall_id,
-	std::string& data_path,
-	std::string& mod_path);
-
+void ca_append_padded_asset_number_string(int number, std::string& dst_string);
 std::string ca_make_padded_asset_number_string(int number);
 
 #endif // BSTONE_ID_CA_INCLUDED

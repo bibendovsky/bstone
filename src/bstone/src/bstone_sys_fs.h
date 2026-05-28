@@ -21,6 +21,16 @@ constexpr char native_separator =
 
 // =====================================
 
+enum class FileType
+{
+	none = 0,
+	file,
+	directory,
+	other,
+};
+
+// =====================================
+
 int get_working_directory(char* buffer, int buffer_size);
 
 void create_directories(const char* path);
@@ -32,6 +42,23 @@ void remove_path(const char* path);
 
 bool is_directory_exists(const char* path);
 bool is_regular_file_exists(const char* path);
+bool get_file_type(const char* path, FileType& file_type);
+
+// =====================================
+
+enum EnumDirCallbackResult
+{
+	resume,
+	success,
+	failure,
+};
+
+using EnumDirCallback = EnumDirCallbackResult (*)(
+	void* user_data,
+	const char* directory_path,
+	const char* file_name);
+
+bool enumerate_directory(const char* path, EnumDirCallback callback, void* user_data);
 
 } // namespace bstone::sys
 
