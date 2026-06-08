@@ -1,194 +1,181 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
-
 
 #ifndef BSTONE_AUDIO_INCLUDED
 #define BSTONE_AUDIO_INCLUDED
 
+inline constexpr int NUMSOUNDS = 100;
 
-#include <cstdint>
-
-
-constexpr auto NUMSOUNDS = 100;
-
-
-//
 // Sound names & indexes
-//
-const std::int16_t HITWALLSND = 0;
-const std::int16_t TERM_TYPESND = 1;
-const std::int16_t GETPISTOLSND = 2;
-const std::int16_t LIQUIDDIESND = 3;
-const std::int16_t MOVEGUN2SND = 4;
-const std::int16_t MOVEGUN1SND = 5;
-const std::int16_t NOWAYSND = 6;
-const std::int16_t SCOUT_ALERTSND = 7;
-const std::int16_t GURNEYSND = 8;
-const std::int16_t PLAYERDEATHSND = 9;
-const std::int16_t CONCESSIONSSND = 10;
-const std::int16_t ATKIONCANNONSND = 11;
-const std::int16_t GETKEYSND = 12;
-const std::int16_t WARPOUTSND = 13;
-const std::int16_t WARPINSND = 14;
-const std::int16_t ROBOT_SERVOSND = 15;
-const std::int16_t INFORMANTDEATHSND = 16;
-const std::int16_t GOLDSTERNHALTSND = 17;
-const std::int16_t OPENDOORSND = 18;
-const std::int16_t CLOSEDOORSND = 19;
-const std::int16_t GETDETONATORSND = 20;
-const std::int16_t HALTSND = 21;
-const std::int16_t RENTDEATH2SND = 22;
-const std::int16_t ATKAUTOCHARGESND = 23;
-const std::int16_t ATKCHARGEDSND = 24;
-const std::int16_t RADAR_POWERUPSND = 25;
-const std::int16_t ATKBURSTRIFLESND = 26;
-const std::int16_t VITAL_GONESND = 27;
-const std::int16_t SHOOTDOORSND = 28;
-const std::int16_t RENTDEATH1SND = 29;
-const std::int16_t GETBURSTRIFLESND = 30;
-const std::int16_t GETAMMOSND = 31;
-const std::int16_t SHOOTSND = 32;
-const std::int16_t HEALTH1SND = 33;
-const std::int16_t HEALTH2SND = 34;
-const std::int16_t BONUS1SND = 35;
-const std::int16_t BONUS2SND = 36;
-const std::int16_t BONUS3SND = 37;
-const std::int16_t GETIONCANNONSND = 38;
-const std::int16_t ESCPRESSEDSND = 39;
-const std::int16_t ELECAPPEARSND = 40;
-const std::int16_t EXTRA_MANSND = 41;
-const std::int16_t ELEV_BUTTONSND = 42;
-const std::int16_t INTERROGATESND = 43;
-const std::int16_t BONUS5SND = 44;
-const std::int16_t BONUS4SND = 45;
-const std::int16_t PUSHWALLSND = 46;
-const std::int16_t TERM_BEEPSND = 47;
-const std::int16_t ROLL_SCORESND = 48;
-const std::int16_t TURRETSND = 49;
-const std::int16_t EXPLODE1SND = 50;
-const std::int16_t __UNUSED_51__SND = 51;
-const std::int16_t SWATDIESND = 52;
-const std::int16_t GGUARDHALTSND = 53;
-const std::int16_t EXPLODE2SND = 54;
-const std::int16_t BLUEBOYHALTSND = 55;
-const std::int16_t PROGUARDDEATHSND = 56;
-const std::int16_t DOGBOYHALTSND = 57;
-const std::int16_t ENGINE_THRUSTSND = 58;
-const std::int16_t SCANHALTSND = 59;
-const std::int16_t GETCANNONSND = 60;
-const std::int16_t LCANHALTSND = 61;
-const std::int16_t PROHALTSND = 62;
-const std::int16_t GGUARDDEATHSND = 63;
-const std::int16_t BLUEBOYDEATHSND = 64;
-const std::int16_t GOLDSTERNLAUGHSND = 65;
-const std::int16_t SCIENTISTHALTSND = 66;
-const std::int16_t SCIENTISTDEATHSND = 67;
-const std::int16_t DOGBOYDEATHSND = 68;
-const std::int16_t H_BEATSND = 69;
-const std::int16_t SWATHALTSND = 70;
-const std::int16_t SCANDEATHSND = 71;
-const std::int16_t LCANDEATHSND = 72;
-const std::int16_t INFORMDEATH2SND = 73;
-const std::int16_t INFORMDEATH3SND = 74;
-const std::int16_t GURNEYDEATHSND = 75;
-const std::int16_t PRODEATH2SND = 76;
-const std::int16_t PRODEATH3SND = 77; // AOG
-const std::int16_t SWATDEATH2SND = 78;
-const std::int16_t LCANBREAKSND = 79;
-const std::int16_t SCANBREAKSND = 80;
-const std::int16_t HTECHDOOROPENSND = 81;
-const std::int16_t HTECHDOORCLOSESND = 82;
-const std::int16_t ELECARCDAMAGESND = 83;
-const std::int16_t PODHATCHSND = 84;
-const std::int16_t ELECTSHOTSND = 85;
-const std::int16_t ELECDIESND = 86;
-const std::int16_t ATKGRENADESND = 87;
-const std::int16_t CLAWATTACKSND = 88;
-const std::int16_t PUNCHATTACKSND = 89;
-const std::int16_t SPITATTACKSND = 90;
-const std::int16_t PODDEATHSND = 91;
-const std::int16_t PODHALTSND = 92;
-const std::int16_t SWATDEATH3SND = 93; // AOG
-const std::int16_t SCIDEATH2SND = 94;
-const std::int16_t SCIDEATH3SND = 95;
-const std::int16_t GOTTOKENSND = 96;
-const std::int16_t SWITCHSND = 97;
-const std::int16_t STATS1SND = 98;
-const std::int16_t STATS2SND = 99;
-const std::int16_t LASTSOUND = 100;
 
+inline constexpr int HITWALLSND = 0;
+inline constexpr int TERM_TYPESND = 1;
+inline constexpr int GETPISTOLSND = 2;
+inline constexpr int LIQUIDDIESND = 3;
+inline constexpr int MOVEGUN2SND = 4;
+inline constexpr int MOVEGUN1SND = 5;
+inline constexpr int NOWAYSND = 6;
+inline constexpr int SCOUT_ALERTSND = 7;
+inline constexpr int GURNEYSND = 8;
+inline constexpr int PLAYERDEATHSND = 9;
+inline constexpr int CONCESSIONSSND = 10;
+inline constexpr int ATKIONCANNONSND = 11;
+inline constexpr int GETKEYSND = 12;
+inline constexpr int WARPOUTSND = 13;
+inline constexpr int WARPINSND = 14;
+inline constexpr int ROBOT_SERVOSND = 15;
+inline constexpr int INFORMANTDEATHSND = 16;
+inline constexpr int GOLDSTERNHALTSND = 17;
+inline constexpr int OPENDOORSND = 18;
+inline constexpr int CLOSEDOORSND = 19;
+inline constexpr int GETDETONATORSND = 20;
+inline constexpr int HALTSND = 21;
+inline constexpr int RENTDEATH2SND = 22;
+inline constexpr int ATKAUTOCHARGESND = 23;
+inline constexpr int ATKCHARGEDSND = 24;
+inline constexpr int RADAR_POWERUPSND = 25;
+inline constexpr int ATKBURSTRIFLESND = 26;
+inline constexpr int VITAL_GONESND = 27;
+inline constexpr int SHOOTDOORSND = 28;
+inline constexpr int RENTDEATH1SND = 29;
+inline constexpr int GETBURSTRIFLESND = 30;
+inline constexpr int GETAMMOSND = 31;
+inline constexpr int SHOOTSND = 32;
+inline constexpr int HEALTH1SND = 33;
+inline constexpr int HEALTH2SND = 34;
+inline constexpr int BONUS1SND = 35;
+inline constexpr int BONUS2SND = 36;
+inline constexpr int BONUS3SND = 37;
+inline constexpr int GETIONCANNONSND = 38;
+inline constexpr int ESCPRESSEDSND = 39;
+inline constexpr int ELECAPPEARSND = 40;
+inline constexpr int EXTRA_MANSND = 41;
+inline constexpr int ELEV_BUTTONSND = 42;
+inline constexpr int INTERROGATESND = 43;
+inline constexpr int BONUS5SND = 44;
+inline constexpr int BONUS4SND = 45;
+inline constexpr int PUSHWALLSND = 46;
+inline constexpr int TERM_BEEPSND = 47;
+inline constexpr int ROLL_SCORESND = 48;
+inline constexpr int TURRETSND = 49;
+inline constexpr int EXPLODE1SND = 50;
+inline constexpr int __UNUSED_51__SND = 51;
+inline constexpr int SWATDIESND = 52;
+inline constexpr int GGUARDHALTSND = 53;
+inline constexpr int EXPLODE2SND = 54;
+inline constexpr int BLUEBOYHALTSND = 55;
+inline constexpr int PROGUARDDEATHSND = 56;
+inline constexpr int DOGBOYHALTSND = 57;
+inline constexpr int ENGINE_THRUSTSND = 58;
+inline constexpr int SCANHALTSND = 59;
+inline constexpr int GETCANNONSND = 60;
+inline constexpr int LCANHALTSND = 61;
+inline constexpr int PROHALTSND = 62;
+inline constexpr int GGUARDDEATHSND = 63;
+inline constexpr int BLUEBOYDEATHSND = 64;
+inline constexpr int GOLDSTERNLAUGHSND = 65;
+inline constexpr int SCIENTISTHALTSND = 66;
+inline constexpr int SCIENTISTDEATHSND = 67;
+inline constexpr int DOGBOYDEATHSND = 68;
+inline constexpr int H_BEATSND = 69;
+inline constexpr int SWATHALTSND = 70;
+inline constexpr int SCANDEATHSND = 71;
+inline constexpr int LCANDEATHSND = 72;
+inline constexpr int INFORMDEATH2SND = 73;
+inline constexpr int INFORMDEATH3SND = 74;
+inline constexpr int GURNEYDEATHSND = 75;
+inline constexpr int PRODEATH2SND = 76;
+inline constexpr int PRODEATH3SND = 77; // AOG
+inline constexpr int SWATDEATH2SND = 78;
+inline constexpr int LCANBREAKSND = 79;
+inline constexpr int SCANBREAKSND = 80;
+inline constexpr int HTECHDOOROPENSND = 81;
+inline constexpr int HTECHDOORCLOSESND = 82;
+inline constexpr int ELECARCDAMAGESND = 83;
+inline constexpr int PODHATCHSND = 84;
+inline constexpr int ELECTSHOTSND = 85;
+inline constexpr int ELECDIESND = 86;
+inline constexpr int ATKGRENADESND = 87;
+inline constexpr int CLAWATTACKSND = 88;
+inline constexpr int PUNCHATTACKSND = 89;
+inline constexpr int SPITATTACKSND = 90;
+inline constexpr int PODDEATHSND = 91;
+inline constexpr int PODHALTSND = 92;
+inline constexpr int SWATDEATH3SND = 93; // AOG
+inline constexpr int SCIDEATH2SND = 94;
+inline constexpr int SCIDEATH3SND = 95;
+inline constexpr int GOTTOKENSND = 96;
+inline constexpr int SWITCHSND = 97;
+inline constexpr int STATS1SND = 98;
+inline constexpr int STATS2SND = 99;
+inline constexpr int LASTSOUND = 100;
 
-//
 // Music names & indexes (AOG)
-//
-extern std::int16_t S2100A_MUS;
-extern std::int16_t GOLDA_MUS;
-extern std::int16_t APOGFNFM_MUS;
-extern std::int16_t DRKHALLA_MUS;
-extern std::int16_t FREEDOMA_MUS;
-extern std::int16_t GENEFUNK_MUS;
-extern std::int16_t TIMEA_MUS;
-extern std::int16_t HIDINGA_MUS;
-extern std::int16_t INCNRATN_MUS;
-extern std::int16_t JUNGLEA_MUS;
-extern std::int16_t LEVELA_MUS;
-extern std::int16_t MEETINGA_MUS;
-extern std::int16_t STRUTA_MUS;
-extern std::int16_t RACSHUFL_MUS;
-extern std::int16_t RUMBAA_MUS;
-extern std::int16_t SEARCHNA_MUS;
-extern std::int16_t THEWAYA_MUS;
-extern std::int16_t INTRIGEA_MUS;
 
-//
+extern int S2100A_MUS;
+extern int GOLDA_MUS;
+extern int APOGFNFM_MUS;
+extern int DRKHALLA_MUS;
+extern int FREEDOMA_MUS;
+extern int GENEFUNK_MUS;
+extern int TIMEA_MUS;
+extern int HIDINGA_MUS;
+extern int INCNRATN_MUS;
+extern int JUNGLEA_MUS;
+extern int LEVELA_MUS;
+extern int MEETINGA_MUS;
+extern int STRUTA_MUS;
+extern int RACSHUFL_MUS;
+extern int RUMBAA_MUS;
+extern int SEARCHNA_MUS;
+extern int THEWAYA_MUS;
+extern int INTRIGEA_MUS;
+
 // Music names & indexes (PS)
-//
-extern std::int16_t CATACOMB_MUS;
-extern std::int16_t STICKS_MUS;
-extern std::int16_t PLOT_MUS;
-extern std::int16_t CIRCLES_MUS;
-extern std::int16_t LASTLAFF_MUS;
-extern std::int16_t TOHELL_MUS;
-extern std::int16_t FORTRESS_MUS;
-extern std::int16_t GIVING_MUS;
-extern std::int16_t HARTBEAT_MUS;
-extern std::int16_t LURKING_MUS;
-extern std::int16_t MAJMIN_MUS;
-extern std::int16_t VACCINAP_MUS;
-extern std::int16_t DARKNESS_MUS;
-extern std::int16_t MONASTRY_MUS;
-extern std::int16_t TOMBP_MUS;
-extern std::int16_t TIME_MUS;
-extern std::int16_t MOURNING_MUS;
-extern std::int16_t SERPENT_MUS;
-extern std::int16_t HISCORE_MUS;
 
+extern int CATACOMB_MUS;
+extern int STICKS_MUS;
+extern int PLOT_MUS;
+extern int CIRCLES_MUS;
+extern int LASTLAFF_MUS;
+extern int TOHELL_MUS;
+extern int FORTRESS_MUS;
+extern int GIVING_MUS;
+extern int HARTBEAT_MUS;
+extern int LURKING_MUS;
+extern int MAJMIN_MUS;
+extern int VACCINAP_MUS;
+extern int DARKNESS_MUS;
+extern int MONASTRY_MUS;
+extern int TOMBP_MUS;
+extern int TIME_MUS;
+extern int MOURNING_MUS;
+extern int SERPENT_MUS;
+extern int HISCORE_MUS;
 
-//
 // Music names & indexes (shared)
-//
-extern std::int16_t APOGFNFM_MUS;
-extern std::int16_t THEME_MUS;
-extern std::int16_t LASTMUSIC;
 
+extern int APOGFNFM_MUS;
+extern int THEME_MUS;
+extern int LASTMUSIC;
 
 enum class AudioDriverType
 {
-	auto_detect,
+	auto_detect = 0,
 	system,
 	openal,
-}; // AudioDriverType
+};
 
 enum class AudioSfxType
 {
 	adlib = 1,
 	pc_speaker = 2,
 	pcm = 3,
-}; // AudioResourceType
+};
 
 enum class AudioChunkType
 {
@@ -196,16 +183,15 @@ enum class AudioChunkType
 	adlib_sfx = 2,
 	pc_speaker = 3,
 	digitized = 4,
-}; // AudioResourceType
+};
 
 struct AudioChunk
 {
-	const std::uint8_t* data;
+	const unsigned char* data;
 	int data_size;
 	AudioChunkType type;
 	int index;
 	int audio_index;
-}; // AudioChunk
-
+};
 
 #endif // BSTONE_AUDIO_INCLUDED

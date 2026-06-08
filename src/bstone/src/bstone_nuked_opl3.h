@@ -4,21 +4,17 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-
-//
-// Nuked OPL3 wrapper.
-//
+// Nuked OPL3 wrapper
 
 #ifndef BSTONE_NUKED_OPL3_INCLUDED
 #define BSTONE_NUKED_OPL3_INCLUDED
 
 #include "bstone_opl3.h"
 
-namespace bstone
-{
+namespace bstone {
 
 Opl3UPtr make_nuked_opl3();
 
-} // bstone
+} // namespace bstone
 
-#endif // !BSTONE_NUKED_OPL3_INCLUDED
+#endif // BSTONE_NUKED_OPL3_INCLUDED

@@ -8,6 +8,11 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #ifndef BSTONE_SYSTEM_AUDIO_MIXER_INCLUDED
 #define BSTONE_SYSTEM_AUDIO_MIXER_INCLUDED
 
+#include "bstone_audio_decoder.h"
+#include "bstone_audio_mixer.h"
+#include "bstone_audio_mixer_voice_handle.h"
+#include "bstone_audio_mixer_voice_handle_mgr.h"
+#include "bstone_sys_audio_mgr.h"
 #include <cstdint>
 #include <array>
 #include <atomic>
@@ -15,14 +20,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <mutex>
 #include <utility>
 #include <vector>
-#include "bstone_audio_decoder.h"
-#include "bstone_audio_mixer.h"
-#include "bstone_audio_mixer_voice_handle.h"
-#include "bstone_audio_mixer_voice_handle_mgr.h"
-#include "bstone_sys_audio_mgr.h"
 
-namespace bstone
-{
+namespace bstone {
 
 class SystemAudioMixer final : public AudioMixer
 {
@@ -53,17 +52,11 @@ public:
 	void stop_voice(AudioMixerVoiceHandle voice_handle) override;
 
 	void set_voice_gain(AudioMixerVoiceHandle voice_handle, double gain) override;
-	void set_voice_r3_position(
-		AudioMixerVoiceHandle voice_handle,
-		const AudioMixerVoiceR3Position& r3_position) override;
+	void set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position) override;
 
 	bool can_set_voice_output_gains() const override;
-	void enable_set_voice_output_gains(
-		AudioMixerVoiceHandle voice_handle,
-		bool is_enable) override;
-	void set_voice_output_gains(
-		AudioMixerVoiceHandle voice_handle,
-		AudioMixerOutputGains& output_gains) override;
+	void enable_set_voice_output_gains(AudioMixerVoiceHandle voice_handle, bool is_enable) override;
+	void set_voice_output_gains(AudioMixerVoiceHandle voice_handle, AudioMixerOutputGains& output_gains) override;
 
 private:
 	using Sample = float;
@@ -89,33 +82,30 @@ private:
 		SystemAudioMixer* mixer_{};
 	};
 
-	class CacheItem
+	struct CacheItem
 	{
-	public:
-		bool is_active;
-		bool is_invalid;
-		SoundType sound_type;
-		int samples_count;
-		int decoded_count;
+		bool is_active{};
+		bool is_invalid{};
+		SoundType sound_type{};
+		int samples_count{};
+		int decoded_count{};
 		int digitized_resampler_counter{};
 		int digitized_data_offset{};
 		int digitized_data_size{};
 		Sample digitized_last_sample{};
-		const std::uint8_t* digitized_data{};
-		int buffer_size_;
-		Samples samples;
-		AudioDecoderUPtr decoder;
-
-		CacheItem();
+		const unsigned char* digitized_data{};
+		int buffer_size{};
+		Samples samples{};
+		AudioDecoderUPtr decoder{};
 
 		bool is_decoded() const;
-	}; // CacheItem
+	};
 
 	using Cache = std::deque<CacheItem>;
 
 	struct Voice
 	{
-		SoundType type{SoundType::none};
+		SoundType type{};
 		bool is_active{};
 		bool is_r3{};
 		bool is_looping{};
@@ -127,10 +117,10 @@ private:
 		double gain{};
 		AudioMixerOutputGains output_gains{};
 		AudioMixerOutputGains custom_output_gains{};
-		AudioMixerVoiceHandle handle;
-		AudioMixerVoiceR3Position r3_position;
-		AudioMixerVoiceR3Position r3_position_cache;
-	}; // Voice
+		AudioMixerVoiceHandle handle{};
+		AudioMixerVoiceR3Position r3_position{};
+		AudioMixerVoiceR3Position r3_position_cache{};
+	};
 
 	using Voices = std::vector<Voice>;
 
@@ -153,76 +143,76 @@ private:
 
 		enable_set_voice_output_gains,
 		set_voice_output_gains,
-	}; // CommandType
+	};
 
 	struct PlaySoundCommandParam
 	{
-		SoundType sound_type;
-		bool is_r3;
-		bool is_looping;
-		CacheItem* cache;
-		AudioMixerVoiceHandle handle;
-		const void* data;
-		int data_size;
-	}; // PlaySoundCommandParam
+		SoundType sound_type{};
+		bool is_r3{};
+		bool is_looping{};
+		CacheItem* cache{};
+		AudioMixerVoiceHandle handle{};
+		const void* data{};
+		int data_size{};
+	};
 
 	struct SetMuteCommandParam
 	{
-		bool is_mute;
-	}; // SetMuteCommandParam
+		bool is_mute{};
+	};
 
 	struct SetGainCommandParam
 	{
-		double gain;
+		double gain{};
 	};
 
 	struct SetListenerR3PositionCommandParam
 	{
-		AudioMixerListenerR3Position r3_position;
-	}; // SetListenerR3PositionCommandParam
+		AudioMixerListenerR3Position r3_position{};
+	};
 
 	struct SetListenerR3OrientationCommandParam
 	{
-		AudioMixerListenerR3Orientation r3_orientation;
-	}; // SetListenerR3OrientationCommandParam
+		AudioMixerListenerR3Orientation r3_orientation{};
+	};
 
 	struct PauseVoiceCommandParam
 	{
-		AudioMixerVoiceHandle handle;
-	}; // PauseVoiceCommandParam
+		AudioMixerVoiceHandle handle{};
+	};
 
 	struct ResumeVoiceCommandParam
 	{
-		AudioMixerVoiceHandle handle;
-	}; // ResumeVoiceCommandParam
+		AudioMixerVoiceHandle handle{};
+	};
 
 	struct StopVoiceCommandParam
 	{
-		AudioMixerVoiceHandle handle;
-	}; // StopVoiceCommandParam
+		AudioMixerVoiceHandle handle{};
+	};
 
 	struct SetVoiceGainCommandParam
 	{
-		AudioMixerVoiceHandle handle;
-		double gain;
-	}; // SetVoiceGainCommandParam
+		AudioMixerVoiceHandle handle{};
+		double gain{};
+	};
 
 	struct SetVoiceR3PositionCommandParam
 	{
-		AudioMixerVoiceHandle handle;
-		AudioMixerVoiceR3Position position;
-	}; // SetVoiceR3PositionCommandParam
+		AudioMixerVoiceHandle handle{};
+		AudioMixerVoiceR3Position position{};
+	};
 
 	struct EnableSetVoiceOutputGainsCommandParam
 	{
-		AudioMixerVoiceHandle handle;
-		bool is_enable;
+		AudioMixerVoiceHandle handle{};
+		bool is_enable{};
 	};
 
 	struct SetVoiceOutputGainsCommandParam
 	{
-		AudioMixerVoiceHandle handle;
-		AudioMixerOutputGains output_gains;
+		AudioMixerVoiceHandle handle{};
+		AudioMixerOutputGains output_gains{};
 	};
 
 	union CommandParam
@@ -244,13 +234,13 @@ private:
 
 		EnableSetVoiceOutputGainsCommandParam enable_set_voice_output_gains;
 		SetVoiceOutputGainsCommandParam set_voice_output_gains;
-	}; // CommandParam
+	};
 
 	struct Command
 	{
 		CommandType type{};
 		CommandParam param{};
-	}; // Command
+	};
 
 	using Commands = std::vector<Command>;
 
@@ -280,8 +270,8 @@ private:
 	AudioMixerListenerR3Position listener_r3_position_cache_{};
 	AudioMixerListenerR3Orientation listener_r3_orientation_{};
 	AudioMixerListenerR3Orientation listener_r3_orientation_cache_{};
-	bool is_listener_r3_position_changed_;
-	bool is_listener_r3_orientation_changed_;
+	bool is_listener_r3_position_changed_{};
+	bool is_listener_r3_orientation_changed_{};
 	std::atomic_bool is_state_suspended_{};
 	sys::PollingAudioDeviceUPtr sys_audio_device_{};
 
@@ -337,6 +327,6 @@ private:
 	static int calculate_digitized_sample_count(int dst_sample_rate, int digitized_byte_count);
 };
 
-} // bstone
+} // namespace bstone
 
 #endif // BSTONE_SYSTEM_AUDIO_MIXER_INCLUDED

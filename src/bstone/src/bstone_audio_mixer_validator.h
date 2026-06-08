@@ -17,8 +17,8 @@ class AudioMixerValidator
 public:
 	static void validate_gain(double gain);
 	static void validate_output_gains(const AudioMixerOutputGains& output_gains);
-}; // AudioMixerValidator
+};
 
-} // bstone
+} // namespace bstone
 
-#endif // !BSTONE_AUDIO_MIXER_VALIDATOR_INCLUDED
+#endif // BSTONE_AUDIO_MIXER_VALIDATOR_INCLUDED

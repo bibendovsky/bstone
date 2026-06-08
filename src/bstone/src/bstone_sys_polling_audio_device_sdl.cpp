@@ -33,8 +33,8 @@ public:
 
 private:
 	using Sample = float;
-	static constexpr int sample_size = sizeof(Sample);
-	using AudioCache = std::vector<std::byte>;
+	inline static constexpr int sample_size = sizeof(Sample);
+	using AudioCache = std::vector<unsigned char>;
 
 	Logger& logger_;
 	int rate_{};
@@ -59,39 +59,28 @@ PollingAudioDeviceSdl::PollingAudioDeviceSdl(Logger& logger, const PollingAudioD
 {
 	logger_.log_information("Starting SDL polling audio device.");
 	if (param.channel_count <= 0 || param.channel_count > 255)
-	{
 		BSTONE_THROW_STATIC_SOURCE("Channel count out of range.");
-	}
 	if (param.desired_frame_count <= 0 || param.desired_frame_count > 65535)
-	{
 		BSTONE_THROW_STATIC_SOURCE("Frame count out of range.");
-	}
 	if (param.callback == nullptr)
-	{
 		BSTONE_THROW_STATIC_SOURCE("Null callback.");
-	}
 	callback_ = param.callback;
 	const SDL_AudioSpec sdl_audio_spec{
-		/* format   */ SDL_AUDIO_F32,
-		/* channels */ param.channel_count,
-		/* freq     */ param.desired_rate,
-	};
+		.format   = SDL_AUDIO_F32,
+		.channels = param.channel_count,
+		.freq     = param.desired_rate};
 	SDL_AudioStream* sdl_audio_stream = SDL_OpenAudioDeviceStream(
 		SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK,
 		&sdl_audio_spec,
 		callback_proxy,
 		this);
 	if (sdl_audio_stream == nullptr)
-	{
 		sdl::fail("SDL_OpenAudioDeviceStream");
-	}
 	const auto scope_exit = make_scope_exit(
 		[&sdl_audio_stream]()
 		{
 			if (sdl_audio_stream != nullptr)
-			{
 				SDL_DestroyAudioStream(sdl_audio_stream);
-			}
 		});
 	rate_ = param.desired_rate;
 	channel_count_ = param.channel_count;
@@ -129,16 +118,12 @@ void PollingAudioDeviceSdl::pause(bool is_pause)
 	if (is_pause)
 	{
 		if (!SDL_PauseAudioStreamDevice(sdl_audio_stream_))
-		{
 			sdl::fail("SDL_PauseAudioStreamDevice");
-		}
 	}
 	else
 	{
 		if (!SDL_ResumeAudioStreamDevice(sdl_audio_stream_))
-		{
 			sdl::fail("SDL_ResumeAudioStreamDevice");
-		}
 	}
 }
 
@@ -154,9 +139,7 @@ void SDLCALL PollingAudioDeviceSdl::callback_proxy(
 void PollingAudioDeviceSdl::callback(int sdl_size)
 {
 	if (sdl_size <= 0)
-	{
 		return;
-	}
 	for (int sdl_offset = 0; sdl_offset < sdl_size; )
 	{
 		if (audio_cache_offset_ >= audio_cache_size_)

@@ -5,20 +5,17 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-//
-// AdLib sound effects decoder.
-//
+// AdLib sound effects decoder
 
 #ifndef BSTONE_ADLIB_SFX_DECODER_INCLUDED
 #define BSTONE_ADLIB_SFX_DECODER_INCLUDED
 
 #include "bstone_audio_decoder.h"
 
-namespace bstone
-{
+namespace bstone {
 
 AudioDecoderUPtr make_adlib_sfx_audio_decoder(Opl3Type opl3_type);
 
-} // bstone
+} // namespace bstone
 
-#endif // !BSTONE_ADLIB_SFX_DECODER_INCLUDED
+#endif // BSTONE_ADLIB_SFX_DECODER_INCLUDED

@@ -5,16 +5,15 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-#include <stdexcept>
-#include <utility>
 #include "bstone_audio_mixer.h"
 #include "bstone_exception.h"
 #include "bstone_logger.h"
 #include "bstone_oal_audio_mixer.h"
 #include "bstone_system_audio_mixer.h"
+#include <stdexcept>
+#include <utility>
 
-namespace bstone
-{
+namespace bstone {
 
 AudioMixerListenerR3Position audio_mixer_make_default_listener_r3_position()
 {
@@ -33,9 +32,9 @@ AudioMixerR3Vector audio_mixer_make_default_listener_r3_orientation_up()
 
 AudioMixerListenerR3Orientation audio_mixer_make_default_listener_r3_orientation()
 {
-	auto result = AudioMixerListenerR3Orientation{};
-	result.at = audio_mixer_make_default_listener_r3_orientation_at();
-	result.up = audio_mixer_make_default_listener_r3_orientation_up();
+	AudioMixerListenerR3Orientation result{
+		.at = audio_mixer_make_default_listener_r3_orientation_at(),
+		.up = audio_mixer_make_default_listener_r3_orientation_up()};
 	return result;
 }
 
@@ -44,22 +43,22 @@ AudioMixerVoiceR3Position audio_mixer_make_default_voice_r3_position()
 	return AudioMixerVoiceR3Position{};
 }
 
-// ==========================================================================
+// =====================================
 
 AudioMixerUPtr make_audio_mixer(const AudioMixerInitParam& param)
-try {
+try
+{
 	switch (param.audio_driver_type)
 	{
 		case AudioDriverType::system:
 			return std::make_unique<SystemAudioMixer>(param);
-
 		case AudioDriverType::openal:
-			return std::make_unique<OalAudioMixer>(param);
-
+			return make_oal_audio_mixer(param);
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported driver type.");
 	}
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void AudioMixerListenerR3Position::operator=(const AudioMixerR3Vector& r3_vector)
 {
@@ -68,7 +67,7 @@ void AudioMixerListenerR3Position::operator=(const AudioMixerR3Vector& r3_vector
 	z = r3_vector.z;
 }
 
-// ==========================================================================
+// =====================================
 
 bool operator==(const AudioMixerR3Vector& lhs, const AudioMixerR3Vector& rhs)
 {
@@ -80,7 +79,7 @@ bool operator!=(const AudioMixerR3Vector& lhs, const AudioMixerR3Vector& rhs)
 	return !(lhs == rhs);
 }
 
-// --------------------------------------------------------------------------
+// -------------------------------------
 
 bool operator==(const AudioMixerListenerR3Orientation& lhs, const AudioMixerListenerR3Orientation& rhs)
 {
@@ -92,7 +91,7 @@ bool operator!=(const AudioMixerListenerR3Orientation& lhs, const AudioMixerList
 	return !(lhs == rhs);
 }
 
-// --------------------------------------------------------------------------
+// -------------------------------------
 
 AudioMixerR3Vector operator*(const AudioMixerR3Vector& lhs, double rhs)
 {
@@ -109,11 +108,11 @@ AudioMixerListenerR3Position operator*(const AudioMixerListenerR3Position& lhs, 
 	return AudioMixerListenerR3Position{lhs.x * rhs, lhs.y * rhs, lhs.z * rhs};
 }
 
-// --------------------------------------------------------------------------
+// -------------------------------------
 
 AudioMixerR3Vector operator-(const AudioMixerVoiceR3Position& lhs, const AudioMixerListenerR3Position& rhs)
 {
 	return AudioMixerR3Vector{lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
 }
 
-} // bstone
+} // namespace bstone

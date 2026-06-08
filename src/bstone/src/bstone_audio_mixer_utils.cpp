@@ -6,16 +6,13 @@ SPDX-License-Identifier: GPL-2.0-or-later
 */
 
 #include "bstone_audio_mixer_utils.h"
+#include "3d_def.h"
+#include "bstone_math.h"
 #include <cassert>
 #include <cmath>
 #include <algorithm>
-#include "3d_def.h"
-#include "bstone_math.h"
 
-namespace bstone
-{
-
-// ==========================================================================
+namespace bstone {
 
 AudioMixerR3Vector AudioMixerUtils::make_r3_position_from_w3d_coords(double w3d_x, double w3d_y, double w3d_z)
 {
@@ -24,15 +21,14 @@ AudioMixerR3Vector AudioMixerUtils::make_r3_position_from_w3d_coords(double w3d_
 
 AudioMixerListenerR3Orientation AudioMixerUtils::make_listener_r3_orientation_from_w3d_view(double w3d_view_cos, double w3d_view_sin)
 {
-	auto result = AudioMixerListenerR3Orientation{};
-	result.at = AudioMixerR3Vector{w3d_view_cos, 0.0, -w3d_view_sin};
-	result.up = AudioMixerR3Vector{0.0, 1.0, 0.0};
-	return result;
+	return AudioMixerListenerR3Orientation{
+		.at = AudioMixerR3Vector{w3d_view_cos, 0.0, -w3d_view_sin},
+		.up = AudioMixerR3Vector{0.0, 1.0, 0.0}};
 }
 
 double AudioMixerUtils::get_r_module(const AudioMixerR3Vector& v)
 {
-	return 1.0 / std::sqrt((v.x * v.x) + (v.y * v.y) + (v.z * v.z));
+	return 1.0 / std::sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
 AudioMixerR3Vector AudioMixerUtils::normalize(const AudioMixerR3Vector& v)
@@ -42,20 +38,20 @@ AudioMixerR3Vector AudioMixerUtils::normalize(const AudioMixerR3Vector& v)
 
 double AudioMixerUtils::get_distance(const AudioMixerR3Vector& a, const AudioMixerR3Vector& b)
 {
-	const auto dx = a.x - b.x;
-	const auto dy = a.y - b.y;
-	const auto dz = a.z - b.z;
-	return std::sqrt((dx * dx) + (dy * dy) + (dz * dz));
+	const double dx = a.x - b.x;
+	const double dy = a.y - b.y;
+	const double dz = a.z - b.z;
+	return std::sqrt(dx * dx + dy * dy + dz * dz);
 }
 
 double AudioMixerUtils::dot_product(const AudioMixerR3Vector& a, const AudioMixerR3Vector& b)
 {
-	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
+	return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
 AudioMixerR3Vector AudioMixerUtils::cross_product(const AudioMixerR3Vector& a, const AudioMixerR3Vector& b)
 {
-	return AudioMixerR3Vector{(a.y * b.z) - (a.z * b.y), (a.z * b.x) - (a.x * b.z), (a.x * b.y) - (a.y * b.x)};
+	return AudioMixerR3Vector{a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x};
 }
 
 // Notes:
@@ -68,14 +64,14 @@ void AudioMixerUtils::spatialize_voice_2_0(
 	double& left_gain,
 	double& right_gain)
 {
-	constexpr auto distance_epsilon = 0.000'5;
+	constexpr double distance_epsilon = 0.000'5;
 	const auto distance = get_distance(listener_r3_position, voice_r3_position);
 
 	if (distance > distance_epsilon)
 	{
-		const auto voice_direction = normalize(voice_r3_position - listener_r3_position);
-		const auto listener_right = cross_product(listener_r3_orientation.at, listener_r3_orientation.up);
-		const auto cosine = dot_product(voice_direction, listener_right);
+		const AudioMixerR3Vector voice_direction = normalize(voice_r3_position - listener_r3_position);
+		const AudioMixerR3Vector listener_right = cross_product(listener_r3_orientation.at, listener_r3_orientation.up);
+		const double cosine = dot_product(voice_direction, listener_right);
 		left_gain = 0.5 * (1.0 - cosine);
 		right_gain = 0.5 * (1.0 + cosine);
 	}
@@ -86,4 +82,4 @@ void AudioMixerUtils::spatialize_voice_2_0(
 	}
 }
 
-} // bstone
+} // namespace bstone

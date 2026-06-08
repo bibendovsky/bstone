@@ -5,21 +5,18 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-//
-// PC Speaker audio decoder.
-//
+// PC Speaker audio decoder
 
 #ifndef BSTONE_PC_SPEAKER_AUDIO_DECODER_INCLUDED
 #define BSTONE_PC_SPEAKER_AUDIO_DECODER_INCLUDED
 
-#include <cassert>
 #include "bstone_audio_decoder.h"
+#include <cassert>
 
-namespace bstone
-{
+namespace bstone {
 
 AudioDecoderUPtr make_pc_speaker_audio_decoder();
 
-} // bstone
+} // namespace bstone
 
-#endif // !BSTONE_PC_SPEAKER_AUDIO_DECODER_INCLUDED
+#endif // BSTONE_PC_SPEAKER_AUDIO_DECODER_INCLUDED

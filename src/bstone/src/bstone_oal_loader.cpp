@@ -5,13 +5,12 @@ SPDX-License-Identifier: MIT
 */
 
 #include "bstone_oal_loader.h"
-
-#include <exception>
-#include <string>
-#include <utility>
 #include "bstone_assert.h"
 #include "bstone_shared_library.h"
 #include "bstone_exception.h"
+#include <exception>
+#include <string>
+#include <utility>
 
 namespace bstone
 {
@@ -38,13 +37,11 @@ private:
 	template<typename T>
 	void find_symbol(const char* name, T& symbol)
 	{
-		BSTONE_ASSERT(name && (*name) != '\0');
-
+		BSTONE_ASSERT(name != nullptr && *name != '\0');
 		symbol = shared_library_.find_symbol<T>(name);
-
-		if (!symbol)
+		if (symbol == nullptr)
 		{
-			const auto message = std::string{} + "Symbol \"" + name + "\" not found.";
+			const std::string message = std::string{} + "Symbol \"" + name + "\" not found.";
 			BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 		}
 	}
@@ -57,15 +54,13 @@ private:
 	>
 	void find_alx_symbol(const char* name, TSymbol& symbol, const char* acronym, TFuncResult (*func)(TFuncArgs...), TArgs... func_args)
 	{
-		BSTONE_ASSERT(name && (*name) != '\0');
-		BSTONE_ASSERT(acronym && (*acronym) != '\0');
-		BSTONE_ASSERT(func);
-
+		BSTONE_ASSERT(name != nullptr && *name != '\0');
+		BSTONE_ASSERT(acronym != nullptr && *acronym != '\0');
+		BSTONE_ASSERT(func != nullptr);
 		symbol = reinterpret_cast<TSymbol>(func(std::forward<TFuncArgs>(func_args)...));
-
-		if (!symbol)
+		if (symbol == nullptr)
 		{
-			const auto message = std::string{} + acronym + " symbol \"" + name + "\" not found.";
+			const std::string message = std::string{} + acronym + " symbol \"" + name + "\" not found.";
 			BSTONE_THROW_DYNAMIC_SOURCE(message.c_str());
 		}
 	}
@@ -81,7 +76,7 @@ private:
 	{
 		find_alx_symbol(name, symbol, "AL", alGetProcAddress_, name);
 	}
-}; // OalLoaderImpl
+};
 
 // ==========================================================================
 
@@ -91,7 +86,8 @@ OalLoaderImpl::OalLoaderImpl(const char* shared_library_path)
 }
 
 void OalLoaderImpl::load_alc_symbols(OalAlSymbols& al_symbols)
-try {
+try
+{
 	find_alc_symbol("alcCreateContext", al_symbols.alcCreateContext);
 	find_alc_symbol("alcMakeContextCurrent", al_symbols.alcMakeContextCurrent);
 	find_alc_symbol("alcProcessContext", al_symbols.alcProcessContext);
@@ -112,10 +108,12 @@ try {
 	find_alc_symbol("alcCaptureStart", al_symbols.alcCaptureStart);
 	find_alc_symbol("alcCaptureStop", al_symbols.alcCaptureStop);
 	find_alc_symbol("alcCaptureSamples", al_symbols.alcCaptureSamples);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalLoaderImpl::load_al_symbols(OalAlSymbols& al_symbols)
-try {
+try
+{
 	find_al_symbol("alDopplerFactor", al_symbols.alDopplerFactor);
 	find_al_symbol("alDopplerVelocity", al_symbols.alDopplerVelocity);
 	find_al_symbol("alSpeedOfSound", al_symbols.alSpeedOfSound);
@@ -189,10 +187,12 @@ try {
 	find_al_symbol("alGetBufferi", al_symbols.alGetBufferi);
 	find_al_symbol("alGetBuffer3i", al_symbols.alGetBuffer3i);
 	find_al_symbol("alGetBufferiv", al_symbols.alGetBufferiv);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalLoaderImpl::load_efx_symbols(OalAlSymbols& al_symbols)
-try {
+try
+{
 	find_al_symbol("alGenEffects", al_symbols.alGenEffects);
 	find_al_symbol("alDeleteEffects", al_symbols.alDeleteEffects);
 	find_al_symbol("alIsEffect", al_symbols.alIsEffect);
@@ -226,13 +226,16 @@ try {
 	find_al_symbol("alGetAuxiliaryEffectSlotiv", al_symbols.alGetAuxiliaryEffectSlotiv);
 	find_al_symbol("alGetAuxiliaryEffectSlotf", al_symbols.alGetAuxiliaryEffectSlotf);
 	find_al_symbol("alGetAuxiliaryEffectSlotfv", al_symbols.alGetAuxiliaryEffectSlotfv);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalLoaderImpl::load_essential_symbols()
-try {
+try
+{
 	find_symbol("alcGetProcAddress", alcGetProcAddress_);
 	find_symbol("alGetProcAddress", alGetProcAddress_);
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalLoaderImpl::open_internal(const char* shared_library_path)
 {
@@ -240,11 +243,11 @@ void OalLoaderImpl::open_internal(const char* shared_library_path)
 	load_essential_symbols();
 }
 
-// ==========================================================================
+// =====================================
 
 OalLoaderUPtr make_oal_loader(const char* shared_library_path)
 {
 	return std::make_unique<OalLoaderImpl>(shared_library_path);
 }
 
-} // bstone
+} // namespace bstone

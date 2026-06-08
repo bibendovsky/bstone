@@ -106,13 +106,9 @@ void AudioMgrSdl::log_devices(StringBuilder& formatter)
 				formatter.add_indented("{}. ", i_device + 1);
 				const char* const sdl_device_name = SDL_GetAudioDeviceName(sdl_audio_device_id);
 				if (sdl_device_name != nullptr)
-				{
 					formatter.add(sdl_device_name);
-				}
 				else
-				{
 					add_error();
-				}
 				formatter.add_line();
 			}
 			formatter.increase_indent();

@@ -2867,7 +2867,7 @@ extern PlayerWarp player_warp;
 =============================================================================
 */
 
-extern std::int16_t TITLE_LOOP_MUSIC;
+extern int TITLE_LOOP_MUSIC;
 
 #define CANT_PLAY_TXT "\n" \
     "ERROR: Insufficient disk space.\n" \

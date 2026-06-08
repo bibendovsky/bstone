@@ -33,12 +33,12 @@ public:
 	virtual void set_voice_output_gains(const Voice& voice) = 0;
 };
 
-// ==========================================================================
+// =====================================
 
 using VoiceGroupUPtr = std::unique_ptr<VoiceGroup>;
 
 VoiceGroupUPtr make_voice_group(AudioMixer& audio_mixer);
 
-} // bstone
+} // namespace bstone
 
-#endif // !BSTONE_VOICE_GROUP_INCLUDED
+#endif // BSTONE_VOICE_GROUP_INCLUDED

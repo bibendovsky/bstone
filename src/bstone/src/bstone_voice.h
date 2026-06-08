@@ -11,8 +11,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_audio_mixer_output_gains.h"
 #include "bstone_audio_mixer_voice_handle.h"
 
-namespace bstone
-{
+namespace bstone {
 
 struct Voice
 {
@@ -22,6 +21,6 @@ struct Voice
 	AudioMixerOutputGains output_gains{};
 };
 
-} // bstone
+} // namespace bstone
 
-#endif // !BSTONE_VOICE_INCLUDED
+#endif // BSTONE_VOICE_INCLUDED

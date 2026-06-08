@@ -8,20 +8,19 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #ifndef BSTONE_OAL_SOURCE_INCLUDED
 #define BSTONE_OAL_SOURCE_INCLUDED
 
-#include <array>
-#include <vector>
 #include "bstone_audio_decoder.h"
 #include "bstone_oal_resource.h"
+#include <array>
+#include <vector>
 
-namespace bstone
-{
+namespace bstone {
 
 static constexpr auto oal_source_max_streaming_buffers = 2;
 static_assert(oal_source_max_streaming_buffers >= 2, "Streaming buffer count out of range.");
 
-using OalSourceSample = std::int16_t;
+using OalSourceSample = short;
 
-// ==========================================================================
+// =====================================
 
 using OalSourceSoundSamples = std::vector<OalSourceSample>;
 
@@ -31,49 +30,49 @@ struct OalSourceCachingSound
 	bool is_decoded{};
 	int sample_offset{};
 	int sample_count{};
-	OalSourceSoundSamples samples;
-	AudioDecoderUPtr audio_decoder;
-}; // OalSourceCachingSound
+	OalSourceSoundSamples samples{};
+	AudioDecoderUPtr audio_decoder{};
+};
 
 struct OalSourceUncachingSound
 {
-	bool is_initialized;
-	int queue_size;
-	int read_sample_offset;
-	int write_sample_offset;
-	OalSourceSoundSamples samples;
-	AudioDecoderUPtr audio_decoder;
-}; // OalSourceUncachingSound
+	bool is_initialized{};
+	int queue_size{};
+	int read_sample_offset{};
+	int write_sample_offset{};
+	OalSourceSoundSamples samples{};
+	AudioDecoderUPtr audio_decoder{};
+};
 
-// ==========================================================================
+// =====================================
 
 struct OalSourceInitParam
 {
-	int mix_sample_rate;
-	int mix_sample_count;
-	const OalAlSymbols* oal_al_symbols;
-}; // OalSourceInitParam
+	int mix_sample_rate{};
+	int mix_sample_count{};
+	const OalAlSymbols* oal_al_symbols{};
+};
 
-// --------------------------------------------------------------------------
+// -------------------------------------
 
 struct OalSourceOpenStaticParam
 {
-	bool is_3d;
-	int sample_rate;
-	const void* data;
-	int data_size;
-}; // OalSourceOpenStaticParam
+	bool is_3d{};
+	int sample_rate{};
+	const void* data{};
+	int data_size{};
+};
 
 struct OalSourceOpenStreamingParam
 {
-	bool is_3d;
-	bool is_looping;
-	int sample_rate;
-	OalSourceCachingSound* caching_sound;
-	OalSourceUncachingSound* uncaching_sound;
-}; // OalSourceOpenStreamingParam
+	bool is_3d{};
+	bool is_looping{};
+	int sample_rate{};
+	OalSourceCachingSound* caching_sound{};
+	OalSourceUncachingSound* uncaching_sound{};
+};
 
-// ==========================================================================
+// =====================================
 
 class OalSource
 {
@@ -110,7 +109,7 @@ private:
 
 	using StreamingMixOalBufferFunc = bool (OalSource::*)(ALuint al_buffer);
 
-	static constexpr auto sample_size = static_cast<int>(sizeof(OalSourceSample));
+	inline static constexpr int sample_size = sizeof(OalSourceSample);
 
 	const OalAlSymbols* oal_al_symbols_{};
 
@@ -183,8 +182,8 @@ private:
 	bool streaming_mix_uncaching_sound(ALuint al_buffer);
 	bool streaming_mix_caching_sound(ALuint al_buffer);
 	void streaming_mix();
-}; // OalSource
+};
 
-} // bstone
+} // namespace bstone
 
-#endif // !BSTONE_OAL_SOURCE_INCLUDED
+#endif // BSTONE_OAL_SOURCE_INCLUDED

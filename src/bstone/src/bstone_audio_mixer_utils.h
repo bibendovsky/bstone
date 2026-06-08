@@ -10,8 +10,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_audio_mixer.h"
 
-namespace bstone
-{
+namespace bstone {
 
 struct AudioMixerUtils
 {
@@ -33,8 +32,8 @@ struct AudioMixerUtils
 		const AudioMixerVoiceR3Position& voice_r3_position,
 		double& left_gain,
 		double& right_gain);
-}; // AudioMixerUtils
+};
 
-} // bstone
+} // namespace bstone
 
-#endif // !BSTONE_AUDIO_MIXER_UTILS_INCLUDED
+#endif // BSTONE_AUDIO_MIXER_UTILS_INCLUDED

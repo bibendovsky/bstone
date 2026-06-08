@@ -4,9 +4,7 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-//
-// OPL3 emulator interface.
-//
+// OPL3 emulator interface
 
 #ifndef BSTONE_OPL3_INCLUDED
 #define BSTONE_OPL3_INCLUDED
@@ -14,27 +12,23 @@ SPDX-License-Identifier: MIT
 #include <cstdint>
 #include <memory>
 
-namespace bstone
-{
+namespace bstone {
 
 class Opl3;
 
-constexpr auto opl3_fixed_frequency = 49'716;
+inline constexpr int opl3_fixed_frequency = 49'716;
 
 enum class Opl3Type
 {
 	none,
-	// DosBox
+	// DOSBox OPL
 	dbopl,
-	// Nuked
+	// Nuked OPL3
 	nuked,
-}; // Opl3Type
+};
 
-// ==========================================================================
+// =====================================
 
-//
-// OPL3 emulator interface.
-//
 class Opl3
 {
 public:
@@ -75,14 +69,14 @@ public:
 	// Returns a minimum output sample rate.
 	// (Emulator dependant value)
 	virtual int get_min_sample_rate() const = 0;
-}; // Opl3
+};
 
-// ==========================================================================
+// =====================================
 
 using Opl3UPtr = std::unique_ptr<Opl3>;
 
 Opl3UPtr make_opl3(Opl3Type opl3_type);
 
-} // bstone
+} // namespace bstone
 
-#endif // !BSTONE_OPL3_INCLUDED
+#endif // BSTONE_OPL3_INCLUDED

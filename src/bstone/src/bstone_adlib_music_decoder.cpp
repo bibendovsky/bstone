@@ -5,31 +5,23 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-//
-// AdLib music decoder.
-//
+// AdLib music decoder
 
-#include <algorithm>
 #include "bstone_adlib_decoder.h"
 #include "bstone_audio_decoder.h"
 #include "bstone_memory_binary_reader.h"
 #include "bstone_opl3.h"
+#include <algorithm>
 
+namespace bstone {
 
-namespace bstone
-{
+namespace {
 
-namespace
-{
-
-//
-// AdLib music decoder.
-//
 class AdlibMusicDecoder final : public AudioDecoder
 {
 public:
 	AdlibMusicDecoder(Opl3Type opl3_type);
-	~AdlibMusicDecoder() override;
+	~AdlibMusicDecoder() override = default;
 
 	bool initialize(const AudioDecoderInitParam& param) override;
 	void uninitialize() override;
@@ -57,72 +49,46 @@ private:
 	int dst_length_in_samples_{};
 
 	void uninitialize_internal();
-}; // AdlibMusicDecoder
+};
 
-// --------------------------------------------------------------------------
+// -------------------------------------
 
 AdlibMusicDecoder::AdlibMusicDecoder(Opl3Type opl3_type)
 	:
 	emulator_{make_opl3(opl3_type)}
-{
-}
-
-AdlibMusicDecoder::~AdlibMusicDecoder() = default;
+{}
 
 bool AdlibMusicDecoder::initialize(const AudioDecoderInitParam& param)
 {
 	uninitialize();
-
-	if (!emulator_)
-	{
+	if (emulator_ == nullptr)
 		return false;
-	}
-
-	if (!param.src_raw_data)
-	{
+	if (param.src_raw_data == nullptr)
 		return false;
-	}
-
 	if (param.src_raw_size < 0)
-	{
 		return false;
-	}
-
 	if (param.dst_rate < 1)
-	{
 		return false;
-	}
-
 	emulator_->initialize(param.dst_rate);
 	reader_ = MemoryBinaryReader{param.src_raw_data, param.src_raw_size};
 	if (!reader_.can_read_x16())
-	{
 		return false;
-	}
 	const int commands_size = reader_.read_u16_le();
 	if (!reader_.can_read_n(commands_size))
-	{
 		return false;
-	}
 	if ((commands_size % 4) != 0)
-	{
 		return false;
-	}
 	command_index_ = 0;
 	commands_count_ = commands_size / 4;
 	samples_per_tick_ = 0;
 	remains_count_ = 0;
-
-	auto ticks_count = 0;
-
+	int ticks_count = 0;
 	for (int i = 0; i < commands_count_; ++i)
 	{
 		reader_.skip(2);
 		ticks_count += reader_.read_u16_le();
 	}
-
 	dst_length_in_samples_ = static_cast<int>(static_cast<long long>(ticks_count) * emulator_->get_sample_rate() / get_tick_rate());
-
 	reader_.set_position(2);
 	is_initialized_ = true;
 	return true;
@@ -141,10 +107,7 @@ void AdlibMusicDecoder::uninitialize()
 bool AdlibMusicDecoder::rewind()
 {
 	if (!emulator_->reset())
-	{
 		return false;
-	}
-
 	adlib::initialize_registers(emulator_.get());
 	reader_.set_position(2);
 	command_index_ = 0;
@@ -161,34 +124,21 @@ int AdlibMusicDecoder::get_dst_length_in_samples() const
 int AdlibMusicDecoder::decode(int dst_count, std::int16_t* dst_data)
 {
 	if (!is_initialized_)
-	{
 		return 0;
-	}
-
 	if (dst_count < 1)
-	{
 		return 0;
-	}
-
-	if (!dst_data)
-	{
+	if (dst_data == nullptr)
 		return 0;
-	}
-
 	if (command_index_ == commands_count_ && remains_count_ == 0)
-	{
 		return 0;
-	}
-
-	auto decoded_samples_count = 0;
-	auto dst_data_index = 0;
-	auto dst_remain_count = dst_count;
-
+	int decoded_samples_count = 0;
+	int dst_data_index = 0;
+	int dst_remain_count = dst_count;
 	for (bool quit = false; !quit; )
 	{
 		if (remains_count_ > 0)
 		{
-			int count = std::min(dst_remain_count, remains_count_);
+			const int count = std::min(dst_remain_count, remains_count_);
 			emulator_->generate(count, &dst_data[dst_data_index]);
 			dst_data_index += count;
 			dst_remain_count -= count;
@@ -198,7 +148,6 @@ int AdlibMusicDecoder::decode(int dst_count, std::int16_t* dst_data)
 		else
 		{
 			int delay = 0;
-
 			while (command_index_ < commands_count_ && delay == 0)
 			{
 				const int command_port = reader_.read_u8();
@@ -207,7 +156,6 @@ int AdlibMusicDecoder::decode(int dst_count, std::int16_t* dst_data)
 				emulator_->write_buffered(command_port, command_value);
 				++command_index_;
 			}
-
 			if (delay > 0)
 			{
 				const int tick_rate = get_tick_rate();
@@ -216,10 +164,8 @@ int AdlibMusicDecoder::decode(int dst_count, std::int16_t* dst_data)
 				samples_per_tick_ %= tick_rate;
 			}
 		}
-
 		quit = ((command_index_ == commands_count_ && remains_count_ == 0) || dst_remain_count == 0);
 	}
-
 	return decoded_samples_count;
 }
 
@@ -230,28 +176,24 @@ int AdlibMusicDecoder::get_tick_rate()
 
 void AdlibMusicDecoder::uninitialize_internal()
 {
-	if (emulator_)
-	{
+	if (emulator_ != nullptr)
 		emulator_->reset();
-	}
-
-	is_initialized_ = {};
+	is_initialized_ = false;
 	reader_ = MemoryBinaryReader{};
-	commands_count_ = {};
-	command_index_ = {};
-	samples_per_tick_ = {};
-	remains_count_ = {};
-
-	dst_length_in_samples_ = {};
+	commands_count_ = 0;
+	command_index_ = 0;
+	samples_per_tick_ = 0;
+	remains_count_ = 0;
+	dst_length_in_samples_ = 0;
 }
 
 } // namespace
 
-// ==========================================================================
+// =====================================
 
 AudioDecoderUPtr make_adlib_music_audio_decoder(Opl3Type opl3_type)
 {
 	return std::make_unique<AdlibMusicDecoder>(opl3_type);
 }
 
-} // bstone
+} // namespace bstone

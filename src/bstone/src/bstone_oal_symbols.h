@@ -11,8 +11,7 @@ SPDX-License-Identifier: MIT
 #include "alc.h"
 #include "efx.h"
 
-namespace bstone
-{
+namespace bstone {
 
 struct OalAlSymbols
 {
@@ -150,8 +149,8 @@ struct OalAlSymbols
 	LPALGETAUXILIARYEFFECTSLOTIV alGetAuxiliaryEffectSlotiv;
 	LPALGETAUXILIARYEFFECTSLOTF alGetAuxiliaryEffectSlotf;
 	LPALGETAUXILIARYEFFECTSLOTFV alGetAuxiliaryEffectSlotfv;
-}; // OalAlSymbols
+};
 
-} // bstone
+} // namespace bstone
 
-#endif // !BSTONE_OAL_SYMBOLS_INCLUDED
+#endif // BSTONE_OAL_SYMBOLS_INCLUDED

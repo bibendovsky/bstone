@@ -5,26 +5,21 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-//
-// AdLib audio decoder common tasks.
-//
+// AdLib audio decoder common tasks
 
 #ifndef BSTONE_ADLIB_DECODER_INCLUDED
 #define BSTONE_ADLIB_DECODER_INCLUDED
 
-namespace bstone
-{
+namespace bstone {
 
 class Opl3;
 
-namespace adlib
-{
+namespace adlib {
 
-// Channel stuff.
-//
+// Channel stuff
 
-constexpr auto al_freq_l = 0xA0;
-constexpr auto al_freq_h = 0xB0;
+inline constexpr int al_freq_l = 0xA0;
+inline constexpr int al_freq_h = 0xB0;
 
 struct Instrument
 {
@@ -38,19 +33,15 @@ struct Instrument
 	int c_sus;
 	int m_wave;
 	int c_wave;
-}; // Instrument
+};
 
-//
 // Initializes OPL3 emulator's registries.
-//
 bool initialize_registers(Opl3* opl3);
 
-//
 // Initializes OPL3 emulator instrument's registries.
-//
 bool set_instrument(Opl3* opl3, const Instrument& instrument);
 
-} // adlib
-} // bstone
+} // namespace adlib
+} // namespace bstone
 
-#endif // !BSTONE_ADLIB_DECODER_INCLUDED
+#endif // BSTONE_ADLIB_DECODER_INCLUDED

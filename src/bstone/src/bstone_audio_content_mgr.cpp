@@ -33,12 +33,12 @@ public:
 	const AudioChunk& get_adlib_music_chunk(int chunk_number) const override;
 
 private:
-	static constexpr int max_sfx_sounds = NUMSOUNDS;
+	inline static constexpr int max_sfx_sounds = NUMSOUNDS;
 
-	static constexpr int pc_speaker_sfx_chunk_base_index = 0;
-	static constexpr int adlib_sfx_chunk_base_index = 100;
-	static constexpr int digitized_sfx_chunk_base_index = 200;
-	static constexpr int adlib_music_chunk_base_index = 300;
+	inline static constexpr int pc_speaker_sfx_chunk_base_index = 0;
+	inline static constexpr int adlib_sfx_chunk_base_index = 100;
+	inline static constexpr int digitized_sfx_chunk_base_index = 200;
+	inline static constexpr int adlib_music_chunk_base_index = 300;
 
 	using AudiotData = std::vector<std::uint8_t>;
 	using AudioChunks = std::vector<AudioChunk>;
@@ -104,25 +104,19 @@ int AudioContentMgrImpl::get_chunk_count() const
 const AudioChunk& AudioContentMgrImpl::get_chunk(int chunk_number) const
 {
 	if (chunk_number < 0 || chunk_number >= get_chunk_count())
-	{
 		BSTONE_THROW_STATIC_SOURCE("Chunk number out of range.");
-	}
 	return audio_chunks_[chunk_number];
 }
 
 const AudioChunk& AudioContentMgrImpl::get_sfx_chunk(int chunk_number) const
 {
 	if (chunk_number < 0 || chunk_number >= max_sfx_sounds)
-	{
 		BSTONE_THROW_STATIC_SOURCE("SFX chunk number out of range.");
-	}
 	if (is_sfx_digitized_)
 	{
-		const AudioChunk& digitized_sfx_chunk = audio_chunks_[digitized_sfx_chunk_base_index + chunk_number];
-		if (digitized_sfx_chunk.data)
-		{
+		if (const AudioChunk& digitized_sfx_chunk = audio_chunks_[digitized_sfx_chunk_base_index + chunk_number];
+			digitized_sfx_chunk.data != nullptr)
 			return digitized_sfx_chunk;
-		}
 	}
 	return audio_chunks_[sfx_chunk_base_index_ + chunk_number];
 }
@@ -130,14 +124,10 @@ const AudioChunk& AudioContentMgrImpl::get_sfx_chunk(int chunk_number) const
 int AudioContentMgrImpl::get_sfx_priority(int chunk_number) const
 {
 	if (chunk_number < 0 || chunk_number >= max_sfx_sounds)
-	{
 		BSTONE_THROW_STATIC_SOURCE("SFX chunk number out of range.");
-	}
 	const AudioChunk& audio_chunk = audio_chunks_[sfx_chunk_base_index_ + chunk_number];
 	if (audio_chunk.data_size < 4)
-	{
 		BSTONE_THROW_STATIC_SOURCE("SFX chunk header too small.");
-	}
 	return endian::read_u16_le(audio_chunk.data + 2);
 }
 
@@ -145,9 +135,7 @@ const AudioChunk& AudioContentMgrImpl::get_adlib_music_chunk(int chunk_number) c
 {
 	const int music_chunk_count = get_chunk_count() - adlib_music_chunk_base_index;
 	if (chunk_number < 0 || chunk_number >= music_chunk_count)
-	{
 		BSTONE_THROW_STATIC_SOURCE("Music chunk number out of range.");
-	}
 	return audio_chunks_[adlib_music_chunk_base_index + chunk_number];
 }
 
@@ -226,11 +214,10 @@ void AudioContentMgrImpl::make_digitized_sfx(AudioChunks& audio_chunks)
 {
 	struct DigitizedMapItem
 	{
-		int sfx_index;
-		int digitized_info_index;
+		int sfx_index{};
+		int digitized_info_index{};
 	};
-
-	constexpr DigitizedMapItem digitized_map[] =
+	constinit static const DigitizedMapItem digitized_map[] =
 	{
 		DigitizedMapItem{ATKIONCANNONSND, 0},
 		DigitizedMapItem{ATKCHARGEDSND, 1},

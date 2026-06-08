@@ -4,16 +4,13 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-//
-// OPL3 emulator interface.
-//
+// OPL3 emulator interface
 
 #include "bstone_opl3.h"
 #include "bstone_dosbox_dbopl.h"
 #include "bstone_nuked_opl3.h"
 
-namespace bstone
-{
+namespace bstone {
 
 Opl3UPtr make_opl3(Opl3Type opl3_type)
 {
@@ -21,13 +18,11 @@ Opl3UPtr make_opl3(Opl3Type opl3_type)
 	{
 		case Opl3Type::dbopl:
 			return make_dbopl_opl3();
-
 		case Opl3Type::nuked:
 			return make_nuked_opl3();
-
 		default:
 			return nullptr;
 	}
 }
 
-} // bstone
+} // namespace bstone

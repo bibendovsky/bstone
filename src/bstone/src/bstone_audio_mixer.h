@@ -17,19 +17,18 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #ifndef BSTONE_AUDIO_MIXER_INCLUDED
 #define BSTONE_AUDIO_MIXER_INCLUDED
 
-#include <memory>
-#include <utility>
 #include "audio.h"
 #include "bstone_audio_mixer_output_gains.h"
 #include "bstone_audio_mixer_voice_handle.h"
 #include "bstone_opl3.h"
+#include <memory>
+#include <utility>
 
-namespace bstone
-{
+namespace bstone {
 
-constexpr auto audio_mixer_min_gain = 0.0;
-constexpr auto audio_mixer_max_gain = 1.0;
-constexpr auto audio_mixer_default_gain = audio_mixer_max_gain;
+constexpr double audio_mixer_min_gain = 0.0;
+constexpr double audio_mixer_max_gain = 1.0;
+constexpr double audio_mixer_default_gain = audio_mixer_max_gain;
 
 enum class SoundType
 {
@@ -38,14 +37,14 @@ enum class SoundType
 	adlib_sfx,
 	pc_speaker_sfx,
 	pcm,
-}; // SoundType
+};
 
 struct AudioMixerR3Vector
 {
 	double x;
 	double y;
 	double z;
-}; // AudioMixerR3Vector
+};
 
 struct AudioMixerListenerR3Position : AudioMixerR3Vector
 {
@@ -53,11 +52,10 @@ struct AudioMixerListenerR3Position : AudioMixerR3Vector
 	explicit AudioMixerListenerR3Position(UArgs&& ...args)
 		:
 		AudioMixerR3Vector{std::forward<UArgs>(args)...}
-	{
-	}
+	{}
 
 	void operator=(const AudioMixerR3Vector& r3_vector);
-}; // AudioMixerListenerR3Position
+};
 
 AudioMixerListenerR3Position audio_mixer_make_default_listener_r3_position();
 
@@ -65,7 +63,7 @@ struct AudioMixerListenerR3Orientation
 {
 	AudioMixerR3Vector at;
 	AudioMixerR3Vector up;
-}; // AudioMixerListenerR3Orientation
+};
 
 AudioMixerR3Vector audio_mixer_make_default_listener_r3_orientation_at();
 AudioMixerR3Vector audio_mixer_make_default_listener_r3_orientation_up();
@@ -76,16 +74,14 @@ struct AudioMixerVoiceR3Position : AudioMixerR3Vector
 	AudioMixerVoiceR3Position(const AudioMixerR3Vector& r3_vector)
 		:
 		AudioMixerR3Vector{r3_vector}
-	{
-	}
+	{}
 
 	template<typename ...UArgs>
 	explicit AudioMixerVoiceR3Position(UArgs&& ...args)
 		:
 		AudioMixerR3Vector{std::forward<UArgs>(args)...}
-	{
-	}
-}; // AudioMixerVoiceR3Position
+	{}
+};
 
 AudioMixerVoiceR3Position audio_mixer_make_default_voice_r3_position();
 
@@ -98,7 +94,7 @@ struct AudioMixerInitParam
 
 	int mix_size_ms; // (milliseconds)
 	int max_voices;
-}; // AudioMixerInitParam
+};
 
 struct AudioMixerPlaySoundParam
 {
@@ -108,9 +104,9 @@ struct AudioMixerPlaySoundParam
 	int data_size;
 	bool is_looping;
 	bool is_r3;
-}; // AudioMixerPlaySoundParam
+};
 
-// ==========================================================================
+// =====================================
 
 class AudioMixer
 {
@@ -144,41 +140,36 @@ public:
 	virtual void set_voice_r3_position(AudioMixerVoiceHandle voice_handle, const AudioMixerVoiceR3Position& r3_position) = 0;
 
 	virtual bool can_set_voice_output_gains() const = 0;
-	virtual void enable_set_voice_output_gains(
-		AudioMixerVoiceHandle voice_handle,
-		bool is_enable) = 0;
-	virtual void set_voice_output_gains(
-		AudioMixerVoiceHandle voice_handle,
-		AudioMixerOutputGains& output_gains) = 0;
-}; // AudioMixer
+	virtual void enable_set_voice_output_gains(AudioMixerVoiceHandle voice_handle, bool is_enable) = 0;
+	virtual void set_voice_output_gains(AudioMixerVoiceHandle voice_handle, AudioMixerOutputGains& output_gains) = 0;
+};
 
-// ==========================================================================
+// =====================================
 
 using AudioMixerUPtr = std::unique_ptr<AudioMixer>;
 
 AudioMixerUPtr make_audio_mixer(const AudioMixerInitParam& param);
 
-// ==========================================================================
+// =====================================
 
 bool operator==(const AudioMixerR3Vector& lhs, const AudioMixerR3Vector& rhs);
 bool operator!=(const AudioMixerR3Vector& lhs, const AudioMixerR3Vector& rhs);
 
-// --------------------------------------------------------------------------
+// -------------------------------------
 
 bool operator==(const AudioMixerListenerR3Orientation& lhs, const AudioMixerListenerR3Orientation& rhs);
 bool operator!=(const AudioMixerListenerR3Orientation& lhs, const AudioMixerListenerR3Orientation& rhs);
 
-// --------------------------------------------------------------------------
+// -------------------------------------
 
 AudioMixerR3Vector operator*(const AudioMixerR3Vector& lhs, double rhs);
 AudioMixerVoiceR3Position operator*(const AudioMixerVoiceR3Position& lhs, double rhs);
 AudioMixerListenerR3Position operator*(const AudioMixerListenerR3Position& lhs, double rhs);
 
-// --------------------------------------------------------------------------
+// -------------------------------------
 
 AudioMixerR3Vector operator-(const AudioMixerVoiceR3Position& lhs, const AudioMixerListenerR3Position& rhs);
 
-} // bstone
+} // namespace bstone
 
-
-#endif // !BSTONE_AUDIO_MIXER_INCLUDED
+#endif // BSTONE_AUDIO_MIXER_INCLUDED

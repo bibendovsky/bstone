@@ -5,11 +5,10 @@ SPDX-License-Identifier: MIT
 */
 
 #include "bstone_audio_mixer_voice_handle.h"
-#include <limits>
 #include "bstone_exception.h"
+#include <limits>
 
-namespace bstone
-{
+namespace bstone {
 
 AudioMixerVoiceHandleValue AudioMixerVoiceHandle::get() const
 {
@@ -27,27 +26,24 @@ void AudioMixerVoiceHandle::reset()
 }
 
 AudioMixerVoiceHandle& AudioMixerVoiceHandle::operator++()
-try {
-	static constexpr auto max_value = std::numeric_limits<AudioMixerVoiceHandleValue>::max();
-
+try
+{
+	constexpr AudioMixerVoiceHandleValue max_value = std::numeric_limits<AudioMixerVoiceHandleValue>::max();
 	if (get() == max_value)
-	{
 		BSTONE_THROW_STATIC_SOURCE("Value overflow.");
-	}
-
 	++value_;
-
 	return *this;
-} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+}
+BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-// ==========================================================================
+// =====================================
 
 std::size_t AudioMixerVoiceHandleStdHasher::operator()(AudioMixerVoiceHandle key) const
 {
 	return static_cast<std::size_t>(key.get());
 }
 
-// ==========================================================================
+// =====================================
 
 bool operator==(const AudioMixerVoiceHandle& lhs, const AudioMixerVoiceHandle& rhs)
 {
@@ -59,4 +55,4 @@ bool operator!=(const AudioMixerVoiceHandle& lhs, const AudioMixerVoiceHandle& r
 	return !(lhs == rhs);
 }
 
-} // bstone
+} // namespace bstone

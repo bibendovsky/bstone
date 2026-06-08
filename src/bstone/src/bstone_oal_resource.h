@@ -7,15 +7,14 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_OAL_RESOURCE_INCLUDED
 #define BSTONE_OAL_RESOURCE_INCLUDED
 
-#include <type_traits>
-#include <utility>
 #include "al.h"
 #include "alc.h"
 #include "bstone_assert.h"
 #include "bstone_oal_symbols.h"
+#include <type_traits>
+#include <utility>
 
-namespace bstone
-{
+namespace bstone {
 
 template<typename TResource, typename TDeleter>
 class OalResource
@@ -24,7 +23,11 @@ public:
 	using Resource = TResource;
 	using Deleter = TDeleter;
 
-	static_assert(std::is_same<Resource, ALCdevice*>::value || std::is_same<Resource, ALCcontext*>::value || std::is_same<Resource, ALuint>::value, "Unsupported resource type.");
+	static_assert(
+		std::is_same<Resource, ALCdevice*>::value ||
+			std::is_same<Resource, ALCcontext*>::value ||
+			std::is_same<Resource, ALuint>::value,
+		"Unsupported resource type.");
 
 	OalResource() = default;
 
@@ -32,8 +35,7 @@ public:
 		:
 		resource_{resource},
 		deleter_{deleter}
-	{
-	}
+	{}
 
 	OalResource(const OalResource& rhs) = delete;
 
@@ -78,10 +80,7 @@ public:
 	void reset()
 	{
 		if (is_empty())
-		{
 			return;
-		}
-
 		deleter_(resource_);
 		resource_ = Resource{};
 	}
@@ -114,9 +113,9 @@ public:
 private:
 	Resource resource_{};
 	Deleter deleter_{};
-}; // OalResource
+};
 
-// ==========================================================================
+// =====================================
 
 class OalDeviceDeleter
 {
@@ -129,13 +128,13 @@ public:
 
 private:
 	const OalAlSymbols* al_symbols_{};
-}; // OalDeviceDeleter
+};
 
 using OalDeviceResource = OalResource<ALCdevice*, OalDeviceDeleter>;
 
 OalDeviceResource make_oal_device(const OalAlSymbols& al_symbols, const char* device_name);
 
-// ==========================================================================
+// =====================================
 
 class OalContextDeleter
 {
@@ -148,13 +147,13 @@ public:
 
 private:
 	const OalAlSymbols* al_symbols_{};
-}; // OalContextDeleter
+};
 
 using OalContextResource = OalResource<ALCcontext*, OalContextDeleter>;
 
 OalContextResource make_oal_context(const OalAlSymbols& al_symbols, ALCdevice& al_device, const ALCint* al_context_attributes);
 
-// ==========================================================================
+// =====================================
 
 class OalBufferDeleter
 {
@@ -167,13 +166,13 @@ public:
 
 private:
 	const OalAlSymbols* al_symbols_{};
-}; // OalBufferDeleter
+};
 
 using OalBufferResource = OalResource<ALuint, OalBufferDeleter>;
 
 OalBufferResource make_oal_buffer(const OalAlSymbols& oal_al_symbols);
 
-// ==========================================================================
+// =====================================
 
 class OalSourceDeleter
 {
@@ -186,12 +185,12 @@ public:
 
 private:
 	const OalAlSymbols* al_symbols_{};
-}; // OalSourceDeleter
+};
 
 using OalSourceResource = OalResource<ALuint, OalSourceDeleter>;
 
 OalSourceResource make_oal_source(const OalAlSymbols& al_symbols);
 
-} // bstone
+} // namespace bstone
 
-#endif // !BSTONE_OAL_RESOURCE_INCLUDED
+#endif // BSTONE_OAL_RESOURCE_INCLUDED

@@ -5,20 +5,17 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-//
-// PCM audio decoder.
-//
+// PCM audio decoder
 
 #ifndef BSTONE_PCM_AUDIO_DECODER_INCLUDED
 #define BSTONE_PCM_AUDIO_DECODER_INCLUDED
 
 #include "bstone_audio_decoder.h"
 
-namespace bstone
-{
+namespace bstone {
 
 AudioDecoderUPtr make_pcm_audio_decoder();
 
-} // bstone
+} // namespace bstone
 
-#endif // !BSTONE_PCM_AUDIO_DECODER_INCLUDED
+#endif // BSTONE_PCM_AUDIO_DECODER_INCLUDED

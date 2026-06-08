@@ -5,21 +5,18 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-//
-// Audio decoder interface.
-//
+// Audio decoder interface
 
 #ifndef BSTONE_AUDIO_DECODER_INCLUDED
 #define BSTONE_AUDIO_DECODER_INCLUDED
 
+#include "bstone_opl3.h"
 #include <cstdint>
 #include <memory>
-#include "bstone_opl3.h"
 
-namespace bstone
-{
+namespace bstone {
 
-constexpr auto audio_decoder_w3d_pcm_frequency = 7'000;
+inline constexpr int audio_decoder_w3d_pcm_frequency = 7'000;
 
 enum class AudioDecoderType
 {
@@ -27,20 +24,17 @@ enum class AudioDecoderType
 	adlib_sfx = 2,
 	pc_speaker = 3,
 	pcm = 4,
-}; // AudioDecoderType
+};
 
 struct AudioDecoderInitParam
 {
 	const void* src_raw_data;
 	int src_raw_size;
 	int dst_rate;
-}; // AudioDecoderInitParam
+};
 
-// ==========================================================================
+// =====================================
 
-//
-// Audio decoder interface.
-//
 class AudioDecoder
 {
 public:
@@ -67,14 +61,14 @@ public:
 
 	// Returns a length of the audio data in samples.
 	virtual int get_dst_length_in_samples() const = 0;
-}; // AudioDecoder
+};
 
-// ==========================================================================
+// =====================================
 
 using AudioDecoderUPtr = std::unique_ptr<AudioDecoder>;
 
 AudioDecoderUPtr make_audio_decoder(AudioDecoderType audio_decoder_type, Opl3Type opl3_type);
 
-} // bstone
+} // namespace bstone
 
-#endif // !BSTONE_AUDIO_DECODER_INCLUDED
+#endif // BSTONE_AUDIO_DECODER_INCLUDED

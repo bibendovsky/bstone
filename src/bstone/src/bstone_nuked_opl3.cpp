@@ -4,28 +4,21 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
+// Nuked OPL3 wrapper
 
-//
-// Nuked OPL3 wrapper.
-//
 
-#include <algorithm>
 #include "bstone_nuked_opl3.h"
-#include <type_traits>
-#include <vector>
 #include "opl3.h"
 #include "bstone_audio_sample_converter.h"
 #include "bstone_opl3.h"
+#include <algorithm>
+#include <type_traits>
+#include <vector>
 
-namespace bstone
-{
+namespace bstone {
 
-namespace
-{
+namespace {
 
-//
-// Nuked OPL3 wrapper.
-//
 class NukedOpl3 final : public Opl3
 {
 public:
@@ -50,8 +43,8 @@ public:
 	int get_min_sample_rate() const override;
 
 private:
-	struct S16Tag{};
-	struct F32Tag{};
+	struct S16Tag {};
+	struct F32Tag {};
 
 	using Buffer = std::vector<std::int16_t>;
 
@@ -70,9 +63,9 @@ private:
 
 	template<typename T>
 	bool generate(int count, T* buffer);
-}; // NukedOpl3
+};
 
-// --------------------------------------------------------------------------
+// -------------------------------------
 
 Opl3Type NukedOpl3::get_type() const
 {
@@ -82,10 +75,9 @@ Opl3Type NukedOpl3::get_type() const
 void NukedOpl3::initialize(int sample_rate)
 {
 	uninitialize();
-
 	sample_rate_ = std::max(sample_rate, get_min_sample_rate());
 	// The emulator outputs stereo samples.
-	const auto buffer_size = get_max_samples_count() * 2;
+	const int buffer_size = get_max_samples_count() * 2;
 	samples_.resize(buffer_size);
 	OPL3_Reset(&emulator_, static_cast<std::uint32_t>(sample_rate_));
 	is_initialized_ = true;
@@ -95,7 +87,7 @@ void NukedOpl3::uninitialize()
 {
 	is_initialized_ = false;
 	sample_rate_ = 0;
-	emulator_ = {};
+	emulator_ = opl3_chip{};
 }
 
 bool NukedOpl3::is_initialized() const
@@ -111,10 +103,7 @@ int NukedOpl3::get_sample_rate() const
 void NukedOpl3::write(int fm_port, int fm_value)
 {
 	if (!is_initialized_)
-	{
 		return;
-	}
-
 	OPL3_WriteReg(&emulator_, static_cast<std::uint16_t>(fm_port), static_cast<std::uint8_t>(fm_value));
 }
 
@@ -137,10 +126,7 @@ bool NukedOpl3::generate(int count, float* buffer)
 bool NukedOpl3::reset()
 {
 	if (!is_initialized_)
-	{
 		return false;
-	}
-
 	initialize(sample_rate_);
 	return true;
 }
@@ -158,14 +144,12 @@ int NukedOpl3::get_max_samples_count()
 void NukedOpl3::generate_block(int count, std::int16_t* buffer, S16Tag)
 {
 	OPL3_GenerateStream(&emulator_, samples_.data(), static_cast<std::uint32_t>(count));
-
-	auto src_samples = samples_.data();
-
-	for (auto i = 0; i < count; ++i)
+	std::int16_t* src_samples = samples_.data();
+	for (int i = 0; i < count; ++i)
 	{
-		const auto src_left_sample = static_cast<int>(*src_samples++);
-		const auto src_right_sample = static_cast<int>(*src_samples++);
-		const auto src_sample = static_cast<std::int16_t>((src_left_sample + src_right_sample) / 2);
+		const int src_left_sample = static_cast<int>(*src_samples++);
+		const int src_right_sample = static_cast<int>(*src_samples++);
+		const std::int16_t src_sample = static_cast<std::int16_t>((src_left_sample + src_right_sample) / 2);
 		buffer[i] = src_sample;
 	}
 }
@@ -173,14 +157,12 @@ void NukedOpl3::generate_block(int count, std::int16_t* buffer, S16Tag)
 void NukedOpl3::generate_block(int count, float* buffer, F32Tag)
 {
 	OPL3_GenerateStream(&emulator_, samples_.data(), static_cast<std::uint32_t>(count));
-
-	auto src_samples = samples_.data();
-
+	std::int16_t* src_samples = samples_.data();
 	for (auto i = 0; i < count; ++i)
 	{
-		const auto src_left_sample = static_cast<int>(*src_samples++);
-		const auto src_right_sample = static_cast<int>(*src_samples++);
-		const auto src_sample = static_cast<std::int16_t>((src_left_sample + src_right_sample) / 2);
+		const int src_left_sample = static_cast<int>(*src_samples++);
+		const int src_right_sample = static_cast<int>(*src_samples++);
+		const std::int16_t src_sample = static_cast<std::int16_t>((src_left_sample + src_right_sample) / 2);
 		buffer[i] = AudioSampleConverter::s16_to_f32(src_sample);
 	}
 }
@@ -197,7 +179,6 @@ void NukedOpl3::generate_block(int count, T* buffer)
 			void
 		>
 	>;
-
 	generate_block(count, buffer, Tag{});
 }
 
@@ -205,40 +186,29 @@ template<typename T>
 bool NukedOpl3::generate(int count, T* buffer)
 {
 	if (!is_initialized_)
-	{
 		return false;
-	}
-
 	if (count < 1)
-	{
 		return false;
-	}
-
-	if (!buffer)
-	{
+	if (buffer == nullptr)
 		return false;
-	}
-
-	auto remain_count = count;
-
+	int remain_count = count;
 	while (remain_count > 0)
 	{
-		const auto generate_count = std::min(remain_count, get_max_samples_count());
+		const int generate_count = std::min(remain_count, get_max_samples_count());
 		generate_block<T>(generate_count, buffer);
 		remain_count -= generate_count;
 		buffer += generate_count;
 	}
-
 	return true;
 }
 
 } // namespace
 
-// ==========================================================================
+// =====================================
 
 Opl3UPtr make_nuked_opl3()
 {
 	return std::make_unique<NukedOpl3>();
 }
 
-} // bstone
+} // namespace bstone

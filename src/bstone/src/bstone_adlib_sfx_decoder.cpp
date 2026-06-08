@@ -5,30 +5,23 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-//
-// AdLib sound effects decoder.
-//
+// AdLib sound effects decoder
 
-#include <algorithm>
 #include "bstone_adlib_decoder.h"
 #include "bstone_audio_decoder.h"
 #include "bstone_memory_binary_reader.h"
 #include "bstone_opl3.h"
+#include <algorithm>
 
-namespace bstone
-{
+namespace bstone {
 
-namespace
-{
+namespace {
 
-//
-// AdLib sound effects decoder.
-//
 class AdlibSfxDecoder final : public AudioDecoder
 {
 public:
 	AdlibSfxDecoder(Opl3Type opl3_type);
-	~AdlibSfxDecoder() override;
+	~AdlibSfxDecoder() override = default;
 
 	bool initialize(const AudioDecoderInitParam& param) override;
 	void uninitialize() override;
@@ -61,58 +54,36 @@ private:
 
 	// Returns an original size of an AdLibSound structure.
 	static int get_header_size();
-}; // AdlibDecoder
+};
 
+// -------------------------------------
 
 AdlibSfxDecoder::AdlibSfxDecoder(Opl3Type opl3_type)
 	:
 	emulator_{make_opl3(opl3_type)}
-{
-}
-
-AdlibSfxDecoder::~AdlibSfxDecoder() = default;
+{}
 
 bool AdlibSfxDecoder::initialize(const AudioDecoderInitParam& param)
 {
 	uninitialize_internal();
-
-	if (!emulator_)
-	{
+	if (emulator_ == nullptr)
 		return false;
-	}
-
-	if (!param.src_raw_data)
-	{
+	if (param.src_raw_data == nullptr)
 		return false;
-	}
-
 	if (param.src_raw_size < 0)
-	{
 		return false;
-	}
-
 	if (param.dst_rate < 1)
-	{
 		return false;
-	}
-
 	emulator_->initialize(param.dst_rate);
 	adlib::initialize_registers(emulator_.get());
 	reader_ = MemoryBinaryReader{param.src_raw_data, param.src_raw_size};
 	if (!reader_.can_read_x32())
-	{
 		return false;
-	}
 	const int sfx_length = reader_.read_s32_le();
 	if (sfx_length <= 0)
-	{
 		return false;
-	}
 	if (!reader_.can_read_n(get_header_size() + sfx_length))
-	{
 		return false;
-	}
-
 	// Skip priority.
 	reader_.skip(2);
 	instrument_.m_char = reader_.read_u8();
@@ -127,12 +98,8 @@ bool AdlibSfxDecoder::initialize(const AudioDecoderInitParam& param)
 	instrument_.c_wave = reader_.read_u8();
 	// Skip nConn, voice, mode and 3 unused octets
 	reader_.skip(6);
-
 	if (instrument_.m_sus == 0 && instrument_.c_sus == 0)
-	{
 		return false;
-	}
-
 	hf_ = reader_.read_u8();
 	hf_ = ((hf_ & 7) << 2) | 0x20;
 	adlib::set_instrument(emulator_.get(), instrument_);
@@ -153,10 +120,7 @@ void AdlibSfxDecoder::uninitialize()
 bool AdlibSfxDecoder::rewind()
 {
 	if (!emulator_->reset())
-	{
 		return false;
-	}
-
 	adlib::initialize_registers(emulator_.get());
 	adlib::set_instrument(emulator_.get(), instrument_);
 	command_index_ = 0;
@@ -179,34 +143,21 @@ bool AdlibSfxDecoder::is_initialized() const
 int AdlibSfxDecoder::decode(int dst_count, std::int16_t* dst_data)
 {
 	if (!is_initialized_)
-	{
 		return 0;
-	}
-
 	if (dst_count < 1)
-	{
 		return 0;
-	}
-
-	if (!dst_data)
-	{
+	if (dst_data == nullptr)
 		return 0;
-	}
-
 	if (command_index_ == commands_count_ && remains_count_ == 0)
-	{
 		return 0;
-	}
-
-	auto decoded_samples_count = 0;
-	auto dst_data_index = 0;
-	auto dst_remain_count = dst_count;
-
+	int decoded_samples_count = 0;
+	int dst_data_index = 0;
+	int dst_remain_count = dst_count;
 	for (bool quit = false; !quit; )
 	{
 		if (remains_count_ > 0)
 		{
-			int count = std::min(dst_remain_count, remains_count_);
+			const int count = std::min(dst_remain_count, remains_count_);
 			emulator_->generate(count, &dst_data[dst_data_index]);
 			dst_data_index += count;
 			dst_remain_count -= count;
@@ -217,18 +168,14 @@ int AdlibSfxDecoder::decode(int dst_count, std::int16_t* dst_data)
 		{
 			if (command_index_ < commands_count_)
 			{
-				int lf = reader_.read_u8();
-
+				const int lf = reader_.read_u8();
 				if (lf > 0)
 				{
 					emulator_->write_buffered(adlib::al_freq_l, lf);
 					emulator_->write_buffered(adlib::al_freq_h, hf_);
 				}
 				else
-				{
 					emulator_->write_buffered(adlib::al_freq_h, 0x00);
-				}
-
 				++command_index_;
 				const int tick_rate = get_tick_rate();
 				samples_per_tick_ += emulator_->get_sample_rate();
@@ -236,23 +183,21 @@ int AdlibSfxDecoder::decode(int dst_count, std::int16_t* dst_data)
 				samples_per_tick_ %= tick_rate;
 			}
 		}
-
 		quit = ((command_index_ == commands_count_ && remains_count_ == 0) || dst_remain_count == 0);
 	}
-
 	return decoded_samples_count;
 }
 
 void AdlibSfxDecoder::uninitialize_internal()
 {
 	reader_ = MemoryBinaryReader{};
-	instrument_ = {};
-	commands_count_ = {};
-	command_index_ = {};
-	samples_per_tick_ = {};
-	remains_count_ = {};
-	hf_ = {};
-	dst_length_in_samples_ = {};
+	instrument_ = adlib::Instrument{};
+	commands_count_ = 0;
+	command_index_ = 0;
+	samples_per_tick_ = 0;
+	remains_count_ = 0;
+	hf_ = 0;
+	dst_length_in_samples_ = 0;
 }
 
 int AdlibSfxDecoder::get_tick_rate()
@@ -267,11 +212,11 @@ int AdlibSfxDecoder::get_header_size()
 
 } // namespace
 
-// ==========================================================================
+// =====================================
 
 AudioDecoderUPtr make_adlib_sfx_audio_decoder(Opl3Type opl3_type)
 {
 	return std::make_unique<AdlibSfxDecoder>(opl3_type);
 }
 
-} // bstone
+} // namespace bstone

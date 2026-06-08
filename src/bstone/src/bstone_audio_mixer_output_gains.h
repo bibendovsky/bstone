@@ -11,10 +11,10 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-constexpr auto audio_mixer_max_channels = 2;
+inline constexpr int audio_mixer_max_channels = 2;
 
 using AudioMixerOutputGains = std::array<double, audio_mixer_max_channels>;
 
-} // bstone
+} // namespace bstone
 
-#endif // !BSTONE_AUDIO_MIXER_OUTPUT_GAINS_INCLUDED
+#endif // BSTONE_AUDIO_MIXER_OUTPUT_GAINS_INCLUDED

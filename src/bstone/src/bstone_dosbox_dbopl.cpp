@@ -4,27 +4,19 @@ Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contrib
 SPDX-License-Identifier: MIT
 */
 
-//
-// DOSBox DBOPL wrapper.
-//
+// DOSBox DBOPL wrapper
 
 #include "bstone_dosbox_dbopl.h"
+#include "dbopl.h"
+#include "bstone_audio_sample_converter.h"
 #include <algorithm>
 #include <type_traits>
 #include <vector>
-#include "dbopl.h"
-#include "bstone_audio_sample_converter.h"
 
+namespace bstone {
 
-namespace bstone
-{
+namespace {
 
-namespace
-{
-
-//
-// DOSBox DBOPL wrapper.
-//
 class DosboxDbopl final : public Opl3
 {
 public:
@@ -49,8 +41,8 @@ public:
 	int get_min_sample_rate() const override;
 
 private:
-	struct S16Tag{};
-	struct F32Tag{};
+	struct S16Tag {};
+	struct F32Tag {};
 
 	using Buffer = std::vector<std::int16_t>;
 
@@ -72,9 +64,9 @@ private:
 
 	template<typename T>
 	bool generate(int count, T* buffer);
-}; // DosboxDbopl
+};
 
-// --------------------------------------------------------------------------
+// -------------------------------------
 
 Opl3Type DosboxDbopl::get_type() const
 {
@@ -96,8 +88,8 @@ void DosboxDbopl::uninitialize()
 {
 	is_initialized_ = false;
 	sample_rate_ = 0;
-	emulator_ = {};
-	channel_ = {};
+	emulator_ = DBOPL::Handler{};
+	channel_ = MixerChannel{};
 }
 
 bool DosboxDbopl::is_initialized() const
@@ -113,10 +105,7 @@ int DosboxDbopl::get_sample_rate() const
 void DosboxDbopl::write(int fm_port, int fm_value)
 {
 	if (!is_initialized_)
-	{
 		return;
-	}
-
 	emulator_.WriteReg(static_cast<Bit32u>(fm_port), static_cast<Bit8u>(fm_value));
 }
 
@@ -139,10 +128,7 @@ bool DosboxDbopl::generate(int count, float* buffer)
 bool DosboxDbopl::reset()
 {
 	if (!is_initialized_)
-	{
 		return false;
-	}
-
 	initialize(sample_rate_);
 	return true;
 }
@@ -182,7 +168,6 @@ void DosboxDbopl::generate_block(int count, T* buffer)
 			void
 		>
 	>;
-
 	generate_block(count, buffer, Tag{});
 }
 
@@ -190,40 +175,29 @@ template<typename T>
 bool DosboxDbopl::generate(int count, T* buffer)
 {
 	if (!is_initialized_)
-	{
 		return false;
-	}
-
 	if (count < 1)
-	{
 		return false;
-	}
-
-	if (!buffer)
-	{
+	if (buffer == nullptr)
 		return false;
-	}
-
-	auto remain_count = count;
-
+	int remain_count = count;
 	while (remain_count > 0)
 	{
-		const auto generate_count = std::min(remain_count, get_max_samples_count());
+		const int generate_count = std::min(remain_count, get_max_samples_count());
 		generate_block<T>(generate_count, buffer);
 		remain_count -= generate_count;
 		buffer += generate_count;
 	}
-
 	return true;
 }
 
 } // namespace
 
-// ==========================================================================
+// =====================================
 
 Opl3UPtr make_dbopl_opl3()
 {
 	return std::make_unique<DosboxDbopl>();
 }
 
-} // bstone
+} // namespace bstone
