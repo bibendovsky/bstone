@@ -273,9 +273,7 @@ try
 			break;
 		case CVarType::string:
 			if (string_values_.empty())
-			{
-				value = string_value_.get();
-			}
+			{}
 			else if (!has_string(value))
 			{
 				value = string_default_value_;
