@@ -1448,3 +1448,23 @@ void sd_set_opl3_type(bstone::Opl3Type opl3_type)
 			break;
 	}
 }
+
+void sd_handle_command_line(const bstone::Cl& cl)
+{
+	// snd_oal_library
+	{
+		const bstone::ClOption cl_option = cl.find_option(snd_oal_library_cvar_name);
+		if (cl_option.args.empty())
+			return;
+		const std::string_view value = cl_option.args.front();
+		snd_oal_library_cvar.set_string(value);
+	}
+	// snd_oal_device_name
+	{
+		const bstone::ClOption cl_option = cl.find_option(snd_oal_device_name_cvar_name);
+		if (cl_option.args.empty())
+			return;
+		const std::string_view value = cl_option.args.front();
+		snd_oal_device_name_cvar.set_string(value);
+	}
+}

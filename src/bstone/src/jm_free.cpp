@@ -1101,6 +1101,7 @@ void freed_main()
 	// BBi
 	ReadConfig();
 	deserialize_cvars_from_cli(g_args, *bstone::globals::cvar_mgr);
+	sd_handle_command_line(g_args);
 
 	initialize_sprites();
 	initialize_gfxv_contants();

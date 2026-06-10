@@ -19,6 +19,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <string>
 #include "bstone_audio_decoder.h"
 #include "bstone_audio_mixer.h"
+#include "bstone_cl.h"
 #include "bstone_cvar_mgr.h"
 
 namespace bstone
@@ -132,5 +133,6 @@ void sd_cfg_set_is_sfx_digitized(bool is_sfx_digitized);
 void apply_digitized_sfx();
 bstone::Opl3Type sd_get_opl3_type();
 void sd_set_opl3_type(bstone::Opl3Type opl3_type);
+void sd_handle_command_line(const bstone::Cl& cl);
 
 #endif // BSTONE_ID_SD_INCLUDED
