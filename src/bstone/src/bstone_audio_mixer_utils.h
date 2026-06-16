@@ -8,12 +8,16 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #ifndef BSTONE_AUDIO_MIXER_UTILS_INCLUDED
 #define BSTONE_AUDIO_MIXER_UTILS_INCLUDED
 
+#include "id_ca.h"
 #include "bstone_audio_mixer.h"
+#include <string>
+#include <string_view>
 
 namespace bstone {
 
-struct AudioMixerUtils
+class AudioMixerUtils
 {
+public:
 	static AudioMixerR3Vector make_r3_position_from_w3d_coords(double w3d_x, double w3d_y, double w3d_z);
 	static AudioMixerListenerR3Orientation make_listener_r3_orientation_from_w3d_view(double w3d_view_cos, double w3d_view_sin);
 	// Returns the reciprocal module.
@@ -32,6 +36,15 @@ struct AudioMixerUtils
 		const AudioMixerVoiceR3Position& voice_r3_position,
 		double& left_gain,
 		double& right_gain);
+	static std::string_view get_sfx_chunk_name(int chunk_number, const AssetsInfo& assets_info);
+	static std::string_view get_music_chunk_name(int chunk_number, const AssetsInfo& assets_info);
+	static void append_sfx_chunk_dirname(const AssetsInfo& assets_info, std::string& pathname);
+	static void append_music_chunk_dirname(const AssetsInfo& assets_info, std::string& pathname);
+	static void append_sfx_chunk_pathname(int chunk_number, const AssetsInfo& assets_info, std::string& pathname);
+	static void append_music_chunk_pathname(int chunk_number, const AssetsInfo& assets_info, std::string& pathname);
+
+private:
+	class Impl;
 };
 
 } // namespace bstone

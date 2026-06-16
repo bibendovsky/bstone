@@ -11,6 +11,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_assert.h"
 #include "bstone_audio_decoder.h"
 #include "bstone_audio_extractor.h"
+#include "bstone_audio_mixer_utils.h"
 #include "bstone_exception.h"
 #include "bstone_format.h"
 #include "bstone_fs_utils.h"
@@ -19,6 +20,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_memory_binary_writer.h"
 #include "bstone_sha1.h"
 #include "bstone_string_helper.h"
+#include "bstone_sys_fs.h"
 #include <algorithm>
 #include <vector>
 #include <format>
@@ -56,13 +58,7 @@ private:
 	bool write_wav_header(int data_size, int bit_depth, int sample_rate, bstone::Stream& stream);
 	void write_non_digitized_audio_chunk(const AudioChunk& sfx_info, bstone::Stream& stream, Opl3Type opl3_type);
 	void write_digitized_audio_chunk(const AudioChunk& sfx_info, bstone::Stream& stream);
-
-	static const char* make_file_name_prefix(AudioChunkType audio_chunk_type);
-	static const char* make_opl3_type_string(Opl3Type opl3_type);
-	static const char* make_file_extension(ExtensionType extension_type);
-	static std::string make_number_string(int number);
 	static std::string make_file_name(const AudioChunk& audio_chunk, ExtensionType extension_type, Opl3Type opl3_type);
-
 	void extract_raw_audio_chunk(const std::string& dst_dir, const AudioChunk& audio_chunk);
 	void extract_decoded_audio_chunk(const std::string& dst_dir, const AudioChunk& audio_chunk);
 	void extract_audio_chunks(const std::string& dst_dir, const AudioChunkFilter audio_chunk_filter);
@@ -215,55 +211,69 @@ void AudioExtractorImpl::write_digitized_audio_chunk(const AudioChunk& audio_chu
 	bstone::globals::logger->log_information("\tVolume factor: {}", volume_factor);
 }
 
-const char* AudioExtractorImpl::make_file_name_prefix(AudioChunkType audio_chunk_type)
-{
-	switch (audio_chunk_type)
-	{
-		case AudioChunkType::adlib_music: return "music_adlib";
-		case AudioChunkType::adlib_sfx: return "sfx_adlib";
-		case AudioChunkType::pc_speaker: return "sfx_pc_speaker";
-		case AudioChunkType::digitized: return "sfx_digitized";
-		default: BSTONE_THROW_STATIC_SOURCE("Unsupported audio chunk type.");
-	}
-}
-
-const char* AudioExtractorImpl::make_opl3_type_string(Opl3Type opl3_type)
-{
-	switch (opl3_type)
-	{
-		case Opl3Type::none: return "";
-		case Opl3Type::dbopl: return "dosbox";
-		case Opl3Type::nuked: return "nuked";
-		default: BSTONE_THROW_STATIC_SOURCE("Unknown OPL3 type.");
-	}
-}
-
-const char* AudioExtractorImpl::make_file_extension(ExtensionType extension_type)
-{
-	switch (extension_type)
-	{
-		case ExtensionType::data: return ".data";
-		case ExtensionType::wav: return ".wav";
-		default: BSTONE_THROW_STATIC_SOURCE("Unsupported extension type.");
-	}
-}
-
-std::string AudioExtractorImpl::make_number_string(int number)
-{
-	BSTONE_ASSERT(number >= 0);
-	return std::format("{:08}", number);
-}
-
 std::string AudioExtractorImpl::make_file_name(const AudioChunk& audio_chunk, ExtensionType extension_type, Opl3Type opl3_type)
 {
-	const char* const file_name_prefix = make_file_name_prefix(audio_chunk.type);
-	std::string opl3_type_string = make_opl3_type_string(opl3_type);
-	if (!opl3_type_string.empty())
-		opl3_type_string.insert(0, 1, '_');
-	const std::string number_string = make_number_string(audio_chunk.audio_index);
-	const char* const file_extension = make_file_extension(extension_type);
-	const std::string file_name = std::string{} + file_name_prefix + opl3_type_string + '_' + number_string + file_extension;
-	return file_name;
+	std::string filename{};
+	filename.reserve(256);
+	const AssetsInfo& assets_info = get_assets_info();
+	if (audio_chunk.type == AudioChunkType::adlib_music)
+		AudioMixerUtils::append_music_chunk_dirname(assets_info, filename);
+	else
+		AudioMixerUtils::append_sfx_chunk_dirname(assets_info, filename);
+	switch (audio_chunk.type)
+	{
+		case AudioChunkType::adlib_music:
+		case AudioChunkType::adlib_sfx:
+			fs_utils::append_path_inplace(filename, "adlib");
+			break;
+		case AudioChunkType::pc_speaker:
+			fs_utils::append_path_inplace(filename, "pc_speaker");
+			break;
+		case AudioChunkType::digitized:
+			fs_utils::append_path_inplace(filename, "digitized");
+			break;
+		default:
+			BSTONE_ASSERT(false && "Unsupported audio chunk type.");
+			fs_utils::append_path_inplace(filename, "?");
+			break;
+	}
+	if (extension_type == ExtensionType::data)
+		fs_utils::append_path_inplace(filename, "raw");
+	switch (opl3_type)
+	{
+		case Opl3Type::none:
+			break;
+		case Opl3Type::dbopl:
+			fs_utils::append_path_inplace(filename, "dosbox");
+			break;
+		case Opl3Type::nuked:
+			fs_utils::append_path_inplace(filename, "nuked");
+			break;
+		default:
+			BSTONE_ASSERT(false && "Unknown OPL3 type.");
+			fs_utils::append_path_inplace(filename, "?");
+			break;
+	}
+	std::string_view chunk_name{};
+	if (audio_chunk.type == AudioChunkType::adlib_music)
+		chunk_name = AudioMixerUtils::get_music_chunk_name(audio_chunk.audio_index, assets_info);
+	else
+		chunk_name = AudioMixerUtils::get_sfx_chunk_name(audio_chunk.audio_index, assets_info);
+	fs_utils::append_path_inplace(filename, chunk_name);
+	switch (extension_type)
+	{
+		case ExtensionType::data:
+			filename += ".data";
+			break;
+		case ExtensionType::wav:
+			filename += ".wav";
+			break;
+		default:
+			BSTONE_ASSERT(false && "Unsupported extension type.");
+			filename += ".?";
+			break;
+	}
+	return filename;
 }
 
 void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, const AudioChunk& audio_chunk)
@@ -271,7 +281,8 @@ void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, con
 	const std::string file_name = make_file_name(audio_chunk, ExtensionType::data, Opl3Type::none);
 	globals::logger->log_information(file_name.c_str());
 	const std::string dst_file_name = fs_utils::append_path(dst_dir, file_name);
-
+	const std::string dirname = fs_utils::get_dirname(dst_file_name);
+	sys::create_directories(dirname.c_str());
 	FileStream file_stream{dst_file_name.c_str(), sys::FileMode::create};
 	if (!file_stream.is_open())
 	{
@@ -314,6 +325,8 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir,
 		const std::string file_name = make_file_name(audio_chunk, ExtensionType::wav, opl3_type);
 		globals::logger->log_information(file_name.c_str());
 		const std::string dst_file_name = fs_utils::append_path(dst_dir, file_name);
+		const std::string dirname = fs_utils::get_dirname(dst_file_name);
+		sys::create_directories(dirname.c_str());
 		FileStream file_stream{dst_file_name.c_str(), sys::FileMode::create};
 		if (!file_stream.is_open())
 		{

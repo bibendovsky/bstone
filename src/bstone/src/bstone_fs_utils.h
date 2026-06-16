@@ -25,6 +25,7 @@ std::string get_working_dir();
 void rename_with_overwrite(const std::string& old_path, const std::string& new_path);
 bool ends_with_non_root_separator(const std::string& path);
 std::string& trim_non_root_trailing_separator_inplace(std::string& pathname);
+std::string get_dirname(std::string_view pathname);
 std::string_view get_filename(std::string_view pathname);
 std::string_view get_extension(std::string_view pathname);
 void split_pathname_by_extension(std::string_view pathname, std::string_view& pathname_without_extension, std::string_view& extension);

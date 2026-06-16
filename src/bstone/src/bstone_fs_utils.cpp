@@ -189,6 +189,21 @@ std::string& trim_non_root_trailing_separator_inplace(std::string& pathname)
 	return pathname;
 }
 
+std::string get_dirname(std::string_view pathname)
+{
+	const std::size_t size = pathname.size();
+	for (std::size_t i = 0; i < size; ++i)
+	{
+		const std::size_t index = size - 1 - i;
+		const char ch = pathname[index];
+		if (ch == '/' || ch == '\\')
+			return std::string{pathname.substr(0, index)};
+		if (ch == ':')
+			return std::string{pathname.substr(0, index + 1)};
+	}
+	return std::string{};
+}
+
 std::string_view get_filename(std::string_view pathname)
 {
 	const std::size_t size = pathname.size();
