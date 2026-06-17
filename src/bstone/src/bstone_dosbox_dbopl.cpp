@@ -33,7 +33,6 @@ public:
 
 	void write(int fm_port, int fm_value) override;
 	void write_buffered(int fm_port, int fm_value) override;
-	bool generate(int count, std::int16_t* buffer) override;
 	bool generate(int count, float* buffer) override;
 
 	bool reset() override;
@@ -41,9 +40,6 @@ public:
 	int get_min_sample_rate() const override;
 
 private:
-	struct S16Tag {};
-	struct F32Tag {};
-
 	using Buffer = std::vector<std::int16_t>;
 
 	bool is_initialized_{};
@@ -56,14 +52,7 @@ private:
 	// (Emulator dependent value)
 	static int get_max_samples_count();
 
-	void generate_block(int count, std::int16_t* buffer, S16Tag);
-	void generate_block(int count, float* buffer, F32Tag);
-
-	template<typename T>
-	void generate_block(int count, T* buffer);
-
-	template<typename T>
-	bool generate(int count, T* buffer);
+	void generate_block(int count, float* buffer);
 };
 
 // -------------------------------------
@@ -115,14 +104,23 @@ void DosboxDbopl::write_buffered(int fm_port, int fm_value)
 		emulator_.WriteReg(static_cast<Bit32u>(fm_port), static_cast<Bit8u>(fm_value));
 }
 
-bool DosboxDbopl::generate(int count, std::int16_t* buffer)
-{
-	return generate<std::int16_t>(count, buffer);
-}
-
 bool DosboxDbopl::generate(int count, float* buffer)
 {
-	return generate<float>(count, buffer);
+	if (!is_initialized_)
+		return false;
+	if (count < 1)
+		return false;
+	if (buffer == nullptr)
+		return false;
+	int remain_count = count;
+	while (remain_count > 0)
+	{
+		const int generate_count = std::min(remain_count, get_max_samples_count());
+		generate_block(generate_count, buffer);
+		remain_count -= generate_count;
+		buffer += generate_count;
+	}
+	return true;
 }
 
 bool DosboxDbopl::reset()
@@ -143,52 +141,11 @@ int DosboxDbopl::get_max_samples_count()
 	return 512;
 }
 
-void DosboxDbopl::generate_block(int count, std::int16_t* buffer, S16Tag)
-{
-	channel_.set_buffer(buffer);
-	emulator_.Generate(&channel_, static_cast<Bitu>(count));
-}
-
-void DosboxDbopl::generate_block(int count, float* buffer, F32Tag)
+void DosboxDbopl::generate_block(int count, float* buffer)
 {
 	channel_.set_buffer(samples_.data());
 	emulator_.Generate(&channel_, static_cast<Bitu>(count));
 	std::transform(samples_.cbegin(), samples_.cbegin() + count, buffer, AudioSampleConverter::s16_to_f32);
-}
-
-template<typename T>
-void DosboxDbopl::generate_block(int count, T* buffer)
-{
-	using Tag = std::conditional_t<
-		std::is_same<T, std::int16_t>::value,
-		S16Tag,
-		std::conditional_t<
-			std::is_same<T, float>::value,
-			F32Tag,
-			void
-		>
-	>;
-	generate_block(count, buffer, Tag{});
-}
-
-template<typename T>
-bool DosboxDbopl::generate(int count, T* buffer)
-{
-	if (!is_initialized_)
-		return false;
-	if (count < 1)
-		return false;
-	if (buffer == nullptr)
-		return false;
-	int remain_count = count;
-	while (remain_count > 0)
-	{
-		const int generate_count = std::min(remain_count, get_max_samples_count());
-		generate_block<T>(generate_count, buffer);
-		remain_count -= generate_count;
-		buffer += generate_count;
-	}
-	return true;
 }
 
 } // namespace
