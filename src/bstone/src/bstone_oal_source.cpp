@@ -25,9 +25,21 @@ try
 		BSTONE_THROW_STATIC_SOURCE("Mix sample count out of range.");
 	if (param.oal_al_symbols == nullptr)
 		BSTONE_THROW_STATIC_SOURCE("Null AL symbols.");
+	switch (param.sample_size)
+	{
+		case 2:
+		case 4:
+			break;
+		default:
+			BSTONE_THROW_STATIC_SOURCE("Unsupported sample size.");
+	}
+	if (param.al_mono_format == 0)
+		BSTONE_THROW_STATIC_SOURCE("Unknown AL sample format.");
 	oal_al_symbols_ = param.oal_al_symbols;
 	streaming_mix_sample_count_ = param.mix_sample_count;
-	streaming_mix_buffer_.resize(streaming_mix_sample_count_ * sample_size);
+	sample_size_ = param.sample_size;
+	al_mono_format_ = param.al_mono_format;
+	streaming_mix_buffer_.resize(streaming_mix_sample_count_ * sample_size_);
 	initialize_al_resources();
 	is_initialized_ = true;
 }
@@ -416,20 +428,20 @@ void OalSource::set_static_al_buffer_data(const OalSourceOpenStaticParam& param)
 	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
 	BSTONE_ASSERT(oal_al_symbols_->alBufferData != nullptr);
 	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alBufferData(static_al_buffer_resource_.get(), AL_FORMAT_MONO16, param.data, param.data_size, param.sample_rate);
+	oal_al_symbols_->alBufferData(static_al_buffer_resource_.get(), al_mono_format_, param.data, param.data_size, param.sample_rate);
 	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
-void OalSource::set_streaming_al_buffer_data(ALint al_buffer, int sample_count, OalSourceSample* samples)
+void OalSource::set_streaming_al_buffer_data(ALint al_buffer, int sample_count, std::byte* samples)
 {
 	BSTONE_ASSERT(al_buffer != 0);
 	BSTONE_ASSERT(sample_count > 0);
 	BSTONE_ASSERT(samples != nullptr);
 	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
 	BSTONE_ASSERT(oal_al_symbols_->alBufferData != nullptr);
-	const int buffer_size = sample_count * sample_size;
+	const int buffer_size = sample_count * sample_size_;
 	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alBufferData(al_buffer, AL_FORMAT_MONO16, samples, buffer_size, streaming_sample_rate_);
+	oal_al_symbols_->alBufferData(al_buffer, al_mono_format_, samples, buffer_size, streaming_sample_rate_);
 	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
@@ -445,7 +457,7 @@ void OalSource::set_streaming_al_buffer_data(ALint al_buffer, int sample_count)
 
 void OalSource::set_streaming_al_buffer_defaults()
 {
-	std::fill(streaming_mix_buffer_.begin(), streaming_mix_buffer_.end(), OalSourceSample{});
+	std::fill(streaming_mix_buffer_.begin(), streaming_mix_buffer_.end(), std::byte{});
 	for (int i = 0; i < oal_source_max_streaming_buffers; ++i)
 	{
 		const ALuint al_buffer = streaming_al_buffer_resources_[i].get();
@@ -485,7 +497,7 @@ bool OalSource::streaming_mix_uncaching_sound(ALuint al_buffer)
 	set_streaming_al_buffer_data(
 		al_buffer,
 		streaming_mix_sample_count_,
-		&streaming_uncaching_sound_->samples[streaming_uncaching_sound_->read_sample_offset]);
+		&streaming_uncaching_sound_->samples[streaming_uncaching_sound_->read_sample_offset * sample_size_]);
 	streaming_uncaching_sound_->read_sample_offset += streaming_mix_sample_count_;
 	enqueue_al_buffer(al_buffer);
 	return true;
@@ -497,7 +509,7 @@ bool OalSource::streaming_mix_caching_sound(ALuint al_buffer)
 	if (remain_sample_count == 0)
 		return false;
 	const int sample_count = std::min(remain_sample_count, streaming_mix_sample_count_);
-	set_streaming_al_buffer_data(al_buffer, sample_count, &streaming_caching_sound_->samples[streaming_caching_sample_offset_]);
+	set_streaming_al_buffer_data(al_buffer, sample_count, &streaming_caching_sound_->samples[streaming_caching_sample_offset_ * sample_size_]);
 	enqueue_al_buffer(al_buffer);
 	streaming_caching_sample_offset_ += sample_count;
 	return true;

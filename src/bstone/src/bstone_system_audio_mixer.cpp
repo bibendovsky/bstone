@@ -78,7 +78,6 @@ try {
 	opl3_type_ = param.opl3_type;
 	const int total_samples = get_max_channels() * mix_samples_count_;
 	buffer_.resize(total_samples);
-	s16_samples_.resize(total_samples);
 	mix_buffer_.resize(total_samples);
 	adlib_music_cache_.resize(LASTMUSIC);
 	adlib_sfx_cache_.resize(NUMSOUNDS);
@@ -768,32 +767,16 @@ bool SystemAudioMixer::decode_voice(const Voice& voice)
 		int remain_count = std::min(total_remain_count, cache_item->buffer_size);
 		if (remain_count == 0)
 			remain_count = std::min(total_remain_count, mix_samples_count_);
-		cache_item->buffer_size = cache_item->decoder->decode(remain_count, s16_samples_.data());
-		if (cache_item->buffer_size > 0)
-		{
-			std::transform(
-				s16_samples_.cbegin(),
-				s16_samples_.cbegin() + cache_item->buffer_size,
-				cache_item->samples.begin(),
-				AudioSampleConverter::s16_to_f32);
-			cache_item->decoded_count += cache_item->buffer_size;
-		}
+		cache_item->buffer_size = cache_item->decoder->decode(remain_count, cache_item->samples.data());
+		cache_item->decoded_count += cache_item->buffer_size;
 		return true;
 	}
 	const int ahead_count = std::min(voice.decode_offset + mix_samples_count_, cache_item->samples_count);
 	if (ahead_count <= cache_item->decoded_count)
 		return true;
 	const int planned_count = std::min(cache_item->samples_count - cache_item->decoded_count, mix_samples_count_);
-	const int actual_count = cache_item->decoder->decode(planned_count, s16_samples_.data());
-	if (actual_count > 0)
-	{
-		std::transform(
-			s16_samples_.cbegin(),
-			s16_samples_.cbegin() + actual_count,
-			cache_item->samples.begin() + cache_item->decoded_count,
-			AudioSampleConverter::s16_to_f32);
-		cache_item->decoded_count += actual_count;
-	}
+	const int actual_count = cache_item->decoder->decode(planned_count, cache_item->samples.data() + cache_item->decoded_count);
+	cache_item->decoded_count += actual_count;
 	return true;
 }
 

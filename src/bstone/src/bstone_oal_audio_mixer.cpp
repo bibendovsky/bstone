@@ -13,6 +13,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_audio_decoder.h"
 #include "bstone_audio_mixer_validator.h"
 #include "bstone_audio_mixer_voice_handle_mgr.h"
+#include "bstone_audio_sample_converter.h"
 #include "bstone_exception.h"
 #include "bstone_globals.h"
 #include "bstone_logger.h"
@@ -212,6 +213,8 @@ private:
 	using Commands = std::vector<Command>;
 	using CommandQueueMutex = Mutex;
 
+	using SamplesF32 = std::vector<float>;
+
 	inline static constexpr int commands_min_capacity = 1024;
 
 	inline static constexpr int min_mix_size_ms = 20;
@@ -222,11 +225,19 @@ private:
 	inline static constexpr int music_voices_limit = 1;
 	inline static constexpr int voices_limit = sfx_voices_limit + music_voices_limit;
 
+#if 0
 	inline static constexpr int adlib_sfx_gain_scale = 7;
 	inline static constexpr int adlib_music_gain_scale = 6;
+#else
+	inline static constexpr float adlib_sfx_gain_scale = 7.0F;
+	inline static constexpr float adlib_music_gain_scale = 6.0F;
+#endif
 
 	inline static constexpr const char* alc_enumeration_ext_str = "ALC_ENUMERATION_EXT";
 	inline static constexpr const char* alc_enumerate_all_ext_str = "ALC_ENUMERATE_ALL_EXT";
+	inline static constexpr const ALchar* al_ext_float32_name = "AL_EXT_float32";
+	inline static constexpr const ALchar* al_format_mono_float32_name = "AL_FORMAT_MONO_FLOAT32";
+	inline static constexpr const ALchar* al_format_stereo_float32_name = "AL_FORMAT_STEREO_FLOAT32";
 
 	using Thread = std::thread;
 	using VoiceHandleMgr = AudioMixerVoiceHandleMgr<Voice>;
@@ -242,6 +253,11 @@ private:
 
 	bool has_alc_enumeration_ext_{};
 	bool has_alc_enumerate_all_ext_{};
+	bool has_al_ext_float32_{};
+	ALenum al_format_mono_float32_enum_{};
+	ALenum al_format_stereo_float32_enum_{};
+	int sample_size_{};
+	SamplesF32 samples_f32_{};
 
 	OalLoaderUPtr oal_loader_{};
 	OalAlSymbols al_symbols_{};
@@ -289,6 +305,8 @@ private:
 	int get_max_voice_count();
 
 	void detect_alc_extensions();
+	void detect_al_extension_al_ext_float32();
+	void detect_al_extensions();
 	
 	void log(const std::string& string);
 	void log_oal_library_file_name();
@@ -319,6 +337,7 @@ private:
 	void initialize_sfx_pcm_sounds();
 	void initialize_sfx();
 	void uninitialize_sfx();
+	void initialize_misc();
 
 	void on_music_stop(Voice& voice);
 	void on_sfx_stop(const Voice& voice);
@@ -342,7 +361,7 @@ private:
 	void handle_set_voice_r3_position_command(const SetVoiceR3PositionCommandParam& param);
 	void handle_commands();
 
-	void decode_adlib_sound(OalSourceCachingSound& adlib_sound, int gain_scale);
+	void decode_adlib_sound(OalSourceCachingSound& adlib_sound, float gain_scale);
 	void decode_pc_speaker_sound(OalSourceCachingSound& pc_speaker_sound);
 	void decode_pcm_sound(OalSourceCachingSound& pcm_sound);
 
@@ -363,7 +382,7 @@ private:
 	void set_al_listener_orientation(double at_x, double at_y, double at_z, double up_x, double up_y, double up_z);
 	void set_listener_r3_orientation();
 
-	static OalSourceSample scale_sample(OalSourceSample sample, int scalar);
+	static float scale_sample(float sample, float scalar);
 };
 
 // -------------------------------------
@@ -399,6 +418,7 @@ try
 	initialize_command_queue();
 	initialize_music();
 	initialize_sfx();
+	initialize_misc();
 	initialize_thread();
 	is_mute_ = false;
 }
@@ -830,6 +850,27 @@ void OalAudioMixer::detect_alc_extensions()
 	has_alc_enumerate_all_ext_ = (al_symbols_.alcIsExtensionPresent(nullptr, alc_enumerate_all_ext_str) != ALC_FALSE);
 }
 
+void OalAudioMixer::detect_al_extension_al_ext_float32()
+{
+	BSTONE_ASSERT(al_symbols_.alIsExtensionPresent != nullptr);
+	BSTONE_ASSERT(al_symbols_.alGetEnumValue != nullptr);
+	has_al_ext_float32_ = false;
+	if (!al_symbols_.alIsExtensionPresent(al_ext_float32_name))
+		return;
+	if (al_format_mono_float32_enum_ = al_symbols_.alGetEnumValue(al_format_mono_float32_name);
+		al_format_mono_float32_enum_ == 0)
+		return;
+	if (al_format_stereo_float32_enum_ = al_symbols_.alGetEnumValue(al_format_stereo_float32_name);
+		al_format_stereo_float32_enum_ == 0)
+		return;
+	has_al_ext_float32_ = true;
+}
+
+void OalAudioMixer::detect_al_extensions()
+{
+	detect_al_extension_al_ext_float32();
+}
+
 void OalAudioMixer::log(const std::string& string)
 {
 	static const auto prefix = std::string{"[SND_OAL] "};
@@ -949,9 +990,11 @@ void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 	oal_context_resource_ = make_oal_context(al_symbols_, *oal_device_resource_, al_context_attributes);
 	make_al_context_current();
 	oal_loader_->load_al_symbols(al_symbols_);
+	detect_al_extensions();
 	log_oal_al_info();
 	log_oal_al_extensions();
 	dst_rate_ = get_al_mixing_frequency();
+	sample_size_ = has_al_ext_float32_ ? 4 : 2;
 }
 
 void OalAudioMixer::initialize_distance_model()
@@ -1002,10 +1045,12 @@ void OalAudioMixer::initialize_voices()
 	if (max_voice_count <= 0)
 		return;
 	voices_.resize(max_voice_count);
-	OalSourceInitParam param{};
-	param.mix_sample_rate = dst_rate_;
-	param.mix_sample_count = mix_sample_count_;
-	param.oal_al_symbols = &al_symbols_;
+	const OalSourceInitParam param{
+		.mix_sample_rate = dst_rate_,
+		.mix_sample_count = mix_sample_count_,
+		.oal_al_symbols = &al_symbols_,
+		.sample_size = sample_size_,
+		.al_mono_format = has_al_ext_float32_ ? al_format_mono_float32_enum_ : AL_FORMAT_MONO16};
 	for (Voice& voice : voices_)
 	{
 		voice.index = 0;
@@ -1022,7 +1067,7 @@ void OalAudioMixer::initialize_music_adlib_sound()
 	music_adlib_sound_.queue_size = 0;
 	music_adlib_sound_.read_sample_offset = 0;
 	music_adlib_sound_.write_sample_offset = 0;
-	music_adlib_sound_.samples.resize(mix_sample_count_ * oal_source_max_streaming_buffers);
+	music_adlib_sound_.samples.resize(mix_sample_count_ * oal_source_max_streaming_buffers * sample_size_);
 	music_adlib_sound_.audio_decoder = make_audio_decoder(AudioDecoderType::adlib_music, opl3_type_);
 }
 
@@ -1084,6 +1129,11 @@ void OalAudioMixer::uninitialize_sfx()
 	for (OalSourceCachingSound& sfx_pc_speaker_sound : sfx_pc_speaker_sounds_)
 		sfx_pc_speaker_sound.audio_decoder = nullptr;
 	voices_.clear();
+}
+
+void OalAudioMixer::initialize_misc()
+{
+	samples_f32_.resize(dst_rate_ * oal_source_max_streaming_buffers);
 }
 
 void OalAudioMixer::on_music_stop(Voice& voice)
@@ -1219,7 +1269,7 @@ void OalAudioMixer::handle_play_sfx_command(const PlaySfxCommandParam& param)
 		sfx_sound.is_decoded = false;
 		sfx_sound.sample_offset = 0;
 		sfx_sound.sample_count = sample_count;
-		sfx_sound.samples.resize(sample_count);
+		sfx_sound.samples.resize(sample_count * sample_size_);
 	}
 	voice = find_free_voice();
 	if (voice == nullptr)
@@ -1227,10 +1277,11 @@ void OalAudioMixer::handle_play_sfx_command(const PlaySfxCommandParam& param)
 	const bool is_3d = param.is_r3;
 	if (sfx_sound.is_decoded)
 	{
-		const int decoded_data_size = static_cast<int>(sfx_sound.sample_count * sizeof(OalSourceSample));
+		const int decoded_data_size = sfx_sound.sample_count * sample_size_;
 		const OalSourceOpenStaticParam source_param{
 			.is_3d = is_3d,
 			.sample_rate = dst_rate_,
+			.sample_size = sample_size_,
 			.data = sfx_sound.samples.data(),
 			.data_size = decoded_data_size};
 		voice->oal_source.open(source_param);
@@ -1241,6 +1292,7 @@ void OalAudioMixer::handle_play_sfx_command(const PlaySfxCommandParam& param)
 			.is_3d = is_3d,
 			.is_looping = false,
 			.sample_rate = dst_rate_,
+			.sample_size = sample_size_,
 			.caching_sound = &sfx_sound};
 		voice->oal_source.open(source_param);
 	}
@@ -1393,7 +1445,7 @@ void OalAudioMixer::handle_commands()
 	mt_commands_.clear();
 }
 
-void OalAudioMixer::decode_adlib_sound(OalSourceCachingSound& adlib_sound, int gain_scale)
+void OalAudioMixer::decode_adlib_sound(OalSourceCachingSound& adlib_sound, float gain_scale)
 {
 	if (!adlib_sound.is_initialized || adlib_sound.is_decoded)
 		return;
@@ -1404,10 +1456,22 @@ void OalAudioMixer::decode_adlib_sound(OalSourceCachingSound& adlib_sound, int g
 		return;
 	}
 	const int sample_count = std::min(remain_count, oal_source_max_streaming_buffers * dst_rate_);
-	std::int16_t* const samples = &adlib_sound.samples[adlib_sound.sample_offset];
-	const int decoded_count = adlib_sound.audio_decoder->decode(sample_count, samples);
-	for (int i = 0; i < decoded_count; ++i)
-		samples[i] = scale_sample(samples[i], gain_scale);
+	int decoded_count;
+	if (has_al_ext_float32_)
+	{
+		const auto dst_samples = reinterpret_cast<float*>(&adlib_sound.samples[adlib_sound.sample_offset * 4]);
+		decoded_count = adlib_sound.audio_decoder->decode(sample_count, dst_samples);
+		for (int i = 0; i < decoded_count; ++i)
+			dst_samples[i] = scale_sample(dst_samples[i], gain_scale);
+	}
+	else
+	{
+		float* const src_samples = samples_f32_.data();
+		const auto dst_samples = reinterpret_cast<std::int16_t*>(&adlib_sound.samples[adlib_sound.sample_offset * 2]);
+		decoded_count = adlib_sound.audio_decoder->decode(sample_count, src_samples);
+		for (int i = 0; i < decoded_count; ++i)
+			dst_samples[i] = AudioSampleConverter::f32_to_s16(scale_sample(src_samples[i], gain_scale));
+	}
 	adlib_sound.sample_offset += decoded_count;
 	if (decoded_count <= sample_count)
 	{
@@ -1427,8 +1491,20 @@ void OalAudioMixer::decode_pc_speaker_sound(OalSourceCachingSound& pc_speaker_so
 		return;
 	}
 	const int sample_count = std::min(remain_count, oal_source_max_streaming_buffers * dst_rate_);
-	std::int16_t* const samples = &pc_speaker_sound.samples[pc_speaker_sound.sample_offset];
-	const int decoded_count = pc_speaker_sound.audio_decoder->decode(sample_count, samples);
+	int decoded_count;
+	if (has_al_ext_float32_)
+	{
+		const auto dst_samples = reinterpret_cast<float*>(&pc_speaker_sound.samples[pc_speaker_sound.sample_offset * 4]);
+		decoded_count = pc_speaker_sound.audio_decoder->decode(sample_count, dst_samples);
+	}
+	else
+	{
+		float* const src_samples = samples_f32_.data();
+		const auto dst_samples = reinterpret_cast<std::int16_t*>(&pc_speaker_sound.samples[pc_speaker_sound.sample_offset * 2]);
+		decoded_count = pc_speaker_sound.audio_decoder->decode(sample_count, src_samples);
+		for (int i = 0; i < decoded_count; ++i)
+			dst_samples[i] = AudioSampleConverter::f32_to_s16(src_samples[i]);
+	}
 	pc_speaker_sound.sample_offset += decoded_count;
 	if (decoded_count <= sample_count)
 	{
@@ -1448,8 +1524,20 @@ void OalAudioMixer::decode_pcm_sound(OalSourceCachingSound& pcm_sound)
 		return;
 	}
 	const int sample_count = std::min(remain_count, oal_source_max_streaming_buffers * dst_rate_);
-	std::int16_t* const samples = &pcm_sound.samples[pcm_sound.sample_offset];
-	const int decoded_count = pcm_sound.audio_decoder->decode(sample_count, samples);
+	int decoded_count;
+	if (has_al_ext_float32_)
+	{
+		const auto dst_samples = reinterpret_cast<float*>(&pcm_sound.samples[pcm_sound.sample_offset * 4]);
+		decoded_count = pcm_sound.audio_decoder->decode(sample_count, dst_samples);
+	}
+	else
+	{
+		float* const src_samples = samples_f32_.data();
+		const auto dst_samples = reinterpret_cast<std::int16_t*>(&pcm_sound.samples[pcm_sound.sample_offset * 2]);
+		decoded_count = pcm_sound.audio_decoder->decode(sample_count, src_samples);
+		for (int i = 0; i < decoded_count; ++i)
+			dst_samples[i] = AudioSampleConverter::f32_to_s16(src_samples[i]);
+	}
 	pcm_sound.sample_offset += decoded_count;
 	if (decoded_count <= sample_count)
 	{
@@ -1490,12 +1578,26 @@ bool OalAudioMixer::mix_music_mix_buffer(Voice& voice)
 		music_adlib_sound_.write_sample_offset = 0;
 	while (to_decode_count > 0)
 	{
-		std::int16_t* const samples = &music_adlib_sound_.samples[music_adlib_sound_.write_sample_offset + decode_offset];
-		const int decoded_count = audio_decoder->decode(to_decode_count, samples);
+		int decoded_count;
+		if (has_al_ext_float32_)
+		{
+			const auto dst_samples = reinterpret_cast<float*>(
+				&music_adlib_sound_.samples[(music_adlib_sound_.write_sample_offset + decode_offset) * 4]);
+			decoded_count = music_adlib_sound_.audio_decoder->decode(to_decode_count, dst_samples);
+			for (int i = 0; i < decoded_count; ++i)
+				dst_samples[i] = scale_sample(dst_samples[i], adlib_music_gain_scale);
+		}
+		else
+		{
+			float* const src_samples = samples_f32_.data();
+			const auto dst_samples = reinterpret_cast<std::int16_t*>(
+				&music_adlib_sound_.samples[(music_adlib_sound_.write_sample_offset + decode_offset) * 2]);
+			decoded_count = music_adlib_sound_.audio_decoder->decode(to_decode_count, src_samples);
+			for (int i = 0; i < decoded_count; ++i)
+				dst_samples[i] = AudioSampleConverter::f32_to_s16(scale_sample(src_samples[i], adlib_music_gain_scale));
+		}
 		if (decoded_count > 0)
 		{
-			for (int i = 0; i < decoded_count; ++i)
-				samples[i] = scale_sample(samples[i], adlib_music_gain_scale);
 			decode_offset += decoded_count;
 			to_decode_count -= decoded_count;
 		}
@@ -1635,10 +1737,9 @@ void OalAudioMixer::set_listener_r3_orientation()
 		listener_r3_orientation_.up.z);
 }
 
-OalSourceSample OalAudioMixer::scale_sample(OalSourceSample sample, int scalar)
+float OalAudioMixer::scale_sample(float sample, float scalar)
 {
-	const int new_sample = std::clamp(sample * scalar, -32'768, +32'767);
-	return static_cast<OalSourceSample>(new_sample);
+	return std::clamp(sample * scalar, -1.0F, +1.0F);
 }
 
 } // namespace

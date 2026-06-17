@@ -25,7 +25,7 @@ public:
 	bool initialize(const AudioDecoderInitParam& param) override;
 	void uninitialize() override;
 	bool is_initialized() const override;
-	int decode(int dst_count, std::int16_t* dst_data) override;
+	int decode(int dst_count, float* dst_data) override;
 	bool rewind() override;
 	int get_dst_length_in_samples() const override;
 
@@ -37,7 +37,7 @@ private:
 	int dst_sample_count_{};
 	int counter_{};
 	int src_offset_{};
-	std::int16_t sample_{};
+	float sample_{};
 };
 
 // -------------------------------------
@@ -90,7 +90,7 @@ bool PcmAudioDecoder::is_initialized() const
 	return is_initialized_;
 }
 
-int PcmAudioDecoder::decode(int dst_count, std::int16_t* dst_data)
+int PcmAudioDecoder::decode(int dst_count, float* dst_data)
 {
 	if (dst_count < 0)
 	{
@@ -113,7 +113,7 @@ int PcmAudioDecoder::decode(int dst_count, std::int16_t* dst_data)
 			++src_offset_;
 			if (src_offset_ >= dst_sample_count_)
 				break;
-			sample_ = AudioSampleConverter::u8_to_s16(src_data_[src_offset_]);
+			sample_ = AudioSampleConverter::u8_to_f32(src_data_[src_offset_]);
 		}
 		counter_ += audio_decoder_w3d_pcm_frequency;
 		dst_data[i] = sample_;
@@ -127,7 +127,7 @@ bool PcmAudioDecoder::rewind()
 		return false;
 	counter_ = dst_rate_;
 	src_offset_ = -1;
-	sample_ = 0;
+	sample_ = 0.0F;
 	return true;
 }
 

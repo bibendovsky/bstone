@@ -62,9 +62,6 @@ private:
 	using Sample = float;
 	using Samples = std::vector<Sample>;
 
-	using S16Sample = std::int16_t;
-	using S16Samples = std::vector<S16Sample>;
-
 	using MixSample = float;
 	using MixSamples = std::vector<MixSample>;
 
@@ -252,7 +249,6 @@ private:
 	sys::AudioMgr* sys_audio_mgr_{};
 	int mix_samples_count_{};
 	Samples buffer_{};
-	S16Samples s16_samples_{};
 	MixSamples mix_buffer_{};
 	VoiceHandleMgr voice_handle_mgr_{};
 	Voices voices_{};

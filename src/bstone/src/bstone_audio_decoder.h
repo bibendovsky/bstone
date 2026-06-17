@@ -11,7 +11,6 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #define BSTONE_AUDIO_DECODER_INCLUDED
 
 #include "bstone_opl3.h"
-#include <cstdint>
 #include <memory>
 
 namespace bstone {
@@ -54,7 +53,7 @@ public:
 
 	// Decodes specified number of samples into a provided buffer.
 	// Returns a number of decoded samples.
-	virtual int decode(int dst_count, std::int16_t* dst_data) = 0;
+	virtual int decode(int dst_count, float* dst_data) = 0;
 
 	// Sets decoding position to the beginning.
 	virtual bool rewind() = 0;

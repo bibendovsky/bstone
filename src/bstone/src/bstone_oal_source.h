@@ -10,6 +10,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_audio_decoder.h"
 #include "bstone_oal_resource.h"
+#include <cstddef>
 #include <array>
 #include <vector>
 
@@ -18,11 +19,9 @@ namespace bstone {
 static constexpr auto oal_source_max_streaming_buffers = 2;
 static_assert(oal_source_max_streaming_buffers >= 2, "Streaming buffer count out of range.");
 
-using OalSourceSample = short;
-
 // =====================================
 
-using OalSourceSoundSamples = std::vector<OalSourceSample>;
+using OalSourceSoundSamples = std::vector<std::byte>;
 
 struct OalSourceCachingSound
 {
@@ -51,6 +50,8 @@ struct OalSourceInitParam
 	int mix_sample_rate{};
 	int mix_sample_count{};
 	const OalAlSymbols* oal_al_symbols{};
+	int sample_size{};
+	ALenum al_mono_format{};
 };
 
 // -------------------------------------
@@ -59,6 +60,7 @@ struct OalSourceOpenStaticParam
 {
 	bool is_3d{};
 	int sample_rate{};
+	int sample_size{};
 	const void* data{};
 	int data_size{};
 };
@@ -68,6 +70,7 @@ struct OalSourceOpenStreamingParam
 	bool is_3d{};
 	bool is_looping{};
 	int sample_rate{};
+	int sample_size{};
 	OalSourceCachingSound* caching_sound{};
 	OalSourceUncachingSound* uncaching_sound{};
 };
@@ -103,13 +106,11 @@ public:
 	void close();
 
 private:
-	using StreamingMixBuffer = std::vector<OalSourceSample>;
+	using StreamingMixBuffer = std::vector<std::byte>;
 	using StreamingOalBufferResources = std::array<OalBufferResource, oal_source_max_streaming_buffers>;
 	using StreamingOalQueue = std::array<ALuint, oal_source_max_streaming_buffers>;
 
 	using StreamingMixOalBufferFunc = bool (OalSource::*)(ALuint al_buffer);
-
-	inline static constexpr int sample_size = sizeof(OalSourceSample);
 
 	const OalAlSymbols* oal_al_symbols_{};
 
@@ -128,6 +129,8 @@ private:
 	int streaming_mix_sample_count_{};
 	int streaming_caching_sample_offset_{};
 	int streaming_caching_sample_count_{};
+	int sample_size_{};
+	ALenum al_mono_format_{};
 	StreamingMixOalBufferFunc streaming_mix_oal_buffer_func_{};
 
 	StreamingOalBufferResources streaming_al_buffer_resources_{};
@@ -169,7 +172,11 @@ private:
 	void detach_static_al_buffer();
 
 	void set_static_al_buffer_data(const OalSourceOpenStaticParam& param);
+#if 0
 	void set_streaming_al_buffer_data(ALint al_buffer, int sample_count, OalSourceSample* samples);
+#else
+	void set_streaming_al_buffer_data(ALint al_buffer, int sample_count, std::byte* samples);
+#endif
 	void set_streaming_al_buffer_data(ALint al_buffer);
 	void set_streaming_al_buffer_data(ALint al_buffer, int sample_count);
 	void set_streaming_al_buffer_defaults();

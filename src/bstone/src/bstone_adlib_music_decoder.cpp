@@ -27,7 +27,7 @@ public:
 	void uninitialize() override;
 	bool is_initialized() const override;
 
-	int decode(int dst_count, std::int16_t* dst_data) override;
+	int decode(int dst_count, float* dst_data) override;
 	bool rewind() override;
 
 	int get_dst_length_in_samples() const override;
@@ -121,7 +121,7 @@ int AdlibMusicDecoder::get_dst_length_in_samples() const
 	return dst_length_in_samples_;
 }
 
-int AdlibMusicDecoder::decode(int dst_count, std::int16_t* dst_data)
+int AdlibMusicDecoder::decode(int dst_count, float* dst_data)
 {
 	if (!is_initialized_)
 		return 0;

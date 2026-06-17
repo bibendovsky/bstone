@@ -24,7 +24,7 @@ public:
 	void uninitialize() override;
 	bool is_initialized() const override;
 
-	int decode(int dst_count, std::int16_t* dst_data) override;
+	int decode(int dst_count, float* dst_data) override;
 	bool rewind() override;
 
 	int get_dst_length_in_samples() const override;
@@ -101,7 +101,7 @@ bool PcSpeakerAudioDecoder::is_initialized() const
 	return is_initialized_;
 }
 
-int PcSpeakerAudioDecoder::decode(int dst_count, std::int16_t* dst_data)
+int PcSpeakerAudioDecoder::decode(int dst_count, float* dst_data)
 {
 	if (!is_initialized_ || is_finished_)
 		return 0;
@@ -142,8 +142,8 @@ int PcSpeakerAudioDecoder::decode(int dst_count, std::int16_t* dst_data)
 			pit_counter_ -= dst_sample_rate_;
 			pit_signal_level_ = 1 - pit_signal_level_;
 		}
-		const int sample = (pit_signal_level_ == 0 ? -32'768 : 32'767); // [0, 1] => [-32768, +32767]
-		dst_data[sample_offset] = static_cast<std::int16_t>(sample);
+		const float sample = pit_signal_level_ == 0 ? -1.0F : 1.0F;
+		dst_data[sample_offset] = sample;
 		++sample_offset;
 		command_counter_ += command_rate;
 		pit_counter_ += pit_counter_step_;

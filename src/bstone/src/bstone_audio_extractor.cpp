@@ -12,6 +12,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_audio_decoder.h"
 #include "bstone_audio_extractor.h"
 #include "bstone_audio_mixer_utils.h"
+#include "bstone_audio_sample_converter.h"
+#include "bstone_endian.h"
 #include "bstone_exception.h"
 #include "bstone_format.h"
 #include "bstone_fs_utils.h"
@@ -42,9 +44,9 @@ private:
 
 	using AudioChunkFilter = bool (*)(const AudioChunk& audio_chunk);
 
-	using Sample = short;
 	using MusicNumbers = std::vector<int>;
-	using DecodeBuffer = std::vector<Sample>;
+	using SamplesS16 = std::vector<short>;
+	using SamplesF32 = std::vector<float>;
 
 	enum class ExtensionType
 	{
@@ -53,7 +55,8 @@ private:
 	};
 
 	AudioContentMgr& audio_content_mgr_;
-	DecodeBuffer decode_buffer_{};
+	SamplesS16 samples_s16_{};
+	SamplesF32 samples_f32_{};
 
 	bool write_wav_header(int data_size, int bit_depth, int sample_rate, bstone::Stream& stream);
 	void write_non_digitized_audio_chunk(const AudioChunk& sfx_info, bstone::Stream& stream, Opl3Type opl3_type);
@@ -70,7 +73,9 @@ AudioExtractorImpl::AudioExtractorImpl(AudioContentMgr& audio_content_mgr)
 	:
 	audio_content_mgr_{audio_content_mgr}
 {
-	decode_buffer_.resize(std::max(bstone::opl3_fixed_frequency, pc_speaker_rate));
+	const int capacity = std::max(bstone::opl3_fixed_frequency, pc_speaker_rate);
+	samples_s16_.resize(capacity);
+	samples_f32_.resize(capacity);
 }
 
 AudioExtractorImpl::~AudioExtractorImpl() = default;
@@ -156,23 +161,25 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 	if (!audio_decoder->initialize(param))
 		BSTONE_THROW_STATIC_SOURCE("Failed to initialize decoder.");
 	stream.set_position(wav_prefix_size);
-	constexpr int sample_size = sizeof(Sample);
+	constexpr int sample_size = 2;
 	constexpr int bit_depth = sample_size * 8;
 	int data_size = 0;
 	int sample_count = 0;
-	int abs_max_sample = 0;
+	float abs_max_sample = 0.0F;
 	for (;;)
 	{
-		const int decoded_count = audio_decoder->decode(dst_rate, decode_buffer_.data());
+		const int decoded_count = audio_decoder->decode(dst_rate, samples_f32_.data());
 		if (decoded_count == 0)
 			break;
 		for (int i = 0; i < decoded_count; ++i)
 		{
-			const int sample = decode_buffer_[i];
-			abs_max_sample = std::max(std::abs(sample), abs_max_sample);
+			const float sample_f32 = samples_f32_[i];
+			abs_max_sample = std::max(std::abs(sample_f32), abs_max_sample);
+			const std::int16_t sample_s16 = AudioSampleConverter::f32_to_s16(sample_f32);
+			endian::write_s16_le(sample_s16, samples_s16_.data() + i);
 		}
 		const int decoded_size = decoded_count * sample_size;
-		stream.write_exactly(decode_buffer_.data(), decoded_size);
+		stream.write_exactly(samples_s16_.data(), decoded_size);
 		data_size += decoded_size;
 		sample_count += decoded_count;
 	}
