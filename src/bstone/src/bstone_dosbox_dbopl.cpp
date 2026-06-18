@@ -7,11 +7,11 @@ SPDX-License-Identifier: MIT
 // DOSBox DBOPL wrapper
 
 #include "bstone_dosbox_dbopl.h"
-#include "dbopl.h"
 #include "bstone_audio_sample_converter.h"
 #include <algorithm>
 #include <type_traits>
 #include <vector>
+#include "dbopl.h"
 
 namespace bstone {
 
@@ -25,11 +25,12 @@ public:
 
 	Opl3Type get_type() const override;
 
-	void initialize(int sample_rate) override;
+	void initialize(const Opl3InitParam& param) override;
 	void uninitialize() override;
 
 	bool is_initialized() const override;
 	int get_sample_rate() const override;
+	int get_channel_count() const override;
 
 	void write(int fm_port, int fm_value) override;
 	void write_buffered(int fm_port, int fm_value) override;
@@ -40,19 +41,21 @@ public:
 	int get_min_sample_rate() const override;
 
 private:
-	using Buffer = std::vector<std::int16_t>;
+	inline static constexpr int channel_count = 1;
+
+	using SamplesS16 = std::vector<std::int16_t>;
 
 	bool is_initialized_{};
 	int sample_rate_{};
 	DBOPL::Handler emulator_{};
 	MixerChannel channel_{};
-	Buffer samples_{};
+	SamplesS16 samples_s16_{};
 
 	// Returns a maximum number of output samples generated at once.
 	// (Emulator dependent value)
 	static int get_max_samples_count();
 
-	void generate_block(int count, float* buffer);
+	void generate_block(float* sample_buffer, int sample_count);
 };
 
 // -------------------------------------
@@ -62,12 +65,12 @@ Opl3Type DosboxDbopl::get_type() const
 	return Opl3Type::dbopl;
 }
 
-void DosboxDbopl::initialize(int sample_rate)
+void DosboxDbopl::initialize(const Opl3InitParam& param)
 {
 	uninitialize();
-	sample_rate_ = std::max(sample_rate, get_min_sample_rate());
+	sample_rate_ = std::max(param.sample_rate, get_min_sample_rate());
 	channel_ = {};
-	samples_.resize(get_max_samples_count());
+	samples_s16_.resize(get_max_samples_count());
 	emulator_ = {};
 	emulator_.Init(sample_rate_);
 	is_initialized_ = true;
@@ -91,6 +94,11 @@ int DosboxDbopl::get_sample_rate() const
 	return sample_rate_;
 }
 
+int DosboxDbopl::get_channel_count() const
+{
+	return channel_count;
+}
+
 void DosboxDbopl::write(int fm_port, int fm_value)
 {
 	if (!is_initialized_)
@@ -112,13 +120,12 @@ bool DosboxDbopl::generate(int count, float* buffer)
 		return false;
 	if (buffer == nullptr)
 		return false;
-	int remain_count = count;
-	while (remain_count > 0)
+	for (int remain_count = count; remain_count > 0; )
 	{
 		const int generate_count = std::min(remain_count, get_max_samples_count());
-		generate_block(generate_count, buffer);
+		generate_block(buffer, generate_count);
 		remain_count -= generate_count;
-		buffer += generate_count;
+		buffer += generate_count * channel_count;
 	}
 	return true;
 }
@@ -127,7 +134,7 @@ bool DosboxDbopl::reset()
 {
 	if (!is_initialized_)
 		return false;
-	initialize(sample_rate_);
+	initialize(Opl3InitParam{.sample_rate = sample_rate_});
 	return true;
 }
 
@@ -141,11 +148,11 @@ int DosboxDbopl::get_max_samples_count()
 	return 512;
 }
 
-void DosboxDbopl::generate_block(int count, float* buffer)
+void DosboxDbopl::generate_block(float* sample_buffer, int sample_count)
 {
-	channel_.set_buffer(samples_.data());
-	emulator_.Generate(&channel_, static_cast<Bitu>(count));
-	std::transform(samples_.cbegin(), samples_.cbegin() + count, buffer, AudioSampleConverter::s16_to_f32);
+	channel_.set_buffer(samples_s16_.data());
+	emulator_.Generate(&channel_, static_cast<Bitu>(sample_count));
+	std::transform(samples_s16_.cbegin(), samples_s16_.cbegin() + sample_count, sample_buffer, AudioSampleConverter::s16_to_f32);
 }
 
 } // namespace

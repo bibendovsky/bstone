@@ -60,6 +60,9 @@ public:
 
 	// Returns a length of the audio data in samples.
 	virtual int get_dst_length_in_samples() const = 0;
+
+	// Return channel count.
+	virtual int get_channel_count() const = 0;
 };
 
 // =====================================

@@ -39,6 +39,7 @@ public:
 	void extract_sfx(const std::string& dst_dir) override;
 
 private:
+	inline static constexpr int max_channels = 2;
 	inline static constexpr int pc_speaker_rate = 48'000;
 	inline static constexpr int wav_prefix_size = 44;
 
@@ -58,7 +59,7 @@ private:
 	SamplesS16 samples_s16_{};
 	SamplesF32 samples_f32_{};
 
-	bool write_wav_header(int data_size, int bit_depth, int sample_rate, bstone::Stream& stream);
+	bool write_wav_header(int data_size, int bit_depth, int sample_rate, int channel_count, bstone::Stream& stream);
 	void write_non_digitized_audio_chunk(const AudioChunk& sfx_info, bstone::Stream& stream, Opl3Type opl3_type);
 	void write_digitized_audio_chunk(const AudioChunk& sfx_info, bstone::Stream& stream);
 	static std::string make_file_name(const AudioChunk& audio_chunk, ExtensionType extension_type, Opl3Type opl3_type);
@@ -73,7 +74,7 @@ AudioExtractorImpl::AudioExtractorImpl(AudioContentMgr& audio_content_mgr)
 	:
 	audio_content_mgr_{audio_content_mgr}
 {
-	const int capacity = std::max(bstone::opl3_fixed_frequency, pc_speaker_rate);
+	const int capacity = std::max(bstone::opl3_fixed_frequency, pc_speaker_rate) * max_channels;
 	samples_s16_.resize(capacity);
 	samples_f32_.resize(capacity);
 }
@@ -98,13 +99,12 @@ void AudioExtractorImpl::extract_sfx(const std::string& dst_dir)
 	extract_audio_chunks(dst_dir, audio_chunk_filter);
 }
 
-bool AudioExtractorImpl::write_wav_header(int data_size, int bit_depth, int sample_rate, bstone::Stream& stream)
+bool AudioExtractorImpl::write_wav_header(int data_size, int bit_depth, int sample_rate, int channel_count, bstone::Stream& stream)
 {
 	const int aligned_data_size = ((data_size + 1) / 2) * 2;
 	const int wav_size = aligned_data_size + wav_prefix_size;
 	const int riff_chunk_size = wav_size - (4 + 4); // file_size - chunk_header_size
 	const int audio_format = 1; // PCM
-	const int channel_count = 1;
 	const int byte_depth = bit_depth / 8;
 	const int byte_rate = sample_rate * channel_count * byte_depth;
 	const int block_align = channel_count * byte_depth;
@@ -163,41 +163,44 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 	stream.set_position(wav_prefix_size);
 	constexpr int sample_size = 2;
 	constexpr int bit_depth = sample_size * 8;
+	const int channel_count = audio_decoder->get_channel_count();
 	int data_size = 0;
-	int sample_count = 0;
+	int total_samples = 0;
 	float abs_max_sample = 0.0F;
 	for (;;)
 	{
-		const int decoded_count = audio_decoder->decode(dst_rate, samples_f32_.data());
-		if (decoded_count == 0)
+		const int frame_count = audio_decoder->decode(dst_rate, samples_f32_.data());
+		if (frame_count == 0)
 			break;
-		for (int i = 0; i < decoded_count; ++i)
+		const int sample_count = frame_count * channel_count;
+		for (int i = 0; i < sample_count; ++i)
 		{
 			const float sample_f32 = samples_f32_[i];
 			abs_max_sample = std::max(std::abs(sample_f32), abs_max_sample);
 			const std::int16_t sample_s16 = AudioSampleConverter::f32_to_s16(sample_f32);
 			endian::write_s16_le(sample_s16, samples_s16_.data() + i);
 		}
-		const int decoded_size = decoded_count * sample_size;
+		const int decoded_size = sample_count * sample_size;
 		stream.write_exactly(samples_s16_.data(), decoded_size);
 		data_size += decoded_size;
-		sample_count += decoded_count;
+		total_samples += sample_count;
 	}
 	stream.set_position(0);
-	if (!write_wav_header(data_size, bit_depth, bstone::opl3_fixed_frequency, stream))
+	if (!write_wav_header(data_size, bit_depth, bstone::opl3_fixed_frequency, channel_count, stream))
 		BSTONE_THROW_STATIC_SOURCE("Write error.");
 	const double volume_factor = 32'767.0 / abs_max_sample;
 	bstone::globals::logger->log_information("\tSample rate: {}", dst_rate);
-	bstone::globals::logger->log_information("\tSample count: {}", sample_count);
+	bstone::globals::logger->log_information("\tSample count: {}", total_samples);
 	bstone::globals::logger->log_information("\tVolume factor: {}", volume_factor);
 }
 
 void AudioExtractorImpl::write_digitized_audio_chunk(const AudioChunk& audio_chunk, bstone::Stream& stream)
 {
 	constexpr int sample_size = 1;
+	constexpr int channel_count = 1;
 	constexpr int bit_depth = sample_size * 8;
 	const int data_size = audio_chunk.data_size;
-	if (!write_wav_header(data_size, bit_depth, bstone::audio_decoder_w3d_pcm_frequency, stream))
+	if (!write_wav_header(data_size, bit_depth, bstone::audio_decoder_w3d_pcm_frequency, channel_count, stream))
 		BSTONE_THROW_STATIC_SOURCE("Write error.");
 	stream.write_exactly(audio_chunk.data, data_size);
 	if ((data_size % 2) != 0)

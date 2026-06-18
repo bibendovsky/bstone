@@ -86,11 +86,6 @@ private:
 		SoundType sound_type{};
 		int samples_count{};
 		int decoded_count{};
-		int digitized_resampler_counter{};
-		int digitized_data_offset{};
-		int digitized_data_size{};
-		Sample digitized_last_sample{};
-		const unsigned char* digitized_data{};
 		int buffer_size{};
 		Samples samples{};
 		AudioDecoderUPtr decoder{};
@@ -287,6 +282,24 @@ private:
 	void callback(float* samples, int sample_count);
 
 	void mix();
+	void mix_samples_mono_to_stereo(
+		double gain,
+		const AudioMixerOutputGains& output_gains,
+		int frame_count,
+		const Sample* src_samples,
+		Sample* dst_samples);
+	void mix_samples_stereo_to_mono(
+		double gain,
+		const AudioMixerOutputGains& output_gains,
+		int frame_count,
+		const Sample* src_samples,
+		Sample* dst_samples);
+	void mix_samples_stereo_to_stereo(
+		double gain,
+		const AudioMixerOutputGains& output_gains,
+		int frame_count,
+		const Sample* src_samples,
+		Sample* dst_samples);
 	void mix_samples();
 
 	void handle_set_mute_command(const SetMuteCommandParam& param);
@@ -305,10 +318,8 @@ private:
 	void handle_commands();
 
 	void handle_play_sound_command(const Command& command);
-	bool initialize_digitized_cache_item(const Command& command, CacheItem& cache_item);
 	bool initialize_cache_item(const Command& command, CacheItem& cache_item);
 
-	bool decode_digitized_voice(const Voice& voice);
 	bool decode_voice(const Voice& voice);
 
 	void spatialize_voice(Voice& voice);
@@ -320,7 +331,6 @@ private:
 	AudioDecoderUPtr create_decoder_by_sound_type(SoundType sound_type) const;
 	static bool is_sound_type_valid(SoundType sound_type);
 	static bool is_sound_index_valid(int sound_index, SoundType sound_type);
-	static int calculate_digitized_sample_count(int dst_sample_rate, int digitized_byte_count);
 };
 
 } // namespace bstone

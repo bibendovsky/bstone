@@ -351,6 +351,56 @@ void SystemAudioMixer::mix()
 	mix_samples();
 }
 
+void SystemAudioMixer::mix_samples_mono_to_stereo(
+	double gain,
+	const AudioMixerOutputGains& output_gains,
+	int frame_count,
+	const Sample* src_samples,
+	Sample* dst_samples)
+{
+	for (int i = 0; i < frame_count; ++i)
+	{
+		const double sample = gain * src_samples[i];
+		const Sample left_sample = static_cast<Sample>(output_gains[0] * sample);
+		const Sample right_sample = static_cast<Sample>(output_gains[1] * sample);
+		dst_samples[(2 * i) + 0] += left_sample;
+		dst_samples[(2 * i) + 1] += right_sample;
+	}
+}
+
+void SystemAudioMixer::mix_samples_stereo_to_mono(
+	double gain,
+	const AudioMixerOutputGains& output_gains,
+	int frame_count,
+	const Sample* src_samples,
+	Sample* dst_samples)
+{
+	for (int i = 0; i < frame_count; ++i)
+	{
+		const double left_sample = src_samples[2 * i + 0];
+		const double right_sample = src_samples[2 * i + 1];
+		const double sample = 0.5 * gain * (left_sample + right_sample);
+		dst_samples[(2 * i) + 0] += static_cast<Sample>(sample * output_gains[0]);
+		dst_samples[(2 * i) + 1] += static_cast<Sample>(sample * output_gains[1]);
+	}
+}
+
+void SystemAudioMixer::mix_samples_stereo_to_stereo(
+	double gain,
+	const AudioMixerOutputGains& output_gains,
+	int frame_count,
+	const Sample* src_samples,
+	Sample* dst_samples)
+{
+	for (int i = 0; i < frame_count; ++i)
+	{
+		const double left_sample = gain * output_gains[0] * src_samples[2 * i + 0];
+		const double right_sample = gain * output_gains[1] * src_samples[2 * i + 1];
+		dst_samples[(2 * i) + 0] += static_cast<Sample>(left_sample);
+		dst_samples[(2 * i) + 1] += static_cast<Sample>(right_sample);
+	}
+}
+
 void SystemAudioMixer::mix_samples()
 {
 	spatialize_voices();
@@ -403,15 +453,23 @@ void SystemAudioMixer::mix_samples()
 		if (!is_mute_)
 		{
 			MixSamples& mix_buffer = mix_buffer_;
-			const int base_offset = (is_adlib_music ? 0 : voice.decode_offset);
+			const int channel_count = cache_item->decoder->get_channel_count();
+			const int base_offset = (is_adlib_music ? 0 : voice.decode_offset) * channel_count;
 			const AudioMixerOutputGains& gains = (voice.is_custom_output_gains ? voice.custom_output_gains : voice.output_gains);
-			for (int i = 0; i < decode_count; ++i)
+			const bool is_src_mono = channel_count == 1;
+			if (voice.is_r3)
 			{
-				const double sample = gain_scale * cache_item->samples[base_offset + i];
-				const Sample left_sample = static_cast<Sample>(gains[0] * sample);
-				const Sample right_sample = static_cast<Sample>(gains[1] * sample);
-				mix_buffer[(2 * i) + 0] += left_sample;
-				mix_buffer[(2 * i) + 1] += right_sample;
+				if (is_src_mono)
+					mix_samples_mono_to_stereo(gain_scale, gains, decode_count, &cache_item->samples[base_offset], &mix_buffer[0]);
+				else
+					mix_samples_stereo_to_mono(gain_scale, gains, decode_count, &cache_item->samples[base_offset], &mix_buffer[0]);
+			}
+			else
+			{
+				if (is_src_mono)
+					mix_samples_mono_to_stereo(gain_scale, gains, decode_count, &cache_item->samples[base_offset], &mix_buffer[0]);
+				else
+					mix_samples_stereo_to_stereo(gain_scale, gains, decode_count, &cache_item->samples[base_offset], &mix_buffer[0]);
 			}
 		}
 		if (!is_adlib_music)
@@ -668,21 +726,6 @@ void SystemAudioMixer::handle_play_sound_command(const Command& command)
 	is_started = true;
 }
 
-bool SystemAudioMixer::initialize_digitized_cache_item(const Command& command, CacheItem& cache_item)
-{
-	BSTONE_ASSERT(!cache_item.is_active);
-	BSTONE_ASSERT(command.param.play_sound.sound_type == SoundType::pcm);
-	const int sample_count = calculate_digitized_sample_count(dst_rate_, command.param.play_sound.data_size);
-	cache_item.is_active = true;
-	cache_item.sound_type = command.param.play_sound.sound_type;
-	cache_item.samples_count = sample_count;
-	cache_item.samples.resize(sample_count);
-	cache_item.digitized_resampler_counter = dst_rate_;
-	cache_item.digitized_data = static_cast<const unsigned char*>(command.param.play_sound.data);
-	cache_item.digitized_data_size = command.param.play_sound.data_size;
-	return true;
-}
-
 bool SystemAudioMixer::initialize_cache_item(const Command& command, CacheItem& cache_item)
 {
 	const bool is_adlib_music = (command.param.play_sound.sound_type == SoundType::adlib_music);
@@ -691,8 +734,6 @@ bool SystemAudioMixer::initialize_cache_item(const Command& command, CacheItem& 
 		if (!is_adlib_music)
 			return !cache_item.is_invalid;
 	}
-	if (command.param.play_sound.sound_type == SoundType::pcm)
-		return initialize_digitized_cache_item(command, cache_item);
 	cache_item = CacheItem{};
 	cache_item.is_invalid = true;
 	AudioDecoderUPtr decoder = create_decoder_by_sound_type(command.param.play_sound.sound_type);
@@ -711,38 +752,9 @@ bool SystemAudioMixer::initialize_cache_item(const Command& command, CacheItem& 
 	cache_item.is_invalid = false;
 	cache_item.sound_type = command.param.play_sound.sound_type;
 	cache_item.samples_count = samples_count;
-	cache_item.samples.resize(is_adlib_music ? mix_samples_count_ : samples_count);
+	cache_item.samples.resize((is_adlib_music ? mix_samples_count_ : samples_count) * decoder->get_channel_count());
 	cache_item.buffer_size = 0;
 	cache_item.decoder.swap(decoder);
-	return true;
-}
-
-bool SystemAudioMixer::decode_digitized_voice(const Voice& voice)
-{
-	CacheItem* const cache_item = voice.cache;
-	BSTONE_ASSERT(cache_item != nullptr);
-	BSTONE_ASSERT(cache_item->is_active);
-	BSTONE_ASSERT(!cache_item->is_invalid);
-	BSTONE_ASSERT(!cache_item->is_decoded());
-	BSTONE_ASSERT(voice.type == SoundType::pcm);
-	const int to_decode_count = std::min(cache_item->samples_count - cache_item->decoded_count, mix_samples_count_);
-	for (auto i = 0; i < to_decode_count; ++i)
-	{
-		if (cache_item->digitized_resampler_counter >= dst_rate_)
-		{
-			cache_item->digitized_resampler_counter -= dst_rate_;
-			if (cache_item->digitized_data_offset < cache_item->digitized_data_size)
-			{
-				const unsigned char u8_sample = cache_item->digitized_data[cache_item->digitized_data_offset];
-				const float f32_sample = AudioSampleConverter::u8_to_f32(u8_sample);
-				cache_item->digitized_last_sample = f32_sample;
-				cache_item->digitized_data_offset += 1;
-			}
-		}
-		cache_item->samples[cache_item->decoded_count] = cache_item->digitized_last_sample;
-		cache_item->decoded_count += 1;
-		cache_item->digitized_resampler_counter += audio_decoder_w3d_pcm_frequency;
-	}
 	return true;
 }
 
@@ -757,8 +769,6 @@ bool SystemAudioMixer::decode_voice(const Voice& voice)
 		return false;
 	if (cache_item->is_decoded())
 		return true;
-	if (voice.type == SoundType::pcm)
-		return decode_digitized_voice(voice);
 	if (voice.type == SoundType::adlib_music)
 	{
 		const int total_remain_count = cache_item->samples_count - cache_item->decoded_count;
@@ -775,7 +785,8 @@ bool SystemAudioMixer::decode_voice(const Voice& voice)
 	if (ahead_count <= cache_item->decoded_count)
 		return true;
 	const int planned_count = std::min(cache_item->samples_count - cache_item->decoded_count, mix_samples_count_);
-	const int actual_count = cache_item->decoder->decode(planned_count, cache_item->samples.data() + cache_item->decoded_count);
+	const int channel_count = cache_item->decoder->get_channel_count();
+	const int actual_count = cache_item->decoder->decode(planned_count, cache_item->samples.data() + cache_item->decoded_count * channel_count);
 	cache_item->decoded_count += actual_count;
 	return true;
 }
@@ -876,6 +887,8 @@ AudioDecoderUPtr SystemAudioMixer::create_decoder_by_sound_type(SoundType sound_
 			return make_audio_decoder(AudioDecoderType::adlib_sfx, opl3_type_);
 		case SoundType::pc_speaker_sfx:
 			return make_audio_decoder(AudioDecoderType::pc_speaker, opl3_type_);
+		case SoundType::pcm:
+			return make_audio_decoder(AudioDecoderType::pcm, opl3_type_);
 		default:
 			return nullptr;
 	}
@@ -908,16 +921,6 @@ bool SystemAudioMixer::is_sound_index_valid(int sound_index, SoundType sound_typ
 		default:
 			return false;
 	}
-}
-
-int SystemAudioMixer::calculate_digitized_sample_count(int dst_sample_rate, int digitized_byte_count)
-{
-	BSTONE_ASSERT(dst_sample_rate >= 0);
-	BSTONE_ASSERT(digitized_byte_count >= 0);
-	BSTONE_ASSERT(audio_decoder_w3d_pcm_frequency <= dst_sample_rate);
-	const int src_sample_rate = audio_decoder_w3d_pcm_frequency;
-	const int sample_count = ((digitized_byte_count * dst_sample_rate) + src_sample_rate - 1) / src_sample_rate;
-	return sample_count;
 }
 
 } // namespace bstone

@@ -28,8 +28,10 @@ public:
 	bool rewind() override;
 
 	int get_dst_length_in_samples() const override;
+	int get_channel_count() const override;
 
 private:
+	inline static constexpr int channel_count = 1;
 	inline static constexpr int min_src_size = 6;
 
 	inline static constexpr int command_rate = 140;
@@ -163,6 +165,11 @@ bool PcSpeakerAudioDecoder::rewind()
 int PcSpeakerAudioDecoder::get_dst_length_in_samples() const
 {
 	return total_sample_count_;
+}
+
+int PcSpeakerAudioDecoder::get_channel_count() const
+{
+	return channel_count;
 }
 
 int PcSpeakerAudioDecoder::make_pit_frequency(int command)

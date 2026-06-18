@@ -31,6 +31,7 @@ public:
 	bool rewind() override;
 
 	int get_dst_length_in_samples() const override;
+	int get_channel_count() const override;
 
 	// Returns a number of calls per second of
 	// original interrupt routine.
@@ -51,6 +52,7 @@ private:
 	int dst_length_in_samples_{};
 
 	void uninitialize_internal();
+	int impl_get_channel_count() const;
 
 	// Returns an original size of an AdLibSound structure.
 	static int get_header_size();
@@ -74,7 +76,7 @@ bool AdlibSfxDecoder::initialize(const AudioDecoderInitParam& param)
 		return false;
 	if (param.dst_rate < 1)
 		return false;
-	emulator_->initialize(param.dst_rate);
+	emulator_->initialize(Opl3InitParam{.sample_rate = param.dst_rate});
 	adlib::initialize_registers(emulator_.get());
 	reader_ = MemoryBinaryReader{param.src_raw_data, param.src_raw_size};
 	if (!reader_.can_read_x32())
@@ -135,6 +137,11 @@ int AdlibSfxDecoder::get_dst_length_in_samples() const
 	return dst_length_in_samples_;
 }
 
+int AdlibSfxDecoder::get_channel_count() const
+{
+	return impl_get_channel_count();
+}
+
 bool AdlibSfxDecoder::is_initialized() const
 {
 	return is_initialized_;
@@ -158,7 +165,7 @@ int AdlibSfxDecoder::decode(int dst_count, float* dst_data)
 		if (remains_count_ > 0)
 		{
 			const int count = std::min(dst_remain_count, remains_count_);
-			emulator_->generate(count, &dst_data[dst_data_index]);
+			emulator_->generate(count, &dst_data[dst_data_index * impl_get_channel_count()]);
 			dst_data_index += count;
 			dst_remain_count -= count;
 			remains_count_ -= count;
@@ -198,6 +205,11 @@ void AdlibSfxDecoder::uninitialize_internal()
 	remains_count_ = 0;
 	hf_ = 0;
 	dst_length_in_samples_ = 0;
+}
+
+int AdlibSfxDecoder::impl_get_channel_count() const
+{
+	return emulator_->get_channel_count();
 }
 
 int AdlibSfxDecoder::get_tick_rate()

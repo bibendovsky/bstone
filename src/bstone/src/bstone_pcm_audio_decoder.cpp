@@ -28,8 +28,11 @@ public:
 	int decode(int dst_count, float* dst_data) override;
 	bool rewind() override;
 	int get_dst_length_in_samples() const override;
+	int get_channel_count() const override;
 
 private:
+	inline static constexpr int channel_count = 1;
+
 	bool is_initialized_{};
 	const std::uint8_t* src_data_{};
 	int src_size_{};
@@ -134,6 +137,11 @@ bool PcmAudioDecoder::rewind()
 int PcmAudioDecoder::get_dst_length_in_samples() const
 {
 	return dst_sample_count_;
+}
+
+int PcmAudioDecoder::get_channel_count() const
+{
+	return channel_count;
 }
 
 } // namespace

@@ -30,12 +30,14 @@ struct OalSourceCachingSound
 	int sample_offset{};
 	int sample_count{};
 	OalSourceSoundSamples samples{};
+	OalSourceSoundSamples stereo_samples{};
 	AudioDecoderUPtr audio_decoder{};
 };
 
 struct OalSourceUncachingSound
 {
 	bool is_initialized{};
+	bool is_stereo{};
 	int queue_size{};
 	int read_sample_offset{};
 	int write_sample_offset{};
@@ -51,7 +53,6 @@ struct OalSourceInitParam
 	int mix_sample_count{};
 	const OalAlSymbols* oal_al_symbols{};
 	int sample_size{};
-	ALenum al_mono_format{};
 };
 
 // -------------------------------------
@@ -61,6 +62,7 @@ struct OalSourceOpenStaticParam
 	bool is_3d{};
 	int sample_rate{};
 	int sample_size{};
+	ALenum al_format{};
 	const void* data{};
 	int data_size{};
 };
@@ -69,8 +71,10 @@ struct OalSourceOpenStreamingParam
 {
 	bool is_3d{};
 	bool is_looping{};
+	bool is_stereo{};
 	int sample_rate{};
 	int sample_size{};
+	ALenum al_format{};
 	OalSourceCachingSound* caching_sound{};
 	OalSourceUncachingSound* uncaching_sound{};
 };
@@ -121,6 +125,7 @@ private:
 	bool is_looping_{};
 	bool is_started_{};
 	bool is_paused_{};
+	bool is_stereo_{};
 	mutable bool is_finished_{};
 
 	OalBufferResource static_al_buffer_resource_{};
@@ -130,7 +135,7 @@ private:
 	int streaming_caching_sample_offset_{};
 	int streaming_caching_sample_count_{};
 	int sample_size_{};
-	ALenum al_mono_format_{};
+	ALenum al_format_{};
 	StreamingMixOalBufferFunc streaming_mix_oal_buffer_func_{};
 
 	StreamingOalBufferResources streaming_al_buffer_resources_{};
@@ -172,13 +177,8 @@ private:
 	void detach_static_al_buffer();
 
 	void set_static_al_buffer_data(const OalSourceOpenStaticParam& param);
-#if 0
-	void set_streaming_al_buffer_data(ALint al_buffer, int sample_count, OalSourceSample* samples);
-#else
 	void set_streaming_al_buffer_data(ALint al_buffer, int sample_count, std::byte* samples);
-#endif
 	void set_streaming_al_buffer_data(ALint al_buffer);
-	void set_streaming_al_buffer_data(ALint al_buffer, int sample_count);
 	void set_streaming_al_buffer_defaults();
 
 	void play_static();

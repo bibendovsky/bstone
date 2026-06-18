@@ -27,7 +27,10 @@ enum class Opl3Type
 	nuked,
 };
 
-// =====================================
+struct Opl3InitParam
+{
+	int sample_rate;
+};
 
 class Opl3
 {
@@ -38,7 +41,7 @@ public:
 	virtual Opl3Type get_type() const = 0;
 
 	// Initializes the emulator with a specified output sample rate.
-	virtual void initialize(int sample_rate) = 0;
+	virtual void initialize(const Opl3InitParam& param) = 0;
 
 	// Uninitializes the emulator.
 	virtual void uninitialize() = 0;
@@ -48,6 +51,9 @@ public:
 
 	// Returns an output sample rate.
 	virtual int get_sample_rate() const = 0;
+
+	// Returns channel count.
+	virtual int get_channel_count() const = 0;
 
 	// Writes a value into a register.
 	virtual void write(int port, int value) = 0;

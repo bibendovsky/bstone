@@ -33,13 +33,10 @@ try
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported sample size.");
 	}
-	if (param.al_mono_format == 0)
-		BSTONE_THROW_STATIC_SOURCE("Unknown AL sample format.");
 	oal_al_symbols_ = param.oal_al_symbols;
 	streaming_mix_sample_count_ = param.mix_sample_count;
 	sample_size_ = param.sample_size;
-	al_mono_format_ = param.al_mono_format;
-	streaming_mix_buffer_.resize(streaming_mix_sample_count_ * sample_size_);
+	streaming_mix_buffer_.resize(streaming_mix_sample_count_ * sample_size_ * 2);
 	initialize_al_resources();
 	is_initialized_ = true;
 }
@@ -54,10 +51,12 @@ void OalSource::uninitialize()
 {
 	close();
 	is_initialized_ = false;
+	is_stereo_ = false;
 	al_source_resource_.reset();
 	static_al_buffer_resource_.reset();
 	for (auto& streaming_al_buffer_resource : streaming_al_buffer_resources_)
 		streaming_al_buffer_resource.reset();
+	al_format_ = 0;
 }
 
 void OalSource::open(const OalSourceOpenStaticParam& param)
@@ -71,7 +70,11 @@ try
 		BSTONE_THROW_STATIC_SOURCE("Null data.");
 	if (param.data_size < 0)
 		BSTONE_THROW_STATIC_SOURCE("Data size out of range.");
+	if (param.al_format == 0)
+		BSTONE_THROW_STATIC_SOURCE("Unspecified buffer format.");
 	is_3d_ = param.is_3d;
+	is_stereo_ = false;
+	al_format_ = param.al_format;
 	set_al_relative();
 	set_al_default_position();
 	set_al_default_reference_distance();
@@ -99,11 +102,18 @@ void OalSource::open(const OalSourceOpenStreamingParam& param)
 		BSTONE_THROW_STATIC_SOURCE("Caching and uncaching sounds are mutual exclusive.");
 	if (param.is_looping && param.caching_sound != nullptr)
 		BSTONE_THROW_STATIC_SOURCE("Looping the caching sound not supported.");
+	if (param.is_3d && param.is_stereo)
+		BSTONE_THROW_STATIC_SOURCE("Positional stereo sound not supported.");
+	if (param.is_stereo && param.caching_sound != nullptr)
+		BSTONE_THROW_STATIC_SOURCE("Stereo caching sound not supported.");
+	if (param.al_format == 0)
+		BSTONE_THROW_STATIC_SOURCE("Unspecified buffer format.");
 	const int al_processed_buffer_count = get_al_processed_buffer_count();
 	if (al_processed_buffer_count != 0)
 		unqueue_al_buffers(al_processed_buffer_count, streaming_al_queue_.data());
 	is_3d_ = param.is_3d;
 	is_looping_ = param.is_looping;
+	is_stereo_ = param.is_stereo;
 	streaming_sample_rate_ = param.sample_rate;
 	streaming_caching_sound_ = param.caching_sound;
 	streaming_uncaching_sound_ = param.uncaching_sound;
@@ -112,6 +122,7 @@ void OalSource::open(const OalSourceOpenStreamingParam& param)
 	streaming_mix_oal_buffer_func_ = (streaming_uncaching_sound_ ?
 		&OalSource::streaming_mix_uncaching_sound :
 		&OalSource::streaming_mix_caching_sound);
+	al_format_ = param.al_format;
 	set_al_relative();
 	set_al_default_position();
 	detach_static_al_buffer();
@@ -427,8 +438,9 @@ void OalSource::set_static_al_buffer_data(const OalSourceOpenStaticParam& param)
 {
 	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
 	BSTONE_ASSERT(oal_al_symbols_->alBufferData != nullptr);
+	BSTONE_ASSERT(al_format_ != 0);
 	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alBufferData(static_al_buffer_resource_.get(), al_mono_format_, param.data, param.data_size, param.sample_rate);
+	oal_al_symbols_->alBufferData(static_al_buffer_resource_.get(), al_format_, param.data, param.data_size, param.sample_rate);
 	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
@@ -439,20 +451,16 @@ void OalSource::set_streaming_al_buffer_data(ALint al_buffer, int sample_count, 
 	BSTONE_ASSERT(samples != nullptr);
 	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
 	BSTONE_ASSERT(oal_al_symbols_->alBufferData != nullptr);
-	const int buffer_size = sample_count * sample_size_;
+	BSTONE_ASSERT(al_format_ != 0);
+	const int buffer_size = sample_count * sample_size_ * (1 + is_stereo_);
 	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alBufferData(al_buffer, al_mono_format_, samples, buffer_size, streaming_sample_rate_);
+	oal_al_symbols_->alBufferData(al_buffer, al_format_, samples, buffer_size, streaming_sample_rate_);
 	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_streaming_al_buffer_data(ALint al_buffer)
 {
 	set_streaming_al_buffer_data(al_buffer, streaming_mix_sample_count_, streaming_mix_buffer_.data());
-}
-
-void OalSource::set_streaming_al_buffer_data(ALint al_buffer, int sample_count)
-{
-	set_streaming_al_buffer_data(al_buffer, sample_count, streaming_mix_buffer_.data());
 }
 
 void OalSource::set_streaming_al_buffer_defaults()
@@ -494,10 +502,11 @@ bool OalSource::streaming_mix_uncaching_sound(ALuint al_buffer)
 	const int streaming_max_mix_sample_count = oal_source_max_streaming_buffers * streaming_mix_sample_count_;
 	if (streaming_uncaching_sound_->read_sample_offset >= streaming_max_mix_sample_count)
 		streaming_uncaching_sound_->read_sample_offset = 0;
+	const int channel_count = 1 + streaming_uncaching_sound_->is_stereo;
 	set_streaming_al_buffer_data(
 		al_buffer,
 		streaming_mix_sample_count_,
-		&streaming_uncaching_sound_->samples[streaming_uncaching_sound_->read_sample_offset * sample_size_]);
+		&streaming_uncaching_sound_->samples[streaming_uncaching_sound_->read_sample_offset * sample_size_ * channel_count]);
 	streaming_uncaching_sound_->read_sample_offset += streaming_mix_sample_count_;
 	enqueue_al_buffer(al_buffer);
 	return true;

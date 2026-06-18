@@ -8,10 +8,10 @@ SPDX-License-Identifier: MIT
 
 
 #include "bstone_nuked_opl3.h"
-#include "opl3.h"
 #include "bstone_audio_sample_converter.h"
 #include "bstone_opl3.h"
 #include <algorithm>
+#include "opl3.h"
 
 namespace bstone {
 
@@ -24,11 +24,12 @@ public:
 
 	Opl3Type get_type() const override;
 
-	void initialize(int sample_rate) override;
+	void initialize(const Opl3InitParam& param) override;
 	void uninitialize() override;
 
 	bool is_initialized() const override;
 	int get_sample_rate() const override;
+	int get_channel_count() const override;
 
 	void write(int fm_port, int fm_value) override;
 	void write_buffered(int fm_port, int fm_value) override;
@@ -40,13 +41,15 @@ public:
 	int get_min_sample_rate() const override;
 
 private:
+	inline static constexpr int channel_count = 2;
+
 	bool is_initialized_{};
 	int sample_rate_{};
 	opl3_chip emulator_{};
 
 	static int get_max_samples_count();
 
-	void generate_block(int count, float* buffer);
+	void generate_block(float* sample_buffer, int sample_count);
 };
 
 // -------------------------------------
@@ -56,10 +59,10 @@ Opl3Type NukedOpl3::get_type() const
 	return Opl3Type::nuked;
 }
 
-void NukedOpl3::initialize(int sample_rate)
+void NukedOpl3::initialize(const Opl3InitParam& param)
 {
 	uninitialize();
-	sample_rate_ = std::max(sample_rate, get_min_sample_rate());
+	sample_rate_ = std::max(param.sample_rate, get_min_sample_rate());
 	OPL3_Reset(&emulator_, static_cast<std::uint32_t>(sample_rate_));
 	is_initialized_ = true;
 }
@@ -79,6 +82,11 @@ bool NukedOpl3::is_initialized() const
 int NukedOpl3::get_sample_rate() const
 {
 	return sample_rate_;
+}
+
+int NukedOpl3::get_channel_count() const
+{
+	return 2;
 }
 
 void NukedOpl3::write(int fm_port, int fm_value)
@@ -102,13 +110,12 @@ bool NukedOpl3::generate(int count, float* buffer)
 		return false;
 	if (buffer == nullptr)
 		return false;
-	int remain_count = count;
-	while (remain_count > 0)
+	for (int remain_count = count; remain_count > 0; )
 	{
 		const int generate_count = std::min(remain_count, get_max_samples_count());
-		generate_block(generate_count, buffer);
+		generate_block(buffer, generate_count);
 		remain_count -= generate_count;
-		buffer += generate_count;
+		buffer += generate_count * channel_count;
 	}
 	return true;
 }
@@ -117,7 +124,7 @@ bool NukedOpl3::reset()
 {
 	if (!is_initialized_)
 		return false;
-	initialize(sample_rate_);
+	initialize(Opl3InitParam{.sample_rate = sample_rate_});
 	return true;
 }
 
@@ -131,13 +138,14 @@ int NukedOpl3::get_max_samples_count()
 	return OPL_WRITEBUF_SIZE;
 }
 
-void NukedOpl3::generate_block(int count, float* buffer)
+void NukedOpl3::generate_block(float* sample_buffer, int sample_count)
 {
 	std::int16_t opl3_samples[4];
-	for (int i = 0; i < count; ++i)
+	for (int i = 0; i < sample_count; ++i)
 	{
 		OPL3_Generate4ChResampled(&emulator_, opl3_samples);
-		buffer[i] = AudioSampleConverter::s16_to_f32(static_cast<std::int16_t>((opl3_samples[0] + opl3_samples[1]) / 2));
+		sample_buffer[i * 2 + 0] = AudioSampleConverter::s16_to_f32(opl3_samples[0]);
+		sample_buffer[i * 2 + 1] = AudioSampleConverter::s16_to_f32(opl3_samples[1]);
 	}
 }
 

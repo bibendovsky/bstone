@@ -9,6 +9,7 @@ SPDX-License-Identifier: MIT
 
 #include "al.h"
 #include "alc.h"
+#include "alext.h"
 #include "efx.h"
 
 namespace bstone {
