@@ -47,8 +47,6 @@ public:
 	virtual void write_buffered(int reg, int value) = 0;
 	// Writes audio samples into a provided buffer.
 	virtual void generate(int count, float* buffer) = 0;
-	// Initializes the emulator with defined earlier sample rate.
-	virtual void reset() = 0;
 	// Returns a minimum output sample rate.
 	virtual int get_min_sample_rate() const = 0;
 };

@@ -33,7 +33,6 @@ public:
 	void write(int fm_port, int fm_value) override;
 	void write_buffered(int fm_port, int fm_value) override;
 	void generate(int count, float* buffer) override;
-	void reset() override;
 	int get_min_sample_rate() const override;
 
 private:
@@ -114,11 +113,6 @@ void DboplEmulator::generate(int count, float* buffer)
 		remain_count -= generate_count;
 		buffer += generate_count * channel_count;
 	}
-}
-
-void DboplEmulator::reset()
-{
-	BSTONE_ASSERT(is_initialized());
 }
 
 int DboplEmulator::get_min_sample_rate() const

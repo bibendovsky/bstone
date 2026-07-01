@@ -32,7 +32,6 @@ public:
 	void write(int reg, int value) override;
 	void write_buffered(int reg, int value) override;
 	void generate(int count, float* buffer) override;
-	void reset() override;
 	int get_min_sample_rate() const override;
 
 private:
@@ -107,11 +106,6 @@ void NukedOpl3::generate(int count, float* buffer)
 		remain_count -= generate_count;
 		buffer += generate_count * channel_count;
 	}
-}
-
-void NukedOpl3::reset()
-{
-	BSTONE_ASSERT(is_initialized());
 }
 
 int NukedOpl3::get_min_sample_rate() const
