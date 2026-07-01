@@ -7,10 +7,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 // AdLib music decoder
 
-#include "bstone_adlib_decoder.h"
 #include "bstone_audio_decoder.h"
 #include "bstone_memory_binary_reader.h"
 #include "bstone_opl3.h"
+#include "bstone_opl_utility.h"
 #include <algorithm>
 
 namespace bstone {
@@ -110,7 +110,7 @@ bool AdlibMusicDecoder::rewind()
 {
 	if (!emulator_->reset())
 		return false;
-	adlib::initialize_registers(emulator_.get());
+	OplUtility::initialize_registers(*emulator_);
 	reader_.set_position(2);
 	command_index_ = 0;
 	remains_count_ = 0;

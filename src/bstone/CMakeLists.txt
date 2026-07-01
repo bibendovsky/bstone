@@ -746,8 +746,6 @@ source_group("bstone/audio" FILES ${BSTONE_BSTONE_AUDIO_SOURCES})
 # ---------------------------------------------------------------------------
 
 set(BSTONE_BSTONE_AUDIO_SOURCES
-	src/bstone_adlib_decoder.cpp
-	src/bstone_adlib_decoder.h
 	src/bstone_adlib_music_decoder.cpp
 	src/bstone_adlib_music_decoder.h
 	src/bstone_adlib_sfx_decoder.cpp
@@ -756,6 +754,8 @@ set(BSTONE_BSTONE_AUDIO_SOURCES
 	src/bstone_dosbox_dbopl.h
 	src/bstone_nuked_opl3.cpp
 	src/bstone_nuked_opl3.h
+	src/bstone_opl_utility.cpp
+	src/bstone_opl_utility.h
 	src/bstone_opl3.cpp
 	src/bstone_opl3.h
 )

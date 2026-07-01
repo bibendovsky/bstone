@@ -7,10 +7,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 // AdLib sound effects decoder
 
-#include "bstone_adlib_decoder.h"
 #include "bstone_audio_decoder.h"
 #include "bstone_memory_binary_reader.h"
 #include "bstone_opl3.h"
+#include "bstone_opl_utility.h"
 #include <algorithm>
 
 namespace bstone {
@@ -43,7 +43,7 @@ private:
 	bool is_initialized_{};
 
 	MemoryBinaryReader reader_{};
-	adlib::Instrument instrument_{};
+	OplInstrument instrument_{};
 	int commands_count_{};
 	int command_index_{};
 	int samples_per_tick_{};
@@ -77,7 +77,7 @@ bool AdlibSfxDecoder::initialize(const AudioDecoderInitParam& param)
 	if (param.dst_rate < 1)
 		return false;
 	emulator_->initialize(Opl3InitParam{.sample_rate = param.dst_rate});
-	adlib::initialize_registers(emulator_.get());
+	OplUtility::initialize_registers(*emulator_);
 	reader_ = MemoryBinaryReader{param.src_raw_data, param.src_raw_size};
 	if (!reader_.can_read_x32())
 		return false;
@@ -104,7 +104,7 @@ bool AdlibSfxDecoder::initialize(const AudioDecoderInitParam& param)
 		return false;
 	hf_ = reader_.read_u8();
 	hf_ = ((hf_ & 7) << 2) | 0x20;
-	adlib::set_instrument(emulator_.get(), instrument_);
+	OplUtility::set_instrument(*emulator_, instrument_);
 	command_index_ = 0;
 	commands_count_ = sfx_length;
 	samples_per_tick_ = 0;
@@ -123,8 +123,8 @@ bool AdlibSfxDecoder::rewind()
 {
 	if (!emulator_->reset())
 		return false;
-	adlib::initialize_registers(emulator_.get());
-	adlib::set_instrument(emulator_.get(), instrument_);
+	OplUtility::initialize_registers(*emulator_);
+	OplUtility::set_instrument(*emulator_, instrument_);
 	command_index_ = 0;
 	remains_count_ = 0;
 	samples_per_tick_ = 0;
@@ -178,11 +178,11 @@ int AdlibSfxDecoder::decode(int dst_count, float* dst_data)
 				const int lf = reader_.read_u8();
 				if (lf > 0)
 				{
-					emulator_->write_buffered(adlib::al_freq_l, lf);
-					emulator_->write_buffered(adlib::al_freq_h, hf_);
+					emulator_->write_buffered(OplUtility::al_freq_l, lf);
+					emulator_->write_buffered(OplUtility::al_freq_h, hf_);
 				}
 				else
-					emulator_->write_buffered(adlib::al_freq_h, 0x00);
+					emulator_->write_buffered(OplUtility::al_freq_h, 0x00);
 				++command_index_;
 				const int tick_rate = get_tick_rate();
 				samples_per_tick_ += emulator_->get_sample_rate();
@@ -198,7 +198,7 @@ int AdlibSfxDecoder::decode(int dst_count, float* dst_data)
 void AdlibSfxDecoder::uninitialize_internal()
 {
 	reader_ = MemoryBinaryReader{};
-	instrument_ = adlib::Instrument{};
+	instrument_ = OplInstrument{};
 	commands_count_ = 0;
 	command_index_ = 0;
 	samples_per_tick_ = 0;
