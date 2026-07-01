@@ -754,10 +754,10 @@ set(BSTONE_BSTONE_AUDIO_SOURCES
 	src/bstone_dosbox_dbopl.h
 	src/bstone_nuked_opl3.cpp
 	src/bstone_nuked_opl3.h
+	src/bstone_opl_emulator.cpp
+	src/bstone_opl_emulator.h
 	src/bstone_opl_utility.cpp
 	src/bstone_opl_utility.h
-	src/bstone_opl3.cpp
-	src/bstone_opl3.h
 )
 
 target_sources(bstone PRIVATE ${BSTONE_BSTONE_AUDIO_SOURCES})

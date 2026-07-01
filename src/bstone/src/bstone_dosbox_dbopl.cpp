@@ -17,16 +17,16 @@ namespace bstone {
 
 namespace {
 
-class DosboxDbopl final : public Opl3
+class DosboxDbopl final : public OplEmulator
 {
 public:
 	DosboxDbopl() = default;
 	~DosboxDbopl() override = default;
 
-	Opl3Type get_type() const override;
+	OplEmulatorType get_type() const override;
 
-	void initialize(const Opl3InitParam& param) override;
-	void uninitialize() override;
+	bool initialize(const OplEmulatorInitParam& param) override;
+	void terminate() override;
 
 	bool is_initialized() const override;
 	int get_sample_rate() const override;
@@ -34,9 +34,9 @@ public:
 
 	void write(int fm_port, int fm_value) override;
 	void write_buffered(int fm_port, int fm_value) override;
-	bool generate(int count, float* buffer) override;
+	void generate(int count, float* buffer) override;
 
-	bool reset() override;
+	void reset() override;
 
 	int get_min_sample_rate() const override;
 
@@ -60,23 +60,24 @@ private:
 
 // -------------------------------------
 
-Opl3Type DosboxDbopl::get_type() const
+OplEmulatorType DosboxDbopl::get_type() const
 {
-	return Opl3Type::dbopl;
+	return OplEmulatorType::dbopl;
 }
 
-void DosboxDbopl::initialize(const Opl3InitParam& param)
+bool DosboxDbopl::initialize(const OplEmulatorInitParam& param)
 {
-	uninitialize();
+	terminate();
 	sample_rate_ = std::max(param.sample_rate, get_min_sample_rate());
 	channel_ = {};
 	samples_s16_.resize(get_max_samples_count());
 	emulator_ = {};
 	emulator_.Init(sample_rate_);
 	is_initialized_ = true;
+	return true;
 }
 
-void DosboxDbopl::uninitialize()
+void DosboxDbopl::terminate()
 {
 	is_initialized_ = false;
 	sample_rate_ = 0;
@@ -112,14 +113,14 @@ void DosboxDbopl::write_buffered(int fm_port, int fm_value)
 		emulator_.WriteReg(static_cast<Bit32u>(fm_port), static_cast<Bit8u>(fm_value));
 }
 
-bool DosboxDbopl::generate(int count, float* buffer)
+void DosboxDbopl::generate(int count, float* buffer)
 {
 	if (!is_initialized_)
-		return false;
+		return;
 	if (count < 1)
-		return false;
+		return;
 	if (buffer == nullptr)
-		return false;
+		return;
 	for (int remain_count = count; remain_count > 0; )
 	{
 		const int generate_count = std::min(remain_count, get_max_samples_count());
@@ -127,15 +128,12 @@ bool DosboxDbopl::generate(int count, float* buffer)
 		remain_count -= generate_count;
 		buffer += generate_count * channel_count;
 	}
-	return true;
 }
 
-bool DosboxDbopl::reset()
+void DosboxDbopl::reset()
 {
-	if (!is_initialized_)
-		return false;
-	initialize(Opl3InitParam{.sample_rate = sample_rate_});
-	return true;
+	if (is_initialized_)
+		initialize(OplEmulatorInitParam{.sample_rate = sample_rate_});
 }
 
 int DosboxDbopl::get_min_sample_rate() const
@@ -159,7 +157,7 @@ void DosboxDbopl::generate_block(float* sample_buffer, int sample_count)
 
 // =====================================
 
-Opl3UPtr make_dbopl_opl3()
+OplEmulatorUPtr make_dbopl_opl3()
 {
 	return std::make_unique<DosboxDbopl>();
 }

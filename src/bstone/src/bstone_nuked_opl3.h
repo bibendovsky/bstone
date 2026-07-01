@@ -9,11 +9,11 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_NUKED_OPL3_INCLUDED
 #define BSTONE_NUKED_OPL3_INCLUDED
 
-#include "bstone_opl3.h"
+#include "bstone_opl_emulator.h"
 
 namespace bstone {
 
-Opl3UPtr make_nuked_opl3();
+OplEmulatorUPtr make_nuked_opl3();
 
 } // namespace bstone
 

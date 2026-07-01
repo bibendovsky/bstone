@@ -29,7 +29,7 @@ public:
 	SystemAudioMixer(const AudioMixerInitParam& param);
 	~SystemAudioMixer() override = default;
 
-	Opl3Type get_opl3_type() const override;
+	OplEmulatorType get_opl3_type() const override;
 	int get_rate() const override;
 	int get_channel_count() const override;
 	int get_mix_size_ms() const override;
@@ -238,7 +238,7 @@ private:
 
 	using VoiceHandleMgr = AudioMixerVoiceHandleMgr<Voice>;
 
-	Opl3Type opl3_type_{};
+	OplEmulatorType opl3_type_{};
 	int dst_rate_{};
 	SysCallback sys_callback_{};
 	sys::AudioMgr* sys_audio_mgr_{};

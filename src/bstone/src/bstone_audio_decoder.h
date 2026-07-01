@@ -10,7 +10,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #ifndef BSTONE_AUDIO_DECODER_INCLUDED
 #define BSTONE_AUDIO_DECODER_INCLUDED
 
-#include "bstone_opl3.h"
+#include "bstone_opl_emulator.h"
 #include <memory>
 
 namespace bstone {
@@ -69,7 +69,7 @@ public:
 
 using AudioDecoderUPtr = std::unique_ptr<AudioDecoder>;
 
-AudioDecoderUPtr make_audio_decoder(AudioDecoderType audio_decoder_type, Opl3Type opl3_type);
+AudioDecoderUPtr make_audio_decoder(AudioDecoderType audio_decoder_type, OplEmulatorType opl3_type);
 
 } // namespace bstone
 

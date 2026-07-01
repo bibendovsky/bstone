@@ -2704,7 +2704,7 @@ const SoundDriverItem sound_drivers[sound_driver_count] =
 
 struct SoundOpl3TypeItem
 {
-	bstone::Opl3Type type{};
+	bstone::OplEmulatorType type{};
 	std::string name{};
 }; // SoundOpl3TypeItem
 
@@ -2712,8 +2712,8 @@ constexpr auto sound_opl3_type_count = 2;
 
 const SoundOpl3TypeItem sound_opl3_types[sound_opl3_type_count] =
 {
-	SoundOpl3TypeItem{bstone::Opl3Type::dbopl, "DBOPL"},
-	SoundOpl3TypeItem{bstone::Opl3Type::nuked, "NUKED"},
+	SoundOpl3TypeItem{bstone::OplEmulatorType::dbopl, "DBOPL"},
+	SoundOpl3TypeItem{bstone::OplEmulatorType::nuked_opl3, "NUKED"},
 };
 
 void digitized_sfx_carousel(
@@ -2815,12 +2815,12 @@ void initialize_sound_opl3_type_index()
 {
 	switch (sd_get_opl3_type())
 	{
-		case bstone::Opl3Type::dbopl:
+		case bstone::OplEmulatorType::dbopl:
 		default:
 			sound_opl3_type_index = 0;
 			break;
 
-		case bstone::Opl3Type::nuked:
+		case bstone::OplEmulatorType::nuked_opl3:
 			sound_opl3_type_index = 1;
 			break;
 	}

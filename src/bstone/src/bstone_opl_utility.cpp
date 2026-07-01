@@ -8,11 +8,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 // OPL utility
 
 #include "bstone_opl_utility.h"
-#include "bstone_opl3.h"
 
 namespace bstone {
 
-void OplUtility::initialize_registers(Opl3& opl3)
+void OplUtility::initialize_registers(OplEmulator& opl3)
 {
 	opl3.write(0x01, 0x20); // Set D5 ("WAVE SELECT ENABLE"), reset the other bits.
 	// Reset the remaining registers.
@@ -20,7 +19,7 @@ void OplUtility::initialize_registers(Opl3& opl3)
 		opl3.write(i, 0x00);
 }
 
-void OplUtility::set_instrument(Opl3& opl3, const OplInstrument& instrument)
+void OplUtility::set_instrument(OplEmulator& opl3, const OplInstrument& instrument)
 {
 	constexpr int c = 3; // Carrier.
 	constexpr int m = 0; // Modifier.

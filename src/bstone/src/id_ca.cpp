@@ -53,7 +53,6 @@ loaded into the data segment
 #include "bstone_text_extractor.h"
 #include "bstone_sys_fs.h"
 
-#include "bstone_opl3.h"
 #include "bstone_audio_decoder.h"
 
 

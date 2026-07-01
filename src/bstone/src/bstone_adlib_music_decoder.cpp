@@ -9,7 +9,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_audio_decoder.h"
 #include "bstone_memory_binary_reader.h"
-#include "bstone_opl3.h"
+#include "bstone_opl_emulator.h"
 #include "bstone_opl_utility.h"
 #include <algorithm>
 
@@ -20,7 +20,7 @@ namespace {
 class AdlibMusicDecoder final : public AudioDecoder
 {
 public:
-	AdlibMusicDecoder(Opl3Type opl3_type);
+	AdlibMusicDecoder(OplEmulatorType opl3_type);
 	~AdlibMusicDecoder() override = default;
 
 	bool initialize(const AudioDecoderInitParam& param) override;
@@ -38,7 +38,7 @@ public:
 	static int get_tick_rate();
 
 private:
-	Opl3UPtr emulator_{};
+	OplEmulatorUPtr emulator_{};
 
 	bool is_initialized_{};
 
@@ -55,9 +55,9 @@ private:
 
 // -------------------------------------
 
-AdlibMusicDecoder::AdlibMusicDecoder(Opl3Type opl3_type)
+AdlibMusicDecoder::AdlibMusicDecoder(OplEmulatorType opl3_type)
 	:
-	emulator_{make_opl3(opl3_type)}
+	emulator_{make_opl_emulator(opl3_type)}
 {}
 
 bool AdlibMusicDecoder::initialize(const AudioDecoderInitParam& param)
@@ -71,7 +71,7 @@ bool AdlibMusicDecoder::initialize(const AudioDecoderInitParam& param)
 		return false;
 	if (param.dst_rate < 1)
 		return false;
-	emulator_->initialize(Opl3InitParam{.sample_rate = param.dst_rate});
+	emulator_->initialize(OplEmulatorInitParam{.sample_rate = param.dst_rate});
 	reader_ = MemoryBinaryReader{param.src_raw_data, param.src_raw_size};
 	if (!reader_.can_read_x16())
 		return false;
@@ -108,8 +108,7 @@ void AdlibMusicDecoder::uninitialize()
 
 bool AdlibMusicDecoder::rewind()
 {
-	if (!emulator_->reset())
-		return false;
+	emulator_->reset();
 	OplUtility::initialize_registers(*emulator_);
 	reader_.set_position(2);
 	command_index_ = 0;
@@ -203,7 +202,7 @@ int AdlibMusicDecoder::impl_get_channel_count() const
 
 // =====================================
 
-AudioDecoderUPtr make_adlib_music_audio_decoder(Opl3Type opl3_type)
+AudioDecoderUPtr make_adlib_music_audio_decoder(OplEmulatorType opl3_type)
 {
 	return std::make_unique<AdlibMusicDecoder>(opl3_type);
 }

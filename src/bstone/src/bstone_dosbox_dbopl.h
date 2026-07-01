@@ -9,11 +9,11 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_DOSBOX_DBOPL_INCLUDED
 #define BSTONE_DOSBOX_DBOPL_INCLUDED
 
-#include "bstone_opl3.h"
+#include "bstone_opl_emulator.h"
 
 namespace bstone {
 
-Opl3UPtr make_dbopl_opl3();
+OplEmulatorUPtr make_dbopl_opl3();
 
 } // namespace bstone
 

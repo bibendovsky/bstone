@@ -46,8 +46,8 @@ try {
 		BSTONE_THROW_STATIC_SOURCE("Max voice count out of range.");
 	switch (param.opl3_type)
 	{
-		case Opl3Type::dbopl:
-		case Opl3Type::nuked:
+		case OplEmulatorType::dbopl:
+		case OplEmulatorType::nuked_opl3:
 			break;
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unknown OPL3 type.");
@@ -96,7 +96,7 @@ try {
 	sys_audio_device_.swap(audio_device);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-Opl3Type SystemAudioMixer::get_opl3_type() const
+OplEmulatorType SystemAudioMixer::get_opl3_type() const
 {
 	return opl3_type_;
 }

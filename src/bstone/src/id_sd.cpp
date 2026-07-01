@@ -342,24 +342,24 @@ bool sd_enable_music(bool enable)
 	return enable;
 }
 
-bstone::Opl3Type sd_get_opl3_type_from_cvar()
+bstone::OplEmulatorType sd_get_opl3_type_from_cvar()
 {
 	const auto opl3_type_sv = snd_opl3_type_cvar.get_string();
 
 	if (opl3_type_sv == snd_opl3_type_cvar_dbopl)
 	{
-		return bstone::Opl3Type::dbopl;
+		return bstone::OplEmulatorType::dbopl;
 	}
 
 	if (opl3_type_sv == snd_opl3_type_cvar_nuked)
 	{
-		return bstone::Opl3Type::nuked;
+		return bstone::OplEmulatorType::nuked_opl3;
 	}
 
-	return bstone::Opl3Type::none;
+	return bstone::OplEmulatorType::none;
 }
 
-const std::string& sd_get_opl3_long_name(bstone::Opl3Type opl3_type)
+const std::string& sd_get_opl3_long_name(bstone::OplEmulatorType opl3_type)
 {
 	static const auto unknown = std::string{"???"};
 	static const auto dosbox_dbopl = std::string{"DBOPL"};
@@ -367,8 +367,8 @@ const std::string& sd_get_opl3_long_name(bstone::Opl3Type opl3_type)
 
 	switch (opl3_type)
 	{
-		case bstone::Opl3Type::dbopl: return dosbox_dbopl;
-		case bstone::Opl3Type::nuked: return nuked_opl3;
+		case bstone::OplEmulatorType::dbopl: return dosbox_dbopl;
+		case bstone::OplEmulatorType::nuked_opl3: return nuked_opl3;
 		default: return unknown;
 	}
 }
@@ -1425,20 +1425,20 @@ void sd_cfg_set_is_sfx_digitized(bool is_sfx_digitized)
 	snd_is_sfx_digitized_cvar.set_bool(is_sfx_digitized);
 }
 
-bstone::Opl3Type sd_get_opl3_type()
+bstone::OplEmulatorType sd_get_opl3_type()
 {
 	return sd_get_opl3_type_from_cvar();
 }
 
-void sd_set_opl3_type(bstone::Opl3Type opl3_type)
+void sd_set_opl3_type(bstone::OplEmulatorType opl3_type)
 {
 	switch (opl3_type)
 	{
-		case bstone::Opl3Type::dbopl:
+		case bstone::OplEmulatorType::dbopl:
 			snd_opl3_type_cvar.set_string(snd_opl3_type_cvar_dbopl);
 			break;
 
-		case bstone::Opl3Type::nuked:
+		case bstone::OplEmulatorType::nuked_opl3:
 			snd_opl3_type_cvar.set_string(snd_opl3_type_cvar_nuked);
 			break;
 

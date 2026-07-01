@@ -10,9 +10,9 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #ifndef BSTONE_OPL_UTILITY_INCLUDED
 #define BSTONE_OPL_UTILITY_INCLUDED
 
-namespace bstone {
+#include "bstone_opl_emulator.h"
 
-class Opl3;
+namespace bstone {
 
 struct OplInstrument
 {
@@ -35,8 +35,8 @@ public:
 	inline static constexpr int al_freq_h = 0xB0;
 	inline static constexpr int al_effects = 0xBD;
 
-	static void initialize_registers(Opl3& opl3);
-	static void set_instrument(Opl3& opl3, const OplInstrument& instrument);
+	static void initialize_registers(OplEmulator& opl3);
+	static void set_instrument(OplEmulator& opl3, const OplInstrument& instrument);
 };
 
 } // namespace bstone

@@ -9,7 +9,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_audio_decoder.h"
 #include "bstone_memory_binary_reader.h"
-#include "bstone_opl3.h"
+#include "bstone_opl_emulator.h"
 #include "bstone_opl_utility.h"
 #include <algorithm>
 
@@ -20,7 +20,7 @@ namespace {
 class AdlibSfxDecoder final : public AudioDecoder
 {
 public:
-	AdlibSfxDecoder(Opl3Type opl3_type);
+	AdlibSfxDecoder(OplEmulatorType opl3_type);
 	~AdlibSfxDecoder() override = default;
 
 	bool initialize(const AudioDecoderInitParam& param) override;
@@ -38,7 +38,7 @@ public:
 	static int get_tick_rate();
 
 private:
-	Opl3UPtr emulator_{};
+	OplEmulatorUPtr emulator_{};
 
 	bool is_initialized_{};
 
@@ -60,9 +60,9 @@ private:
 
 // -------------------------------------
 
-AdlibSfxDecoder::AdlibSfxDecoder(Opl3Type opl3_type)
+AdlibSfxDecoder::AdlibSfxDecoder(OplEmulatorType opl3_type)
 	:
-	emulator_{make_opl3(opl3_type)}
+	emulator_{make_opl_emulator(opl3_type)}
 {}
 
 bool AdlibSfxDecoder::initialize(const AudioDecoderInitParam& param)
@@ -76,7 +76,7 @@ bool AdlibSfxDecoder::initialize(const AudioDecoderInitParam& param)
 		return false;
 	if (param.dst_rate < 1)
 		return false;
-	emulator_->initialize(Opl3InitParam{.sample_rate = param.dst_rate});
+	emulator_->initialize(OplEmulatorInitParam{.sample_rate = param.dst_rate});
 	OplUtility::initialize_registers(*emulator_);
 	reader_ = MemoryBinaryReader{param.src_raw_data, param.src_raw_size};
 	if (!reader_.can_read_x32())
@@ -121,8 +121,7 @@ void AdlibSfxDecoder::uninitialize()
 
 bool AdlibSfxDecoder::rewind()
 {
-	if (!emulator_->reset())
-		return false;
+	emulator_->reset();
 	OplUtility::initialize_registers(*emulator_);
 	OplUtility::set_instrument(*emulator_, instrument_);
 	command_index_ = 0;
@@ -226,7 +225,7 @@ int AdlibSfxDecoder::get_header_size()
 
 // =====================================
 
-AudioDecoderUPtr make_adlib_sfx_audio_decoder(Opl3Type opl3_type)
+AudioDecoderUPtr make_adlib_sfx_audio_decoder(OplEmulatorType opl3_type)
 {
 	return std::make_unique<AdlibSfxDecoder>(opl3_type);
 }

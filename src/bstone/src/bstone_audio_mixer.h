@@ -20,7 +20,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "audio.h"
 #include "bstone_audio_mixer_output_gains.h"
 #include "bstone_audio_mixer_voice_handle.h"
-#include "bstone_opl3.h"
+#include "bstone_opl_emulator.h"
 #include <memory>
 #include <utility>
 
@@ -89,7 +89,7 @@ struct AudioMixerInitParam
 {
 	AudioDriverType audio_driver_type;
 
-	Opl3Type opl3_type;
+	OplEmulatorType opl3_type;
 	int dst_rate;
 
 	int mix_size_ms; // (milliseconds)
@@ -114,7 +114,7 @@ public:
 	AudioMixer() = default;
 	virtual ~AudioMixer() = default;
 
-	virtual Opl3Type get_opl3_type() const = 0;
+	virtual OplEmulatorType get_opl3_type() const = 0;
 	virtual int get_rate() const = 0;
 	virtual int get_channel_count() const = 0;
 	virtual int get_mix_size_ms() const = 0;

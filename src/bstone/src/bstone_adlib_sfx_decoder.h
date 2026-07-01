@@ -14,7 +14,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 namespace bstone {
 
-AudioDecoderUPtr make_adlib_sfx_audio_decoder(Opl3Type opl3_type);
+AudioDecoderUPtr make_adlib_sfx_audio_decoder(OplEmulatorType opl3_type);
 
 } // namespace bstone
 

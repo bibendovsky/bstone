@@ -48,7 +48,7 @@ public:
 	OalAudioMixer(const AudioMixerInitParam& param);
 	~OalAudioMixer() override;
 
-	Opl3Type get_opl3_type() const override;
+	OplEmulatorType get_opl3_type() const override;
 	int get_rate() const override;
 	int get_channel_count() const override;
 	int get_mix_size_ms() const override;
@@ -246,7 +246,7 @@ private:
 	using Thread = std::thread;
 	using VoiceHandleMgr = AudioMixerVoiceHandleMgr<Voice>;
 
-	Opl3Type opl3_type_{};
+	OplEmulatorType opl3_type_{};
 	int dst_rate_{};
 	int mix_sample_count_{};
 	int mix_size_ms_{};
@@ -406,8 +406,8 @@ try
 {
 	switch (param.opl3_type)
 	{
-		case Opl3Type::dbopl:
-		case Opl3Type::nuked:
+		case OplEmulatorType::dbopl:
+		case OplEmulatorType::nuked_opl3:
 			break;
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unknown OPL3 type.");
@@ -453,7 +453,7 @@ OalAudioMixer::~OalAudioMixer()
 	oal_loader_ = nullptr;
 }
 
-Opl3Type OalAudioMixer::get_opl3_type() const
+OplEmulatorType OalAudioMixer::get_opl3_type() const
 {
 	return opl3_type_;
 }
