@@ -45,7 +45,7 @@ public:
 	virtual void write(int reg, int value) = 0;
 	// Writes a value into a register with delay.
 	virtual void write_buffered(int reg, int value) = 0;
-	// Writes audio frames into a provided buffer.
+	// Writes audio samples into a provided buffer.
 	virtual void generate(int count, float* buffer) = 0;
 	// Initializes the emulator with defined earlier sample rate.
 	virtual void reset() = 0;

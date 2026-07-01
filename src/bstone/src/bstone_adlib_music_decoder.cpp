@@ -182,8 +182,6 @@ int AdlibMusicDecoder::get_tick_rate()
 
 void AdlibMusicDecoder::uninitialize_internal()
 {
-	if (emulator_ != nullptr)
-		emulator_->reset();
 	is_initialized_ = false;
 	reader_ = MemoryBinaryReader{};
 	commands_count_ = 0;
