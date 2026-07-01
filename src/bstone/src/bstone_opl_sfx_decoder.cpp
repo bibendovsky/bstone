@@ -1,12 +1,13 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
-// AdLib sound effects decoder
+// OPL SFX decoder
 
+#include "bstone_assert.h"
 #include "bstone_audio_decoder.h"
 #include "bstone_memory_binary_reader.h"
 #include "bstone_opl_emulator.h"
@@ -17,27 +18,24 @@ namespace bstone {
 
 namespace {
 
-class AdlibSfxDecoder final : public AudioDecoder
+class OplSfxDecoder final : public AudioDecoder
 {
 public:
-	AdlibSfxDecoder(OplEmulatorType opl3_type);
-	~AdlibSfxDecoder() override = default;
+	explicit OplSfxDecoder(OplEmulatorType opl_emulator_type);
+	~OplSfxDecoder() override = default;
 
 	bool initialize(const AudioDecoderInitParam& param) override;
 	void uninitialize() override;
 	bool is_initialized() const override;
-
-	int decode(int dst_count, float* dst_data) override;
+	int decode(int dst_count, float* dst_samples) override;
 	bool rewind() override;
-
 	int get_dst_length_in_samples() const override;
 	int get_channel_count() const override;
 
-	// Returns a number of calls per second of
-	// original interrupt routine.
-	static int get_tick_rate();
-
 private:
+	inline static constexpr int header_size = 23; // Original size of AdLibSound structure.
+	inline static constexpr int tick_rate = 140;
+
 	OplEmulatorUPtr emulator_{};
 
 	bool is_initialized_{};
@@ -51,23 +49,20 @@ private:
 	int hf_{};
 	int dst_length_in_samples_{};
 
-	void uninitialize_internal();
+	void impl_uninitialize();
 	int impl_get_channel_count() const;
-
-	// Returns an original size of an AdLibSound structure.
-	static int get_header_size();
 };
 
 // -------------------------------------
 
-AdlibSfxDecoder::AdlibSfxDecoder(OplEmulatorType opl3_type)
+OplSfxDecoder::OplSfxDecoder(OplEmulatorType opl3_type)
 	:
 	emulator_{make_opl_emulator(opl3_type)}
 {}
 
-bool AdlibSfxDecoder::initialize(const AudioDecoderInitParam& param)
+bool OplSfxDecoder::initialize(const AudioDecoderInitParam& param)
 {
-	uninitialize_internal();
+	impl_uninitialize();
 	if (emulator_ == nullptr)
 		return false;
 	if (param.src_raw_data == nullptr)
@@ -84,10 +79,9 @@ bool AdlibSfxDecoder::initialize(const AudioDecoderInitParam& param)
 	const int sfx_length = reader_.read_s32_le();
 	if (sfx_length <= 0)
 		return false;
-	if (!reader_.can_read_n(get_header_size() + sfx_length))
+	if (!reader_.can_read_n(header_size + sfx_length))
 		return false;
-	// Skip priority.
-	reader_.skip(2);
+	reader_.skip(2); // Priority.
 	instrument_.m_char = reader_.read_u8();
 	instrument_.c_char = reader_.read_u8();
 	instrument_.m_scale = reader_.read_u8();
@@ -98,62 +92,60 @@ bool AdlibSfxDecoder::initialize(const AudioDecoderInitParam& param)
 	instrument_.c_sus = reader_.read_u8();
 	instrument_.m_wave = reader_.read_u8();
 	instrument_.c_wave = reader_.read_u8();
-	// Skip nConn, voice, mode and 3 unused octets
-	reader_.skip(6);
+	reader_.skip(6); // nConn, voice, mode and 3 unused octets
 	if (instrument_.m_sus == 0 && instrument_.c_sus == 0)
 		return false;
 	hf_ = reader_.read_u8();
 	hf_ = ((hf_ & 7) << 2) | 0x20;
+	OplUtility::initialize_registers(*emulator_);
 	OplUtility::set_instrument(*emulator_, instrument_);
 	command_index_ = 0;
 	commands_count_ = sfx_length;
 	samples_per_tick_ = 0;
-	dst_length_in_samples_ = commands_count_ * emulator_->get_sample_rate() / get_tick_rate();
+	dst_length_in_samples_ = commands_count_ * emulator_->get_sample_rate() / tick_rate;
 	remains_count_ = 0;
 	is_initialized_ = true;
 	return true;
 }
 
-void AdlibSfxDecoder::uninitialize()
+void OplSfxDecoder::uninitialize()
 {
-	uninitialize_internal();
+	impl_uninitialize();
 }
 
-bool AdlibSfxDecoder::rewind()
+bool OplSfxDecoder::rewind()
 {
-	emulator_->reset();
+	BSTONE_ASSERT(is_initialized());
 	OplUtility::initialize_registers(*emulator_);
 	OplUtility::set_instrument(*emulator_, instrument_);
 	command_index_ = 0;
 	remains_count_ = 0;
 	samples_per_tick_ = 0;
-	reader_.set_position(get_header_size());
+	reader_.set_position(header_size);
 	return true;
 }
 
-int AdlibSfxDecoder::get_dst_length_in_samples() const
+int OplSfxDecoder::get_dst_length_in_samples() const
 {
+	BSTONE_ASSERT(is_initialized());
 	return dst_length_in_samples_;
 }
 
-int AdlibSfxDecoder::get_channel_count() const
+int OplSfxDecoder::get_channel_count() const
 {
+	BSTONE_ASSERT(is_initialized());
 	return impl_get_channel_count();
 }
 
-bool AdlibSfxDecoder::is_initialized() const
+bool OplSfxDecoder::is_initialized() const
 {
 	return is_initialized_;
 }
 
-int AdlibSfxDecoder::decode(int dst_count, float* dst_data)
+int OplSfxDecoder::decode(int dst_count, float* dst_samples)
 {
-	if (!is_initialized_)
-		return 0;
-	if (dst_count < 1)
-		return 0;
-	if (dst_data == nullptr)
-		return 0;
+	BSTONE_ASSERT(is_initialized());
+	BSTONE_ASSERT(dst_count >= 0);
 	if (command_index_ == commands_count_ && remains_count_ == 0)
 		return 0;
 	int decoded_samples_count = 0;
@@ -164,7 +156,7 @@ int AdlibSfxDecoder::decode(int dst_count, float* dst_data)
 		if (remains_count_ > 0)
 		{
 			const int count = std::min(dst_remain_count, remains_count_);
-			emulator_->generate(count, &dst_data[dst_data_index * impl_get_channel_count()]);
+			emulator_->generate(count, dst_samples + dst_data_index * impl_get_channel_count());
 			dst_data_index += count;
 			dst_remain_count -= count;
 			remains_count_ -= count;
@@ -183,51 +175,33 @@ int AdlibSfxDecoder::decode(int dst_count, float* dst_data)
 				else
 					emulator_->write_buffered(OplUtility::al_freq_h, 0x00);
 				++command_index_;
-				const int tick_rate = get_tick_rate();
 				samples_per_tick_ += emulator_->get_sample_rate();
 				remains_count_ = samples_per_tick_ / tick_rate;
 				samples_per_tick_ %= tick_rate;
 			}
 		}
-		quit = ((command_index_ == commands_count_ && remains_count_ == 0) || dst_remain_count == 0);
+		quit = (command_index_ == commands_count_ && remains_count_ == 0) || dst_remain_count == 0;
 	}
 	return decoded_samples_count;
 }
 
-void AdlibSfxDecoder::uninitialize_internal()
+void OplSfxDecoder::impl_uninitialize()
 {
-	reader_ = MemoryBinaryReader{};
-	instrument_ = OplInstrument{};
-	commands_count_ = 0;
-	command_index_ = 0;
-	samples_per_tick_ = 0;
-	remains_count_ = 0;
-	hf_ = 0;
-	dst_length_in_samples_ = 0;
+	is_initialized_ = false;
 }
 
-int AdlibSfxDecoder::impl_get_channel_count() const
+int OplSfxDecoder::impl_get_channel_count() const
 {
 	return emulator_->get_channel_count();
-}
-
-int AdlibSfxDecoder::get_tick_rate()
-{
-	return 140;
-}
-
-int AdlibSfxDecoder::get_header_size()
-{
-	return 23;
 }
 
 } // namespace
 
 // =====================================
 
-AudioDecoderUPtr make_adlib_sfx_audio_decoder(OplEmulatorType opl3_type)
+AudioDecoderUPtr make_opl_sfx_audio_decoder(OplEmulatorType opl3_type)
 {
-	return std::make_unique<AdlibSfxDecoder>(opl3_type);
+	return std::make_unique<OplSfxDecoder>(opl3_type);
 }
 
 } // namespace bstone

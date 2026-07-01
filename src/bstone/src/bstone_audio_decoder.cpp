@@ -9,10 +9,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_audio_decoder.h"
 #include "bstone_assert.h"
+#include "bstone_opl_music_decoder.h"
+#include "bstone_opl_sfx_decoder.h"
 #include "bstone_pc_speaker_audio_decoder.h"
 #include "bstone_pcm_audio_decoder.h"
-#include "bstone_adlib_music_decoder.h"
-#include "bstone_adlib_sfx_decoder.h"
 
 namespace bstone {
 
@@ -21,9 +21,9 @@ AudioDecoderUPtr make_audio_decoder(AudioDecoderType audio_decoder_type, OplEmul
 	switch (audio_decoder_type)
 	{
 		case AudioDecoderType::adlib_music:
-			return make_adlib_music_audio_decoder(opl3_type);
+			return make_opl_music_audio_decoder(opl3_type);
 		case AudioDecoderType::adlib_sfx:
-			return make_adlib_sfx_audio_decoder(opl3_type);
+			return make_opl_sfx_audio_decoder(opl3_type);
 		case AudioDecoderType::pc_speaker:
 			return make_pc_speaker_audio_decoder();
 		case AudioDecoderType::pcm:
