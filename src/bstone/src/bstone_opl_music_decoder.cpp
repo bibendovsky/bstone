@@ -27,7 +27,7 @@ public:
 	bool initialize(const AudioDecoderInitParam& param) override;
 	void uninitialize() override;
 	bool is_initialized() const override;
-	int decode(int dst_count, float* dst_samples) override;
+	int decode(int frame_count, float* samples) override;
 	bool rewind() override;
 	int get_dst_length_in_samples() const override;
 	int get_channel_count() const override;
@@ -41,9 +41,9 @@ private:
 
 	MemoryBinaryReader reader_{};
 	int commands_count_{};
-	int command_index_{};
+	int command_offset_{};
 	int samples_per_tick_{};
-	int remains_count_{};
+	int frames_left_{};
 	int dst_length_in_samples_{};
 
 	void impl_uninitialize();
@@ -77,10 +77,10 @@ bool OplMusicDecoder::initialize(const AudioDecoderInitParam& param)
 		return false;
 	if (!reader_.can_read_n(commands_size))
 		return false;
-	command_index_ = 0;
+	command_offset_ = 0;
 	commands_count_ = commands_size / 4;
 	samples_per_tick_ = 0;
-	remains_count_ = 0;
+	frames_left_ = 0;
 	int ticks_count = 0;
 	for (int i = 0; i < commands_count_; ++i)
 	{
@@ -108,8 +108,8 @@ bool OplMusicDecoder::rewind()
 	BSTONE_ASSERT(is_initialized());
 	OplUtility::initialize_registers(*emulator_);
 	reader_.set_position(2);
-	command_index_ = 0;
-	remains_count_ = 0;
+	command_offset_ = 0;
+	frames_left_ = 0;
 	samples_per_tick_ = 0;
 	return true;
 }
@@ -126,47 +126,47 @@ int OplMusicDecoder::get_channel_count() const
 	return impl_get_channel_count();
 }
 
-int OplMusicDecoder::decode(int dst_count, float* dst_samples)
+int OplMusicDecoder::decode(int frame_count, float* samples)
 {
 	BSTONE_ASSERT(is_initialized());
-	BSTONE_ASSERT(dst_count >= 0);
-	if (command_index_ == commands_count_ && remains_count_ == 0)
+	BSTONE_ASSERT(frame_count >= 0);
+	if (command_offset_ == commands_count_ && frames_left_ == 0)
 		return 0;
-	int decoded_samples_count = 0;
-	int dst_data_index = 0;
-	int dst_remain_count = dst_count;
+	int decoded_frame_count = 0;
+	int frame_offset = 0;
+	int frames_left = frame_count;
 	for (bool quit = false; !quit; )
 	{
-		if (remains_count_ > 0)
+		if (frames_left_ > 0)
 		{
-			const int count = std::min(dst_remain_count, remains_count_);
-			emulator_->generate(count, dst_samples + dst_data_index * impl_get_channel_count());
-			dst_data_index += count;
-			dst_remain_count -= count;
-			remains_count_ -= count;
-			decoded_samples_count += count;
+			const int generated_frame_count = std::min(frames_left, frames_left_);
+			emulator_->generate_frames(&samples[frame_offset * impl_get_channel_count()], generated_frame_count);
+			frame_offset += generated_frame_count;
+			frames_left -= generated_frame_count;
+			frames_left_ -= generated_frame_count;
+			decoded_frame_count += generated_frame_count;
 		}
 		else
 		{
 			int delay = 0;
-			while (command_index_ < commands_count_ && delay == 0)
+			while (command_offset_ < commands_count_ && delay == 0)
 			{
-				const int command_reg = reader_.read_u8();
+				const int command_address = reader_.read_u8();
 				const int command_value = reader_.read_u8();
 				delay = reader_.read_u16_le();
-				emulator_->write_buffered(command_reg, command_value);
-				++command_index_;
+				emulator_->write_deferred(command_address, command_value);
+				++command_offset_;
 			}
 			if (delay > 0)
 			{
 				samples_per_tick_ += delay * emulator_->get_sample_rate();
-				remains_count_ = samples_per_tick_ / tick_rate;
+				frames_left_ = samples_per_tick_ / tick_rate;
 				samples_per_tick_ %= tick_rate;
 			}
 		}
-		quit = (command_index_ == commands_count_ && remains_count_ == 0) || dst_remain_count == 0;
+		quit = (command_offset_ == commands_count_ && frames_left_ == 0) || frames_left == 0;
 	}
-	return decoded_samples_count;
+	return decoded_frame_count;
 }
 
 void OplMusicDecoder::impl_uninitialize()
@@ -183,9 +183,9 @@ int OplMusicDecoder::impl_get_channel_count() const
 
 // =====================================
 
-AudioDecoderUPtr make_opl_music_audio_decoder(OplEmulatorType opl3_type)
+AudioDecoderUPtr make_opl_music_audio_decoder(OplEmulatorType opl_emulator_type)
 {
-	return std::make_unique<OplMusicDecoder>(opl3_type);
+	return std::make_unique<OplMusicDecoder>(opl_emulator_type);
 }
 
 } // namespace bstone

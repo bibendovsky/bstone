@@ -27,7 +27,7 @@ public:
 	bool initialize(const AudioDecoderInitParam& param) override;
 	void uninitialize() override;
 	bool is_initialized() const override;
-	int decode(int dst_count, float* dst_samples) override;
+	int decode(int frame_count, float* samples) override;
 	bool rewind() override;
 	int get_dst_length_in_samples() const override;
 	int get_channel_count() const override;
@@ -43,9 +43,9 @@ private:
 	MemoryBinaryReader reader_{};
 	OplInstrument instrument_{};
 	int commands_count_{};
-	int command_index_{};
+	int command_offset_{};
 	int samples_per_tick_{};
-	int remains_count_{};
+	int frames_left_{};
 	int hf_{};
 	int dst_length_in_samples_{};
 
@@ -99,11 +99,11 @@ bool OplSfxDecoder::initialize(const AudioDecoderInitParam& param)
 	hf_ = ((hf_ & 7) << 2) | 0x20;
 	OplUtility::initialize_registers(*emulator_);
 	OplUtility::set_instrument(*emulator_, instrument_);
-	command_index_ = 0;
+	command_offset_ = 0;
 	commands_count_ = sfx_length;
 	samples_per_tick_ = 0;
 	dst_length_in_samples_ = commands_count_ * emulator_->get_sample_rate() / tick_rate;
-	remains_count_ = 0;
+	frames_left_ = 0;
 	is_initialized_ = true;
 	return true;
 }
@@ -118,8 +118,8 @@ bool OplSfxDecoder::rewind()
 	BSTONE_ASSERT(is_initialized());
 	OplUtility::initialize_registers(*emulator_);
 	OplUtility::set_instrument(*emulator_, instrument_);
-	command_index_ = 0;
-	remains_count_ = 0;
+	command_offset_ = 0;
+	frames_left_ = 0;
 	samples_per_tick_ = 0;
 	reader_.set_position(header_size);
 	return true;
@@ -142,47 +142,47 @@ bool OplSfxDecoder::is_initialized() const
 	return is_initialized_;
 }
 
-int OplSfxDecoder::decode(int dst_count, float* dst_samples)
+int OplSfxDecoder::decode(int frame_count, float* samples)
 {
 	BSTONE_ASSERT(is_initialized());
-	BSTONE_ASSERT(dst_count >= 0);
-	if (command_index_ == commands_count_ && remains_count_ == 0)
+	BSTONE_ASSERT(frame_count >= 0);
+	if (command_offset_ == commands_count_ && frames_left_ == 0)
 		return 0;
-	int decoded_samples_count = 0;
-	int dst_data_index = 0;
-	int dst_remain_count = dst_count;
+	int decoded_frame_count = 0;
+	int frame_offset = 0;
+	int frames_left = frame_count;
 	for (bool quit = false; !quit; )
 	{
-		if (remains_count_ > 0)
+		if (frames_left_ > 0)
 		{
-			const int count = std::min(dst_remain_count, remains_count_);
-			emulator_->generate(count, dst_samples + dst_data_index * impl_get_channel_count());
-			dst_data_index += count;
-			dst_remain_count -= count;
-			remains_count_ -= count;
-			decoded_samples_count += count;
+			const int generated_frame_count = std::min(frames_left, frames_left_);
+			emulator_->generate_frames(&samples[frame_offset * impl_get_channel_count()], generated_frame_count);
+			frame_offset += generated_frame_count;
+			frames_left -= generated_frame_count;
+			frames_left_ -= generated_frame_count;
+			decoded_frame_count += generated_frame_count;
 		}
 		else
 		{
-			if (command_index_ < commands_count_)
+			if (command_offset_ < commands_count_)
 			{
 				const int lf = reader_.read_u8();
 				if (lf > 0)
 				{
-					emulator_->write_buffered(OplUtility::al_freq_l, lf);
-					emulator_->write_buffered(OplUtility::al_freq_h, hf_);
+					emulator_->write_deferred(OplUtility::al_freq_l, lf);
+					emulator_->write_deferred(OplUtility::al_freq_h, hf_);
 				}
 				else
-					emulator_->write_buffered(OplUtility::al_freq_h, 0x00);
-				++command_index_;
+					emulator_->write_deferred(OplUtility::al_freq_h, 0x00);
+				++command_offset_;
 				samples_per_tick_ += emulator_->get_sample_rate();
-				remains_count_ = samples_per_tick_ / tick_rate;
+				frames_left_ = samples_per_tick_ / tick_rate;
 				samples_per_tick_ %= tick_rate;
 			}
 		}
-		quit = (command_index_ == commands_count_ && remains_count_ == 0) || dst_remain_count == 0;
+		quit = (command_offset_ == commands_count_ && frames_left_ == 0) || frames_left == 0;
 	}
-	return decoded_samples_count;
+	return decoded_frame_count;
 }
 
 void OplSfxDecoder::impl_uninitialize()
@@ -199,9 +199,9 @@ int OplSfxDecoder::impl_get_channel_count() const
 
 // =====================================
 
-AudioDecoderUPtr make_opl_sfx_audio_decoder(OplEmulatorType opl3_type)
+AudioDecoderUPtr make_opl_sfx_audio_decoder(OplEmulatorType opl_emulator_type)
 {
-	return std::make_unique<OplSfxDecoder>(opl3_type);
+	return std::make_unique<OplSfxDecoder>(opl_emulator_type);
 }
 
 } // namespace bstone

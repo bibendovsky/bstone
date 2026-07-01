@@ -28,21 +28,23 @@ public:
 	void terminate() override;
 	bool is_initialized() const override;
 	int get_sample_rate() const override;
-	int get_channel_count() const override;
-	void write(int reg, int value) override;
-	void write_buffered(int reg, int value) override;
-	void generate(int count, float* buffer) override;
 	int get_min_sample_rate() const override;
+	int get_channel_count() const override;
+	void write_immediate(int address, int value) override;
+	void write_deferred(int address, int value) override;
+	void generate_frames(float* samples, int frame_count) override;
 
 private:
 	inline static constexpr int channel_count = 2;
+	inline static constexpr int min_sample_rate = 11025;
+	inline static constexpr int max_frames_per_block = OPL_WRITEBUF_SIZE;
+	inline static constexpr int max_samples_per_block = max_frames_per_block * channel_count;
 
 	bool is_initialized_{};
 	int sample_rate_{};
 	opl3_chip emulator_{};
 
-	static int get_max_samples_count();
-	void generate_block(float* dst_samples, int sample_count);
+	void generate_frames_block(float* samples, int frame_count);
 };
 
 // -------------------------------------
@@ -55,7 +57,9 @@ OplEmulatorType NukedOpl3::get_type() const
 bool NukedOpl3::initialize(const OplEmulatorInitParam& param)
 {
 	terminate();
-	sample_rate_ = std::max(param.sample_rate, get_min_sample_rate());
+	if (param.sample_rate < min_sample_rate)
+		return false;
+	sample_rate_ = param.sample_rate;
 	OPL3_Reset(&emulator_, static_cast<std::uint32_t>(sample_rate_));
 	is_initialized_ = true;
 	return true;
@@ -77,55 +81,51 @@ int NukedOpl3::get_sample_rate() const
 	return sample_rate_;
 }
 
+int NukedOpl3::get_min_sample_rate() const
+{
+	BSTONE_ASSERT(is_initialized());
+	return min_sample_rate;
+}
+
 int NukedOpl3::get_channel_count() const
 {
 	BSTONE_ASSERT(is_initialized());
 	return channel_count;
 }
 
-void NukedOpl3::write(int reg, int value)
+void NukedOpl3::write_immediate(int address, int value)
 {
 	BSTONE_ASSERT(is_initialized());
-	OPL3_WriteReg(&emulator_, static_cast<std::uint16_t>(reg), static_cast<std::uint8_t>(value));
+	OPL3_WriteReg(&emulator_, static_cast<std::uint16_t>(address), static_cast<std::uint8_t>(value));
 }
 
-void NukedOpl3::write_buffered(int reg, int value)
+void NukedOpl3::write_deferred(int address, int value)
 {
 	BSTONE_ASSERT(is_initialized());
-	OPL3_WriteRegBuffered(&emulator_, static_cast<std::uint16_t>(reg), static_cast<std::uint8_t>(value));
+	OPL3_WriteRegBuffered(&emulator_, static_cast<std::uint16_t>(address), static_cast<std::uint8_t>(value));
 }
 
-void NukedOpl3::generate(int count, float* buffer)
+void NukedOpl3::generate_frames(float* samples, int frame_count)
 {
 	BSTONE_ASSERT(is_initialized());
-	BSTONE_ASSERT(count >= 0);
-	for (int remain_count = count; remain_count > 0; )
+	BSTONE_ASSERT(frame_count >= 0);
+	for (int frame_offset = 0; frame_offset < frame_count; )
 	{
-		const int generate_count = std::min(remain_count, get_max_samples_count());
-		generate_block(buffer, generate_count);
-		remain_count -= generate_count;
-		buffer += generate_count * channel_count;
+		const int block_frame_count = std::min(frame_count - frame_offset, max_frames_per_block);
+		generate_frames_block(&samples[frame_offset * channel_count], block_frame_count);
+		frame_offset += block_frame_count;
 	}
 }
 
-int NukedOpl3::get_min_sample_rate() const
+void NukedOpl3::generate_frames_block(float* samples, int frame_count)
 {
-	return 11025;
-}
-
-int NukedOpl3::get_max_samples_count()
-{
-	return OPL_WRITEBUF_SIZE;
-}
-
-void NukedOpl3::generate_block(float* dst_samples, int sample_count)
-{
+	BSTONE_ASSERT(frame_count >= 0);
 	std::int16_t opl3_samples[4];
-	for (int i = 0; i < sample_count; ++i)
+	for (int frame_offset = 0; frame_offset < frame_count; ++frame_offset)
 	{
 		OPL3_Generate4ChResampled(&emulator_, opl3_samples);
-		dst_samples[i * 2 + 0] = AudioSampleConverter::s16_to_f32(opl3_samples[0]);
-		dst_samples[i * 2 + 1] = AudioSampleConverter::s16_to_f32(opl3_samples[1]);
+		for (int i_channel = 0; i_channel < channel_count; ++i_channel)
+			samples[frame_offset * channel_count + i_channel] = AudioSampleConverter::s16_to_f32(opl3_samples[i_channel]);
 	}
 }
 

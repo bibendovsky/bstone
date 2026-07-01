@@ -40,15 +40,11 @@ public:
 	virtual void terminate() = 0;
 	virtual bool is_initialized() const = 0;
 	virtual int get_sample_rate() const = 0;
-	virtual int get_channel_count() const = 0;
-	// Writes a value into a register.
-	virtual void write(int reg, int value) = 0;
-	// Writes a value into a register with delay.
-	virtual void write_buffered(int reg, int value) = 0;
-	// Writes audio samples into a provided buffer.
-	virtual void generate(int count, float* buffer) = 0;
-	// Returns a minimum output sample rate.
 	virtual int get_min_sample_rate() const = 0;
+	virtual int get_channel_count() const = 0;
+	virtual void write_immediate(int address, int value) = 0;
+	virtual void write_deferred(int address, int value) = 0;
+	virtual void generate_frames(float* samples, int frame_count) = 0;
 };
 
 // =====================================
