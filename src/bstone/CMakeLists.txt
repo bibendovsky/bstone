@@ -752,8 +752,8 @@ set(BSTONE_BSTONE_AUDIO_SOURCES
 	src/bstone_adlib_sfx_decoder.h
 	src/bstone_dbopl_emulator.cpp
 	src/bstone_dbopl_emulator.h
-	src/bstone_nuked_opl3.cpp
-	src/bstone_nuked_opl3.h
+	src/bstone_nuked_opl3_emulator.cpp
+	src/bstone_nuked_opl3_emulator.h
 	src/bstone_opl_emulator.cpp
 	src/bstone_opl_emulator.h
 	src/bstone_opl_utility.cpp

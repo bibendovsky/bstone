@@ -1,15 +1,16 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2021-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
-// Nuked OPL3 wrapper
+// Nuked OPL3 emulator
 
-
-#include "bstone_nuked_opl3.h"
+#include "bstone_nuked_opl3_emulator.h"
+#include "bstone_assert.h"
 #include "bstone_audio_sample_converter.h"
 #include "bstone_opl_emulator.h"
+#include <cstdint>
 #include <algorithm>
 #include "opl3.h"
 
@@ -23,21 +24,15 @@ public:
 	~NukedOpl3() override = default;
 
 	OplEmulatorType get_type() const override;
-
 	bool initialize(const OplEmulatorInitParam& param) override;
 	void terminate() override;
-
 	bool is_initialized() const override;
 	int get_sample_rate() const override;
 	int get_channel_count() const override;
-
-	void write(int fm_port, int fm_value) override;
-	void write_buffered(int fm_port, int fm_value) override;
-
+	void write(int reg, int value) override;
+	void write_buffered(int reg, int value) override;
 	void generate(int count, float* buffer) override;
-
 	void reset() override;
-
 	int get_min_sample_rate() const override;
 
 private:
@@ -48,8 +43,7 @@ private:
 	opl3_chip emulator_{};
 
 	static int get_max_samples_count();
-
-	void generate_block(float* sample_buffer, int sample_count);
+	void generate_block(float* dst_samples, int sample_count);
 };
 
 // -------------------------------------
@@ -71,8 +65,6 @@ bool NukedOpl3::initialize(const OplEmulatorInitParam& param)
 void NukedOpl3::terminate()
 {
 	is_initialized_ = false;
-	sample_rate_ = 0;
-	emulator_ = opl3_chip{};
 }
 
 bool NukedOpl3::is_initialized() const
@@ -82,35 +74,32 @@ bool NukedOpl3::is_initialized() const
 
 int NukedOpl3::get_sample_rate() const
 {
+	BSTONE_ASSERT(is_initialized());
 	return sample_rate_;
 }
 
 int NukedOpl3::get_channel_count() const
 {
-	return 2;
+	BSTONE_ASSERT(is_initialized());
+	return channel_count;
 }
 
-void NukedOpl3::write(int fm_port, int fm_value)
+void NukedOpl3::write(int reg, int value)
 {
-	if (!is_initialized_)
-		return;
-	OPL3_WriteReg(&emulator_, static_cast<std::uint16_t>(fm_port), static_cast<std::uint8_t>(fm_value));
+	BSTONE_ASSERT(is_initialized());
+	OPL3_WriteReg(&emulator_, static_cast<std::uint16_t>(reg), static_cast<std::uint8_t>(value));
 }
 
-void NukedOpl3::write_buffered(int fm_port, int fm_value)
+void NukedOpl3::write_buffered(int reg, int value)
 {
-	if (is_initialized_)
-		OPL3_WriteRegBuffered(&emulator_, static_cast<std::uint16_t>(fm_port), static_cast<std::uint8_t>(fm_value));
+	BSTONE_ASSERT(is_initialized());
+	OPL3_WriteRegBuffered(&emulator_, static_cast<std::uint16_t>(reg), static_cast<std::uint8_t>(value));
 }
 
 void NukedOpl3::generate(int count, float* buffer)
 {
-	if (!is_initialized_)
-		return;
-	if (count < 1)
-		return;
-	if (buffer == nullptr)
-		return;
+	BSTONE_ASSERT(is_initialized());
+	BSTONE_ASSERT(count >= 0);
 	for (int remain_count = count; remain_count > 0; )
 	{
 		const int generate_count = std::min(remain_count, get_max_samples_count());
@@ -122,13 +111,12 @@ void NukedOpl3::generate(int count, float* buffer)
 
 void NukedOpl3::reset()
 {
-	if (is_initialized_)
-		initialize(OplEmulatorInitParam{.sample_rate = sample_rate_});
+	BSTONE_ASSERT(is_initialized());
 }
 
 int NukedOpl3::get_min_sample_rate() const
 {
-	return 8'000;
+	return 11025;
 }
 
 int NukedOpl3::get_max_samples_count()
@@ -136,14 +124,14 @@ int NukedOpl3::get_max_samples_count()
 	return OPL_WRITEBUF_SIZE;
 }
 
-void NukedOpl3::generate_block(float* sample_buffer, int sample_count)
+void NukedOpl3::generate_block(float* dst_samples, int sample_count)
 {
 	std::int16_t opl3_samples[4];
 	for (int i = 0; i < sample_count; ++i)
 	{
 		OPL3_Generate4ChResampled(&emulator_, opl3_samples);
-		sample_buffer[i * 2 + 0] = AudioSampleConverter::s16_to_f32(opl3_samples[0]);
-		sample_buffer[i * 2 + 1] = AudioSampleConverter::s16_to_f32(opl3_samples[1]);
+		dst_samples[i * 2 + 0] = AudioSampleConverter::s16_to_f32(opl3_samples[0]);
+		dst_samples[i * 2 + 1] = AudioSampleConverter::s16_to_f32(opl3_samples[1]);
 	}
 }
 
@@ -151,7 +139,7 @@ void NukedOpl3::generate_block(float* sample_buffer, int sample_count)
 
 // =====================================
 
-OplEmulatorUPtr make_nuked_opl3()
+OplEmulatorUPtr make_nuked_opl3_emulator()
 {
 	return std::make_unique<NukedOpl3>();
 }
