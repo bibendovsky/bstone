@@ -51,7 +51,7 @@ try
 	switch (param.audio_driver_type)
 	{
 		case AudioDriverType::system:
-			return std::make_unique<SystemAudioMixer>(param);
+			return make_system_audio_mixer(param);
 		case AudioDriverType::openal:
 			return make_oal_audio_mixer(param);
 		default:
