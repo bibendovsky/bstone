@@ -2727,13 +2727,13 @@ void digitized_sfx_carousel(
 
 	switch (old_sfx_type)
 	{
-		case AudioSfxType::adlib:
+		case AudioSfxType::opl:
 			new_sfx_type = AudioSfxType::pc_speaker;
 			break;
 
 		case AudioSfxType::pc_speaker:
 		default:
-			new_sfx_type = AudioSfxType::adlib;
+			new_sfx_type = AudioSfxType::opl;
 			break;
 	}
 
@@ -2754,9 +2754,9 @@ const char* get_sfx_type_string(
 		case AudioSfxType::pc_speaker:
 			return "PC SPEAKER";
 
-		case AudioSfxType::adlib:
+		case AudioSfxType::opl:
 		default:
-			return "ADLIB";
+			return "OPL";
 	}
 }
 

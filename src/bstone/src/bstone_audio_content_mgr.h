@@ -27,7 +27,7 @@ public:
 	virtual const AudioChunk& get_chunk(int chunk_number) const = 0;
 	virtual const AudioChunk& get_sfx_chunk(int chunk_number) const = 0;
 	virtual int get_sfx_priority(int chunk_number) const = 0;
-	virtual const AudioChunk& get_adlib_music_chunk(int chunk_number) const = 0;
+	virtual const AudioChunk& get_opl_music_chunk(int chunk_number) const = 0;
 };
 
 // =====================================

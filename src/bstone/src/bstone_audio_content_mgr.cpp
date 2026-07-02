@@ -30,15 +30,15 @@ public:
 	const AudioChunk& get_chunk(int chunk_number) const override;
 	const AudioChunk& get_sfx_chunk(int chunk_number) const override;
 	int get_sfx_priority(int chunk_number) const override;
-	const AudioChunk& get_adlib_music_chunk(int chunk_number) const override;
+	const AudioChunk& get_opl_music_chunk(int chunk_number) const override;
 
 private:
 	inline static constexpr int max_sfx_sounds = NUMSOUNDS;
 
 	inline static constexpr int pc_speaker_sfx_chunk_base_index = 0;
-	inline static constexpr int adlib_sfx_chunk_base_index = 100;
+	inline static constexpr int opl_sfx_chunk_base_index = 100;
 	inline static constexpr int digitized_sfx_chunk_base_index = 200;
-	inline static constexpr int adlib_music_chunk_base_index = 300;
+	inline static constexpr int opl_music_chunk_base_index = 300;
 
 	using AudiotData = std::vector<std::uint8_t>;
 	using AudioChunks = std::vector<AudioChunk>;
@@ -65,7 +65,7 @@ AudioContentMgrImpl::AudioContentMgrImpl(Vswap& vswap)
 	audiot_data_ = load_audiot_data();
 	audio_chunks_ = make_audio_chunks(audiot_data_);
 	make_digitized_sfx(audio_chunks_);
-	set_sfx_type(AudioSfxType::adlib);
+	set_sfx_type(AudioSfxType::opl);
 	is_sfx_digitized_ = true;
 }
 
@@ -79,8 +79,8 @@ void AudioContentMgrImpl::set_sfx_type(AudioSfxType sfx_type)
 	int sfx_chunk_base_index;
 	switch (sfx_type)
 	{
-		case AudioSfxType::adlib:
-			sfx_chunk_base_index = adlib_sfx_chunk_base_index;
+		case AudioSfxType::opl:
+			sfx_chunk_base_index = opl_sfx_chunk_base_index;
 			break;
 		case AudioSfxType::pc_speaker:
 			sfx_chunk_base_index = pc_speaker_sfx_chunk_base_index;
@@ -131,12 +131,12 @@ int AudioContentMgrImpl::get_sfx_priority(int chunk_number) const
 	return endian::read_u16_le(audio_chunk.data + 2);
 }
 
-const AudioChunk& AudioContentMgrImpl::get_adlib_music_chunk(int chunk_number) const
+const AudioChunk& AudioContentMgrImpl::get_opl_music_chunk(int chunk_number) const
 {
-	const int music_chunk_count = get_chunk_count() - adlib_music_chunk_base_index;
+	const int music_chunk_count = get_chunk_count() - opl_music_chunk_base_index;
 	if (chunk_number < 0 || chunk_number >= music_chunk_count)
 		BSTONE_THROW_STATIC_SOURCE("Music chunk number out of range.");
-	return audio_chunks_[adlib_music_chunk_base_index + chunk_number];
+	return audio_chunks_[opl_music_chunk_base_index + chunk_number];
 }
 
 AudioContentMgrImpl::AudiotData AudioContentMgrImpl::load_audiot_data()
@@ -158,7 +158,7 @@ AudioContentMgrImpl::AudioChunks AudioContentMgrImpl::make_audio_chunks(const Au
 		BSTONE_THROW_STATIC_SOURCE("Invalid TOC file size.");
 	const int audiohed_count = audiohed_size / audiohed_item_size;
 	const int audio_chunk_count = audiohed_count - 1;
-	if (audio_chunk_count <= adlib_music_chunk_base_index)
+	if (audio_chunk_count <= opl_music_chunk_base_index)
 		BSTONE_THROW_STATIC_SOURCE("Invalid audio chunk count.");
 	using Audiohed = std::vector<std::uint8_t>;
 	Audiohed audiohed_data{};
@@ -188,8 +188,8 @@ AudioContentMgrImpl::AudioChunks AudioContentMgrImpl::make_audio_chunks(const Au
 	}
 	for (int i = 0; i < max_sfx_sounds; ++i)
 	{
-		AudioChunk& audio_chunk = audio_chunks[adlib_sfx_chunk_base_index + i];
-		audio_chunk.type = AudioChunkType::adlib_sfx;
+		AudioChunk& audio_chunk = audio_chunks[opl_sfx_chunk_base_index + i];
+		audio_chunk.type = AudioChunkType::opl_sfx;
 		audio_chunk.audio_index = i;
 	}
 	for (int i = 0; i < max_sfx_sounds; ++i)
@@ -200,11 +200,11 @@ AudioContentMgrImpl::AudioChunks AudioContentMgrImpl::make_audio_chunks(const Au
 		audio_chunk.type = AudioChunkType::digitized;
 		audio_chunk.audio_index = i;
 	}
-	const int adlib_music_count = audio_chunk_count - adlib_music_chunk_base_index;
-	for (int i = 0; i < adlib_music_count; ++i)
+	const int opl_music_count = audio_chunk_count - opl_music_chunk_base_index;
+	for (int i = 0; i < opl_music_count; ++i)
 	{
-		AudioChunk& audio_chunk = audio_chunks[adlib_music_chunk_base_index + i];
-		audio_chunk.type = AudioChunkType::adlib_music;
+		AudioChunk& audio_chunk = audio_chunks[opl_music_chunk_base_index + i];
+		audio_chunk.type = AudioChunkType::opl_music;
 		audio_chunk.audio_index = i;
 	}
 	return audio_chunks;

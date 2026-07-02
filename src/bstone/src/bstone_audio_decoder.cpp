@@ -20,9 +20,9 @@ AudioDecoderUPtr make_audio_decoder(AudioDecoderType audio_decoder_type, OplEmul
 {
 	switch (audio_decoder_type)
 	{
-		case AudioDecoderType::adlib_music:
+		case AudioDecoderType::opl_music:
 			return make_opl_music_audio_decoder(opl3_type);
-		case AudioDecoderType::adlib_sfx:
+		case AudioDecoderType::opl_sfx:
 			return make_opl_sfx_audio_decoder(opl3_type);
 		case AudioDecoderType::pc_speaker:
 			return make_pc_speaker_audio_decoder();

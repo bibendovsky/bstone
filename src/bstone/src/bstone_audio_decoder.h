@@ -19,8 +19,8 @@ inline constexpr int audio_decoder_w3d_pcm_frequency = 7'000;
 
 enum class AudioDecoderType
 {
-	adlib_music = 1,
-	adlib_sfx = 2,
+	opl_music = 1,
+	opl_sfx = 2,
 	pc_speaker = 3,
 	pcm = 4,
 };

@@ -85,7 +85,7 @@ void AudioExtractorImpl::extract_music(const std::string& dst_dir)
 {
 	const auto audio_chunk_filter = [](const AudioChunk& audio_chunk)
 	{
-		return audio_chunk.type == AudioChunkType::adlib_music && audio_chunk.data;
+		return audio_chunk.type == AudioChunkType::opl_music && audio_chunk.data;
 	};
 	extract_audio_chunks(dst_dir, audio_chunk_filter);
 }
@@ -94,7 +94,7 @@ void AudioExtractorImpl::extract_sfx(const std::string& dst_dir)
 {
 	const auto audio_chunk_filter = [](const AudioChunk& audio_chunk)
 	{
-		return audio_chunk.type != AudioChunkType::adlib_music && audio_chunk.data;
+		return audio_chunk.type != AudioChunkType::opl_music && audio_chunk.data;
 	};
 	extract_audio_chunks(dst_dir, audio_chunk_filter);
 }
@@ -136,12 +136,12 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 	int dst_rate = 0;
 	switch (audio_chunk.type)
 	{
-		case AudioChunkType::adlib_music:
-			audio_decoder_type = AudioDecoderType::adlib_music;
+		case AudioChunkType::opl_music:
+			audio_decoder_type = AudioDecoderType::opl_music;
 			dst_rate = OplEmulator::fixed_sample_rate;
 			break;
-		case AudioChunkType::adlib_sfx:
-			audio_decoder_type = AudioDecoderType::adlib_sfx;
+		case AudioChunkType::opl_sfx:
+			audio_decoder_type = AudioDecoderType::opl_sfx;
 			dst_rate = OplEmulator::fixed_sample_rate;
 			break;
 		case AudioChunkType::pc_speaker:
@@ -226,14 +226,14 @@ std::string AudioExtractorImpl::make_file_name(const AudioChunk& audio_chunk, Ex
 	std::string filename{};
 	filename.reserve(256);
 	const AssetsInfo& assets_info = get_assets_info();
-	if (audio_chunk.type == AudioChunkType::adlib_music)
+	if (audio_chunk.type == AudioChunkType::opl_music)
 		AudioMixerUtils::append_music_chunk_dirname(assets_info, filename);
 	else
 		AudioMixerUtils::append_sfx_chunk_dirname(assets_info, filename);
 	switch (audio_chunk.type)
 	{
-		case AudioChunkType::adlib_music:
-		case AudioChunkType::adlib_sfx:
+		case AudioChunkType::opl_music:
+		case AudioChunkType::opl_sfx:
 			fs_utils::append_path_inplace(filename, "adlib");
 			break;
 		case AudioChunkType::pc_speaker:
@@ -265,7 +265,7 @@ std::string AudioExtractorImpl::make_file_name(const AudioChunk& audio_chunk, Ex
 			break;
 	}
 	std::string_view chunk_name{};
-	if (audio_chunk.type == AudioChunkType::adlib_music)
+	if (audio_chunk.type == AudioChunkType::opl_music)
 		chunk_name = AudioMixerUtils::get_music_chunk_name(audio_chunk.audio_index, assets_info);
 	else
 		chunk_name = AudioMixerUtils::get_sfx_chunk_name(audio_chunk.audio_index, assets_info);
@@ -321,8 +321,8 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir,
 	opl3_types.reserve(2);
 	switch (audio_chunk.type)
 	{
-		case AudioChunkType::adlib_music:
-		case AudioChunkType::adlib_sfx:
+		case AudioChunkType::opl_music:
+		case AudioChunkType::opl_sfx:
 			opl3_types.emplace_back(OplEmulatorType::dbopl);
 			opl3_types.emplace_back(OplEmulatorType::nuked_opl3);
 			break;
@@ -349,8 +349,8 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir,
 		}
 		switch (audio_chunk.type)
 		{
-			case AudioChunkType::adlib_music:
-			case AudioChunkType::adlib_sfx:
+			case AudioChunkType::opl_music:
+			case AudioChunkType::opl_sfx:
 			case AudioChunkType::pc_speaker:
 				write_non_digitized_audio_chunk(audio_chunk, file_stream, opl3_type);
 				break;

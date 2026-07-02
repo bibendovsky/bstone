@@ -79,8 +79,8 @@ try {
 	const int total_samples = get_max_channels() * mix_samples_count_;
 	buffer_.resize(total_samples);
 	mix_buffer_.resize(total_samples);
-	adlib_music_cache_.resize(LASTMUSIC);
-	adlib_sfx_cache_.resize(NUMSOUNDS);
+	opl_music_cache_.resize(LASTMUSIC);
+	opl_sfx_cache_.resize(NUMSOUNDS);
 	pc_speaker_sfx_cache_.resize(NUMSOUNDS);
 	pcm_cache_.resize(NUMSOUNDS);
 	const int commands_reserve = param.max_voices * 4;
@@ -418,9 +418,9 @@ void SystemAudioMixer::mix_samples()
 			voice.is_active = false;
 			continue;
 		}
-		const bool is_adlib_music = (voice.type == SoundType::adlib_music);
+		const bool is_opl_music = (voice.type == SoundType::opl_music);
 		CacheItem* const cache_item = voice.cache;
-		if (!is_adlib_music && voice.decode_offset == cache_item->decoded_count)
+		if (!is_opl_music && voice.decode_offset == cache_item->decoded_count)
 		{
 			voice_handle_mgr_.unmap(voice.handle);
 			voice.is_active = false;
@@ -429,10 +429,10 @@ void SystemAudioMixer::mix_samples()
 		double gain_scale;
 		switch (voice.type)
 		{
-			case SoundType::adlib_music:
+			case SoundType::opl_music:
 				gain_scale = music_gain_scale;
 				break;
-			case SoundType::adlib_sfx:
+			case SoundType::opl_sfx:
 				gain_scale = sfx_gain_scale;
 				break;
 			default:
@@ -442,7 +442,7 @@ void SystemAudioMixer::mix_samples()
 		if (!voice.is_custom_output_gains)
 			gain_scale *= voice.gain;
 		int decode_count = 0;
-		if (is_adlib_music)
+		if (is_opl_music)
 			decode_count = cache_item->buffer_size;
 		else
 		{
@@ -454,7 +454,7 @@ void SystemAudioMixer::mix_samples()
 		{
 			MixSamples& mix_buffer = mix_buffer_;
 			const int channel_count = cache_item->decoder->get_channel_count();
-			const int base_offset = (is_adlib_music ? 0 : voice.decode_offset) * channel_count;
+			const int base_offset = (is_opl_music ? 0 : voice.decode_offset) * channel_count;
 			const AudioMixerOutputGains& gains = (voice.is_custom_output_gains ? voice.custom_output_gains : voice.output_gains);
 			const bool is_src_mono = channel_count == 1;
 			if (voice.is_r3)
@@ -472,15 +472,15 @@ void SystemAudioMixer::mix_samples()
 					mix_samples_stereo_to_stereo(gain_scale, gains, decode_count, &cache_item->samples[base_offset], &mix_buffer[0]);
 			}
 		}
-		if (!is_adlib_music)
+		if (!is_opl_music)
 			voice.decode_offset += decode_count;
-		if ((is_adlib_music && cache_item->is_decoded()) ||
-			(!is_adlib_music && voice.decode_offset == cache_item->decoded_count))
+		if ((is_opl_music && cache_item->is_decoded()) ||
+			(!is_opl_music && voice.decode_offset == cache_item->decoded_count))
 		{
 			if (cache_item->is_decoded())
 			{
 				bool is_erase = false;
-				if (voice.type == SoundType::adlib_music)
+				if (voice.type == SoundType::opl_music)
 				{
 					if (voice.is_looping && cache_item->decoder->rewind())
 					{
@@ -728,10 +728,10 @@ void SystemAudioMixer::handle_play_sound_command(const Command& command)
 
 bool SystemAudioMixer::initialize_cache_item(const Command& command, CacheItem& cache_item)
 {
-	const bool is_adlib_music = (command.param.play_sound.sound_type == SoundType::adlib_music);
+	const bool is_opl_music = (command.param.play_sound.sound_type == SoundType::opl_music);
 	if (cache_item.is_active)
 	{
-		if (!is_adlib_music)
+		if (!is_opl_music)
 			return !cache_item.is_invalid;
 	}
 	cache_item = CacheItem{};
@@ -752,7 +752,7 @@ bool SystemAudioMixer::initialize_cache_item(const Command& command, CacheItem& 
 	cache_item.is_invalid = false;
 	cache_item.sound_type = command.param.play_sound.sound_type;
 	cache_item.samples_count = samples_count;
-	cache_item.samples.resize((is_adlib_music ? mix_samples_count_ : samples_count) * decoder->get_channel_count());
+	cache_item.samples.resize((is_opl_music ? mix_samples_count_ : samples_count) * decoder->get_channel_count());
 	cache_item.buffer_size = 0;
 	cache_item.decoder.swap(decoder);
 	return true;
@@ -769,7 +769,7 @@ bool SystemAudioMixer::decode_voice(const Voice& voice)
 		return false;
 	if (cache_item->is_decoded())
 		return true;
-	if (voice.type == SoundType::adlib_music)
+	if (voice.type == SoundType::opl_music)
 	{
 		const int total_remain_count = cache_item->samples_count - cache_item->decoded_count;
 		if (total_remain_count == 0)
@@ -869,8 +869,8 @@ SystemAudioMixer::CacheItem* SystemAudioMixer::get_cache_item(SoundType sound_ty
 		return nullptr;
 	switch (sound_type)
 	{
-		case SoundType::adlib_music: return &adlib_music_cache_[sound_index];
-		case SoundType::adlib_sfx: return &adlib_sfx_cache_[sound_index];
+		case SoundType::opl_music: return &opl_music_cache_[sound_index];
+		case SoundType::opl_sfx: return &opl_sfx_cache_[sound_index];
 		case SoundType::pc_speaker_sfx: return &pc_speaker_sfx_cache_[sound_index];
 		case SoundType::pcm: return &pcm_cache_[sound_index];
 		default: return nullptr;
@@ -881,10 +881,10 @@ AudioDecoderUPtr SystemAudioMixer::create_decoder_by_sound_type(SoundType sound_
 {
 	switch (sound_type)
 	{
-		case SoundType::adlib_music:
-			return make_audio_decoder(AudioDecoderType::adlib_music, opl3_type_);
-		case SoundType::adlib_sfx:
-			return make_audio_decoder(AudioDecoderType::adlib_sfx, opl3_type_);
+		case SoundType::opl_music:
+			return make_audio_decoder(AudioDecoderType::opl_music, opl3_type_);
+		case SoundType::opl_sfx:
+			return make_audio_decoder(AudioDecoderType::opl_sfx, opl3_type_);
 		case SoundType::pc_speaker_sfx:
 			return make_audio_decoder(AudioDecoderType::pc_speaker, opl3_type_);
 		case SoundType::pcm:
@@ -898,8 +898,8 @@ bool SystemAudioMixer::is_sound_type_valid(SoundType sound_type)
 {
 	switch (sound_type)
 	{
-		case SoundType::adlib_music:
-		case SoundType::adlib_sfx:
+		case SoundType::opl_music:
+		case SoundType::opl_sfx:
 		case SoundType::pc_speaker_sfx:
 		case SoundType::pcm:
 			return true;
@@ -912,9 +912,9 @@ bool SystemAudioMixer::is_sound_index_valid(int sound_index, SoundType sound_typ
 {
 	switch (sound_type)
 	{
-		case SoundType::adlib_music:
+		case SoundType::opl_music:
 			return sound_index >= 0 && sound_index < LASTMUSIC;
-		case SoundType::adlib_sfx:
+		case SoundType::opl_sfx:
 		case SoundType::pc_speaker_sfx:
 		case SoundType::pcm:
 			return sound_index >= 0 && sound_index < NUMSOUNDS;

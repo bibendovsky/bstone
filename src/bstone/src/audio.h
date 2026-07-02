@@ -172,15 +172,15 @@ enum class AudioDriverType
 
 enum class AudioSfxType
 {
-	adlib = 1,
+	opl = 1,
 	pc_speaker = 2,
 	pcm = 3,
 };
 
 enum class AudioChunkType
 {
-	adlib_music = 1,
-	adlib_sfx = 2,
+	opl_music = 1,
+	opl_sfx = 2,
 	pc_speaker = 3,
 	digitized = 4,
 };

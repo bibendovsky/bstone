@@ -83,7 +83,7 @@ private:
 
 	using Strings = std::vector<std::string>;
 
-	using SfxAdLibSounds = std::array<OalSourceCachingSound, NUMSOUNDS>;
+	using SfxOplSounds = std::array<OalSourceCachingSound, NUMSOUNDS>;
 	using SfxPcSpeakerSounds = std::array<OalSourceCachingSound, NUMSOUNDS>;
 	using SfxPcmSounds = std::array<OalSourceCachingSound, NUMSOUNDS>;
 
@@ -236,8 +236,8 @@ private:
 	inline static constexpr int music_voices_limit = 1;
 	inline static constexpr int voices_limit = sfx_voices_limit + music_voices_limit;
 
-	inline static constexpr float adlib_sfx_gain_scale = 7.0F;
-	inline static constexpr float adlib_music_gain_scale = 6.0F;
+	inline static constexpr float opl_sfx_gain_scale = 7.0F;
+	inline static constexpr float opl_music_gain_scale = 6.0F;
 
 	inline static constexpr const char* alc_enumeration_ext_str = "ALC_ENUMERATION_EXT";
 	inline static constexpr const char* alc_enumerate_all_ext_str = "ALC_ENUMERATE_ALL_EXT";
@@ -273,11 +273,11 @@ private:
 	Commands commands_{};
 	Commands mt_commands_{};
 
-	OalSourceUncachingSound music_adlib_sound_{};
+	OalSourceUncachingSound r2s_sound_{};
 	OalSource r2s_oal_source_{};
 	SamplesF32 r2s_samples_f32_mix_{};
 
-	SfxAdLibSounds sfx_adlib_sounds_{};
+	SfxOplSounds sfx_opl_sounds_{};
 	SfxPcSpeakerSounds sfx_pc_speaker_sounds_{};
 	SfxPcmSounds sfx_pcm_sounds_{};
 
@@ -334,11 +334,11 @@ private:
 	void initialize_voice_handles();
 	void initialize_command_queue();
 	void initialize_voices();
-	void initialize_music_adlib_sound();
+	void initialize_r2s_sound();
 	void initialize_r2s_oal_source();
-	void initialize_music();
-	void uninitialize_music();
-	void initialize_sfx_adlib_sounds();
+	void initialize_r2s();
+	void uninitialize_r2s();
+	void initialize_sfx_opl_sounds();
 	void initialize_sfx_pc_speaker_sounds();
 	void initialize_sfx_pcm_sounds();
 	void initialize_sfx();
@@ -348,7 +348,7 @@ private:
 	void on_music_stop(Voice& voice);
 	void on_sfx_stop(const Voice& voice);
 
-	AudioMixerVoiceHandle play_adlib_music_internal(const void* data, int data_size, bool is_looping);
+	AudioMixerVoiceHandle play_opl_music_internal(const void* data, int data_size, bool is_looping);
 	AudioMixerVoiceHandle play_sfx_sound_internal(SoundType sound_type, int sound_index, const void* data, int data_size, bool is_positional);
 
 	void update_al_gain();
@@ -367,7 +367,7 @@ private:
 	void handle_set_voice_r3_position_command(const SetVoiceR3PositionCommandParam& param);
 	void handle_commands();
 
-	void decode_adlib_sound(OalSourceCachingSound& adlib_sound, float gain_scale);
+	void decode_opl_sound(OalSourceCachingSound& opl_sound, float gain_scale);
 	void decode_pc_speaker_sound(OalSourceCachingSound& pc_speaker_sound);
 	void decode_pcm_sound(OalSourceCachingSound& pcm_sound);
 
@@ -430,7 +430,7 @@ try
 	initialize_voice_handles();
 	initialize_voices();
 	initialize_command_queue();
-	initialize_music();
+	initialize_r2s();
 	initialize_sfx();
 	initialize_misc();
 	initialize_thread();
@@ -446,7 +446,7 @@ OalAudioMixer::~OalAudioMixer()
 	}
 	if (thread_.joinable())
 		thread_.join();
-	uninitialize_music();
+	uninitialize_r2s();
 	uninitialize_sfx();
 	oal_context_resource_ = nullptr;
 	oal_device_resource_ = nullptr;
@@ -558,10 +558,10 @@ try
 	bool is_music = false;
 	switch (param.sound_type)
 	{
-		case SoundType::adlib_music:
+		case SoundType::opl_music:
 			is_music = true;
 			break;
-		case SoundType::adlib_sfx:
+		case SoundType::opl_sfx:
 		case SoundType::pc_speaker_sfx:
 		case SoundType::pcm:
 			break;
@@ -573,7 +573,7 @@ try
 		AudioMixerVoiceHandle voice_handle{};
 		if (param.data == nullptr || param.data_size <= 0)
 			return voice_handle;
-		return play_adlib_music_internal(param.data, param.data_size, param.is_looping);
+		return play_opl_music_internal(param.data, param.data_size, param.is_looping);
 	}
 	else
 	{
@@ -1067,15 +1067,15 @@ void OalAudioMixer::initialize_voices()
 	}
 }
 
-void OalAudioMixer::initialize_music_adlib_sound()
+void OalAudioMixer::initialize_r2s_sound()
 {
-	music_adlib_sound_.is_initialized = true;
-	music_adlib_sound_.is_stereo = true;
-	music_adlib_sound_.queue_size = 0;
-	music_adlib_sound_.read_sample_offset = 0;
-	music_adlib_sound_.write_sample_offset = 0;
-	music_adlib_sound_.samples.resize(mix_sample_count_ * oal_source_max_streaming_buffers * sample_size_ * audio_mixer_max_channels);
-	music_adlib_sound_.audio_decoder = make_audio_decoder(AudioDecoderType::adlib_music, opl3_type_);
+	r2s_sound_.is_initialized = true;
+	r2s_sound_.is_stereo = true;
+	r2s_sound_.queue_size = 0;
+	r2s_sound_.read_sample_offset = 0;
+	r2s_sound_.write_sample_offset = 0;
+	r2s_sound_.samples.resize(mix_sample_count_ * oal_source_max_streaming_buffers * sample_size_ * audio_mixer_max_channels);
+	r2s_sound_.audio_decoder = make_audio_decoder(AudioDecoderType::opl_music, opl3_type_);
 }
 
 void OalAudioMixer::initialize_r2s_oal_source()
@@ -1096,7 +1096,7 @@ void OalAudioMixer::initialize_r2s_oal_source()
 		.sample_size = sample_size_,
 		.al_format = has_al_ext_float32_ ? AL_FORMAT_STEREO_FLOAT32 : AL_FORMAT_STEREO16,
 		.caching_sound = nullptr,
-		.uncaching_sound = &music_adlib_sound_,
+		.uncaching_sound = &r2s_sound_,
 	};
 	r2s_oal_source_.open(open_param);
 	if (r2s_oal_source_.is_open())
@@ -1104,27 +1104,27 @@ void OalAudioMixer::initialize_r2s_oal_source()
 	r2s_samples_f32_mix_.resize(mix_sample_count_ * 2);
 }
 
-void OalAudioMixer::initialize_music()
+void OalAudioMixer::initialize_r2s()
 {
-	initialize_music_adlib_sound();
+	initialize_r2s_sound();
 	initialize_r2s_oal_source();
 }
 
-void OalAudioMixer::uninitialize_music()
+void OalAudioMixer::uninitialize_r2s()
 {
-	music_adlib_sound_.is_initialized = false;
-	music_adlib_sound_.audio_decoder = nullptr;
+	r2s_sound_.is_initialized = false;
+	r2s_sound_.audio_decoder = nullptr;
 	r2s_oal_source_.uninitialize();
 }
 
-void OalAudioMixer::initialize_sfx_adlib_sounds()
+void OalAudioMixer::initialize_sfx_opl_sounds()
 {
-	for (OalSourceCachingSound& sfx_adlib_sound : sfx_adlib_sounds_)
+	for (OalSourceCachingSound& sfx_opl_sound : sfx_opl_sounds_)
 	{
-		sfx_adlib_sound.is_initialized = false;
-		sfx_adlib_sound.audio_decoder = make_audio_decoder(AudioDecoderType::adlib_sfx, opl3_type_);
-		if (sfx_adlib_sound.audio_decoder == nullptr)
-			BSTONE_THROW_STATIC_SOURCE("Failed to create SFX AdLib audio decoder.");
+		sfx_opl_sound.is_initialized = false;
+		sfx_opl_sound.audio_decoder = make_audio_decoder(AudioDecoderType::opl_sfx, opl3_type_);
+		if (sfx_opl_sound.audio_decoder == nullptr)
+			BSTONE_THROW_STATIC_SOURCE("Failed to create SFX OPL audio decoder.");
 	}
 }
 
@@ -1152,15 +1152,15 @@ void OalAudioMixer::initialize_sfx_pcm_sounds()
 
 void OalAudioMixer::initialize_sfx()
 {
-	initialize_sfx_adlib_sounds();
+	initialize_sfx_opl_sounds();
 	initialize_sfx_pc_speaker_sounds();
 	initialize_sfx_pcm_sounds();
 }
 
 void OalAudioMixer::uninitialize_sfx()
 {
-	for (OalSourceCachingSound& sfx_adlib_sound : sfx_adlib_sounds_)
-		sfx_adlib_sound.audio_decoder = nullptr;
+	for (OalSourceCachingSound& sfx_opl_sound : sfx_opl_sounds_)
+		sfx_opl_sound.audio_decoder = nullptr;
 	for (OalSourceCachingSound& sfx_pc_speaker_sound : sfx_pc_speaker_sounds_)
 		sfx_pc_speaker_sound.audio_decoder = nullptr;
 	voices_.clear();
@@ -1182,7 +1182,7 @@ void OalAudioMixer::on_sfx_stop(const Voice& voice)
 	voice_handle_mgr_.unmap(voice.handle);
 }
 
-AudioMixerVoiceHandle OalAudioMixer::play_adlib_music_internal(const void* data, int data_size, bool is_looping)
+AudioMixerVoiceHandle OalAudioMixer::play_opl_music_internal(const void* data, int data_size, bool is_looping)
 {
 	const AudioMixerVoiceHandle voice_handle = voice_handle_mgr_.generate();
 	Command command{};
@@ -1253,7 +1253,7 @@ void OalAudioMixer::handle_play_music_command(const PlayMusicCommandParam& param
 		.src_raw_data = param.data,
 		.src_raw_size = param.data_size,
 		.dst_rate = dst_rate_};
-	if (!music_adlib_sound_.audio_decoder->initialize(audio_decoder_param))
+	if (!r2s_sound_.audio_decoder->initialize(audio_decoder_param))
 		return;
 	OalSourceOpenStreamingParam source_param{};
 	source_param.is_3d = false;
@@ -1262,7 +1262,7 @@ void OalAudioMixer::handle_play_music_command(const PlayMusicCommandParam& param
 	source_param.sample_rate = dst_rate_;
 	source_param.sample_size = sample_size_;
 	source_param.al_format = has_al_ext_float32_ ? AL_FORMAT_STEREO_FLOAT32 : AL_FORMAT_STEREO16;
-	source_param.uncaching_sound = &music_adlib_sound_;
+	source_param.uncaching_sound = &r2s_sound_;
 	voice->is_active = true;
 	voice->is_r3 = false;
 	voice->is_looping = param.is_looping;
@@ -1288,8 +1288,8 @@ void OalAudioMixer::handle_play_sfx_command(const PlaySfxCommandParam& param)
 				voice_handle_mgr_.uncache(param.voice_handle);
 		});
 	OalSourceCachingSound& sfx_sound = (
-		param.sound_type == SoundType::adlib_sfx ?
-			sfx_adlib_sounds_[param.sound_index] :
+		param.sound_type == SoundType::opl_sfx ?
+			sfx_opl_sounds_[param.sound_index] :
 			(
 				param.sound_type == SoundType::pc_speaker_sfx ?
 					sfx_pc_speaker_sounds_[param.sound_index] :
@@ -1517,33 +1517,33 @@ void OalAudioMixer::handle_commands()
 	mt_commands_.clear();
 }
 
-void OalAudioMixer::decode_adlib_sound(OalSourceCachingSound& adlib_sound, float gain_scale)
+void OalAudioMixer::decode_opl_sound(OalSourceCachingSound& opl_sound, float gain_scale)
 {
-	if (!adlib_sound.is_initialized || adlib_sound.is_decoded)
+	if (!opl_sound.is_initialized || opl_sound.is_decoded)
 		return;
-	const int remain_count = adlib_sound.sample_count - adlib_sound.sample_offset;
+	const int remain_count = opl_sound.sample_count - opl_sound.sample_offset;
 	if (remain_count == 0)
 	{
-		adlib_sound.is_decoded = true;
+		opl_sound.is_decoded = true;
 		return;
 	}
 	const int sample_count = std::min(remain_count, oal_source_max_streaming_buffers * dst_rate_);
-	const int src_channel_count = adlib_sound.audio_decoder->get_channel_count();
+	const int src_channel_count = opl_sound.audio_decoder->get_channel_count();
 	int decoded_count = 0;
 	if (has_al_ext_float32_)
 	{
 		if (src_channel_count == 1)
 		{
-			const auto dst_samples = reinterpret_cast<float*>(&adlib_sound.samples[adlib_sound.sample_offset * 4]);
-			decoded_count = adlib_sound.audio_decoder->decode(sample_count, dst_samples);
+			const auto dst_samples = reinterpret_cast<float*>(&opl_sound.samples[opl_sound.sample_offset * 4]);
+			decoded_count = opl_sound.audio_decoder->decode(sample_count, dst_samples);
 			for (int i = 0; i < decoded_count; ++i)
 				dst_samples[i] *= gain_scale;
 		}
 		else if (src_channel_count == 2)
 		{
-			const auto dst_samples = reinterpret_cast<float*>(&adlib_sound.samples[adlib_sound.sample_offset * 4]);
-			const auto dst_stereo_samples = reinterpret_cast<float*>(&adlib_sound.stereo_samples[adlib_sound.sample_offset * 4 * 2]);
-			decoded_count = adlib_sound.audio_decoder->decode(sample_count, dst_stereo_samples);
+			const auto dst_samples = reinterpret_cast<float*>(&opl_sound.samples[opl_sound.sample_offset * 4]);
+			const auto dst_stereo_samples = reinterpret_cast<float*>(&opl_sound.stereo_samples[opl_sound.sample_offset * 4 * 2]);
+			decoded_count = opl_sound.audio_decoder->decode(sample_count, dst_stereo_samples);
 			for (int i = 0; i < decoded_count; ++i)
 			{
 				float& left_sample = dst_stereo_samples[i * 2 + 0];
@@ -1559,17 +1559,17 @@ void OalAudioMixer::decode_adlib_sound(OalSourceCachingSound& adlib_sound, float
 		if (src_channel_count == 1)
 		{
 			const auto src_samples = samples_f32_.data();
-			decoded_count = adlib_sound.audio_decoder->decode(sample_count, src_samples);
-			const auto dst_samples = reinterpret_cast<std::int16_t*>(&adlib_sound.samples[adlib_sound.sample_offset * 2]);
+			decoded_count = opl_sound.audio_decoder->decode(sample_count, src_samples);
+			const auto dst_samples = reinterpret_cast<std::int16_t*>(&opl_sound.samples[opl_sound.sample_offset * 2]);
 			for (int i = 0; i < decoded_count; ++i)
 				dst_samples[i] = AudioSampleConverter::f32_to_s16(src_samples[i] * gain_scale);
 		}
 		else if (src_channel_count == 2)
 		{
 			const auto src_samples = samples_f32_.data();
-			decoded_count = adlib_sound.audio_decoder->decode(sample_count, src_samples);
-			const auto dst_samples = reinterpret_cast<std::int16_t*>(&adlib_sound.samples[adlib_sound.sample_offset * 2]);
-			const auto dst_stereo_samples = reinterpret_cast<std::int16_t*>(&adlib_sound.stereo_samples[adlib_sound.sample_offset * 2 * 2]);
+			decoded_count = opl_sound.audio_decoder->decode(sample_count, src_samples);
+			const auto dst_samples = reinterpret_cast<std::int16_t*>(&opl_sound.samples[opl_sound.sample_offset * 2]);
+			const auto dst_stereo_samples = reinterpret_cast<std::int16_t*>(&opl_sound.stereo_samples[opl_sound.sample_offset * 2 * 2]);
 			for (int i = 0; i < decoded_count; ++i)
 			{
 				const float left_sample = src_samples[i * 2 + 0] * gain_scale;
@@ -1581,11 +1581,11 @@ void OalAudioMixer::decode_adlib_sound(OalSourceCachingSound& adlib_sound, float
 			}
 		}
 	}
-	adlib_sound.sample_offset += decoded_count;
+	opl_sound.sample_offset += decoded_count;
 	if (decoded_count <= sample_count)
 	{
-		adlib_sound.is_decoded = true;
-		adlib_sound.sample_count = adlib_sound.sample_offset;
+		opl_sound.is_decoded = true;
+		opl_sound.sample_count = opl_sound.sample_offset;
 	}
 }
 
@@ -1736,9 +1736,9 @@ void OalAudioMixer::mix_r2s_music(Voice& voice)
 	BSTONE_ASSERT(voice.r3s_gain >= 0.0F && voice.r3s_gain <= 1.0F);
 	if (voice.r3s_is_paused)
 		return;
-	AudioDecoder* const audio_decoder = music_adlib_sound_.audio_decoder.get();
+	AudioDecoder* const audio_decoder = r2s_sound_.audio_decoder.get();
 	const int channel_count = audio_decoder->get_channel_count();
-	const float gain = adlib_music_gain_scale * voice.r3s_gain;
+	const float gain = opl_music_gain_scale * voice.r3s_gain;
 	float* const src_samples = samples_f32_.data();
 	int frame_offset = 0;
 	while (frame_offset < mix_sample_count_)
@@ -1820,7 +1820,7 @@ void OalAudioMixer::mix_r2s_sfx(Voice& voice)
 
 void OalAudioMixer::r2s_update_oal_source()
 {
-	if (!music_adlib_sound_.is_initialized || !r2s_oal_source_.is_open())
+	if (!r2s_sound_.is_initialized || !r2s_oal_source_.is_open())
 		return;
 	r2s_oal_source_.mix();
 }
@@ -1828,7 +1828,7 @@ void OalAudioMixer::r2s_update_oal_source()
 void OalAudioMixer::mix_r2s()
 {
 	const int max_frames = mix_sample_count_ * oal_source_max_streaming_buffers;
-	while (music_adlib_sound_.queue_size < oal_source_max_streaming_buffers)
+	while (r2s_sound_.queue_size < oal_source_max_streaming_buffers)
 	{
 		// Fill the mixing buffer with silence.
 		std::fill(r2s_samples_f32_mix_.begin(), r2s_samples_f32_mix_.end(), 0.0F);
@@ -1844,10 +1844,10 @@ void OalAudioMixer::mix_r2s()
 			}
 		}
 		// Convert samples.
-		const int dst_byte_offset = music_adlib_sound_.write_sample_offset * sample_size_ * 2;
+		const int dst_byte_offset = r2s_sound_.write_sample_offset * sample_size_ * 2;
 		if (has_al_ext_float32_)
 		{
-			const auto dst_samples = reinterpret_cast<float*>(&music_adlib_sound_.samples[dst_byte_offset]);
+			const auto dst_samples = reinterpret_cast<float*>(&r2s_sound_.samples[dst_byte_offset]);
 			std::copy_n(r2s_samples_f32_mix_.cbegin(), mix_sample_count_ * 2, dst_samples);
 		}
 		else
@@ -1868,16 +1868,16 @@ void OalAudioMixer::mix_r2s()
 			}
 			// Convert the samples.
 			const float* const src_samples = r2s_samples_f32_mix_.data();
-			const auto dst_samples = reinterpret_cast<std::int16_t*>(&music_adlib_sound_.samples[dst_byte_offset]);
+			const auto dst_samples = reinterpret_cast<std::int16_t*>(&r2s_sound_.samples[dst_byte_offset]);
 			const int convert_count = mix_sample_count_ * 2;
 			for (int i = 0; i < convert_count; ++i)
 				dst_samples[i] = AudioSampleConverter::f32_to_s16(src_samples[i]);
 		}
 		// Advance.
-		music_adlib_sound_.write_sample_offset += mix_sample_count_;
-		if (music_adlib_sound_.write_sample_offset >= max_frames)
-			music_adlib_sound_.write_sample_offset = 0;
-		music_adlib_sound_.queue_size += 1;
+		r2s_sound_.write_sample_offset += mix_sample_count_;
+		if (r2s_sound_.write_sample_offset >= max_frames)
+			r2s_sound_.write_sample_offset = 0;
+		r2s_sound_.queue_size += 1;
 	}
 	r2s_update_oal_source();
 }
@@ -1898,8 +1898,8 @@ void OalAudioMixer::thread_func()
 			if (is_quit_thread_)
 				return;
 		}
-		for (OalSourceCachingSound& sfx_adlib_sound : sfx_adlib_sounds_)
-			decode_adlib_sound(sfx_adlib_sound, adlib_sfx_gain_scale);
+		for (OalSourceCachingSound& sfx_opl_sound : sfx_opl_sounds_)
+			decode_opl_sound(sfx_opl_sound, opl_sfx_gain_scale);
 		for (OalSourceCachingSound& sfx_pc_speaker_sound : sfx_pc_speaker_sounds_)
 			decode_pc_speaker_sound(sfx_pc_speaker_sound);
 		for (OalSourceCachingSound& sfx_pcm_sound : sfx_pcm_sounds_)

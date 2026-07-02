@@ -33,8 +33,8 @@ constexpr double audio_mixer_default_gain = audio_mixer_max_gain;
 enum class SoundType
 {
 	none,
-	adlib_music,
-	adlib_sfx,
+	opl_music,
+	opl_sfx,
 	pc_speaker_sfx,
 	pcm,
 };

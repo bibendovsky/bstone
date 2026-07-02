@@ -449,7 +449,7 @@ AudioSfxType sd_get_sfx_type_from_cvar()
 		return AudioSfxType::pc_speaker;
 	}
 
-	return AudioSfxType::adlib;
+	return AudioSfxType::opl;
 }
 
 } // namespace
@@ -629,10 +629,10 @@ void sd_music_on(bool is_looping)
 	sd_sq_active_ = true;
 	sd_music_voice_group_->stop();
 
-	const auto& audio_chunk = audio_content_mgr->get_adlib_music_chunk(sd_music_index_);
+	const auto& audio_chunk = audio_content_mgr->get_opl_music_chunk(sd_music_index_);
 
 	auto play_sound_param = bstone::AudioMixerPlaySoundParam{};
-	play_sound_param.sound_type = bstone::SoundType::adlib_music;
+	play_sound_param.sound_type = bstone::SoundType::opl_music;
 	play_sound_param.sound_index = 0;
 	play_sound_param.data = audio_chunk.data;
 	play_sound_param.data_size = audio_chunk.data_size;
@@ -775,8 +775,8 @@ void sd_play_non_positional_sfx_sound(
 
 	switch (audio_chunk.type)
 	{
-		case AudioChunkType::adlib_sfx:
-			sound_type = bstone::SoundType::adlib_sfx;
+		case AudioChunkType::opl_sfx:
+			sound_type = bstone::SoundType::opl_sfx;
 			break;
 
 		case AudioChunkType::pc_speaker:
@@ -839,8 +839,8 @@ void sd_play_positional_sfx_sound(
 
 	switch (audio_chunk.type)
 	{
-		case AudioChunkType::adlib_sfx:
-			sound_type = bstone::SoundType::adlib_sfx;
+		case AudioChunkType::opl_sfx:
+			sound_type = bstone::SoundType::opl_sfx;
 			break;
 
 		case AudioChunkType::pc_speaker:

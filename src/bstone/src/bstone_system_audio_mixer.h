@@ -250,8 +250,8 @@ private:
 	Commands commands_{};
 	Commands mt_commands_{};
 	MtLock mt_commands_lock_{};
-	Cache adlib_music_cache_{};
-	Cache adlib_sfx_cache_{};
+	Cache opl_music_cache_{};
+	Cache opl_sfx_cache_{};
 	Cache pc_speaker_sfx_cache_{};
 	Cache pcm_cache_{};
 	int mix_size_ms_{};
