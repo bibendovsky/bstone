@@ -234,7 +234,7 @@ std::string AudioExtractorImpl::make_file_name(const AudioChunk& audio_chunk, Ex
 	{
 		case AudioChunkType::opl_music:
 		case AudioChunkType::opl_sfx:
-			fs_utils::append_path_inplace(filename, "adlib");
+			fs_utils::append_path_inplace(filename, "opl");
 			break;
 		case AudioChunkType::pc_speaker:
 			fs_utils::append_path_inplace(filename, "pc_speaker");
