@@ -761,12 +761,12 @@ Notes:
 
 * `--snd_sfx_type value`  
   Specifies SFX type.  
-  Values: `adlib` (AdLib) or `pc_speaker` (PC Speaker)  
-  Default: `adlib`
+  Values: `opl` (OPL) or `pc_speaker` (PC Speaker)  
+  Default: `opl`
 
 * `--snd_is_sfx_digitized value`  
   Toggles SFX digitization.  
-  If enabled overrides AdLib / PC Speaker SFX audio chunk if such one is available in `AUDIOT.*` file.  
+  If enabled overrides OPL / PC Speaker SFX audio chunk if such one is available in `AUDIOT.*` file.  
   Values: `0` (disable) or `1` (enable)  
   Default: `1`
 

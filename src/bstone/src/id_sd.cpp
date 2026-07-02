@@ -190,11 +190,11 @@ auto snd_is_sfx_enabled_cvar = bstone::CVar{
 
 constexpr auto snd_sfx_type_cvar_name = std::string_view{"snd_sfx_type"};
 constexpr auto snd_sfx_type_cvar_pc_speaker = std::string_view{"pc_speaker"};
-constexpr auto snd_sfx_type_cvar_adlib = std::string_view{"adlib"};
+constexpr auto snd_sfx_type_cvar_opl = std::string_view{"opl"};
 
 constexpr std::string_view snd_sfx_type_cvar_values[] =
 {
-	snd_sfx_type_cvar_adlib,
+	snd_sfx_type_cvar_opl,
 	snd_sfx_type_cvar_pc_speaker,
 };
 
@@ -202,7 +202,7 @@ auto snd_sfx_type_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
 	snd_sfx_type_cvar_name,
 	bstone::CVarFlags::archive,
-	snd_sfx_type_cvar_adlib,
+	snd_sfx_type_cvar_opl,
 	std::span{snd_sfx_type_cvar_values}};
 
 // snd_is_sfx_digitized
@@ -1400,7 +1400,7 @@ void sd_cfg_set_sfx_type(AudioSfxType sfx_type)
 			break;
 
 		default:
-			snd_sfx_type_cvar.set_string(snd_sfx_type_cvar_adlib);
+			snd_sfx_type_cvar.set_string(snd_sfx_type_cvar_opl);
 			break;
 	}
 }

@@ -8,6 +8,7 @@
 - [CMake] Renamed BSTONE_INTERNAL_SDL2 to BSTONE_SDL_BUNDLED.
 - [SDL] Raise minimum version to v3.4.
 - Image extractor writes images in PNG file format.
+- Rename value 'adlib' to 'opl' of CVar 'snd_sfx_type'.
 
 ### Removed
 - [CMake] Variable SDL2W_SDL2_DIR.
