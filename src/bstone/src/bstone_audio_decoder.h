@@ -69,7 +69,7 @@ public:
 
 using AudioDecoderUPtr = std::unique_ptr<AudioDecoder>;
 
-AudioDecoderUPtr make_audio_decoder(AudioDecoderType audio_decoder_type, OplEmulatorType opl3_type);
+AudioDecoderUPtr make_audio_decoder(AudioDecoderType audio_decoder_type, OplEmulatorType opl_emulator_type);
 
 } // namespace bstone
 

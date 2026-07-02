@@ -16,14 +16,14 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 namespace bstone {
 
-AudioDecoderUPtr make_audio_decoder(AudioDecoderType audio_decoder_type, OplEmulatorType opl3_type)
+AudioDecoderUPtr make_audio_decoder(AudioDecoderType audio_decoder_type, OplEmulatorType opl_emulator_type)
 {
 	switch (audio_decoder_type)
 	{
 		case AudioDecoderType::opl_music:
-			return make_opl_music_audio_decoder(opl3_type);
+			return make_opl_music_audio_decoder(opl_emulator_type);
 		case AudioDecoderType::opl_sfx:
-			return make_opl_sfx_audio_decoder(opl3_type);
+			return make_opl_sfx_audio_decoder(opl_emulator_type);
 		case AudioDecoderType::pc_speaker:
 			return make_pc_speaker_audio_decoder();
 		case AudioDecoderType::pcm:

@@ -60,9 +60,9 @@ private:
 	SamplesF32 samples_f32_{};
 
 	bool write_wav_header(int data_size, int bit_depth, int sample_rate, int channel_count, bstone::Stream& stream);
-	void write_non_digitized_audio_chunk(const AudioChunk& sfx_info, bstone::Stream& stream, OplEmulatorType opl3_type);
+	void write_non_digitized_audio_chunk(const AudioChunk& sfx_info, bstone::Stream& stream, OplEmulatorType opl_emulator_type);
 	void write_digitized_audio_chunk(const AudioChunk& sfx_info, bstone::Stream& stream);
-	static std::string make_file_name(const AudioChunk& audio_chunk, ExtensionType extension_type, OplEmulatorType opl3_type);
+	static std::string make_file_name(const AudioChunk& audio_chunk, ExtensionType extension_type, OplEmulatorType opl_emulator_type);
 	void extract_raw_audio_chunk(const std::string& dst_dir, const AudioChunk& audio_chunk);
 	void extract_decoded_audio_chunk(const std::string& dst_dir, const AudioChunk& audio_chunk);
 	void extract_audio_chunks(const std::string& dst_dir, const AudioChunkFilter audio_chunk_filter);
@@ -130,7 +130,7 @@ bool AudioExtractorImpl::write_wav_header(int data_size, int bit_depth, int samp
 	return stream.write(wav_prefix, wav_prefix_size) == wav_prefix_size;
 }
 
-void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio_chunk, bstone::Stream& stream, OplEmulatorType opl3_type)
+void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio_chunk, bstone::Stream& stream, OplEmulatorType opl_emulator_type)
 {
 	AudioDecoderType audio_decoder_type{};
 	int dst_rate = 0;
@@ -151,7 +151,7 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported audio chunk type.");
 	}
-	AudioDecoderUPtr audio_decoder = bstone::make_audio_decoder(audio_decoder_type, opl3_type);
+	AudioDecoderUPtr audio_decoder = bstone::make_audio_decoder(audio_decoder_type, opl_emulator_type);
 	if (audio_decoder == nullptr)
 		BSTONE_THROW_STATIC_SOURCE("Failed to create decoder.");
 	bstone::AudioDecoderInitParam param{
@@ -221,7 +221,7 @@ void AudioExtractorImpl::write_digitized_audio_chunk(const AudioChunk& audio_chu
 	bstone::globals::logger->log_information("\tVolume factor: {}", volume_factor);
 }
 
-std::string AudioExtractorImpl::make_file_name(const AudioChunk& audio_chunk, ExtensionType extension_type, OplEmulatorType opl3_type)
+std::string AudioExtractorImpl::make_file_name(const AudioChunk& audio_chunk, ExtensionType extension_type, OplEmulatorType opl_emulator_type)
 {
 	std::string filename{};
 	filename.reserve(256);
@@ -249,7 +249,7 @@ std::string AudioExtractorImpl::make_file_name(const AudioChunk& audio_chunk, Ex
 	}
 	if (extension_type == ExtensionType::data)
 		fs_utils::append_path_inplace(filename, "raw");
-	switch (opl3_type)
+	switch (opl_emulator_type)
 	{
 		case OplEmulatorType::none:
 			break;
@@ -260,7 +260,7 @@ std::string AudioExtractorImpl::make_file_name(const AudioChunk& audio_chunk, Ex
 			fs_utils::append_path_inplace(filename, "nuked");
 			break;
 		default:
-			BSTONE_ASSERT(false && "Unknown OPL3 type.");
+			BSTONE_ASSERT(false && "Unknown OPL emulator.");
 			fs_utils::append_path_inplace(filename, "?");
 			break;
 	}
@@ -316,23 +316,23 @@ void AudioExtractorImpl::extract_raw_audio_chunk(const std::string& dst_dir, con
 
 void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir, const AudioChunk& audio_chunk)
 {
-	using Opl3Types = std::vector<OplEmulatorType>;
-	Opl3Types opl3_types{};
-	opl3_types.reserve(2);
+	using OplEmulatorTypes = std::vector<OplEmulatorType>;
+	OplEmulatorTypes opl_emulator_types{};
+	opl_emulator_types.reserve(2);
 	switch (audio_chunk.type)
 	{
 		case AudioChunkType::opl_music:
 		case AudioChunkType::opl_sfx:
-			opl3_types.emplace_back(OplEmulatorType::dbopl);
-			opl3_types.emplace_back(OplEmulatorType::nuked_opl3);
+			opl_emulator_types.emplace_back(OplEmulatorType::dbopl);
+			opl_emulator_types.emplace_back(OplEmulatorType::nuked_opl3);
 			break;
 		default:
-			opl3_types.emplace_back(OplEmulatorType::none);
+			opl_emulator_types.emplace_back(OplEmulatorType::none);
 			break;
 	}
-	for (OplEmulatorType opl3_type : opl3_types)
+	for (OplEmulatorType opl_emulator_type : opl_emulator_types)
 	{
-		const std::string file_name = make_file_name(audio_chunk, ExtensionType::wav, opl3_type);
+		const std::string file_name = make_file_name(audio_chunk, ExtensionType::wav, opl_emulator_type);
 		globals::logger->log_information(file_name.c_str());
 		const std::string dst_file_name = fs_utils::append_path(dst_dir, file_name);
 		const std::string dirname = fs_utils::get_dirname(dst_file_name);
@@ -352,7 +352,7 @@ void AudioExtractorImpl::extract_decoded_audio_chunk(const std::string& dst_dir,
 			case AudioChunkType::opl_music:
 			case AudioChunkType::opl_sfx:
 			case AudioChunkType::pc_speaker:
-				write_non_digitized_audio_chunk(audio_chunk, file_stream, opl3_type);
+				write_non_digitized_audio_chunk(audio_chunk, file_stream, opl_emulator_type);
 				break;
 			case AudioChunkType::digitized:
 				write_digitized_audio_chunk(audio_chunk, file_stream);

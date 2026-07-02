@@ -770,8 +770,8 @@ Notes:
   Values: `0` (disable) or `1` (enable)  
   Default: `1`
 
-* `--snd_opl3_type value`  
-  Specifies OPL3 emulator type.  
+* `--snd_opl_emulator value`  
+  Specifies OPL emulator type.  
   Values: `dbopl` (DOSBox) or `nuked` (Nuked)  
   Default: `dbopl`
 

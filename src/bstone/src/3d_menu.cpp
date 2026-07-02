@@ -474,7 +474,7 @@ CP_itemtype SndMenu[] =
 	{AT_ENABLED, "DIGITIZED SFX", 0},
 	{AT_ENABLED, "BACKGROUND MUSIC", 0},
 	{AT_ENABLED, "DRIVER", 0},
-	{AT_ENABLED, "OPL3 TYPE", 0},
+	{AT_ENABLED, "OPL EMULATOR", 0},
 };
 
 CP_itemtype CtlMenu[] = {
@@ -2702,18 +2702,18 @@ const SoundDriverItem sound_drivers[sound_driver_count] =
 	SoundDriverItem{AudioDriverType::openal, "OPENAL"},
 };
 
-struct SoundOpl3TypeItem
+struct SoundOplEmulatorTypeItem
 {
 	bstone::OplEmulatorType type{};
 	std::string name{};
-}; // SoundOpl3TypeItem
+};
 
-constexpr auto sound_opl3_type_count = 2;
+constexpr auto sound_opl_emulator_type_count = 2;
 
-const SoundOpl3TypeItem sound_opl3_types[sound_opl3_type_count] =
+const SoundOplEmulatorTypeItem sound_opl_emulator_types[sound_opl_emulator_type_count] =
 {
-	SoundOpl3TypeItem{bstone::OplEmulatorType::dbopl, "DBOPL"},
-	SoundOpl3TypeItem{bstone::OplEmulatorType::nuked_opl3, "NUKED"},
+	SoundOplEmulatorTypeItem{bstone::OplEmulatorType::dbopl, "DBOPL"},
+	SoundOplEmulatorTypeItem{bstone::OplEmulatorType::nuked_opl3, "NUKED"},
 };
 
 void digitized_sfx_carousel(
@@ -2809,42 +2809,42 @@ void sound_driver_carousel(
 	TicDelay(20);
 }
 
-auto sound_opl3_type_index = 0;
+auto sound_opl_emulator_type_index = 0;
 
-void initialize_sound_opl3_type_index()
+void initialize_sound_opl_emulator_type_index()
 {
-	switch (sd_get_opl3_type())
+	switch (sd_get_opl_emulator_type())
 	{
 		case bstone::OplEmulatorType::dbopl:
 		default:
-			sound_opl3_type_index = 0;
+			sound_opl_emulator_type_index = 0;
 			break;
 
 		case bstone::OplEmulatorType::nuked_opl3:
-			sound_opl3_type_index = 1;
+			sound_opl_emulator_type_index = 1;
 			break;
 	}
 }
 
-void sound_opl3_type_carousel(
+void sound_opl_emulator_type_carousel(
 	int item_index,
 	bool is_left,
 	bool is_right)
 {
 	const auto delta = (is_left ? -1 : (is_right ? 1 : 0));
 
-	sound_opl3_type_index += delta;
+	sound_opl_emulator_type_index += delta;
 
-	if (sound_opl3_type_index < 0)
+	if (sound_opl_emulator_type_index < 0)
 	{
-		sound_opl3_type_index = sound_opl3_type_count - 1;
+		sound_opl_emulator_type_index = sound_opl_emulator_type_count - 1;
 	}
-	else if (sound_opl3_type_index >= sound_opl3_type_count)
+	else if (sound_opl_emulator_type_index >= sound_opl_emulator_type_count)
 	{
-		sound_opl3_type_index = 0;
+		sound_opl_emulator_type_index = 0;
 	}
 
-	sd_set_opl3_type(sound_opl3_types[sound_opl3_type_index].type);
+	sd_set_opl_emulator_type(sound_opl_emulator_types[sound_opl_emulator_type_index].type);
 	sd_shutdown();
 	sd_startup();
 
@@ -2858,10 +2858,10 @@ void CP_Sound(
 	std::int16_t)
 {
 	initialize_sound_driver_index();
-	initialize_sound_opl3_type_index();
+	initialize_sound_opl_emulator_type_index();
 	SndMenu[1].carousel_func = digitized_sfx_carousel;
 	SndMenu[4].carousel_func = sound_driver_carousel;
-	SndMenu[5].carousel_func = sound_opl3_type_carousel;
+	SndMenu[5].carousel_func = sound_opl_emulator_type_carousel;
 
 	std::int16_t which;
 
@@ -3021,7 +3021,7 @@ void DrawAllSoundLights(
 					i,
 					&SndItems,
 					SndMenu,
-					sound_opl3_types[sound_opl3_type_index].name
+					sound_opl_emulator_types[sound_opl_emulator_type_index].name
 				);
 				continue;
 

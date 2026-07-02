@@ -48,7 +48,7 @@ public:
 	OalAudioMixer(const AudioMixerInitParam& param);
 	~OalAudioMixer() override;
 
-	OplEmulatorType get_opl3_type() const override;
+	OplEmulatorType get_opl_emulator_type() const override;
 	int get_rate() const override;
 	int get_channel_count() const override;
 	int get_mix_size_ms() const override;
@@ -246,7 +246,7 @@ private:
 	using Thread = std::thread;
 	using VoiceHandleMgr = AudioMixerVoiceHandleMgr<Voice>;
 
-	OplEmulatorType opl3_type_{};
+	OplEmulatorType opl_emulator_type_{};
 	int dst_rate_{};
 	int mix_sample_count_{};
 	int mix_size_ms_{};
@@ -404,16 +404,16 @@ private:
 OalAudioMixer::OalAudioMixer(const AudioMixerInitParam& param)
 try
 {
-	switch (param.opl3_type)
+	switch (param.opl_emulator_type)
 	{
 		case OplEmulatorType::dbopl:
 		case OplEmulatorType::nuked_opl3:
 			break;
 		default:
-			BSTONE_THROW_STATIC_SOURCE("Unknown OPL3 type.");
+			BSTONE_THROW_STATIC_SOURCE("Unknown OPL emulator.");
 	}
 	initialize_oal(param);
-	opl3_type_ = param.opl3_type;
+	opl_emulator_type_ = param.opl_emulator_type;
 	if (param.mix_size_ms < get_min_mix_size_ms())
 		mix_size_ms_ = get_min_mix_size_ms();
 	else if (param.mix_size_ms < get_default_mix_size_ms())
@@ -453,9 +453,9 @@ OalAudioMixer::~OalAudioMixer()
 	oal_loader_ = nullptr;
 }
 
-OplEmulatorType OalAudioMixer::get_opl3_type() const
+OplEmulatorType OalAudioMixer::get_opl_emulator_type() const
 {
-	return opl3_type_;
+	return opl_emulator_type_;
 }
 
 int OalAudioMixer::get_rate() const
@@ -1075,7 +1075,7 @@ void OalAudioMixer::initialize_r2s_sound()
 	r2s_sound_.read_sample_offset = 0;
 	r2s_sound_.write_sample_offset = 0;
 	r2s_sound_.samples.resize(mix_sample_count_ * oal_source_max_streaming_buffers * sample_size_ * audio_mixer_max_channels);
-	r2s_sound_.audio_decoder = make_audio_decoder(AudioDecoderType::opl_music, opl3_type_);
+	r2s_sound_.audio_decoder = make_audio_decoder(AudioDecoderType::opl_music, opl_emulator_type_);
 }
 
 void OalAudioMixer::initialize_r2s_oal_source()
@@ -1122,7 +1122,7 @@ void OalAudioMixer::initialize_sfx_opl_sounds()
 	for (OalSourceCachingSound& sfx_opl_sound : sfx_opl_sounds_)
 	{
 		sfx_opl_sound.is_initialized = false;
-		sfx_opl_sound.audio_decoder = make_audio_decoder(AudioDecoderType::opl_sfx, opl3_type_);
+		sfx_opl_sound.audio_decoder = make_audio_decoder(AudioDecoderType::opl_sfx, opl_emulator_type_);
 		if (sfx_opl_sound.audio_decoder == nullptr)
 			BSTONE_THROW_STATIC_SOURCE("Failed to create SFX OPL audio decoder.");
 	}
@@ -1133,7 +1133,7 @@ void OalAudioMixer::initialize_sfx_pc_speaker_sounds()
 	for (OalSourceCachingSound& sfx_pc_speaker_sound : sfx_pc_speaker_sounds_)
 	{
 		sfx_pc_speaker_sound.is_initialized = false;
-		sfx_pc_speaker_sound.audio_decoder = make_audio_decoder(AudioDecoderType::pc_speaker, opl3_type_);
+		sfx_pc_speaker_sound.audio_decoder = make_audio_decoder(AudioDecoderType::pc_speaker, opl_emulator_type_);
 		if (sfx_pc_speaker_sound.audio_decoder == nullptr)
 			BSTONE_THROW_STATIC_SOURCE("Failed to create SFX PC Speaker audio decoder.");
 	}
@@ -1144,7 +1144,7 @@ void OalAudioMixer::initialize_sfx_pcm_sounds()
 	for (OalSourceCachingSound& sfx_pcm_sound : sfx_pcm_sounds_)
 	{
 		sfx_pcm_sound.is_initialized = false;
-		sfx_pcm_sound.audio_decoder = make_audio_decoder(AudioDecoderType::pcm, opl3_type_);
+		sfx_pcm_sound.audio_decoder = make_audio_decoder(AudioDecoderType::pcm, opl_emulator_type_);
 		if (sfx_pcm_sound.audio_decoder == nullptr)
 			BSTONE_THROW_STATIC_SOURCE("Failed to create SFX PCM audio decoder.");
 	}

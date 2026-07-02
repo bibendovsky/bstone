@@ -55,9 +55,9 @@ private:
 
 // -------------------------------------
 
-OplSfxDecoder::OplSfxDecoder(OplEmulatorType opl3_type)
+OplSfxDecoder::OplSfxDecoder(OplEmulatorType opl_emulator_type)
 	:
-	emulator_{make_opl_emulator(opl3_type)}
+	emulator_{make_opl_emulator(opl_emulator_type)}
 {}
 
 bool OplSfxDecoder::initialize(const AudioDecoderInitParam& param)

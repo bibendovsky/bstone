@@ -44,13 +44,13 @@ SystemAudioMixer::SystemAudioMixer(const AudioMixerInitParam& param)
 try {
 	if (param.max_voices < 0)
 		BSTONE_THROW_STATIC_SOURCE("Max voice count out of range.");
-	switch (param.opl3_type)
+	switch (param.opl_emulator_type)
 	{
 		case OplEmulatorType::dbopl:
 		case OplEmulatorType::nuked_opl3:
 			break;
 		default:
-			BSTONE_THROW_STATIC_SOURCE("Unknown OPL3 type.");
+			BSTONE_THROW_STATIC_SOURCE("Unknown OPL emulator.");
 	}
 	if (param.dst_rate == 0)
 		dst_rate_ = get_default_rate();
@@ -75,7 +75,7 @@ try {
 	sys::PollingAudioDeviceUPtr audio_device = sys_audio_mgr_->make_polling_audio_device(audio_device_param);
 	dst_rate_ = audio_device->get_rate();
 	mix_samples_count_ = audio_device->get_frame_count();
-	opl3_type_ = param.opl3_type;
+	opl_emulator_type_ = param.opl_emulator_type;
 	const int total_samples = get_max_channels() * mix_samples_count_;
 	buffer_.resize(total_samples);
 	mix_buffer_.resize(total_samples);
@@ -96,9 +96,9 @@ try {
 	sys_audio_device_.swap(audio_device);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-OplEmulatorType SystemAudioMixer::get_opl3_type() const
+OplEmulatorType SystemAudioMixer::get_opl_emulator_type() const
 {
-	return opl3_type_;
+	return opl_emulator_type_;
 }
 
 int SystemAudioMixer::get_rate() const
@@ -882,13 +882,13 @@ AudioDecoderUPtr SystemAudioMixer::create_decoder_by_sound_type(SoundType sound_
 	switch (sound_type)
 	{
 		case SoundType::opl_music:
-			return make_audio_decoder(AudioDecoderType::opl_music, opl3_type_);
+			return make_audio_decoder(AudioDecoderType::opl_music, opl_emulator_type_);
 		case SoundType::opl_sfx:
-			return make_audio_decoder(AudioDecoderType::opl_sfx, opl3_type_);
+			return make_audio_decoder(AudioDecoderType::opl_sfx, opl_emulator_type_);
 		case SoundType::pc_speaker_sfx:
-			return make_audio_decoder(AudioDecoderType::pc_speaker, opl3_type_);
+			return make_audio_decoder(AudioDecoderType::pc_speaker, opl_emulator_type_);
 		case SoundType::pcm:
-			return make_audio_decoder(AudioDecoderType::pcm, opl3_type_);
+			return make_audio_decoder(AudioDecoderType::pcm, opl_emulator_type_);
 		default:
 			return nullptr;
 	}

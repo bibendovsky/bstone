@@ -35,8 +35,8 @@ public:
 	inline static constexpr int al_freq_h = 0xB0;
 	inline static constexpr int al_effects = 0xBD;
 
-	static void initialize_registers(OplEmulator& opl3);
-	static void set_instrument(OplEmulator& opl3, const OplInstrument& instrument);
+	static void initialize_registers(OplEmulator& opl_emulator);
+	static void set_instrument(OplEmulator& opl_emulator, const OplInstrument& instrument);
 };
 
 } // namespace bstone

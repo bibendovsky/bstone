@@ -156,24 +156,24 @@ auto snd_oal_device_name_cvar = bstone::CVar{
 	bstone::CVarFlags::archive,
 	std::string_view{}};
 
-// snd_opl3_type
+// snd_opl_emulator
 
-constexpr auto snd_opl3_type_cvar_name = std::string_view{"snd_opl3_type"};
-constexpr auto snd_opl3_type_cvar_dbopl = std::string_view{"dbopl"};
-constexpr auto snd_opl3_type_cvar_nuked = std::string_view{"nuked"};
+constexpr auto snd_opl_emulator_cvar_name = std::string_view{"snd_opl_emulator"};
+constexpr auto snd_opl_emulator_cvar_dbopl = std::string_view{"dbopl"};
+constexpr auto snd_opl_emulator_cvar_nuked = std::string_view{"nuked"};
 
-constexpr std::string_view snd_opl3_type_cvar_values[] =
+constexpr std::string_view snd_opl_emulator_cvar_values[] =
 {
-	snd_opl3_type_cvar_dbopl,
-	snd_opl3_type_cvar_nuked,
+	snd_opl_emulator_cvar_dbopl,
+	snd_opl_emulator_cvar_nuked,
 };
 
-auto snd_opl3_type_cvar = bstone::CVar{
+auto snd_opl_emulator_cvar = bstone::CVar{
 	bstone::CVarStringTag{},
-	snd_opl3_type_cvar_name,
+	snd_opl_emulator_cvar_name,
 	bstone::CVarFlags::archive,
-	snd_opl3_type_cvar_dbopl,
-	std::span{snd_opl3_type_cvar_values}};
+	snd_opl_emulator_cvar_dbopl,
+	std::span{snd_opl_emulator_cvar_values}};
 
 // snd_is_sfx_enabled
 
@@ -261,7 +261,7 @@ void sd_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 	cvar_mgr.add(snd_driver_cvar);
 	cvar_mgr.add(snd_oal_library_cvar);
 	cvar_mgr.add(snd_oal_device_name_cvar);
-	cvar_mgr.add(snd_opl3_type_cvar);
+	cvar_mgr.add(snd_opl_emulator_cvar);
 	cvar_mgr.add(snd_is_sfx_enabled_cvar);
 	cvar_mgr.add(snd_sfx_type_cvar);
 	cvar_mgr.add(snd_is_sfx_digitized_cvar);
@@ -342,16 +342,16 @@ bool sd_enable_music(bool enable)
 	return enable;
 }
 
-bstone::OplEmulatorType sd_get_opl3_type_from_cvar()
+bstone::OplEmulatorType sd_get_opl_emulator_type_from_cvar()
 {
-	const auto opl3_type_sv = snd_opl3_type_cvar.get_string();
+	const auto opl_emulator_type_sv = snd_opl_emulator_cvar.get_string();
 
-	if (opl3_type_sv == snd_opl3_type_cvar_dbopl)
+	if (opl_emulator_type_sv == snd_opl_emulator_cvar_dbopl)
 	{
 		return bstone::OplEmulatorType::dbopl;
 	}
 
-	if (opl3_type_sv == snd_opl3_type_cvar_nuked)
+	if (opl_emulator_type_sv == snd_opl_emulator_cvar_nuked)
 	{
 		return bstone::OplEmulatorType::nuked_opl3;
 	}
@@ -359,13 +359,13 @@ bstone::OplEmulatorType sd_get_opl3_type_from_cvar()
 	return bstone::OplEmulatorType::none;
 }
 
-const std::string& sd_get_opl3_long_name(bstone::OplEmulatorType opl3_type)
+const std::string& sd_get_opl_emulator_long_name(bstone::OplEmulatorType opl_emulator_type)
 {
 	static const auto unknown = std::string{"???"};
 	static const auto dosbox_dbopl = std::string{"DBOPL"};
 	static const auto nuked_opl3 = std::string{"Nuked"};
 
-	switch (opl3_type)
+	switch (opl_emulator_type)
 	{
 		case bstone::OplEmulatorType::dbopl: return dosbox_dbopl;
 		case bstone::OplEmulatorType::nuked_opl3: return nuked_opl3;
@@ -405,7 +405,7 @@ try {
 
 	auto param = bstone::AudioMixerInitParam{};
 	param.audio_driver_type = audio_driver_type;
-	param.opl3_type = sd_get_opl3_type_from_cvar();
+	param.opl_emulator_type = sd_get_opl_emulator_type_from_cvar();
 	param.dst_rate = sample_rate;
 	param.mix_size_ms = mix_size_ms;
 	param.max_voices = max_voices;
@@ -512,7 +512,7 @@ void sd_startup()
 			sd_log("Mix size: " + std::to_string(sd_mixer_->get_mix_size_ms()) + " ms");
 			sd_log("Effects volume: " + std::to_string(sd_get_sfx_volume()) + " / " + std::to_string(sd_max_volume));
 			sd_log("Music volume: " + std::to_string(sd_get_music_volume()) + " / " + std::to_string(sd_max_volume));
-			sd_log("OPL3 type: " + sd_get_opl3_long_name(sd_mixer_->get_opl3_type()));
+			sd_log("OPL emulator: " + sd_get_opl_emulator_long_name(sd_mixer_->get_opl_emulator_type()));
 
 			audio_content_mgr = bstone::make_audio_content_mgr(*bstone::globals::vswap);
 			audio_content_mgr->set_sfx_type(sd_get_sfx_type_from_cvar());
@@ -1425,26 +1425,26 @@ void sd_cfg_set_is_sfx_digitized(bool is_sfx_digitized)
 	snd_is_sfx_digitized_cvar.set_bool(is_sfx_digitized);
 }
 
-bstone::OplEmulatorType sd_get_opl3_type()
+bstone::OplEmulatorType sd_get_opl_emulator_type()
 {
-	return sd_get_opl3_type_from_cvar();
+	return sd_get_opl_emulator_type_from_cvar();
 }
 
-void sd_set_opl3_type(bstone::OplEmulatorType opl3_type)
+void sd_set_opl_emulator_type(bstone::OplEmulatorType opl_emulator_type)
 {
-	switch (opl3_type)
+	switch (opl_emulator_type)
 	{
 		case bstone::OplEmulatorType::dbopl:
-			snd_opl3_type_cvar.set_string(snd_opl3_type_cvar_dbopl);
+			snd_opl_emulator_cvar.set_string(snd_opl_emulator_cvar_dbopl);
 			break;
 
 		case bstone::OplEmulatorType::nuked_opl3:
-			snd_opl3_type_cvar.set_string(snd_opl3_type_cvar_nuked);
+			snd_opl_emulator_cvar.set_string(snd_opl_emulator_cvar_nuked);
 			break;
 
 		default:
-			sd_log_error("Invalid OPL3 type.");
-			snd_opl3_type_cvar.set_string(snd_opl3_type_cvar_dbopl);
+			sd_log_error("Invalid OPL emulator.");
+			snd_opl_emulator_cvar.set_string(snd_opl_emulator_cvar_dbopl);
 			break;
 	}
 }

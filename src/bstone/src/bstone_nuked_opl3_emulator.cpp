@@ -120,12 +120,12 @@ void NukedOpl3::generate_frames(float* samples, int frame_count)
 void NukedOpl3::generate_frames_block(float* samples, int frame_count)
 {
 	BSTONE_ASSERT(frame_count >= 0);
-	std::int16_t opl3_samples[4];
+	std::int16_t quad_samples[4];
 	for (int frame_offset = 0; frame_offset < frame_count; ++frame_offset)
 	{
-		OPL3_Generate4ChResampled(&emulator_, opl3_samples);
+		OPL3_Generate4ChResampled(&emulator_, quad_samples);
 		for (int i_channel = 0; i_channel < channel_count; ++i_channel)
-			samples[frame_offset * channel_count + i_channel] = AudioSampleConverter::s16_to_f32(opl3_samples[i_channel]);
+			samples[frame_offset * channel_count + i_channel] = AudioSampleConverter::s16_to_f32(quad_samples[i_channel]);
 	}
 }
 

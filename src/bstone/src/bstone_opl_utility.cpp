@@ -11,15 +11,15 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 namespace bstone {
 
-void OplUtility::initialize_registers(OplEmulator& opl3)
+void OplUtility::initialize_registers(OplEmulator& opl_emulator)
 {
-	opl3.write_immediate(0x01, 0x20); // Set D5 ("WAVE SELECT ENABLE"), reset the other bits.
+	opl_emulator.write_immediate(0x01, 0x20); // Set D5 ("WAVE SELECT ENABLE"), reset the other bits.
 	// Reset the remaining registers.
 	for (int i = 0x02; i <= 0xF5; ++i)
-		opl3.write_immediate(i, 0x00);
+		opl_emulator.write_immediate(i, 0x00);
 }
 
-void OplUtility::set_instrument(OplEmulator& opl3, const OplInstrument& instrument)
+void OplUtility::set_instrument(OplEmulator& opl_emulator, const OplInstrument& instrument)
 {
 	constexpr int c = 3; // Carrier.
 	constexpr int m = 0; // Modifier.
@@ -29,18 +29,18 @@ void OplUtility::set_instrument(OplEmulator& opl3, const OplInstrument& instrume
 	constexpr int al_sus      = 0x80;
 	constexpr int al_wave     = 0xE0;
 	constexpr int al_feed_con = 0xC0;
-	opl3.write_immediate(al_effects, 0);
-	opl3.write_immediate(al_char   + m, instrument.m_char);
-	opl3.write_immediate(al_scale  + m, instrument.m_scale);
-	opl3.write_immediate(al_attack + m, instrument.m_attack);
-	opl3.write_immediate(al_sus    + m, instrument.m_sus);
-	opl3.write_immediate(al_wave   + m, instrument.m_wave);
-	opl3.write_immediate(al_char   + c, instrument.c_char);
-	opl3.write_immediate(al_scale  + c, instrument.c_scale);
-	opl3.write_immediate(al_attack + c, instrument.c_attack);
-	opl3.write_immediate(al_sus    + c, instrument.c_sus);
-	opl3.write_immediate(al_wave   + c, instrument.c_wave);
-	opl3.write_immediate(al_feed_con, 0);
+	opl_emulator.write_immediate(al_effects, 0);
+	opl_emulator.write_immediate(al_char   + m, instrument.m_char);
+	opl_emulator.write_immediate(al_scale  + m, instrument.m_scale);
+	opl_emulator.write_immediate(al_attack + m, instrument.m_attack);
+	opl_emulator.write_immediate(al_sus    + m, instrument.m_sus);
+	opl_emulator.write_immediate(al_wave   + m, instrument.m_wave);
+	opl_emulator.write_immediate(al_char   + c, instrument.c_char);
+	opl_emulator.write_immediate(al_scale  + c, instrument.c_scale);
+	opl_emulator.write_immediate(al_attack + c, instrument.c_attack);
+	opl_emulator.write_immediate(al_sus    + c, instrument.c_sus);
+	opl_emulator.write_immediate(al_wave   + c, instrument.c_wave);
+	opl_emulator.write_immediate(al_feed_con, 0);
 }
 
 } // namespace bstone
