@@ -169,7 +169,7 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 	float abs_max_sample = 0.0F;
 	for (;;)
 	{
-		const int frame_count = audio_decoder->decode(dst_rate, samples_f32_.data());
+		const int frame_count = audio_decoder->decode_frames(samples_f32_.data(), dst_rate);
 		if (frame_count == 0)
 			break;
 		const int sample_count = frame_count * channel_count;

@@ -25,31 +25,29 @@ public:
 	~OplSfxDecoder() override = default;
 
 	bool initialize(const AudioDecoderInitParam& param) override;
-	void uninitialize() override;
+	void terminate() override;
 	bool is_initialized() const override;
-	int decode(int frame_count, float* samples) override;
-	bool rewind() override;
-	int get_dst_length_in_samples() const override;
+	int get_total_frames() const override;
 	int get_channel_count() const override;
+	int decode_frames(float* samples, int frame_count) override;
+	bool rewind() override;
 
 private:
 	inline static constexpr int header_size = 23; // Original size of AdLibSound structure.
 	inline static constexpr int tick_rate = 140;
 
-	OplEmulatorUPtr emulator_{};
-
 	bool is_initialized_{};
-
-	MemoryBinaryReader reader_{};
-	OplInstrument instrument_{};
 	int commands_count_{};
 	int command_offset_{};
 	int samples_per_tick_{};
 	int frames_left_{};
 	int hf_{};
-	int dst_length_in_samples_{};
+	int total_frames_{};
+	OplEmulatorUPtr emulator_{};
+	MemoryBinaryReader reader_{};
+	OplInstrument instrument_{};
 
-	void impl_uninitialize();
+	void impl_terminate();
 	int impl_get_channel_count() const;
 };
 
@@ -62,7 +60,7 @@ OplSfxDecoder::OplSfxDecoder(OplEmulatorType opl_emulator_type)
 
 bool OplSfxDecoder::initialize(const AudioDecoderInitParam& param)
 {
-	impl_uninitialize();
+	impl_terminate();
 	if (emulator_ == nullptr)
 		return false;
 	if (param.src_raw_data == nullptr)
@@ -102,15 +100,32 @@ bool OplSfxDecoder::initialize(const AudioDecoderInitParam& param)
 	command_offset_ = 0;
 	commands_count_ = sfx_length;
 	samples_per_tick_ = 0;
-	dst_length_in_samples_ = commands_count_ * emulator_->get_sample_rate() / tick_rate;
+	total_frames_ = commands_count_ * emulator_->get_sample_rate() / tick_rate;
 	frames_left_ = 0;
 	is_initialized_ = true;
 	return true;
 }
 
-void OplSfxDecoder::uninitialize()
+void OplSfxDecoder::terminate()
 {
-	impl_uninitialize();
+	impl_terminate();
+}
+
+bool OplSfxDecoder::is_initialized() const
+{
+	return is_initialized_;
+}
+
+int OplSfxDecoder::get_total_frames() const
+{
+	BSTONE_ASSERT(is_initialized());
+	return total_frames_;
+}
+
+int OplSfxDecoder::get_channel_count() const
+{
+	BSTONE_ASSERT(is_initialized());
+	return impl_get_channel_count();
 }
 
 bool OplSfxDecoder::rewind()
@@ -125,24 +140,7 @@ bool OplSfxDecoder::rewind()
 	return true;
 }
 
-int OplSfxDecoder::get_dst_length_in_samples() const
-{
-	BSTONE_ASSERT(is_initialized());
-	return dst_length_in_samples_;
-}
-
-int OplSfxDecoder::get_channel_count() const
-{
-	BSTONE_ASSERT(is_initialized());
-	return impl_get_channel_count();
-}
-
-bool OplSfxDecoder::is_initialized() const
-{
-	return is_initialized_;
-}
-
-int OplSfxDecoder::decode(int frame_count, float* samples)
+int OplSfxDecoder::decode_frames(float* samples, int frame_count)
 {
 	BSTONE_ASSERT(is_initialized());
 	BSTONE_ASSERT(frame_count >= 0);
@@ -185,7 +183,7 @@ int OplSfxDecoder::decode(int frame_count, float* samples)
 	return decoded_frame_count;
 }
 
-void OplSfxDecoder::impl_uninitialize()
+void OplSfxDecoder::impl_terminate()
 {
 	is_initialized_ = false;
 }

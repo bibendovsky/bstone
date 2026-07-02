@@ -1,7 +1,7 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
@@ -9,6 +9,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_pc_speaker_audio_decoder.h"
 #include "bstone_assert.h"
+#include "bstone_endian.h"
 #include <algorithm>
 
 namespace bstone {
@@ -21,14 +22,12 @@ public:
 	~PcSpeakerAudioDecoder() override = default;
 
 	bool initialize(const AudioDecoderInitParam& param) override;
-	void uninitialize() override;
+	void terminate() override;
 	bool is_initialized() const override;
-
-	int decode(int dst_count, float* dst_data) override;
-	bool rewind() override;
-
-	int get_dst_length_in_samples() const override;
+	int get_total_frames() const override;
 	int get_channel_count() const override;
+	int decode_frames(float* samples, int frame_count) override;
+	bool rewind() override;
 
 private:
 	inline static constexpr int channel_count = 1;
@@ -42,8 +41,7 @@ private:
 	int dst_sample_rate_{};
 	const std::uint8_t* commands_{};
 	int commands_size_{};
-
-	int total_sample_count_{};
+	int total_frames_{};
 	int command_offset_{};
 	int last_command_{};
 	int pit_signal_level_{};
@@ -66,11 +64,11 @@ bool PcSpeakerAudioDecoder::initialize(const AudioDecoderInitParam& param)
 		return false;
 	if (param.dst_rate <= command_rate)
 		return false;
-	const int data_size = static_cast<int>(*reinterpret_cast<const std::uint32_t*>(param.src_raw_data));
+	const int data_size = static_cast<int>(endian::read_u32_le(param.src_raw_data));
 	dst_sample_rate_ = param.dst_rate;
 	commands_ = static_cast<const std::uint8_t*>(param.src_raw_data) + min_src_size;
 	commands_size_ = data_size;
-	total_sample_count_ = static_cast<int>(((static_cast<long long>(commands_size_) * dst_sample_rate_) + command_rate - 1) / command_rate);
+	total_frames_ = static_cast<int>(((static_cast<long long>(commands_size_) * dst_sample_rate_) + command_rate - 1) / command_rate);
 	command_offset_ = 0;
 	last_command_ = 0;
 	pit_signal_level_ = 0;
@@ -82,20 +80,9 @@ bool PcSpeakerAudioDecoder::initialize(const AudioDecoderInitParam& param)
 	return true;
 }
 
-void PcSpeakerAudioDecoder::uninitialize()
+void PcSpeakerAudioDecoder::terminate()
 {
-	dst_sample_rate_ = 0;
-	commands_ = nullptr;
-	commands_size_ = 0;
-	total_sample_count_ = 0;
-	command_offset_ = 0;
-	last_command_ = 0;
-	pit_signal_level_ = 0;
-	pit_counter_step_ = 0;
-	pit_counter_ = 0;
-	command_counter_ = 0;
 	is_initialized_ = false;
-	is_finished_ = false;
 }
 
 bool PcSpeakerAudioDecoder::is_initialized() const
@@ -103,14 +90,27 @@ bool PcSpeakerAudioDecoder::is_initialized() const
 	return is_initialized_;
 }
 
-int PcSpeakerAudioDecoder::decode(int dst_count, float* dst_data)
+int PcSpeakerAudioDecoder::get_total_frames() const
 {
-	if (!is_initialized_ || is_finished_)
+	BSTONE_ASSERT(is_initialized());
+	return total_frames_;
+}
+
+int PcSpeakerAudioDecoder::get_channel_count() const
+{
+	BSTONE_ASSERT(is_initialized());
+	return channel_count;
+}
+
+int PcSpeakerAudioDecoder::decode_frames(float* samples, int frame_count)
+{
+	BSTONE_ASSERT(is_initialized());
+	if (is_finished_)
 		return 0;
-	int sample_offset = 0;
+	int frame_offset = 0;
 	for (;;)
 	{
-		if (sample_offset >= dst_count)
+		if (frame_offset >= frame_count)
 			break;
 		if (command_counter_ >= dst_sample_rate_)
 		{
@@ -138,38 +138,26 @@ int PcSpeakerAudioDecoder::decode(int dst_count, float* dst_data)
 			}
 			last_command_ = command;
 		}
-
 		while (pit_counter_ > 0 && pit_counter_ >= dst_sample_rate_)
 		{
 			pit_counter_ -= dst_sample_rate_;
 			pit_signal_level_ = 1 - pit_signal_level_;
 		}
 		const float sample = pit_signal_level_ == 0 ? -1.0F : 1.0F;
-		dst_data[sample_offset] = sample;
-		++sample_offset;
+		samples[frame_offset] = sample;
+		++frame_offset;
 		command_counter_ += command_rate;
 		pit_counter_ += pit_counter_step_;
 	}
-	return sample_offset;
+	return frame_offset;
 }
 
 bool PcSpeakerAudioDecoder::rewind()
 {
-	if (!is_initialized_)
-		return false;
+	BSTONE_ASSERT(is_initialized());
 	command_offset_ = 0;
 	is_finished_ = false;
 	return true;
-}
-
-int PcSpeakerAudioDecoder::get_dst_length_in_samples() const
-{
-	return total_sample_count_;
-}
-
-int PcSpeakerAudioDecoder::get_channel_count() const
-{
-	return channel_count;
 }
 
 int PcSpeakerAudioDecoder::make_pit_frequency(int command)

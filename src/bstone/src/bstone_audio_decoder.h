@@ -1,7 +1,7 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
@@ -40,29 +40,13 @@ public:
 	AudioDecoder() = default;
 	virtual ~AudioDecoder() = default;
 
-	// Initializes the instance.
-	// Returns false on error.
 	virtual bool initialize(const AudioDecoderInitParam& param) = 0;
-
-	// Uninitializes the instance.
-	virtual void uninitialize() = 0;
-
-	// Returns true if the instance is initialized or
-	// false otherwise.
+	virtual void terminate() = 0;
 	virtual bool is_initialized() const = 0;
-
-	// Decodes specified number of samples into a provided buffer.
-	// Returns a number of decoded samples.
-	virtual int decode(int dst_count, float* dst_data) = 0;
-
-	// Sets decoding position to the beginning.
-	virtual bool rewind() = 0;
-
-	// Returns a length of the audio data in samples.
-	virtual int get_dst_length_in_samples() const = 0;
-
-	// Return channel count.
+	virtual int get_total_frames() const = 0;
 	virtual int get_channel_count() const = 0;
+	virtual int decode_frames(float* samples, int frame_count) = 0;
+	virtual bool rewind() = 0;
 };
 
 // =====================================

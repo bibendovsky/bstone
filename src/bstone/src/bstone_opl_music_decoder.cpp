@@ -25,28 +25,26 @@ public:
 	~OplMusicDecoder() override = default;
 
 	bool initialize(const AudioDecoderInitParam& param) override;
-	void uninitialize() override;
+	void terminate() override;
 	bool is_initialized() const override;
-	int decode(int frame_count, float* samples) override;
-	bool rewind() override;
-	int get_dst_length_in_samples() const override;
+	int get_total_frames() const override;
 	int get_channel_count() const override;
+	int decode_frames(float* samples, int frame_count) override;
+	bool rewind() override;
 
 private:
 	inline static constexpr int tick_rate = 700;
 
-	OplEmulatorUPtr emulator_{};
-
 	bool is_initialized_{};
-
-	MemoryBinaryReader reader_{};
 	int commands_count_{};
 	int command_offset_{};
 	int samples_per_tick_{};
 	int frames_left_{};
-	int dst_length_in_samples_{};
+	int total_frames_{};
+	OplEmulatorUPtr emulator_{};
+	MemoryBinaryReader reader_{};
 
-	void impl_uninitialize();
+	void impl_terminate();
 	int impl_get_channel_count() const;
 };
 
@@ -59,7 +57,7 @@ OplMusicDecoder::OplMusicDecoder(OplEmulatorType opl_emulator_type)
 
 bool OplMusicDecoder::initialize(const AudioDecoderInitParam& param)
 {
-	uninitialize();
+	terminate();
 	if (emulator_ == nullptr)
 		return false;
 	if (param.src_raw_data == nullptr)
@@ -87,10 +85,15 @@ bool OplMusicDecoder::initialize(const AudioDecoderInitParam& param)
 		reader_.skip(2);
 		ticks_count += reader_.read_u16_le();
 	}
-	dst_length_in_samples_ = static_cast<int>(static_cast<long long>(ticks_count) * emulator_->get_sample_rate() / tick_rate);
+	total_frames_ = static_cast<int>(static_cast<long long>(ticks_count) * emulator_->get_sample_rate() / tick_rate);
 	reader_.set_position(2);
 	is_initialized_ = true;
 	return true;
+}
+
+void OplMusicDecoder::terminate()
+{
+	impl_terminate();
 }
 
 bool OplMusicDecoder::is_initialized() const
@@ -98,9 +101,16 @@ bool OplMusicDecoder::is_initialized() const
 	return is_initialized_;
 }
 
-void OplMusicDecoder::uninitialize()
+int OplMusicDecoder::get_total_frames() const
 {
-	impl_uninitialize();
+	BSTONE_ASSERT(is_initialized());
+	return total_frames_;
+}
+
+int OplMusicDecoder::get_channel_count() const
+{
+	BSTONE_ASSERT(is_initialized());
+	return impl_get_channel_count();
 }
 
 bool OplMusicDecoder::rewind()
@@ -114,19 +124,7 @@ bool OplMusicDecoder::rewind()
 	return true;
 }
 
-int OplMusicDecoder::get_dst_length_in_samples() const
-{
-	BSTONE_ASSERT(is_initialized());
-	return dst_length_in_samples_;
-}
-
-int OplMusicDecoder::get_channel_count() const
-{
-	BSTONE_ASSERT(is_initialized());
-	return impl_get_channel_count();
-}
-
-int OplMusicDecoder::decode(int frame_count, float* samples)
+int OplMusicDecoder::decode_frames(float* samples, int frame_count)
 {
 	BSTONE_ASSERT(is_initialized());
 	BSTONE_ASSERT(frame_count >= 0);
@@ -169,7 +167,7 @@ int OplMusicDecoder::decode(int frame_count, float* samples)
 	return decoded_frame_count;
 }
 
-void OplMusicDecoder::impl_uninitialize()
+void OplMusicDecoder::impl_terminate()
 {
 	is_initialized_ = false;
 }

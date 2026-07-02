@@ -1,7 +1,7 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
@@ -23,12 +23,12 @@ public:
 	~PcmAudioDecoder() override = default;
 
 	bool initialize(const AudioDecoderInitParam& param) override;
-	void uninitialize() override;
+	void terminate() override;
 	bool is_initialized() const override;
-	int decode(int dst_count, float* dst_data) override;
-	bool rewind() override;
-	int get_dst_length_in_samples() const override;
+	int get_total_frames() const override;
 	int get_channel_count() const override;
+	int decode_frames(float* samples, int frame_count) override;
+	bool rewind() override;
 
 private:
 	inline static constexpr int channel_count = 1;
@@ -37,55 +37,41 @@ private:
 	const std::uint8_t* src_data_{};
 	int src_size_{};
 	int dst_rate_{};
-	int dst_sample_count_{};
+	int total_frames_{};
 	int counter_{};
 	int src_offset_{};
 	float sample_{};
+
+	void impl_rewind();
 };
 
 // -------------------------------------
 
 bool PcmAudioDecoder::initialize(const AudioDecoderInitParam& param)
 {
-	uninitialize();
+	terminate();
 	if (param.src_raw_data == nullptr)
-	{
-		BSTONE_ASSERT(false && "Null data.");
 		return false;
-	}
 	if (param.src_raw_size < 0)
-	{
-		BSTONE_ASSERT(false && "Data size out of range.");
 		return false;
-	}
-	if (param.dst_rate < 11'025)
-	{
-		BSTONE_ASSERT(false && "Destination rate out of range.");
+	if (param.dst_rate < 11025)
 		return false;
-	}
-	is_initialized_ = true;
 	src_data_ = static_cast<const unsigned char*>(param.src_raw_data);
 	src_size_ = param.src_raw_size;
 	dst_rate_ = param.dst_rate;
 	const long long src_size_ll = src_size_;
 	const long long dst_rate_ll = dst_rate_;
 	const long long audio_decoder_w3d_pcm_frequency_ll = static_cast<long long>(audio_decoder_w3d_pcm_frequency);
-	dst_sample_count_ =
+	total_frames_ =
 		static_cast<int>(((src_size_ll * dst_rate_ll) + audio_decoder_w3d_pcm_frequency_ll - 1) / audio_decoder_w3d_pcm_frequency_ll);
-	rewind();
+	impl_rewind();
+	is_initialized_ = true;
 	return true;
 }
 
-void PcmAudioDecoder::uninitialize()
+void PcmAudioDecoder::terminate()
 {
 	is_initialized_ = false;
-	src_data_ = nullptr;
-	src_size_ = 0;
-	dst_rate_ = 0;
-	dst_sample_count_ = 0;
-	counter_ = 0;
-	src_offset_ = 0;
-	sample_ = 0;
 }
 
 bool PcmAudioDecoder::is_initialized() const
@@ -93,55 +79,52 @@ bool PcmAudioDecoder::is_initialized() const
 	return is_initialized_;
 }
 
-int PcmAudioDecoder::decode(int dst_count, float* dst_data)
+int PcmAudioDecoder::get_total_frames() const
 {
-	if (dst_count < 0)
-	{
-		BSTONE_ASSERT(false && "Destination count out of range.");
-		return 0;
-	}
-	if (dst_data == nullptr)
-	{
-		BSTONE_ASSERT(false && "Null destination data.");
-		return 0;
-	}
-	if (dst_count == 0 || src_offset_ >= dst_sample_count_)
+	BSTONE_ASSERT(is_initialized());
+	return total_frames_;
+}
+
+int PcmAudioDecoder::get_channel_count() const
+{
+	BSTONE_ASSERT(is_initialized());
+	return channel_count;
+}
+
+int PcmAudioDecoder::decode_frames(float* samples, int frame_count)
+{
+	BSTONE_ASSERT(is_initialized());
+	if (src_offset_ >= total_frames_)
 		return 0;
 	int i = 0;
-	for (; i < dst_count; ++i)
+	for (; i < frame_count; ++i)
 	{
 		if (counter_ >= dst_rate_)
 		{
 			counter_ -= dst_rate_;
 			++src_offset_;
-			if (src_offset_ >= dst_sample_count_)
+			if (src_offset_ >= total_frames_)
 				break;
 			sample_ = AudioSampleConverter::u8_to_f32(src_data_[src_offset_]);
 		}
 		counter_ += audio_decoder_w3d_pcm_frequency;
-		dst_data[i] = sample_;
+		samples[i] = sample_;
 	}
 	return i;
 }
 
 bool PcmAudioDecoder::rewind()
 {
-	if (!is_initialized())
-		return false;
-	counter_ = dst_rate_;
-	src_offset_ = -1;
-	sample_ = 0.0F;
+	BSTONE_ASSERT(is_initialized());
+	impl_rewind();
 	return true;
 }
 
-int PcmAudioDecoder::get_dst_length_in_samples() const
+void PcmAudioDecoder::impl_rewind()
 {
-	return dst_sample_count_;
-}
-
-int PcmAudioDecoder::get_channel_count() const
-{
-	return channel_count;
+	counter_ = dst_rate_;
+	src_offset_ = -1;
+	sample_ = 0.0F;
 }
 
 } // namespace

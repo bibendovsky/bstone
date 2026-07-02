@@ -1066,7 +1066,7 @@ bool SystemAudioMixer::initialize_cache_item(const Command& command, CacheItem& 
 		.dst_rate = dst_rate_};
 	if (!decoder->initialize(param))
 		return false;
-	const int samples_count = decoder->get_dst_length_in_samples();
+	const int samples_count = decoder->get_total_frames();
 	if (samples_count <= 0)
 		return false;
 	cache_item.is_active = true;
@@ -1098,7 +1098,7 @@ bool SystemAudioMixer::decode_voice(const Voice& voice)
 		int remain_count = std::min(total_remain_count, cache_item->buffer_size);
 		if (remain_count == 0)
 			remain_count = std::min(total_remain_count, mix_samples_count_);
-		cache_item->buffer_size = cache_item->decoder->decode(remain_count, cache_item->samples.data());
+		cache_item->buffer_size = cache_item->decoder->decode_frames(cache_item->samples.data(), remain_count);
 		cache_item->decoded_count += cache_item->buffer_size;
 		return true;
 	}
@@ -1107,7 +1107,9 @@ bool SystemAudioMixer::decode_voice(const Voice& voice)
 		return true;
 	const int planned_count = std::min(cache_item->samples_count - cache_item->decoded_count, mix_samples_count_);
 	const int channel_count = cache_item->decoder->get_channel_count();
-	const int actual_count = cache_item->decoder->decode(planned_count, cache_item->samples.data() + cache_item->decoded_count * channel_count);
+	const int actual_count = cache_item->decoder->decode_frames(
+		cache_item->samples.data() + cache_item->decoded_count * channel_count,
+		planned_count);
 	cache_item->decoded_count += actual_count;
 	return true;
 }
