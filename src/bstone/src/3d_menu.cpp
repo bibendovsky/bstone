@@ -2713,7 +2713,7 @@ constexpr auto sound_opl_emulator_type_count = 2;
 const SoundOplEmulatorTypeItem sound_opl_emulator_types[sound_opl_emulator_type_count] =
 {
 	SoundOplEmulatorTypeItem{bstone::OplEmulatorType::dbopl, "DBOPL"},
-	SoundOplEmulatorTypeItem{bstone::OplEmulatorType::nuked_opl3, "NUKED"},
+	SoundOplEmulatorTypeItem{bstone::OplEmulatorType::nuked_opl3, "NUKED OPL3"},
 };
 
 void digitized_sfx_carousel(

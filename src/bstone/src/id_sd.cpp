@@ -160,12 +160,12 @@ auto snd_oal_device_name_cvar = bstone::CVar{
 
 constexpr auto snd_opl_emulator_cvar_name = std::string_view{"snd_opl_emulator"};
 constexpr auto snd_opl_emulator_cvar_dbopl = std::string_view{"dbopl"};
-constexpr auto snd_opl_emulator_cvar_nuked = std::string_view{"nuked"};
+constexpr auto snd_opl_emulator_cvar_nuked_opl3 = std::string_view{"nuked_opl3"};
 
 constexpr std::string_view snd_opl_emulator_cvar_values[] =
 {
 	snd_opl_emulator_cvar_dbopl,
-	snd_opl_emulator_cvar_nuked,
+	snd_opl_emulator_cvar_nuked_opl3,
 };
 
 auto snd_opl_emulator_cvar = bstone::CVar{
@@ -351,7 +351,7 @@ bstone::OplEmulatorType sd_get_opl_emulator_type_from_cvar()
 		return bstone::OplEmulatorType::dbopl;
 	}
 
-	if (opl_emulator_type_sv == snd_opl_emulator_cvar_nuked)
+	if (opl_emulator_type_sv == snd_opl_emulator_cvar_nuked_opl3)
 	{
 		return bstone::OplEmulatorType::nuked_opl3;
 	}
@@ -363,7 +363,7 @@ const std::string& sd_get_opl_emulator_long_name(bstone::OplEmulatorType opl_emu
 {
 	static const auto unknown = std::string{"???"};
 	static const auto dosbox_dbopl = std::string{"DBOPL"};
-	static const auto nuked_opl3 = std::string{"Nuked"};
+	static const auto nuked_opl3 = std::string{"Nuked OPL3"};
 
 	switch (opl_emulator_type)
 	{
@@ -1439,7 +1439,7 @@ void sd_set_opl_emulator_type(bstone::OplEmulatorType opl_emulator_type)
 			break;
 
 		case bstone::OplEmulatorType::nuked_opl3:
-			snd_opl_emulator_cvar.set_string(snd_opl_emulator_cvar_nuked);
+			snd_opl_emulator_cvar.set_string(snd_opl_emulator_cvar_nuked_opl3);
 			break;
 
 		default:

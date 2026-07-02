@@ -254,10 +254,10 @@ std::string AudioExtractorImpl::make_file_name(const AudioChunk& audio_chunk, Ex
 		case OplEmulatorType::none:
 			break;
 		case OplEmulatorType::dbopl:
-			fs_utils::append_path_inplace(filename, "dosbox");
+			fs_utils::append_path_inplace(filename, "dbopl");
 			break;
 		case OplEmulatorType::nuked_opl3:
-			fs_utils::append_path_inplace(filename, "nuked");
+			fs_utils::append_path_inplace(filename, "nuked_opl3");
 			break;
 		default:
 			BSTONE_ASSERT(false && "Unknown OPL emulator.");

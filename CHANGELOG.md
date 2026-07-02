@@ -10,6 +10,7 @@
 - Image extractor writes images in PNG file format.
 - Rename value 'adlib' to 'opl' of CVar 'snd_sfx_type'.
 - Rename CVar 'snd_opl3_type' to 'snd_opl_emulator'.
+- Rename value 'nuked' to 'nuked_opl3' of CVar 'snd_opl_emulator'.
 
 ### Removed
 - [CMake] Variable SDL2W_SDL2_DIR.

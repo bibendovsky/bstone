@@ -772,7 +772,7 @@ Notes:
 
 * `--snd_opl_emulator value`  
   Specifies OPL emulator type.  
-  Values: `dbopl` (DOSBox) or `nuked` (Nuked)  
+  Values: `dbopl` (DOSBox DBOPL) or `nuked_opl3` (Nuked OPL3)  
   Default: `dbopl`
 
 * `--calculate_hashes`  
