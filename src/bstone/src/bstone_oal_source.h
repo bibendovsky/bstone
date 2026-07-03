@@ -51,7 +51,6 @@ struct OalSourceInitParam
 {
 	int mix_sample_rate{};
 	int mix_sample_count{};
-	const OalAlSymbols* oal_al_symbols{};
 	int sample_size{};
 };
 
@@ -115,8 +114,6 @@ private:
 	using StreamingOalQueue = std::array<ALuint, oal_source_max_streaming_buffers>;
 
 	using StreamingMixOalBufferFunc = bool (OalSource::*)(ALuint al_buffer);
-
-	const OalAlSymbols* oal_al_symbols_{};
 
 	bool is_initialized_{};
 	bool is_open_{};

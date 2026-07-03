@@ -774,6 +774,7 @@ set(BSTONE_BSTONE_AUDIO_SOURCES
 	src/bstone_oal_resource.h
 	src/bstone_oal_source.cpp
 	src/bstone_oal_source.h
+	src/bstone_oal_symbols.cpp
 	src/bstone_oal_symbols.h
 )
 

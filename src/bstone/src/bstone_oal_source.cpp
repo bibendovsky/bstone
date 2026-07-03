@@ -23,8 +23,6 @@ try
 		BSTONE_THROW_STATIC_SOURCE("Mix sample rate out of range.");
 	if (param.mix_sample_count <= 0)
 		BSTONE_THROW_STATIC_SOURCE("Mix sample count out of range.");
-	if (param.oal_al_symbols == nullptr)
-		BSTONE_THROW_STATIC_SOURCE("Null AL symbols.");
 	switch (param.sample_size)
 	{
 		case 2:
@@ -33,7 +31,6 @@ try
 		default:
 			BSTONE_THROW_STATIC_SOURCE("Unsupported sample size.");
 	}
-	oal_al_symbols_ = param.oal_al_symbols;
 	streaming_mix_sample_count_ = param.mix_sample_count;
 	sample_size_ = param.sample_size;
 	streaming_mix_buffer_.resize(streaming_mix_sample_count_ * sample_size_ * 2);
@@ -166,11 +163,11 @@ bool OalSource::is_finished() const
 void OalSource::set_gain(double gain)
 {
 	ensure_is_open();
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alSourcef != nullptr);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alSourcef(al_source_resource_.get(), AL_GAIN, static_cast<ALfloat>(gain));
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alSourcef != nullptr);
+	alGetError();
+	alSourcef(al_source_resource_.get(), AL_GAIN, static_cast<ALfloat>(gain));
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_position(double x, double y, double z)
@@ -215,11 +212,11 @@ void OalSource::pause()
 	if (is_paused_ || is_finished_)
 		return;
 	is_paused_ = true;
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alSourcePause != nullptr);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alSourcePause(al_source_resource_.get());
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alSourcePause != nullptr);
+	alGetError();
+	alSourcePause(al_source_resource_.get());
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::resume()
@@ -261,10 +258,10 @@ void OalSource::close()
 
 void OalSource::initialize_al_resources()
 {
-	static_al_buffer_resource_ = make_oal_buffer(*oal_al_symbols_);
+	static_al_buffer_resource_ = make_oal_buffer();
 	for (OalBufferResource& streaming_al_buffer_resource : streaming_al_buffer_resources_)
-		streaming_al_buffer_resource = make_oal_buffer(*oal_al_symbols_);
-	al_source_resource_ = make_oal_source(*oal_al_symbols_);
+		streaming_al_buffer_resource = make_oal_buffer();
+	al_source_resource_ = make_oal_source();
 }
 
 void OalSource::ensure_is_initialized() const
@@ -288,85 +285,85 @@ void OalSource::ensure_is_started() const
 int OalSource::get_al_state() const
 {
 	ALint al_state = 0;
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alGetSourcei != nullptr);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alGetSourcei(al_source_resource_.get(), AL_SOURCE_STATE, &al_state);
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alGetSourcei != nullptr);
+	alGetError();
+	alGetSourcei(al_source_resource_.get(), AL_SOURCE_STATE, &al_state);
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 	return static_cast<int>(al_state);
 }
 
 void OalSource::al_play()
 {
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alSourcePlay != nullptr);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alSourcePlay(al_source_resource_.get());
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alSourcePlay != nullptr);
+	alGetError();
+	alSourcePlay(al_source_resource_.get());
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::al_stop()
 {
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alSourceStop != nullptr);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alSourceStop(al_source_resource_.get());
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alSourceStop != nullptr);
+	alGetError();
+	alSourceStop(al_source_resource_.get());
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 int OalSource::get_al_processed_buffer_count() const
 {
 	ALint al_buffer_count = 0;
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alGetSourcei != nullptr);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alGetSourcei(al_source_resource_.get(), AL_BUFFERS_PROCESSED, &al_buffer_count);
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alGetSourcei != nullptr);
+	alGetError();
+	alGetSourcei(al_source_resource_.get(), AL_BUFFERS_PROCESSED, &al_buffer_count);
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 	return al_buffer_count;
 }
 
 void OalSource::enqueue_al_buffer(ALuint al_buffer)
 {
 	BSTONE_ASSERT(al_buffer != 0);
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alSourceQueueBuffers != nullptr);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alSourceQueueBuffers(al_source_resource_.get(), 1, &al_buffer);
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alSourceQueueBuffers != nullptr);
+	alGetError();
+	alSourceQueueBuffers(al_source_resource_.get(), 1, &al_buffer);
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::unqueue_al_buffers(int buffer_count, ALuint* al_buffer_names)
 {
 	BSTONE_ASSERT(buffer_count >= 0 && buffer_count <= oal_source_max_streaming_buffers);
 	BSTONE_ASSERT(al_buffer_names != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alSourceUnqueueBuffers != nullptr);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alSourceUnqueueBuffers(al_source_resource_.get(), buffer_count, al_buffer_names);
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alSourceUnqueueBuffers != nullptr);
+	alGetError();
+	alSourceUnqueueBuffers(al_source_resource_.get(), buffer_count, al_buffer_names);
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_al_relative()
 {
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alSourcei != nullptr);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alSourcei(al_source_resource_.get(), AL_SOURCE_RELATIVE, is_3d_ ? AL_FALSE : AL_TRUE);
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alSourcei != nullptr);
+	alGetError();
+	alSourcei(al_source_resource_.get(), AL_SOURCE_RELATIVE, is_3d_ ? AL_FALSE : AL_TRUE);
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_al_position(double x, double y, double z)
 {
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alSource3f != nullptr);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alSource3f(
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alSource3f != nullptr);
+	alGetError();
+	alSource3f(
 		al_source_resource_.get(),
 		AL_POSITION,
 		static_cast<ALfloat>(x),
 		static_cast<ALfloat>(y),
 		static_cast<ALfloat>(z));
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_al_default_position()
@@ -376,11 +373,11 @@ void OalSource::set_al_default_position()
 
 void OalSource::set_al_reference_distance(double reference_distance)
 {
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alSourcef != nullptr);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alSourcef(al_source_resource_.get(), AL_REFERENCE_DISTANCE, static_cast<ALfloat>(reference_distance));
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alSourcef != nullptr);
+	alGetError();
+	alSourcef(al_source_resource_.get(), AL_REFERENCE_DISTANCE, static_cast<ALfloat>(reference_distance));
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_al_default_reference_distance()
@@ -390,11 +387,11 @@ void OalSource::set_al_default_reference_distance()
 
 void OalSource::set_al_max_distance(double max_distance)
 {
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alSourcef != nullptr);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alSourcef(al_source_resource_.get(), AL_MAX_DISTANCE, static_cast<ALfloat>(max_distance));
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alSourcef != nullptr);
+	alGetError();
+	alSourcef(al_source_resource_.get(), AL_MAX_DISTANCE, static_cast<ALfloat>(max_distance));
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_al_default_max_distance()
@@ -404,11 +401,11 @@ void OalSource::set_al_default_max_distance()
 
 void OalSource::set_al_rolloff_factor(double rolloff_factor)
 {
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alSourcef != nullptr);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alSourcef(al_source_resource_.get(), AL_ROLLOFF_FACTOR, static_cast<ALfloat>(rolloff_factor));
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alSourcef != nullptr);
+	alGetError();
+	alSourcef(al_source_resource_.get(), AL_ROLLOFF_FACTOR, static_cast<ALfloat>(rolloff_factor));
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_al_default_rolloff_factor()
@@ -418,30 +415,30 @@ void OalSource::set_al_default_rolloff_factor()
 
 void OalSource::attach_static_al_buffer()
 {
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alSourcei != nullptr);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alSourcei(al_source_resource_.get(), AL_BUFFER, static_cast<ALint>(static_al_buffer_resource_.get()));
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alSourcei != nullptr);
+	alGetError();
+	alSourcei(al_source_resource_.get(), AL_BUFFER, static_cast<ALint>(static_al_buffer_resource_.get()));
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::detach_static_al_buffer()
 {
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alSourcei != nullptr);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alSourcei(al_source_resource_.get(), AL_BUFFER, 0);
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alSourcei != nullptr);
+	alGetError();
+	alSourcei(al_source_resource_.get(), AL_BUFFER, 0);
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_static_al_buffer_data(const OalSourceOpenStaticParam& param)
 {
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alBufferData != nullptr);
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alBufferData != nullptr);
 	BSTONE_ASSERT(al_format_ != 0);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alBufferData(static_al_buffer_resource_.get(), al_format_, param.data, param.data_size, param.sample_rate);
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	alGetError();
+	alBufferData(static_al_buffer_resource_.get(), al_format_, param.data, param.data_size, param.sample_rate);
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_streaming_al_buffer_data(ALint al_buffer, int sample_count, std::byte* samples)
@@ -449,13 +446,13 @@ void OalSource::set_streaming_al_buffer_data(ALint al_buffer, int sample_count, 
 	BSTONE_ASSERT(al_buffer != 0);
 	BSTONE_ASSERT(sample_count > 0);
 	BSTONE_ASSERT(samples != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alBufferData != nullptr);
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alBufferData != nullptr);
 	BSTONE_ASSERT(al_format_ != 0);
 	const int buffer_size = sample_count * sample_size_ * (1 + is_stereo_);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alBufferData(al_buffer, al_format_, samples, buffer_size, streaming_sample_rate_);
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	alGetError();
+	alBufferData(al_buffer, al_format_, samples, buffer_size, streaming_sample_rate_);
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_streaming_al_buffer_data(ALint al_buffer)
@@ -528,12 +525,12 @@ void OalSource::streaming_mix()
 {
 	ALint al_queue_size = 0;
 	ALint al_mixed_size = 0;
-	BSTONE_ASSERT(oal_al_symbols_->alGetError != nullptr);
-	BSTONE_ASSERT(oal_al_symbols_->alGetSourcei != nullptr);
-	oal_al_symbols_->alGetError();
-	oal_al_symbols_->alGetSourcei(al_source_resource_.get(), AL_BUFFERS_QUEUED, &al_queue_size);
-	oal_al_symbols_->alGetSourcei(al_source_resource_.get(), AL_BUFFERS_PROCESSED, &al_mixed_size);
-	BSTONE_ASSERT(oal_al_symbols_->alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alGetSourcei != nullptr);
+	alGetError();
+	alGetSourcei(al_source_resource_.get(), AL_BUFFERS_QUEUED, &al_queue_size);
+	alGetSourcei(al_source_resource_.get(), AL_BUFFERS_PROCESSED, &al_mixed_size);
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 	if (al_mixed_size > 0)
 	{
 		unqueue_al_buffers(al_mixed_size, streaming_al_queue_.data());

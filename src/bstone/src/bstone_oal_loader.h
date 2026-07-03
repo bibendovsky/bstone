@@ -18,9 +18,9 @@ public:
 	OalLoader() = default;
 	virtual ~OalLoader() = default;
 
-	virtual void load_alc_symbols(OalAlSymbols& al_symbols) = 0;
-	virtual void load_al_symbols(OalAlSymbols& al_symbols) = 0;
-	virtual void load_efx_symbols(OalAlSymbols& al_symbols) = 0;
+	virtual void load_alc_symbols() = 0;
+	virtual void load_al_symbols() = 0;
+	virtual void load_efx_symbols() = 0;
 };
 
 // =====================================

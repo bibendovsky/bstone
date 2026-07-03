@@ -31,10 +31,9 @@ public:
 
 	OalResource() = default;
 
-	OalResource(Resource resource, Deleter deleter)
+	explicit OalResource(Resource resource)
 		:
-		resource_{resource},
-		deleter_{deleter}
+		resource_{resource}
 	{}
 
 	OalResource(const OalResource& rhs) = delete;
@@ -42,7 +41,6 @@ public:
 	OalResource(OalResource&& rhs) noexcept
 	{
 		std::swap(resource_, rhs.resource_);
-		std::swap(deleter_, rhs.deleter_);
 	}
 
 	template<
@@ -59,7 +57,6 @@ public:
 	void operator=(OalResource&& rhs) noexcept
 	{
 		std::swap(resource_, rhs.resource_);
-		std::swap(deleter_, rhs.deleter_);
 	}
 
 	~OalResource()
@@ -81,7 +78,7 @@ public:
 	{
 		if (is_empty())
 			return;
-		deleter_(resource_);
+		Deleter{}(resource_);
 		resource_ = Resource{};
 	}
 
@@ -112,84 +109,51 @@ public:
 
 private:
 	Resource resource_{};
-	Deleter deleter_{};
 };
 
 // =====================================
 
-class OalDeviceDeleter
+struct OalDeviceDeleter
 {
-public:
-	OalDeviceDeleter() = default;
-	OalDeviceDeleter(const OalDeviceDeleter& rhs);
-	explicit OalDeviceDeleter(const OalAlSymbols& al_symbols);
-	void operator=(OalDeviceDeleter&& rhs) noexcept;
 	void operator()(ALCdevice* alc_device) const;
-
-private:
-	const OalAlSymbols* al_symbols_{};
 };
 
 using OalDeviceResource = OalResource<ALCdevice*, OalDeviceDeleter>;
 
-OalDeviceResource make_oal_device(const OalAlSymbols& al_symbols, const char* device_name);
+OalDeviceResource make_oal_device(const char* device_name);
 
 // =====================================
 
-class OalContextDeleter
+struct OalContextDeleter
 {
-public:
-	OalContextDeleter() = default;
-	OalContextDeleter(const OalContextDeleter& rhs);
-	explicit OalContextDeleter(const OalAlSymbols& al_symbols);
-	void operator=(OalContextDeleter&& rhs) noexcept;
 	void operator()(ALCcontext* alc_context) const;
-
-private:
-	const OalAlSymbols* al_symbols_{};
 };
 
 using OalContextResource = OalResource<ALCcontext*, OalContextDeleter>;
 
-OalContextResource make_oal_context(const OalAlSymbols& al_symbols, ALCdevice& al_device, const ALCint* al_context_attributes);
+OalContextResource make_oal_context(ALCdevice& al_device, const ALCint* al_context_attributes);
 
 // =====================================
 
-class OalBufferDeleter
+struct OalBufferDeleter
 {
-public:
-	OalBufferDeleter() = default;
-	OalBufferDeleter(const OalBufferDeleter& rhs);
-	explicit OalBufferDeleter(const OalAlSymbols& al_symbols);
-	void operator=(OalBufferDeleter&& rhs) noexcept;
 	void operator()(ALuint al_buffer) const;
-
-private:
-	const OalAlSymbols* al_symbols_{};
 };
 
 using OalBufferResource = OalResource<ALuint, OalBufferDeleter>;
 
-OalBufferResource make_oal_buffer(const OalAlSymbols& oal_al_symbols);
+OalBufferResource make_oal_buffer();
 
 // =====================================
 
-class OalSourceDeleter
+struct OalSourceDeleter
 {
-public:
-	OalSourceDeleter() = default;
-	OalSourceDeleter(const OalSourceDeleter& rhs);
-	explicit OalSourceDeleter(const OalAlSymbols& al_symbols);
-	void operator=(OalSourceDeleter&& rhs) noexcept;
 	void operator()(ALuint al_source) const;
-
-private:
-	const OalAlSymbols* al_symbols_{};
 };
 
 using OalSourceResource = OalResource<ALuint, OalSourceDeleter>;
 
-OalSourceResource make_oal_source(const OalAlSymbols& al_symbols);
+OalSourceResource make_oal_source();
 
 } // namespace bstone
 
