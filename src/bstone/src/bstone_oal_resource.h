@@ -1,6 +1,6 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2021-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: MIT
 */
 
@@ -10,9 +10,9 @@ SPDX-License-Identifier: MIT
 #include "al.h"
 #include "alc.h"
 #include "bstone_assert.h"
-#include "bstone_oal_symbols.h"
+#include <cstddef>
+#include <memory>
 #include <type_traits>
-#include <utility>
 
 namespace bstone {
 
@@ -29,6 +29,8 @@ public:
 			std::is_same<Resource, ALuint>::value,
 		"Unsupported resource type.");
 
+	inline static constexpr Resource empty_value{};
+
 	OalResource() = default;
 
 	explicit OalResource(Resource resource)
@@ -39,15 +41,15 @@ public:
 	OalResource(const OalResource& rhs) = delete;
 
 	OalResource(OalResource&& rhs) noexcept
+		:
+		resource_{rhs.resource_}
 	{
-		std::swap(resource_, rhs.resource_);
+		rhs.resource_ = empty_value;
 	}
 
-	template<
-		typename UResource = Resource,
-		std::enable_if_t<std::is_pointer<UResource>::value, int> = 0
-	>
-	void operator=(std::nullptr_t)
+	template<typename UResource = Resource>
+	requires(std::is_pointer_v<UResource>)
+	void operator=(const std::nullptr_t&)
 	{
 		reset();
 	}
@@ -56,7 +58,10 @@ public:
 
 	void operator=(OalResource&& rhs) noexcept
 	{
-		std::swap(resource_, rhs.resource_);
+		BSTONE_ASSERT(std::addressof(rhs) != this);
+		delete_resource();
+		resource_ = rhs.resource_;
+		rhs.resource_ = empty_value;
 	}
 
 	~OalResource()
@@ -66,7 +71,7 @@ public:
 
 	bool is_empty() const
 	{
-		return resource_ == Resource{};
+		return resource_ == empty_value;
 	}
 
 	TResource get() const
@@ -76,31 +81,24 @@ public:
 
 	void reset()
 	{
-		if (is_empty())
-			return;
-		Deleter{}(resource_);
-		resource_ = Resource{};
+		reset(empty_value);
 	}
 
 	void reset(Resource resource)
 	{
-		reset();
+		delete_resource();
 		resource_ = resource;
 	}
 
-	template<
-		typename UResource = Resource,
-		std::enable_if_t<std::is_pointer<UResource>::value, int> = 0
-	>
+	template<typename UResource = Resource>
+	requires(std::is_pointer_v<UResource>)
 	explicit operator bool() const
 	{
 		return !is_empty();
 	}
 
-	template<
-		typename UResource = Resource,
-		std::enable_if_t<std::is_pointer<UResource>::value, int> = 0
-	>
+	template<typename UResource = Resource>
+	requires(std::is_pointer_v<UResource>)
 	auto& operator*()
 	{
 		BSTONE_ASSERT(!is_empty());
@@ -109,6 +107,11 @@ public:
 
 private:
 	Resource resource_{};
+
+	void delete_resource() const
+	{
+		Deleter{}(resource_);
+	}
 };
 
 // =====================================

@@ -8,6 +8,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_oal_source.h"
 #include "bstone_assert.h"
 #include "bstone_exception.h"
+#include "bstone_oal_symbols.h"
 #include <algorithm>
 #include <iterator>
 #include <memory>
