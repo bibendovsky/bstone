@@ -989,9 +989,13 @@ void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 		device_name_c_string = device_name_string.c_str();
 	}
 	oal_device_resource_ = make_oal_device(device_name_c_string);
+	if (oal_device_resource_.is_empty())
+		BSTONE_THROW_STATIC_SOURCE("Failed to open an OpenAL playback device.");
 	log_oal_current_device_name();
 	log_oal_alc_extensions();
 	oal_context_resource_ = make_oal_context(*oal_device_resource_, al_context_attributes);
+	if (oal_context_resource_.is_empty())
+		BSTONE_THROW_STATIC_SOURCE("Failed to create an OpenAL context.");
 	make_al_context_current();
 	oal_loader_->load_al_symbols();
 	detect_al_extensions();

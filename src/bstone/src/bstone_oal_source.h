@@ -139,7 +139,7 @@ private:
 	OalSourceUncachingSound* streaming_uncaching_sound_{};
 	OalSourceResource al_source_resource_{};
 
-	void initialize_al_resources();
+	bool initialize_al_resources();
 
 	int get_al_state() const;
 	void al_play();

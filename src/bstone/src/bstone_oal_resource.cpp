@@ -6,7 +6,6 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_oal_resource.h"
 #include "bstone_assert.h"
-#include "bstone_exception.h"
 #include "bstone_oal_symbols.h"
 
 namespace bstone {
@@ -21,15 +20,10 @@ void OalDeviceDeleter::operator()(ALCdevice* alc_device) const
 }
 
 OalDeviceResource make_oal_device(const char* device_name)
-try
 {
 	BSTONE_ASSERT(alcOpenDevice != nullptr);
-	ALCdevice* const al_device = alcOpenDevice(device_name);
-	if (al_device == nullptr)
-		BSTONE_THROW_STATIC_SOURCE("Failed to open a device.");
-	return OalDeviceResource{al_device};
+	return OalDeviceResource{alcOpenDevice(device_name)};
 }
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 
@@ -45,15 +39,10 @@ void OalContextDeleter::operator()(ALCcontext* al_context) const
 }
 
 OalContextResource make_oal_context(ALCdevice& al_device, const ALCint* al_context_attributes)
-try
 {
 	BSTONE_ASSERT(alcCreateContext != nullptr);
-	ALCcontext* const al_context = alcCreateContext(&al_device, al_context_attributes);
-	if (al_context == nullptr)
-		BSTONE_THROW_STATIC_SOURCE("Failed to create a context.");
-	return OalContextResource{al_context};
+	return OalContextResource{alcCreateContext(&al_device, al_context_attributes)};
 }
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 
@@ -68,17 +57,14 @@ void OalBufferDeleter::operator()(ALuint al_buffer) const
 }
 
 OalBufferResource make_oal_buffer()
-try
 {
 	BSTONE_ASSERT(alGenBuffers != nullptr);
 	BSTONE_ASSERT(alIsBuffer != nullptr);
 	ALuint al_buffer = 0;
 	alGenBuffers(1, &al_buffer);
-	if (al_buffer == 0)
-		BSTONE_THROW_STATIC_SOURCE("Failed to create a buffer.");
+	BSTONE_ASSERT(al_buffer != 0);
 	return OalBufferResource{al_buffer};
 }
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 // ==========================================================================
 
@@ -93,15 +79,12 @@ void OalSourceDeleter::operator()(ALuint al_source) const
 }
 
 OalSourceResource make_oal_source()
-try
 {
 	BSTONE_ASSERT(alGenSources != nullptr);
 	ALuint al_source = 0;
 	alGenSources(1, &al_source);
-	if (al_source == 0)
-		BSTONE_THROW_STATIC_SOURCE("Failed to create a source.");
+	BSTONE_ASSERT(al_source != 0);
 	return OalSourceResource{al_source};
 }
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 } // namespace bstone

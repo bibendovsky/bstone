@@ -22,7 +22,11 @@ bool OalSource::initialize(const OalSourceInitParam& param)
 	streaming_mix_sample_count_ = param.mix_sample_count;
 	sample_size_ = param.sample_size;
 	streaming_mix_buffer_.resize(streaming_mix_sample_count_ * sample_size_ * 2);
-	initialize_al_resources();
+	if (!initialize_al_resources())
+	{
+		terminate();
+		return false;
+	}
 	is_initialized_ = true;
 	return true;
 }
@@ -229,12 +233,21 @@ void OalSource::close()
 		al_stop();
 }
 
-void OalSource::initialize_al_resources()
+bool OalSource::initialize_al_resources()
 {
 	static_al_buffer_resource_ = make_oal_buffer();
+	if (static_al_buffer_resource_.is_empty())
+		return false;
 	for (OalBufferResource& streaming_al_buffer_resource : streaming_al_buffer_resources_)
+	{
 		streaming_al_buffer_resource = make_oal_buffer();
+		if (streaming_al_buffer_resource.is_empty())
+			return false;
+	}
 	al_source_resource_ = make_oal_source();
+	if (al_source_resource_.is_empty())
+		return false;
+	return true;
 }
 
 int OalSource::get_al_state() const
