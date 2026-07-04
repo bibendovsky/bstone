@@ -1,79 +1,62 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
 #include "bstone_oal_source.h"
 #include "bstone_assert.h"
-#include "bstone_exception.h"
 #include "bstone_oal_symbols.h"
 #include <algorithm>
 #include <iterator>
-#include <memory>
-#include <numeric>
 
 namespace bstone {
 
-void OalSource::initialize(const OalSourceInitParam& param)
-try
+bool OalSource::initialize(const OalSourceInitParam& param)
 {
-	uninitialize();
-	if (param.mix_sample_rate <= 0)
-		BSTONE_THROW_STATIC_SOURCE("Mix sample rate out of range.");
-	if (param.mix_sample_count <= 0)
-		BSTONE_THROW_STATIC_SOURCE("Mix sample count out of range.");
-	switch (param.sample_size)
-	{
-		case 2:
-		case 4:
-			break;
-		default:
-			BSTONE_THROW_STATIC_SOURCE("Unsupported sample size.");
-	}
+	BSTONE_ASSERT(param.mix_sample_rate > 0);
+	BSTONE_ASSERT(param.mix_sample_count > 0);
+	BSTONE_ASSERT(param.sample_size == 2 || param.sample_size == 4);
+	terminate();
 	streaming_mix_sample_count_ = param.mix_sample_count;
 	sample_size_ = param.sample_size;
 	streaming_mix_buffer_.resize(streaming_mix_sample_count_ * sample_size_ * 2);
 	initialize_al_resources();
 	is_initialized_ = true;
+	return true;
 }
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 bool OalSource::is_initialized() const
 {
 	return is_initialized_;
 }
 
-void OalSource::uninitialize()
+void OalSource::terminate()
 {
 	close();
 	is_initialized_ = false;
 	is_stereo_ = false;
 	al_source_resource_.reset();
 	static_al_buffer_resource_.reset();
-	for (auto& streaming_al_buffer_resource : streaming_al_buffer_resources_)
+	for (OalBufferResource& streaming_al_buffer_resource : streaming_al_buffer_resources_)
 		streaming_al_buffer_resource.reset();
 	al_format_ = 0;
 }
 
 void OalSource::open(const OalSourceOpenStaticParam& param)
-try
 {
-	ensure_is_initialized();
+	BSTONE_ASSERT(is_initialized());
+	BSTONE_ASSERT(param.sample_rate > 0);
+	BSTONE_ASSERT(param.data != nullptr);
+	BSTONE_ASSERT(param.data_size >= 0);
+	BSTONE_ASSERT(param.al_format > 0);
 	close();
-	if (param.sample_rate <= 0)
-		BSTONE_THROW_STATIC_SOURCE("Sample rate out of range.");
-	if (param.data == nullptr)
-		BSTONE_THROW_STATIC_SOURCE("Null data.");
-	if (param.data_size < 0)
-		BSTONE_THROW_STATIC_SOURCE("Data size out of range.");
-	if (param.al_format == 0)
-		BSTONE_THROW_STATIC_SOURCE("Unspecified buffer format.");
 	is_3d_ = param.is_3d;
 	is_stereo_ = false;
 	al_format_ = param.al_format;
 	set_al_relative();
+	set_al_default_gain();
 	set_al_default_position();
 	set_al_default_reference_distance();
 	set_al_default_max_distance();
@@ -85,27 +68,20 @@ try
 	is_streaming_ = false;
 	is_started_ = false;
 	is_paused_ = false;
-	is_finished_ = false;
+	is_stopped_ = false;
 }
-BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalSource::open(const OalSourceOpenStreamingParam& param)
 {
-	ensure_is_initialized();
+	BSTONE_ASSERT(is_initialized());
+	BSTONE_ASSERT(param.sample_rate > 0);
+	BSTONE_ASSERT((param.caching_sound != nullptr && param.uncaching_sound == nullptr) ||
+		(param.caching_sound == nullptr && param.uncaching_sound != nullptr));
+	BSTONE_ASSERT(!(param.is_looping && param.caching_sound != nullptr));
+	BSTONE_ASSERT(!(param.is_3d && param.is_stereo));
+	BSTONE_ASSERT(!(param.is_stereo && param.caching_sound != nullptr));
+	BSTONE_ASSERT(param.al_format > 0);
 	close();
-	if (param.sample_rate <= 0)
-		BSTONE_THROW_STATIC_SOURCE("Sample rate out of range.");
-	if (!((param.caching_sound != nullptr && param.uncaching_sound == nullptr) ||
-		(param.caching_sound == nullptr && param.uncaching_sound != nullptr)))
-		BSTONE_THROW_STATIC_SOURCE("Caching and uncaching sounds are mutual exclusive.");
-	if (param.is_looping && param.caching_sound != nullptr)
-		BSTONE_THROW_STATIC_SOURCE("Looping the caching sound not supported.");
-	if (param.is_3d && param.is_stereo)
-		BSTONE_THROW_STATIC_SOURCE("Positional stereo sound not supported.");
-	if (param.is_stereo && param.caching_sound != nullptr)
-		BSTONE_THROW_STATIC_SOURCE("Stereo caching sound not supported.");
-	if (param.al_format == 0)
-		BSTONE_THROW_STATIC_SOURCE("Unspecified buffer format.");
 	const int al_processed_buffer_count = get_al_processed_buffer_count();
 	if (al_processed_buffer_count != 0)
 		unqueue_al_buffers(al_processed_buffer_count, streaming_al_queue_.data());
@@ -129,7 +105,7 @@ void OalSource::open(const OalSourceOpenStreamingParam& param)
 	is_streaming_ = true;
 	is_started_ = false;
 	is_paused_ = false;
-	is_finished_ = false;
+	is_stopped_ = false;
 }
 
 bool OalSource::is_open() const
@@ -144,60 +120,56 @@ bool OalSource::is_paused() const
 
 bool OalSource::is_playing() const
 {
-	if (!is_open_ || is_paused_ || is_finished_)
+	if (!is_open_ || is_paused_ || is_stopped_)
 		return false;
 	switch (get_al_state())
 	{
 		case AL_PLAYING:
 			return true;
 		default:
-			is_finished_ = true;
+			is_stopped_ = true;
 			return false;
 	}
 }
 
-bool OalSource::is_finished() const
+bool OalSource::is_stopped() const
 {
-	return is_finished_;
+	return is_stopped_;
 }
 
 void OalSource::set_gain(double gain)
 {
-	ensure_is_open();
-	BSTONE_ASSERT(alGetError != nullptr);
-	BSTONE_ASSERT(alSourcef != nullptr);
-	alGetError();
-	alSourcef(al_source_resource_.get(), AL_GAIN, static_cast<ALfloat>(gain));
-	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
+	BSTONE_ASSERT(is_open());
+	set_al_gain(static_cast<ALfloat>(gain));
 }
 
 void OalSource::set_position(double x, double y, double z)
 {
-	ensure_is_open();
-	set_al_position(x, y, z);
+	BSTONE_ASSERT(is_open());
+	set_al_position(static_cast<ALfloat>(x), static_cast<ALfloat>(y), static_cast<ALfloat>(z));
 }
 
 void OalSource::set_reference_distance(double reference_distance)
 {
-	ensure_is_open();
-	set_al_reference_distance(reference_distance);
+	BSTONE_ASSERT(is_open());
+	set_al_reference_distance(static_cast<ALfloat>(reference_distance));
 }
 
 void OalSource::set_max_distance(double max_distance)
 {
-	ensure_is_open();
-	set_al_max_distance(max_distance);
+	BSTONE_ASSERT(is_open());
+	set_al_max_distance(static_cast<ALfloat>(max_distance));
 }
 
 void OalSource::set_rolloff_factor(double rolloff_factor)
 {
-	ensure_is_open();
-	set_al_rolloff_factor(rolloff_factor);
+	BSTONE_ASSERT(is_open());
+	set_al_rolloff_factor(static_cast<ALfloat>(rolloff_factor));
 }
 
 void OalSource::play()
 {
-	ensure_is_open();
+	BSTONE_ASSERT(is_open());
 	if (is_started_)
 		return;
 	is_started_ = true;
@@ -209,21 +181,21 @@ void OalSource::play()
 
 void OalSource::pause()
 {
-	ensure_is_started();
-	if (is_paused_ || is_finished_)
+	BSTONE_ASSERT(is_started_);
+	if (is_paused_ || is_stopped_)
 		return;
 	is_paused_ = true;
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alSourcePause != nullptr);
-	alGetError();
+	BSTONE_ASSERT((alGetError(), true));
 	alSourcePause(al_source_resource_.get());
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::resume()
 {
-	ensure_is_started();
-	if (!is_paused_ || is_finished_)
+	BSTONE_ASSERT(is_started_);
+	if (!is_paused_ || is_stopped_)
 		return;
 	is_paused_ = false;
 	al_play();
@@ -231,18 +203,18 @@ void OalSource::resume()
 
 void OalSource::stop()
 {
-	ensure_is_started();
-	if (is_finished_)
+	BSTONE_ASSERT(is_started_);
+	if (is_stopped_)
 		return;
 	is_paused_ = false;
-	is_finished_ = true;
+	is_stopped_ = true;
 	al_stop();
 }
 
 void OalSource::mix()
 {
-	ensure_is_started();
-	if (is_paused_ || is_finished_)
+	BSTONE_ASSERT(is_started_);
+	if (is_paused_ || is_stopped_)
 		return;
 	if (is_streaming_)
 		streaming_mix();
@@ -265,40 +237,22 @@ void OalSource::initialize_al_resources()
 	al_source_resource_ = make_oal_source();
 }
 
-void OalSource::ensure_is_initialized() const
-{
-	if (!is_initialized_)
-		BSTONE_THROW_STATIC_SOURCE("Not initialized.");
-}
-
-void OalSource::ensure_is_open() const
-{
-	if (!is_open_)
-		BSTONE_THROW_STATIC_SOURCE("Not open.");
-}
-
-void OalSource::ensure_is_started() const
-{
-	if (!is_started_)
-		BSTONE_THROW_STATIC_SOURCE("Not started.");
-}
-
 int OalSource::get_al_state() const
 {
-	ALint al_state = 0;
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alGetSourcei != nullptr);
-	alGetError();
+	BSTONE_ASSERT((alGetError(), true));
+	ALint al_state = 0;
 	alGetSourcei(al_source_resource_.get(), AL_SOURCE_STATE, &al_state);
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
-	return static_cast<int>(al_state);
+	return al_state;
 }
 
 void OalSource::al_play()
 {
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alSourcePlay != nullptr);
-	alGetError();
+	BSTONE_ASSERT((alGetError(), true));
 	alSourcePlay(al_source_resource_.get());
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
@@ -307,17 +261,17 @@ void OalSource::al_stop()
 {
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alSourceStop != nullptr);
-	alGetError();
+	BSTONE_ASSERT((alGetError(), true));
 	alSourceStop(al_source_resource_.get());
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 int OalSource::get_al_processed_buffer_count() const
 {
-	ALint al_buffer_count = 0;
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alGetSourcei != nullptr);
-	alGetError();
+	BSTONE_ASSERT((alGetError(), true));
+	ALint al_buffer_count = 0;
 	alGetSourcei(al_source_resource_.get(), AL_BUFFERS_PROCESSED, &al_buffer_count);
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 	return al_buffer_count;
@@ -328,7 +282,7 @@ void OalSource::enqueue_al_buffer(ALuint al_buffer)
 	BSTONE_ASSERT(al_buffer != 0);
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alSourceQueueBuffers != nullptr);
-	alGetError();
+	BSTONE_ASSERT((alGetError(), true));
 	alSourceQueueBuffers(al_source_resource_.get(), 1, &al_buffer);
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
@@ -339,7 +293,7 @@ void OalSource::unqueue_al_buffers(int buffer_count, ALuint* al_buffer_names)
 	BSTONE_ASSERT(al_buffer_names != nullptr);
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alSourceUnqueueBuffers != nullptr);
-	alGetError();
+	BSTONE_ASSERT((alGetError(), true));
 	alSourceUnqueueBuffers(al_source_resource_.get(), buffer_count, al_buffer_names);
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
@@ -348,50 +302,59 @@ void OalSource::set_al_relative()
 {
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alSourcei != nullptr);
-	alGetError();
+	BSTONE_ASSERT((alGetError(), true));
 	alSourcei(al_source_resource_.get(), AL_SOURCE_RELATIVE, is_3d_ ? AL_FALSE : AL_TRUE);
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
-void OalSource::set_al_position(double x, double y, double z)
+void OalSource::set_al_gain(ALfloat gain)
+{
+	BSTONE_ASSERT(alGetError != nullptr);
+	BSTONE_ASSERT(alSourcef != nullptr);
+	BSTONE_ASSERT((alGetError(), true));
+	alSourcef(al_source_resource_.get(), AL_GAIN, gain);
+	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
+}
+
+void OalSource::set_al_default_gain()
+{
+	set_al_gain(1.0F);
+}
+
+void OalSource::set_al_position(ALfloat x, ALfloat y, ALfloat z)
 {
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alSource3f != nullptr);
-	alGetError();
-	alSource3f(
-		al_source_resource_.get(),
-		AL_POSITION,
-		static_cast<ALfloat>(x),
-		static_cast<ALfloat>(y),
-		static_cast<ALfloat>(z));
+	BSTONE_ASSERT((alGetError(), true));
+	alSource3f(al_source_resource_.get(), AL_POSITION, x, y, z);
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_al_default_position()
 {
-	set_al_position(0.0, 0.0, 0.0);
+	set_al_position(0.0F, 0.0F, 0.0F);
 }
 
-void OalSource::set_al_reference_distance(double reference_distance)
+void OalSource::set_al_reference_distance(ALfloat reference_distance)
 {
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alSourcef != nullptr);
-	alGetError();
-	alSourcef(al_source_resource_.get(), AL_REFERENCE_DISTANCE, static_cast<ALfloat>(reference_distance));
+	BSTONE_ASSERT((alGetError(), true));
+	alSourcef(al_source_resource_.get(), AL_REFERENCE_DISTANCE, reference_distance);
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_al_default_reference_distance()
 {
-	set_al_reference_distance(1.0);
+	set_al_reference_distance(1.0F);
 }
 
-void OalSource::set_al_max_distance(double max_distance)
+void OalSource::set_al_max_distance(ALfloat max_distance)
 {
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alSourcef != nullptr);
-	alGetError();
-	alSourcef(al_source_resource_.get(), AL_MAX_DISTANCE, static_cast<ALfloat>(max_distance));
+	BSTONE_ASSERT((alGetError(), true));
+	alSourcef(al_source_resource_.get(), AL_MAX_DISTANCE, max_distance);
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
@@ -400,25 +363,25 @@ void OalSource::set_al_default_max_distance()
 	set_al_max_distance(FLT_MAX);
 }
 
-void OalSource::set_al_rolloff_factor(double rolloff_factor)
+void OalSource::set_al_rolloff_factor(ALfloat rolloff_factor)
 {
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alSourcef != nullptr);
-	alGetError();
-	alSourcef(al_source_resource_.get(), AL_ROLLOFF_FACTOR, static_cast<ALfloat>(rolloff_factor));
+	BSTONE_ASSERT((alGetError(), true));
+	alSourcef(al_source_resource_.get(), AL_ROLLOFF_FACTOR, rolloff_factor);
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_al_default_rolloff_factor()
 {
-	set_al_rolloff_factor(1.0);
+	set_al_rolloff_factor(1.0F);
 }
 
 void OalSource::attach_static_al_buffer()
 {
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alSourcei != nullptr);
-	alGetError();
+	BSTONE_ASSERT((alGetError(), true));
 	alSourcei(al_source_resource_.get(), AL_BUFFER, static_cast<ALint>(static_al_buffer_resource_.get()));
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
@@ -427,7 +390,7 @@ void OalSource::detach_static_al_buffer()
 {
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alSourcei != nullptr);
-	alGetError();
+	BSTONE_ASSERT((alGetError(), true));
 	alSourcei(al_source_resource_.get(), AL_BUFFER, 0);
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
@@ -437,22 +400,22 @@ void OalSource::set_static_al_buffer_data(const OalSourceOpenStaticParam& param)
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alBufferData != nullptr);
 	BSTONE_ASSERT(al_format_ != 0);
-	alGetError();
+	BSTONE_ASSERT((alGetError(), true));
 	alBufferData(static_al_buffer_resource_.get(), al_format_, param.data, param.data_size, param.sample_rate);
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
-void OalSource::set_streaming_al_buffer_data(ALint al_buffer, int sample_count, std::byte* samples)
+void OalSource::set_streaming_al_buffer_data(ALint al_buffer, int frame_count, std::byte* samples_data)
 {
 	BSTONE_ASSERT(al_buffer != 0);
-	BSTONE_ASSERT(sample_count > 0);
-	BSTONE_ASSERT(samples != nullptr);
+	BSTONE_ASSERT(frame_count > 0);
+	BSTONE_ASSERT(samples_data != nullptr);
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alBufferData != nullptr);
 	BSTONE_ASSERT(al_format_ != 0);
-	const int buffer_size = sample_count * sample_size_ * (1 + is_stereo_);
-	alGetError();
-	alBufferData(al_buffer, al_format_, samples, buffer_size, streaming_sample_rate_);
+	const int buffer_size = frame_count * sample_size_ * (1 + is_stereo_);
+	BSTONE_ASSERT((alGetError(), true));
+	alBufferData(al_buffer, al_format_, samples_data, buffer_size, streaming_sample_rate_);
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
@@ -487,7 +450,7 @@ void OalSource::static_mix()
 		case AL_PLAYING:
 			break;
 		default:
-			is_finished_ = true;
+			is_stopped_ = true;
 			break;
 	}
 }
@@ -524,11 +487,11 @@ bool OalSource::streaming_mix_caching_sound(ALuint al_buffer)
 
 void OalSource::streaming_mix()
 {
-	ALint al_queue_size = 0;
-	ALint al_mixed_size = 0;
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alGetSourcei != nullptr);
-	alGetError();
+	BSTONE_ASSERT((alGetError(), true));
+	ALint al_queue_size = 0;
+	ALint al_mixed_size = 0;
 	alGetSourcei(al_source_resource_.get(), AL_BUFFERS_QUEUED, &al_queue_size);
 	alGetSourcei(al_source_resource_.get(), AL_BUFFERS_PROCESSED, &al_mixed_size);
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
@@ -551,7 +514,7 @@ void OalSource::streaming_mix()
 	}
 	if (al_queue_size == 0)
 	{
-		is_finished_ = true;
+		is_stopped_ = true;
 		return;
 	}
 	switch (get_al_state())

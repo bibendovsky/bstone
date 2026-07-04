@@ -1,7 +1,7 @@
 /*
 BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
 Copyright (c) 1992-2013 Apogee Entertainment, LLC
-Copyright (c) 2013-2024 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
 SPDX-License-Identifier: GPL-2.0-or-later
 */
 
@@ -16,7 +16,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 namespace bstone {
 
-static constexpr auto oal_source_max_streaming_buffers = 2;
+inline static constexpr int oal_source_max_streaming_buffers = 2;
 static_assert(oal_source_max_streaming_buffers >= 2, "Streaming buffer count out of range.");
 
 // =====================================
@@ -83,9 +83,9 @@ struct OalSourceOpenStreamingParam
 class OalSource
 {
 public:
-	void initialize(const OalSourceInitParam& param);
+	bool initialize(const OalSourceInitParam& param);
 	bool is_initialized() const;
-	void uninitialize();
+	void terminate();
 
 	void open(const OalSourceOpenStaticParam& param);
 	void open(const OalSourceOpenStreamingParam& param);
@@ -93,7 +93,7 @@ public:
 	bool is_open() const;
 	bool is_paused() const;
 	bool is_playing() const;
-	bool is_finished() const;
+	bool is_stopped() const;
 	void set_gain(double gain);
 	void set_position(double x, double y, double z);
 	void set_reference_distance(double reference_distance);
@@ -123,10 +123,8 @@ private:
 	bool is_started_{};
 	bool is_paused_{};
 	bool is_stereo_{};
-	mutable bool is_finished_{};
-
+	mutable bool is_stopped_{};
 	OalBufferResource static_al_buffer_resource_{};
-
 	int streaming_sample_rate_{};
 	int streaming_mix_sample_count_{};
 	int streaming_caching_sample_offset_{};
@@ -134,20 +132,14 @@ private:
 	int sample_size_{};
 	ALenum al_format_{};
 	StreamingMixOalBufferFunc streaming_mix_oal_buffer_func_{};
-
 	StreamingOalBufferResources streaming_al_buffer_resources_{};
 	StreamingOalQueue streaming_al_queue_{};
 	StreamingMixBuffer streaming_mix_buffer_{};
 	OalSourceCachingSound* streaming_caching_sound_{};
 	OalSourceUncachingSound* streaming_uncaching_sound_{};
-
 	OalSourceResource al_source_resource_{};
 
 	void initialize_al_resources();
-
-	void ensure_is_initialized() const;
-	void ensure_is_open() const;
-	void ensure_is_started() const;
 
 	int get_al_state() const;
 	void al_play();
@@ -158,23 +150,26 @@ private:
 
 	void set_al_relative();
 
-	void set_al_position(double x, double y, double z);
+	void set_al_gain(ALfloat gain);
+	void set_al_default_gain();
+
+	void set_al_position(ALfloat x, ALfloat y, ALfloat z);
 	void set_al_default_position();
 
-	void set_al_reference_distance(double reference_distance);
+	void set_al_reference_distance(ALfloat reference_distance);
 	void set_al_default_reference_distance();
 
-	void set_al_max_distance(double max_distance);
+	void set_al_max_distance(ALfloat max_distance);
 	void set_al_default_max_distance();
 
-	void set_al_rolloff_factor(double rolloff_factor);
+	void set_al_rolloff_factor(ALfloat rolloff_factor);
 	void set_al_default_rolloff_factor();
 
 	void attach_static_al_buffer();
 	void detach_static_al_buffer();
 
 	void set_static_al_buffer_data(const OalSourceOpenStaticParam& param);
-	void set_streaming_al_buffer_data(ALint al_buffer, int sample_count, std::byte* samples);
+	void set_streaming_al_buffer_data(ALint al_buffer, int frame_count, std::byte* samples_data);
 	void set_streaming_al_buffer_data(ALint al_buffer);
 	void set_streaming_al_buffer_defaults();
 

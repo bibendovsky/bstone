@@ -1049,19 +1049,16 @@ void OalAudioMixer::initialize_voices()
 	if (max_voice_count < 2)
 		return;
 	const int max_mono_voices = max_voice_count - 1;
-	voices_.resize(max_mono_voices);
+	voices_.reserve(max_mono_voices);
 	const OalSourceInitParam param{
 		.mix_sample_rate = dst_rate_,
 		.mix_sample_count = mix_sample_count_,
 		.sample_size = sample_size_};
-	for (Voice& voice : voices_)
+	for (int i_voice = 0; i_voice < max_mono_voices; ++i_voice)
 	{
-		voice.index = 0;
-		voice.is_active = false;
-		voice.is_looping = false;
-		voice.is_music = false;
-		voice.is_r3s = false;
-		voice.oal_source.initialize(param);
+		Voice& voice = voices_.emplace_back();
+		if (!voice.oal_source.initialize(param))
+			voices_.pop_back();
 	}
 }
 
@@ -1082,8 +1079,7 @@ void OalAudioMixer::initialize_r2s_oal_source()
 		.mix_sample_rate = dst_rate_,
 		.mix_sample_count = mix_sample_count_,
 		.sample_size = sample_size_};
-	r2s_oal_source_.initialize(init_param);
-	if (!r2s_oal_source_.is_initialized())
+	if (!r2s_oal_source_.initialize(init_param))
 		return;
 	const OalSourceOpenStreamingParam open_param{
 		.is_3d = false,
@@ -1096,8 +1092,7 @@ void OalAudioMixer::initialize_r2s_oal_source()
 		.uncaching_sound = &r2s_sound_,
 	};
 	r2s_oal_source_.open(open_param);
-	if (r2s_oal_source_.is_open())
-		r2s_oal_source_.play();
+	r2s_oal_source_.play();
 	r2s_samples_f32_mix_.resize(mix_sample_count_ * 2);
 }
 
@@ -1111,7 +1106,7 @@ void OalAudioMixer::uninitialize_r2s()
 {
 	r2s_sound_.is_initialized = false;
 	r2s_sound_.audio_decoder = nullptr;
-	r2s_oal_source_.uninitialize();
+	r2s_oal_source_.terminate();
 }
 
 void OalAudioMixer::initialize_sfx_opl_sounds()
@@ -1223,6 +1218,8 @@ void OalAudioMixer::update_al_gain()
 
 void OalAudioMixer::handle_play_music_command(const PlayMusicCommandParam& param)
 {
+	if (!r2s_oal_source_.is_initialized())
+		return;
 	bool is_started = false;
 	Voice* voice = nullptr;
 	const auto voice_handle_guard = make_scope_exit(
@@ -1317,7 +1314,12 @@ void OalAudioMixer::handle_play_sfx_command(const PlaySfxCommandParam& param)
 	const bool is_3d = param.is_r3;
 	const bool is_stereo = sfx_sound.audio_decoder->get_channel_count() == 2;
 	const bool is_r3s = !is_3d && is_stereo;
-	if (!is_r3s)
+	if (is_r3s)
+	{
+		if (!r2s_oal_source_.is_initialized())
+			return;
+	}
+	else
 	{
 		if (sfx_sound.is_decoded)
 		{
@@ -1713,7 +1715,7 @@ void OalAudioMixer::mix_sfx_voice(Voice& voice)
 		return;
 	OalSource& oal_source = voice.oal_source;
 	oal_source.mix();
-	if (oal_source.is_finished())
+	if (oal_source.is_stopped())
 	{
 		voice.is_active = false;
 		on_sfx_stop(voice);
