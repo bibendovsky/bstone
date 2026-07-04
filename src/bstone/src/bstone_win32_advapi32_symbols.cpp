@@ -9,8 +9,9 @@ SPDX-License-Identifier: MIT
 #ifdef _WIN32
 
 #include "bstone_win32_advapi32_symbols.h"
-
+#include "bstone_exception.h"
 #include "bstone_shared_library.h"
+#include <string>
 
 namespace bstone {
 namespace win32 {
@@ -33,10 +34,12 @@ private:
 // --------------------------------------------------------------------------
 
 AdvApi32SymbolsImpl::AdvApi32SymbolsImpl()
-	:
-	shared_library_{"advapi32.dll"},
-	reg_delete_key_ex_w_{shared_library_.find_symbol<RegDeleteKeyExWFunc>("RegDeleteKeyExW")}
-{}
+{
+	std::string error_message{};
+	if (!shared_library_.open("advapi32.dll", error_message))
+		BSTONE_THROW_DYNAMIC_SOURCE(error_message.c_str());
+	reg_delete_key_ex_w_ = reinterpret_cast<RegDeleteKeyExWFunc>(shared_library_.find_symbol("RegDeleteKeyExW"));
+}
 
 RegDeleteKeyExWFunc AdvApi32SymbolsImpl::get_reg_delete_key_ex_w() const
 {

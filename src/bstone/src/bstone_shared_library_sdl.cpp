@@ -5,73 +5,68 @@ SPDX-License-Identifier: MIT
 */
 
 #include "bstone_shared_library.h"
-#include "bstone_exception.h"
-#include "bstone_sdl.h"
+#include <bit>
+#include <string_view>
 #include <utility>
 #include "SDL3/SDL_loadso.h"
 
 namespace bstone {
 
-class SharedLibrary::Impl
-{
-public:
-	static SDL_SharedObject* cast_to_native(void* handle)
-	{
-		return static_cast<SDL_SharedObject*>(handle);
-	}
-};
-
-// ======================================
-
-SharedLibrary::SharedLibrary(const char* file_path)
-{
-	open(file_path);
-}
-
 SharedLibrary::~SharedLibrary()
 {
-	internal_close();
+	close_handle();
 }
 
 bool SharedLibrary::is_open() const
 {
-	return native_handle_ != nullptr;
+	return handle_ != nullptr;
 }
 
-bool SharedLibrary::try_open(const char* file_path)
+bool SharedLibrary::open(const char* pathname)
 {
-	internal_close();
-	native_handle_ = SDL_LoadObject(file_path);
-	return is_open();
+	close_handle();
+	if (handle_ = SDL_LoadObject(pathname);
+		handle_ == nullptr)
+		return false;
+	return true;
 }
 
-void SharedLibrary::open(const char* file_path)
+bool SharedLibrary::open(const char* pathname, std::string& error_message)
 {
-	if (!try_open(file_path))
+	error_message.clear();
+	close_handle();
+	if (handle_ = SDL_LoadObject(pathname);
+		handle_ == nullptr)
 	{
-		sdl::fail("SDL_LoadObject");
+		constinit static const std::string_view prefix = "[SDL_LoadObject] ";
+		const std::string_view sdl_error_message = SDL_GetError();
+		error_message.reserve(prefix.size() + sdl_error_message.size());
+		error_message += prefix;
+		error_message += sdl_error_message;
+		return false;
 	}
+	return true;
 }
 
 void SharedLibrary::close()
 {
-	internal_close();
-	native_handle_ = nullptr;
+	close_handle();
+	handle_ = nullptr;
 }
 
 SharedLibrarySymbol SharedLibrary::find_symbol(const char* symbol_name)
 {
-	return std::bit_cast<SharedLibrarySymbol>(SDL_LoadFunction(Impl::cast_to_native(native_handle_), symbol_name));
+	return std::bit_cast<SharedLibrarySymbol>(SDL_LoadFunction(static_cast<SDL_SharedObject*>(handle_), symbol_name));
 }
 
 void SharedLibrary::swap(SharedLibrary& rhs) noexcept
 {
-	std::swap(native_handle_, rhs.native_handle_);
+	std::swap(handle_, rhs.handle_);
 }
 
-void SharedLibrary::internal_close()
+void SharedLibrary::close_handle()
 {
-	SDL_UnloadObject(Impl::cast_to_native(native_handle_));
+	SDL_UnloadObject(static_cast<SDL_SharedObject*>(handle_));
 }
 
 } // namespace bstone

@@ -38,7 +38,7 @@ private:
 	void find_symbol(const char* name, T& symbol)
 	{
 		BSTONE_ASSERT(name != nullptr && *name != '\0');
-		symbol = shared_library_.find_symbol<T>(name);
+		symbol = reinterpret_cast<T>(shared_library_.find_symbol(name));
 		if (symbol == nullptr)
 		{
 			const std::string message = std::string{} + "Symbol \"" + name + "\" not found.";
@@ -239,7 +239,9 @@ BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void OalLoaderImpl::open_internal(const char* shared_library_path)
 {
-	shared_library_.open(shared_library_path);
+	std::string error_message{};
+	if (!shared_library_.open(shared_library_path, error_message))
+		BSTONE_THROW_DYNAMIC_SOURCE(error_message.c_str());
 	load_essential_symbols();
 }
 

@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT
 #ifndef BSTONE_SHARED_LIBRARY_INCLUDED
 #define BSTONE_SHARED_LIBRARY_INCLUDED
 
-#include <bit>
+#include <string>
 
 namespace bstone {
 
@@ -17,32 +17,21 @@ class SharedLibrary
 {
 public:
 	SharedLibrary() = default;
-	explicit SharedLibrary(const char* file_path);
 	SharedLibrary(const SharedLibrary&) = delete;
 	SharedLibrary& operator=(const SharedLibrary&) = delete;
 	~SharedLibrary();
 
 	bool is_open() const;
-	bool try_open(const char* file_path);
-	void open(const char* file_path);
+	bool open(const char* pathname);
+	bool open(const char* pathname, std::string& error_message);
 	void close();
-
 	SharedLibrarySymbol find_symbol(const char* symbol_name);
-
-	template<typename T>
-	T find_symbol(const char* symbol_name)
-	{
-		return std::bit_cast<T>(find_symbol(symbol_name));
-	}
-
 	void swap(SharedLibrary& rhs) noexcept;
 
 private:
-	class Impl;
+	void* handle_{};
 
-	void* native_handle_{};
-
-	void internal_close();
+	void close_handle();
 };
 
 } // namespace bstone

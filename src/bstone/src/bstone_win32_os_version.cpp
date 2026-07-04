@@ -48,9 +48,9 @@ OsVersionImpl::OsVersionImpl()
 	using IMPL_NTSTATUS = long;
 	using IMPL_RtlGetVersion = IMPL_NTSTATUS (WINAPI *)(const OSVERSIONINFOW* lpVersionInformation);
 	SharedLibrary impl_ntdll_{};
-	if (impl_ntdll_.try_open("ntdll.dll"))
+	if (impl_ntdll_.open("ntdll.dll"))
 	{
-		const IMPL_RtlGetVersion impl_RtlGetVersion = impl_ntdll_.find_symbol<IMPL_RtlGetVersion>("RtlGetVersion");
+		const auto impl_RtlGetVersion = reinterpret_cast<IMPL_RtlGetVersion>(impl_ntdll_.find_symbol("RtlGetVersion"));
 		if (impl_RtlGetVersion != nullptr)
 		{
 			OSVERSIONINFOW osversioninfow{};

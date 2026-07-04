@@ -68,11 +68,11 @@ WindowDecorationMgrSdl::WindowDecorationMgrSdl()
 		return;
 	}
 	SharedLibrary wdmapi_shared_library{};
-	if (!wdmapi_shared_library.try_open("dwmapi.dll"))
+	if (!wdmapi_shared_library.open("dwmapi.dll"))
 	{
 		return;
 	}
-	DwmSetWindowAttribute_ = wdmapi_shared_library.find_symbol<PFNDWMSETWINDOWATTRIBUTEPROC>("DwmSetWindowAttribute");
+	DwmSetWindowAttribute_ = reinterpret_cast<PFNDWMSETWINDOWATTRIBUTEPROC>(wdmapi_shared_library.find_symbol("DwmSetWindowAttribute"));
 	if (DwmSetWindowAttribute_ == nullptr)
 	{
 		return;
