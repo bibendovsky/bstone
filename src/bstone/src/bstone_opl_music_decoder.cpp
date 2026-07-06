@@ -27,6 +27,7 @@ public:
 	bool initialize(const AudioDecoderInitParam& param) override;
 	void terminate() override;
 	bool is_initialized() const override;
+	const char* get_error_message() const override;
 	int get_total_frames() const override;
 	int get_channel_count() const override;
 	int decode_frames(float* samples, int frame_count) override;
@@ -41,11 +42,13 @@ private:
 	int samples_per_tick_{};
 	int frames_left_{};
 	int total_frames_{};
+	const char* error_message_{};
 	OplEmulatorUPtr emulator_{};
 	MemoryBinaryReader reader_{};
 
 	void impl_terminate();
 	int impl_get_channel_count() const;
+	void set_error_message(const char* error_message);
 };
 
 // -------------------------------------
@@ -59,22 +62,43 @@ bool OplMusicDecoder::initialize(const AudioDecoderInitParam& param)
 {
 	terminate();
 	if (emulator_ == nullptr)
+	{
+		set_error_message("Unknown emulator type.");
 		return false;
+	}
 	if (param.src_raw_data == nullptr)
+	{
+		set_error_message("No source data.");
 		return false;
+	}
 	if (param.src_raw_size < 0)
+	{
+		set_error_message("Invalid source size.");
 		return false;
+	}
 	if (param.dst_rate <= 0)
+	{
+		set_error_message("Invalid sample rate.");
 		return false;
+	}
 	emulator_->initialize(OplEmulatorInitParam{.sample_rate = param.dst_rate});
 	reader_ = MemoryBinaryReader{param.src_raw_data, param.src_raw_size};
 	if (!reader_.can_read_x16())
+	{
+		set_error_message("Source data too small.");
 		return false;
+	}
 	const int commands_size = reader_.read_u16_le();
 	if ((commands_size % 4) != 0)
+	{
+		set_error_message("Misaligned source data.");
 		return false;
+	}
 	if (!reader_.can_read_n(commands_size))
+	{
+		set_error_message("Command count mismatch.");
 		return false;
+	}
 	command_offset_ = 0;
 	commands_count_ = commands_size / 4;
 	samples_per_tick_ = 0;
@@ -99,6 +123,11 @@ void OplMusicDecoder::terminate()
 bool OplMusicDecoder::is_initialized() const
 {
 	return is_initialized_;
+}
+
+const char* OplMusicDecoder::get_error_message() const
+{
+	return error_message_ != nullptr ? error_message_ : "";
 }
 
 int OplMusicDecoder::get_total_frames() const
@@ -175,6 +204,11 @@ void OplMusicDecoder::impl_terminate()
 int OplMusicDecoder::impl_get_channel_count() const
 {
 	return emulator_->get_channel_count();
+}
+
+void OplMusicDecoder::set_error_message(const char* error_message)
+{
+	error_message_ = error_message;
 }
 
 } // namespace

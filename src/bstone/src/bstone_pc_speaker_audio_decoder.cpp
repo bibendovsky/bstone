@@ -24,6 +24,7 @@ public:
 	bool initialize(const AudioDecoderInitParam& param) override;
 	void terminate() override;
 	bool is_initialized() const override;
+	const char* get_error_message() const override;
 	int get_total_frames() const override;
 	int get_channel_count() const override;
 	int decode_frames(float* samples, int frame_count) override;
@@ -38,6 +39,7 @@ private:
 	[[maybe_unused]] static constexpr int max_command = 254;
 	inline static constexpr int pit_clock_frequency = 1'193'180;
 
+	const char* error_message_{};
 	int dst_sample_rate_{};
 	const std::uint8_t* commands_{};
 	int commands_size_{};
@@ -52,6 +54,7 @@ private:
 	bool is_finished_{};
 
 	static int make_pit_frequency(int command);
+	void set_error_message(const char* error_message);
 };
 
 // -------------------------------------
@@ -59,11 +62,20 @@ private:
 bool PcSpeakerAudioDecoder::initialize(const AudioDecoderInitParam& param)
 {
 	if (param.src_raw_data == nullptr)
+	{
+		set_error_message("No source data.");
 		return false;
+	}
 	if (param.src_raw_size < min_src_size)
+	{
+		set_error_message("INvalid source size.");
 		return false;
+	}
 	if (param.dst_rate <= command_rate)
+	{
+		set_error_message("Sample rate too small.");
 		return false;
+	}
 	const int data_size = static_cast<int>(endian::read_u32_le(param.src_raw_data));
 	dst_sample_rate_ = param.dst_rate;
 	commands_ = static_cast<const std::uint8_t*>(param.src_raw_data) + min_src_size;
@@ -88,6 +100,11 @@ void PcSpeakerAudioDecoder::terminate()
 bool PcSpeakerAudioDecoder::is_initialized() const
 {
 	return is_initialized_;
+}
+
+const char* PcSpeakerAudioDecoder::get_error_message() const
+{
+	return error_message_ != nullptr ? error_message_ : "";
 }
 
 int PcSpeakerAudioDecoder::get_total_frames() const
@@ -166,6 +183,11 @@ int PcSpeakerAudioDecoder::make_pit_frequency(int command)
 	const int divisor = command * 60;
 	const int pit_frequency = pit_clock_frequency / divisor;
 	return pit_frequency;
+}
+
+void PcSpeakerAudioDecoder::set_error_message(const char* error_message)
+{
+	error_message_ = error_message;
 }
 
 } // namespace

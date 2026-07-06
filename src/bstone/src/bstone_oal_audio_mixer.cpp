@@ -16,6 +16,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "id_sd.h"
 #include "bstone_assert.h"
 #include "bstone_audio_decoder.h"
+#include "bstone_audio_mixer_utils.h"
 #include "bstone_audio_mixer_validator.h"
 #include "bstone_audio_mixer_voice_handle_mgr.h"
 #include "bstone_audio_sample_converter.h"
@@ -31,6 +32,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <format>
+#include <iterator>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -132,6 +135,7 @@ private:
 
 	struct PlayMusicCommandParam
 	{
+		int sound_index{};
 		const void* data{};
 		int data_size{};
 		bool is_looping{};
@@ -246,6 +250,7 @@ private:
 	using Thread = std::thread;
 	using VoiceHandleMgr = AudioMixerVoiceHandleMgr<Voice>;
 
+	Logger& logger_;
 	OplEmulatorType opl_emulator_type_{};
 	int dst_rate_{};
 	int mix_sample_count_{};
@@ -347,7 +352,7 @@ private:
 	void on_music_stop(Voice& voice);
 	void on_sfx_stop(const Voice& voice);
 
-	AudioMixerVoiceHandle play_opl_music_internal(const void* data, int data_size, bool is_looping);
+	AudioMixerVoiceHandle play_opl_music_internal(int sound_index, const void* data, int data_size, bool is_looping);
 	AudioMixerVoiceHandle play_sfx_sound_internal(SoundType sound_type, int sound_index, const void* data, int data_size, bool is_positional);
 
 	void update_al_gain();
@@ -402,6 +407,8 @@ private:
 
 OalAudioMixer::OalAudioMixer(const AudioMixerInitParam& param)
 try
+	:
+	logger_{*param.logger}
 {
 	switch (param.opl_emulator_type)
 	{
@@ -572,7 +579,7 @@ try
 		AudioMixerVoiceHandle voice_handle{};
 		if (param.data == nullptr || param.data_size <= 0)
 			return voice_handle;
-		return play_opl_music_internal(param.data, param.data_size, param.is_looping);
+		return play_opl_music_internal(param.sound_index, param.data, param.data_size, param.is_looping);
 	}
 	else
 	{
@@ -1178,12 +1185,13 @@ void OalAudioMixer::on_sfx_stop(const Voice& voice)
 	voice_handle_mgr_.unmap(voice.handle);
 }
 
-AudioMixerVoiceHandle OalAudioMixer::play_opl_music_internal(const void* data, int data_size, bool is_looping)
+AudioMixerVoiceHandle OalAudioMixer::play_opl_music_internal(int sound_index, const void* data, int data_size, bool is_looping)
 {
 	const AudioMixerVoiceHandle voice_handle = voice_handle_mgr_.generate();
 	Command command{};
 	command.type = CommandType::play_music;
 	auto& command_param = command.param.play_music;
+	command_param.sound_index = sound_index;
 	command_param.data = data;
 	command_param.data_size = data_size;
 	command_param.is_looping = is_looping;
@@ -1252,7 +1260,12 @@ void OalAudioMixer::handle_play_music_command(const PlayMusicCommandParam& param
 		.src_raw_size = param.data_size,
 		.dst_rate = dst_rate_};
 	if (!r2s_sound_.audio_decoder->initialize(audio_decoder_param))
+	{
+		logger_.log_error("Failed to initialize music decoder. (message: {}; sound_index: {})",
+			r2s_sound_.audio_decoder->get_error_message(),
+			param.sound_index);
 		return;
+	}
 	OalSourceOpenStreamingParam source_param{};
 	source_param.is_3d = false;
 	source_param.is_looping = param.is_looping;
@@ -1301,7 +1314,15 @@ void OalAudioMixer::handle_play_sfx_command(const PlaySfxCommandParam& param)
 			.dst_rate = dst_rate_};
 		AudioDecoder* const audio_decoder = sfx_sound.audio_decoder.get();
 		if (!audio_decoder->initialize(audio_decoder_param))
+		{
+			const std::string_view sound_type_name = AudioMixerUtils::get_sound_type_name(param.sound_type);
+			logger_.log_error(
+				"Failed to initialize {} SFX decoder. (message: {}; sound_index: {})",
+				sound_type_name,
+				audio_decoder->get_error_message(),
+				param.sound_index);
 			return;
+		}
 		const int sample_count = audio_decoder->get_total_frames();
 		if (sample_count <= 0)
 			return;
@@ -1477,7 +1498,6 @@ void OalAudioMixer::handle_commands()
 			commands_.clear();
 		}
 	}
-
 	for (const Command& command : mt_commands_)
 	{
 		switch (command.type)

@@ -42,6 +42,7 @@ public:
 	static void append_music_chunk_dirname(const AssetsInfo& assets_info, std::string& pathname);
 	static void append_sfx_chunk_pathname(int chunk_number, const AssetsInfo& assets_info, std::string& pathname);
 	static void append_music_chunk_pathname(int chunk_number, const AssetsInfo& assets_info, std::string& pathname);
+	static std::string_view get_sound_type_name(SoundType sound_type);
 
 private:
 	class Impl;

@@ -404,6 +404,7 @@ try {
 	sd_scene_sfx_voice_group_ = nullptr;
 
 	auto param = bstone::AudioMixerInitParam{};
+	param.logger = bstone::globals::logger.get();
 	param.audio_driver_type = audio_driver_type;
 	param.opl_emulator_type = sd_get_opl_emulator_type_from_cvar();
 	param.dst_rate = sample_rate;
@@ -633,7 +634,7 @@ void sd_music_on(bool is_looping)
 
 	auto play_sound_param = bstone::AudioMixerPlaySoundParam{};
 	play_sound_param.sound_type = bstone::SoundType::opl_music;
-	play_sound_param.sound_index = 0;
+	play_sound_param.sound_index = sd_music_index_;
 	play_sound_param.data = audio_chunk.data;
 	play_sound_param.data_size = audio_chunk.data_size;
 	play_sound_param.is_looping = is_looping;

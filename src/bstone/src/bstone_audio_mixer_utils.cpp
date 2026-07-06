@@ -537,4 +537,18 @@ void AudioMixerUtils::append_music_chunk_pathname(int chunk_number, const Assets
 	fs_utils::append_path_inplace(pathname, get_music_chunk_name(chunk_number, assets_info));
 }
 
+std::string_view AudioMixerUtils::get_sound_type_name(SoundType sound_type)
+{
+	constinit static const std::string_view opl_name = "OPL";
+	constinit static const std::string_view pc_speaker_name = "PC speaker";
+	constinit static const std::string_view digitized_name = "digitized";
+	switch (sound_type)
+	{
+		case SoundType::opl_sfx: return opl_name;
+		case SoundType::pc_speaker_sfx: return pc_speaker_name;
+		case SoundType::pcm: return digitized_name;
+		default: return Impl::unknown_name;
+	}
+}
+
 } // namespace bstone

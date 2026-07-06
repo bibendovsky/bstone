@@ -27,6 +27,7 @@ public:
 	bool initialize(const AudioDecoderInitParam& param) override;
 	void terminate() override;
 	bool is_initialized() const override;
+	const char* get_error_message() const override;
 	int get_total_frames() const override;
 	int get_channel_count() const override;
 	int decode_frames(float* samples, int frame_count) override;
@@ -43,12 +44,14 @@ private:
 	int frames_left_{};
 	int hf_{};
 	int total_frames_{};
+	const char* error_message_{};
 	OplEmulatorUPtr emulator_{};
 	MemoryBinaryReader reader_{};
 	OplInstrument instrument_{};
 
 	void impl_terminate();
 	int impl_get_channel_count() const;
+	void set_error_message(const char* error_message);
 };
 
 // -------------------------------------
@@ -62,23 +65,44 @@ bool OplSfxDecoder::initialize(const AudioDecoderInitParam& param)
 {
 	impl_terminate();
 	if (emulator_ == nullptr)
+	{
+		set_error_message("Unknown emulator type.");
 		return false;
+	}
 	if (param.src_raw_data == nullptr)
+	{
+		set_error_message("No source data.");
 		return false;
+	}
 	if (param.src_raw_size < 0)
+	{
+		set_error_message("Invalid source size.");
 		return false;
+	}
 	if (param.dst_rate < 1)
+	{
+		set_error_message("Invalid sample rate.");
 		return false;
+	}
 	emulator_->initialize(OplEmulatorInitParam{.sample_rate = param.dst_rate});
 	OplUtility::initialize_registers(*emulator_);
 	reader_ = MemoryBinaryReader{param.src_raw_data, param.src_raw_size};
 	if (!reader_.can_read_x32())
+	{
+		set_error_message("Source data too small.");
 		return false;
+	}
 	const int sfx_length = reader_.read_s32_le();
 	if (sfx_length <= 0)
+	{
+		set_error_message("Invalid command count.");
 		return false;
+	}
 	if (!reader_.can_read_n(header_size + sfx_length))
+	{
+		set_error_message("Command count mismatch.");
 		return false;
+	}
 	reader_.skip(2); // Priority.
 	instrument_.m_char = reader_.read_u8();
 	instrument_.c_char = reader_.read_u8();
@@ -92,7 +116,10 @@ bool OplSfxDecoder::initialize(const AudioDecoderInitParam& param)
 	instrument_.c_wave = reader_.read_u8();
 	reader_.skip(6); // nConn, voice, mode and 3 unused octets
 	if (instrument_.m_sus == 0 && instrument_.c_sus == 0)
+	{
+		set_error_message("Zero sustain values.");
 		return false;
+	}
 	hf_ = reader_.read_u8();
 	hf_ = ((hf_ & 7) << 2) | 0x20;
 	OplUtility::initialize_registers(*emulator_);
@@ -114,6 +141,11 @@ void OplSfxDecoder::terminate()
 bool OplSfxDecoder::is_initialized() const
 {
 	return is_initialized_;
+}
+
+const char* OplSfxDecoder::get_error_message() const
+{
+	return error_message_ != nullptr ? error_message_ : "";
 }
 
 int OplSfxDecoder::get_total_frames() const
@@ -191,6 +223,11 @@ void OplSfxDecoder::impl_terminate()
 int OplSfxDecoder::impl_get_channel_count() const
 {
 	return emulator_->get_channel_count();
+}
+
+void OplSfxDecoder::set_error_message(const char* error_message)
+{
+	error_message_ = error_message;
 }
 
 } // namespace

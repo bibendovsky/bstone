@@ -159,7 +159,7 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 		.src_raw_size = audio_chunk.data_size,
 		.dst_rate = dst_rate};
 	if (!audio_decoder->initialize(param))
-		BSTONE_THROW_STATIC_SOURCE("Failed to initialize decoder.");
+		BSTONE_THROW_DYNAMIC_SOURCE(std::format("Failed to initialize decoder. {}", audio_decoder->get_error_message()).c_str());
 	stream.set_position(wav_prefix_size);
 	constexpr int sample_size = 2;
 	constexpr int bit_depth = sample_size * 8;

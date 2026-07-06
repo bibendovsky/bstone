@@ -43,6 +43,7 @@ public:
 	virtual bool initialize(const AudioDecoderInitParam& param) = 0;
 	virtual void terminate() = 0;
 	virtual bool is_initialized() const = 0;
+	virtual const char* get_error_message() const = 0;
 	virtual int get_total_frames() const = 0;
 	virtual int get_channel_count() const = 0;
 	virtual int decode_frames(float* samples, int frame_count) = 0;

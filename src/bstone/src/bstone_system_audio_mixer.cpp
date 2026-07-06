@@ -244,6 +244,7 @@ private:
 
 	using VoiceHandleMgr = AudioMixerVoiceHandleMgr<Voice>;
 
+	Logger& logger_;
 	OplEmulatorType opl_emulator_type_{};
 	int dst_rate_{};
 	SysCallback sys_callback_{};
@@ -362,7 +363,10 @@ bool SystemAudioMixer::CacheItem::is_decoded() const
 }
 
 SystemAudioMixer::SystemAudioMixer(const AudioMixerInitParam& param)
-try {
+try
+	:
+	logger_{*param.logger}
+{
 	if (param.max_voices < 0)
 		BSTONE_THROW_STATIC_SOURCE("Max voice count out of range.");
 	switch (param.opl_emulator_type)
