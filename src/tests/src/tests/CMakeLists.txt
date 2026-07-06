@@ -35,7 +35,7 @@ target_include_directories(bstone_tests
 target_link_libraries(bstone_tests
 	PRIVATE
 		${CMAKE_DL_LIBS}
-		bstone::sdl
+		bstone::lib::sdl
 )
 
 target_sources(bstone_tests

@@ -283,14 +283,14 @@ target_link_libraries(bstone
 	PRIVATE
 		$<$<AND:$<BOOL:${WIN32}>,$<BOOL:${MINGW}>>:-municode>
 		${CMAKE_DL_LIBS}
-		bstone::sdl
+		bstone::lib::sdl
 		Threads::Threads
 		bstone::lib::khronos
 		bstone::lib::nuked_opl3
 		bstone::lib::openal_soft
 		bstone::lib::xbrz
 		bstone::lib::zlib
-		bstone::vulkan
+		bstone::lib::vulkan
 )
 
 #

@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.24.0 FATAL_ERROR)
-project(bstone_vulkan VERSION 1.0.0 LANGUAGES NONE)
+project(bstone_lib_vulkan VERSION 1.0.0 LANGUAGES NONE)
 message(STATUS "[${PROJECT_NAME}] v${PROJECT_VERSION}")
 add_library(${PROJECT_NAME} INTERFACE)
-add_library(bstone::vulkan ALIAS ${PROJECT_NAME})
+add_library(bstone::lib::vulkan ALIAS ${PROJECT_NAME})
 target_compile_definitions(${PROJECT_NAME} INTERFACE VK_NO_PROTOTYPES)
 target_include_directories(${PROJECT_NAME} INTERFACE include)
 target_sources(${PROJECT_NAME} PRIVATE
