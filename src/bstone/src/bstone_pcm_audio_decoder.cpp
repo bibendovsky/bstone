@@ -26,7 +26,6 @@ public:
 	void terminate() override;
 	bool is_initialized() const override;
 	const char* get_error_message() const override;
-	int get_total_frames() const override;
 	int get_channel_count() const override;
 	int decode_frames(float* samples, int frame_count) override;
 	bool rewind() override;
@@ -39,7 +38,6 @@ private:
 	const std::uint8_t* src_data_{};
 	int src_size_{};
 	int dst_rate_{};
-	int total_frames_{};
 	int counter_{};
 	int src_offset_{};
 	float sample_{};
@@ -71,11 +69,6 @@ bool PcmAudioDecoder::initialize(const AudioDecoderInitParam& param)
 	src_data_ = static_cast<const unsigned char*>(param.src_raw_data);
 	src_size_ = param.src_raw_size;
 	dst_rate_ = param.dst_rate;
-	const long long src_size_ll = src_size_;
-	const long long dst_rate_ll = dst_rate_;
-	const long long audio_decoder_w3d_pcm_frequency_ll = static_cast<long long>(audio_decoder_w3d_pcm_frequency);
-	total_frames_ =
-		static_cast<int>(((src_size_ll * dst_rate_ll) + audio_decoder_w3d_pcm_frequency_ll - 1) / audio_decoder_w3d_pcm_frequency_ll);
 	impl_rewind();
 	is_initialized_ = true;
 	return true;
@@ -96,12 +89,6 @@ const char* PcmAudioDecoder::get_error_message() const
 	return error_message_ != nullptr ? error_message_ : "";
 }
 
-int PcmAudioDecoder::get_total_frames() const
-{
-	BSTONE_ASSERT(is_initialized());
-	return total_frames_;
-}
-
 int PcmAudioDecoder::get_channel_count() const
 {
 	BSTONE_ASSERT(is_initialized());
@@ -111,7 +98,11 @@ int PcmAudioDecoder::get_channel_count() const
 int PcmAudioDecoder::decode_frames(float* samples, int frame_count)
 {
 	BSTONE_ASSERT(is_initialized());
+#if 0 // FIXME
 	if (src_offset_ >= total_frames_)
+#else
+	if (src_offset_ >= src_size_)
+#endif
 		return 0;
 	int i = 0;
 	for (; i < frame_count; ++i)
@@ -120,7 +111,7 @@ int PcmAudioDecoder::decode_frames(float* samples, int frame_count)
 		{
 			counter_ -= dst_rate_;
 			++src_offset_;
-			if (src_offset_ >= total_frames_)
+			if (src_offset_ >= src_size_)
 				break;
 			sample_ = AudioSampleConverter::u8_to_f32(src_data_[src_offset_]);
 		}

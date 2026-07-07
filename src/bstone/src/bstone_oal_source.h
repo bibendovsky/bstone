@@ -27,7 +27,6 @@ struct OalSourceCachingSound
 {
 	bool is_initialized{};
 	bool is_decoded{};
-	int sample_offset{};
 	int sample_count{};
 	OalSourceSoundSamples samples{};
 	OalSourceSoundSamples stereo_samples{};
@@ -128,7 +127,6 @@ private:
 	int streaming_sample_rate_{};
 	int streaming_mix_sample_count_{};
 	int streaming_caching_sample_offset_{};
-	int streaming_caching_sample_count_{};
 	int sample_size_{};
 	ALenum al_format_{};
 	StreamingMixOalBufferFunc streaming_mix_oal_buffer_func_{};

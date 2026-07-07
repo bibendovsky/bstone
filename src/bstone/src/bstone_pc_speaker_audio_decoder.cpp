@@ -25,7 +25,6 @@ public:
 	void terminate() override;
 	bool is_initialized() const override;
 	const char* get_error_message() const override;
-	int get_total_frames() const override;
 	int get_channel_count() const override;
 	int decode_frames(float* samples, int frame_count) override;
 	bool rewind() override;
@@ -43,7 +42,6 @@ private:
 	int dst_sample_rate_{};
 	const std::uint8_t* commands_{};
 	int commands_size_{};
-	int total_frames_{};
 	int command_offset_{};
 	int last_command_{};
 	int pit_signal_level_{};
@@ -80,7 +78,6 @@ bool PcSpeakerAudioDecoder::initialize(const AudioDecoderInitParam& param)
 	dst_sample_rate_ = param.dst_rate;
 	commands_ = static_cast<const std::uint8_t*>(param.src_raw_data) + min_src_size;
 	commands_size_ = data_size;
-	total_frames_ = static_cast<int>(((static_cast<long long>(commands_size_) * dst_sample_rate_) + command_rate - 1) / command_rate);
 	command_offset_ = 0;
 	last_command_ = 0;
 	pit_signal_level_ = 0;
@@ -105,12 +102,6 @@ bool PcSpeakerAudioDecoder::is_initialized() const
 const char* PcSpeakerAudioDecoder::get_error_message() const
 {
 	return error_message_ != nullptr ? error_message_ : "";
-}
-
-int PcSpeakerAudioDecoder::get_total_frames() const
-{
-	BSTONE_ASSERT(is_initialized());
-	return total_frames_;
 }
 
 int PcSpeakerAudioDecoder::get_channel_count() const

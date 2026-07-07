@@ -96,7 +96,6 @@ void OalSource::open(const OalSourceOpenStreamingParam& param)
 	streaming_caching_sound_ = param.caching_sound;
 	streaming_uncaching_sound_ = param.uncaching_sound;
 	streaming_caching_sample_offset_ = 0;
-	streaming_caching_sample_count_ = (streaming_caching_sound_ ? streaming_caching_sound_->sample_count : 0);
 	streaming_mix_oal_buffer_func_ = (streaming_uncaching_sound_ ?
 		&OalSource::streaming_mix_uncaching_sound :
 		&OalSource::streaming_mix_caching_sound);
@@ -488,8 +487,8 @@ bool OalSource::streaming_mix_uncaching_sound(ALuint al_buffer)
 
 bool OalSource::streaming_mix_caching_sound(ALuint al_buffer)
 {
-	const int remain_sample_count = streaming_caching_sample_count_ - streaming_caching_sample_offset_;
-	if (remain_sample_count == 0)
+	const int remain_sample_count = streaming_caching_sound_->sample_count - streaming_caching_sample_offset_;
+	if (remain_sample_count <= 0)
 		return false;
 	const int sample_count = std::min(remain_sample_count, streaming_mix_sample_count_);
 	set_streaming_al_buffer_data(al_buffer, sample_count, &streaming_caching_sound_->samples[streaming_caching_sample_offset_ * sample_size_]);

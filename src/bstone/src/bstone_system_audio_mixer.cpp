@@ -89,14 +89,11 @@ private:
 	{
 		bool is_active{};
 		bool is_invalid{};
+		bool is_decoded{};
 		SoundType sound_type{};
 		int samples_count{};
-		int decoded_count{};
-		int buffer_size{};
 		Samples samples{};
 		AudioDecoderUPtr decoder{};
-
-		bool is_decoded() const;
 	};
 
 	using Cache = std::deque<CacheItem>;
@@ -327,6 +324,8 @@ private:
 	void handle_play_sound_command(const Command& command);
 	bool initialize_cache_item(const Command& command, CacheItem& cache_item);
 
+	void cache_music(const Voice& voice);
+	void cache_sfx(const Voice& voice);
 	bool decode_voice(const Voice& voice);
 
 	void spatialize_voice(Voice& voice);
@@ -355,11 +354,6 @@ void SystemAudioMixer::SysCallback::invoke(float* samples, int sample_count)
 		BSTONE_THROW_STATIC_SOURCE("Null mixer.");
 	mixer_->mix();
 	mixer_->callback(samples, sample_count);
-}
-
-bool SystemAudioMixer::CacheItem::is_decoded() const
-{
-	return decoded_count == samples_count;
 }
 
 SystemAudioMixer::SystemAudioMixer(const AudioMixerInitParam& param)
@@ -745,7 +739,7 @@ void SystemAudioMixer::mix_samples()
 		}
 		const bool is_opl_music = (voice.type == SoundType::opl_music);
 		CacheItem* const cache_item = voice.cache;
-		if (!is_opl_music && voice.decode_offset == cache_item->decoded_count)
+		if (!is_opl_music && voice.decode_offset >= cache_item->samples_count)
 		{
 			voice_handle_mgr_.unmap(voice.handle);
 			voice.is_active = false;
@@ -768,10 +762,10 @@ void SystemAudioMixer::mix_samples()
 			gain_scale *= voice.gain;
 		int decode_count = 0;
 		if (is_opl_music)
-			decode_count = cache_item->buffer_size;
+			decode_count = cache_item->samples_count;
 		else
 		{
-			const auto remain_count = cache_item->decoded_count - voice.decode_offset;
+			const auto remain_count = cache_item->samples_count - voice.decode_offset;
 			BSTONE_ASSERT(remain_count >= 0);
 			decode_count = std::min(remain_count, mix_samples_count_);
 		}
@@ -799,31 +793,25 @@ void SystemAudioMixer::mix_samples()
 		}
 		if (!is_opl_music)
 			voice.decode_offset += decode_count;
-		if ((is_opl_music && cache_item->is_decoded()) ||
-			(!is_opl_music && voice.decode_offset == cache_item->decoded_count))
+		bool is_erase = false;
+		if (is_opl_music)
 		{
-			if (cache_item->is_decoded())
+			if (cache_item->samples_count == 0)
+				is_erase = true;
+		}
+		else
+		{
+			if (voice.decode_offset >= cache_item->samples_count)
 			{
-				bool is_erase = false;
-				if (voice.type == SoundType::opl_music)
-				{
-					if (voice.is_looping && cache_item->decoder->rewind())
-					{
-						cache_item->decoded_count = 0;
-						cache_item->buffer_size = 0;
-					}
-					else
-						is_erase = true;
-				}
-				else
+				if (cache_item->is_decoded)
 					is_erase = true;
-				if (is_erase)
-				{
-					voice_handle_mgr_.unmap(voice.handle);
-					voice.is_active = false;
-					continue;
-				}
 			}
+		}
+		if (is_erase)
+		{
+			voice_handle_mgr_.unmap(voice.handle);
+			voice.is_active = false;
+			continue;
 		}
 	}
 	if (!is_mute_)
@@ -1070,17 +1058,57 @@ bool SystemAudioMixer::initialize_cache_item(const Command& command, CacheItem& 
 		.dst_rate = dst_rate_};
 	if (!decoder->initialize(param))
 		return false;
-	const int samples_count = decoder->get_total_frames();
-	if (samples_count <= 0)
-		return false;
 	cache_item.is_active = true;
 	cache_item.is_invalid = false;
+	cache_item.is_decoded = false;
 	cache_item.sound_type = command.param.play_sound.sound_type;
-	cache_item.samples_count = samples_count;
-	cache_item.samples.resize((is_opl_music ? mix_samples_count_ : samples_count) * decoder->get_channel_count());
-	cache_item.buffer_size = 0;
+	cache_item.samples_count = 0;
+	if (is_opl_music)
+		cache_item.samples.resize(mix_samples_count_ * decoder->get_channel_count());
+	else
+		cache_item.samples.clear();
 	cache_item.decoder.swap(decoder);
 	return true;
+}
+
+void SystemAudioMixer::cache_music(const Voice& voice)
+{
+	CacheItem& cache_item = *voice.cache;
+	const int channel_count = cache_item.decoder->get_channel_count();
+	cache_item.samples_count = 0;
+	while (cache_item.samples_count < mix_samples_count_)
+	{
+		const int decoded_frame_count = cache_item.decoder->decode_frames(
+			cache_item.samples.data() + cache_item.samples_count * channel_count,
+			mix_samples_count_ - cache_item.samples_count);
+		cache_item.samples_count += decoded_frame_count;
+		if (decoded_frame_count == 0)
+		{
+			if (voice.is_looping)
+			{
+				if (!cache_item.decoder->rewind())
+					break;
+				continue;
+			}
+			break;
+		}
+	}
+}
+
+void SystemAudioMixer::cache_sfx(const Voice& voice)
+{
+	CacheItem& cache_item = *voice.cache;
+	if (cache_item.is_decoded)
+		return;
+	const int channel_count = cache_item.decoder->get_channel_count();
+	const int new_sample_count = (cache_item.samples_count + mix_samples_count_) * channel_count;
+	cache_item.samples.resize(new_sample_count);
+	const int decoded_frame_count = cache_item.decoder->decode_frames(
+		cache_item.samples.data() + cache_item.samples_count * channel_count,
+		mix_samples_count_);
+	cache_item.samples_count += decoded_frame_count;
+	if (decoded_frame_count == 0)
+		cache_item.is_decoded = true;
 }
 
 bool SystemAudioMixer::decode_voice(const Voice& voice)
@@ -1092,29 +1120,12 @@ bool SystemAudioMixer::decode_voice(const Voice& voice)
 		return false;
 	if (cache_item->is_invalid)
 		return false;
-	if (cache_item->is_decoded())
+	if (cache_item->is_decoded)
 		return true;
 	if (voice.type == SoundType::opl_music)
-	{
-		const int total_remain_count = cache_item->samples_count - cache_item->decoded_count;
-		if (total_remain_count == 0)
-			return true;
-		int remain_count = std::min(total_remain_count, cache_item->buffer_size);
-		if (remain_count == 0)
-			remain_count = std::min(total_remain_count, mix_samples_count_);
-		cache_item->buffer_size = cache_item->decoder->decode_frames(cache_item->samples.data(), remain_count);
-		cache_item->decoded_count += cache_item->buffer_size;
-		return true;
-	}
-	const int ahead_count = std::min(voice.decode_offset + mix_samples_count_, cache_item->samples_count);
-	if (ahead_count <= cache_item->decoded_count)
-		return true;
-	const int planned_count = std::min(cache_item->samples_count - cache_item->decoded_count, mix_samples_count_);
-	const int channel_count = cache_item->decoder->get_channel_count();
-	const int actual_count = cache_item->decoder->decode_frames(
-		cache_item->samples.data() + cache_item->decoded_count * channel_count,
-		planned_count);
-	cache_item->decoded_count += actual_count;
+		cache_music(voice);
+	else
+		cache_sfx(voice);
 	return true;
 }
 

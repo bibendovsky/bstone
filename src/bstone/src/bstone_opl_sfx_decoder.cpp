@@ -28,7 +28,6 @@ public:
 	void terminate() override;
 	bool is_initialized() const override;
 	const char* get_error_message() const override;
-	int get_total_frames() const override;
 	int get_channel_count() const override;
 	int decode_frames(float* samples, int frame_count) override;
 	bool rewind() override;
@@ -43,7 +42,6 @@ private:
 	int samples_per_tick_{};
 	int frames_left_{};
 	int hf_{};
-	int total_frames_{};
 	const char* error_message_{};
 	OplEmulatorUPtr emulator_{};
 	MemoryBinaryReader reader_{};
@@ -127,7 +125,6 @@ bool OplSfxDecoder::initialize(const AudioDecoderInitParam& param)
 	command_offset_ = 0;
 	commands_count_ = sfx_length;
 	samples_per_tick_ = 0;
-	total_frames_ = commands_count_ * emulator_->get_sample_rate() / tick_rate;
 	frames_left_ = 0;
 	is_initialized_ = true;
 	return true;
@@ -146,12 +143,6 @@ bool OplSfxDecoder::is_initialized() const
 const char* OplSfxDecoder::get_error_message() const
 {
 	return error_message_ != nullptr ? error_message_ : "";
-}
-
-int OplSfxDecoder::get_total_frames() const
-{
-	BSTONE_ASSERT(is_initialized());
-	return total_frames_;
 }
 
 int OplSfxDecoder::get_channel_count() const
