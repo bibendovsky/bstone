@@ -27,7 +27,7 @@ public:
 	bool is_initialized() const override;
 	const char* get_error_message() const override;
 	int get_channel_count() const override;
-	int decode_frames(float* samples, int frame_count) override;
+	int decode_frames(float* samples, int max_frames) override;
 	bool rewind() override;
 
 private:
@@ -95,17 +95,13 @@ int PcmAudioDecoder::get_channel_count() const
 	return channel_count;
 }
 
-int PcmAudioDecoder::decode_frames(float* samples, int frame_count)
+int PcmAudioDecoder::decode_frames(float* samples, int max_frames)
 {
 	BSTONE_ASSERT(is_initialized());
-#if 0 // FIXME
-	if (src_offset_ >= total_frames_)
-#else
 	if (src_offset_ >= src_size_)
-#endif
 		return 0;
 	int i = 0;
-	for (; i < frame_count; ++i)
+	for (; i < max_frames; ++i)
 	{
 		if (counter_ >= dst_rate_)
 		{

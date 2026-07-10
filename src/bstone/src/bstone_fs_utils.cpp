@@ -67,6 +67,15 @@ void normalize_separators_inplace(std::string& path)
 	}
 }
 
+void normalize_separators_portable_inplace(std::string& path)
+{
+	for (char& ch : path)
+	{
+		if (ch == '\\')
+			ch = '/';
+	}
+}
+
 std::string append_path_separator(const std::string& path)
 {
 	auto result = path;

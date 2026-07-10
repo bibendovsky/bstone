@@ -134,5 +134,8 @@ void apply_digitized_sfx();
 bstone::OplEmulatorType sd_get_opl_emulator_type();
 void sd_set_opl_emulator_type(bstone::OplEmulatorType opl_emulator_type);
 void sd_handle_command_line(const bstone::Cl& cl);
+bool sd_cfg_get_is_external_data();
+void sd_cfg_set_is_external_data(bool is_external);
+void sd_apply_external_data();
 
 #endif // BSTONE_ID_SD_INCLUDED

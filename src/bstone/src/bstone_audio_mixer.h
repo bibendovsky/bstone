@@ -22,6 +22,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_audio_mixer_voice_handle.h"
 #include "bstone_logger.h"
 #include "bstone_opl_emulator.h"
+#include "bstone_vfs.h"
 #include <memory>
 #include <utility>
 
@@ -89,6 +90,7 @@ AudioMixerVoiceR3Position audio_mixer_make_default_voice_r3_position();
 struct AudioMixerInitParam
 {
 	Logger* logger;
+	Vfs* vfs;
 	AudioDriverType audio_driver_type;
 
 	OplEmulatorType opl_emulator_type;
@@ -144,6 +146,8 @@ public:
 	virtual bool can_set_voice_output_gains() const = 0;
 	virtual void enable_set_voice_output_gains(AudioMixerVoiceHandle voice_handle, bool is_enable) = 0;
 	virtual void set_voice_output_gains(AudioMixerVoiceHandle voice_handle, AudioMixerOutputGains& output_gains) = 0;
+
+	virtual void enable_external_data(bool is_enable) = 0;
 };
 
 // =====================================

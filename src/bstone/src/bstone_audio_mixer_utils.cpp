@@ -92,7 +92,7 @@ class AudioMixerUtils::Impl
 public:
 	inline constinit static const std::string_view unknown_name = "?";
 	inline constinit static const std::string_view music_name = "music";
-	inline constinit static const std::string_view sounds_name = "sounds";
+	inline constinit static const std::string_view sfx_name = "sfx";
 
 	static void append_chunk_dirname(
 		std::string_view sound_category_name,
@@ -445,16 +445,16 @@ std::string_view AudioMixerUtils::get_sfx_chunk_name(int chunk_number, const Ass
 std::string_view AudioMixerUtils::get_music_chunk_name(int chunk_number, const AssetsInfo& assets_info)
 {
 	constinit static const std::string_view aog_names[] = {
-		"s2100a",   // 0
-		"golda",    // 1
-		"apogfnfm", // 2
-		"drkhalla", // 3
-		"freedoma", // 4
-		"genefunk", // 5
-		"timea",    // 6
-		"hidinga",  // 7
-		"incnratn", // 8
-		"junglea",  // 9
+		"s2100a",   //  0
+		"golda",    //  1
+		"apogfnfm", //  2
+		"drkhalla", //  3
+		"freedoma", //  4
+		"genefunk", //  5
+		"timea",    //  6
+		"hidinga",  //  7
+		"incnratn", //  8
+		"junglea",  //  9
 		"levela",   // 10
 		"meetinga", // 11
 		"struta",   // 12
@@ -467,16 +467,16 @@ std::string_view AudioMixerUtils::get_music_chunk_name(int chunk_number, const A
 	};
 	constexpr int aog_count = std::extent_v<decltype(aog_names)>;
 	constinit static const std::string_view ps_names[] = {
-		"catacomb", // 0
-		"sticks",   // 1
-		"apogfnfm", // 2
-		"plot",     // 3
-		"circles",  // 4
-		"lastlaff", // 5
-		"tohell",   // 6
-		"fortress", // 7
-		"giving",   // 8
-		"hartbeat", // 9
+		"catacomb", //  0
+		"sticks",   //  1
+		"apogfnfm", //  2
+		"plot",     //  3
+		"circles",  //  4
+		"lastlaff", //  5
+		"tohell",   //  6
+		"fortress", //  7
+		"giving",   //  8
+		"hartbeat", //  9
 		"lurking",  // 10
 		"majmin",   // 11
 		"vaccinap", // 12
@@ -517,7 +517,7 @@ std::string_view AudioMixerUtils::get_music_chunk_name(int chunk_number, const A
 
 void AudioMixerUtils::append_sfx_chunk_dirname(const AssetsInfo& assets_info, std::string& pathname)
 {
-	Impl::append_chunk_dirname(Impl::sounds_name, assets_info, pathname);
+	Impl::append_chunk_dirname(Impl::sfx_name, assets_info, pathname);
 }
 
 void AudioMixerUtils::append_music_chunk_dirname(const AssetsInfo& assets_info, std::string& pathname)

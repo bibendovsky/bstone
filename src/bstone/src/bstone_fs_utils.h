@@ -17,6 +17,7 @@ namespace fs_utils {
 
 std::string normalize_path(const std::string& path);
 void normalize_separators_inplace(std::string& path);
+void normalize_separators_portable_inplace(std::string& path);
 std::string append_path_separator(const std::string& path);
 std::string append_path(const std::string& path, const std::string& sub_path);
 void append_path_inplace(std::string& path, std::string_view sub_path);

@@ -28,6 +28,7 @@ struct OalSourceCachingSound
 	bool is_initialized{};
 	bool is_decoded{};
 	int frame_count{};
+	float pre_gain{};
 	OalSourceSoundSamples samples{};
 	OalSourceSoundSamples stereo_samples{};
 	AudioDecoderUPtr audio_decoder{};
@@ -40,6 +41,7 @@ struct OalSourceUncachingSound
 	int queue_size{};
 	int read_frame_offset{};
 	int write_frame_offset{};
+	float pre_gain{};
 	OalSourceSoundSamples samples{};
 	AudioDecoderUPtr audio_decoder{};
 };

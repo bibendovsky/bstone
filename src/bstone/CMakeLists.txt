@@ -285,9 +285,13 @@ target_link_libraries(bstone
 		${CMAKE_DL_LIBS}
 		bstone::lib::sdl
 		Threads::Threads
+		bstone::lib::flac
 		bstone::lib::khronos
 		bstone::lib::nuked_opl3
+		bstone::lib::ogg
 		bstone::lib::openal_soft
+		bstone::lib::vorbis
+		bstone::lib::vorbisfile
 		bstone::lib::xbrz
 		bstone::lib::zlib
 		bstone::lib::vulkan
@@ -729,6 +733,8 @@ set(BSTONE_BSTONE_AUDIO_SOURCES
 	src/bstone_audio_mixer_voice_handle_mgr.h
 	src/bstone_audio_sample_converter.cpp
 	src/bstone_audio_sample_converter.h
+	src/bstone_flac_audio_decoder.cpp
+	src/bstone_flac_audio_decoder.h
 	src/bstone_pc_speaker_audio_decoder.cpp
 	src/bstone_pc_speaker_audio_decoder.h
 	src/bstone_pcm_audio_decoder.cpp
@@ -738,6 +744,10 @@ set(BSTONE_BSTONE_AUDIO_SOURCES
 	src/bstone_voice.h
 	src/bstone_voice_group.cpp
 	src/bstone_voice_group.h
+	src/bstone_vorbis_audio_decoder.cpp
+	src/bstone_vorbis_audio_decoder.h
+	src/bstone_wav_audio_decoder.cpp
+	src/bstone_wav_audio_decoder.h
 )
 
 target_sources(bstone PRIVATE ${BSTONE_BSTONE_AUDIO_SOURCES})

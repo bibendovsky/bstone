@@ -155,6 +155,7 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 	if (audio_decoder == nullptr)
 		BSTONE_THROW_STATIC_SOURCE("Failed to create decoder.");
 	bstone::AudioDecoderInitParam param{
+		.vfs_stream = VfsInputStreamUPtr{},
 		.src_raw_data = audio_chunk.data,
 		.src_raw_size = audio_chunk.data_size,
 		.dst_rate = dst_rate};

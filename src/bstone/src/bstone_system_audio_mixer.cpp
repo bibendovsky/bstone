@@ -15,11 +15,16 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_audio_mixer_voice_handle_mgr.h"
 #include "bstone_audio_sample_converter.h"
 #include "bstone_exception.h"
+#include "bstone_flac_audio_decoder.h"
+#include "bstone_fs_utils.h"
 #include "bstone_globals.h"
 #include "bstone_scope_exit.h"
+#include "bstone_vorbis_audio_decoder.h"
+#include "bstone_wav_audio_decoder.h"
 #include "bstone_system_audio_mixer.h"
 #include "bstone_sys_audio_mgr.h"
 #include <algorithm>
+#include <array>
 #include <atomic>
 #include <deque>
 #include <mutex>
@@ -64,7 +69,11 @@ public:
 	void enable_set_voice_output_gains(AudioMixerVoiceHandle voice_handle, bool is_enable) override;
 	void set_voice_output_gains(AudioMixerVoiceHandle voice_handle, AudioMixerOutputGains& output_gains) override;
 
+	void enable_external_data(bool is_enable) override;
+
 private:
+	inline static constexpr int ext_max_descriptors = 3;
+
 	using Sample = float;
 	using Samples = std::vector<Sample>;
 
@@ -73,6 +82,18 @@ private:
 
 	using MtLock = std::mutex;
 	using MtLockGuard = std::lock_guard<MtLock>;
+
+	using MakeDecoderFunc = AudioDecoderUPtr (*)();
+
+	struct ExtDescriptor
+	{
+		std::string_view file_extension{};
+		MakeDecoderFunc decoder_maker{};
+		std::string pathname{};
+	};
+
+	using ExtDescriptors = std::array<ExtDescriptor, ext_max_descriptors>;
+	using ExtPathnameViews = std::array<std::string_view, ext_max_descriptors>;
 
 	struct SysCallback final : public sys::PollingAudioDeviceCallback
 	{
@@ -90,6 +111,7 @@ private:
 		bool is_active{};
 		bool is_invalid{};
 		bool is_decoded{};
+		bool is_external{};
 		SoundType sound_type{};
 		int frame_count{};
 		Samples samples{};
@@ -138,14 +160,16 @@ private:
 
 		enable_set_voice_output_gains,
 		set_voice_output_gains,
+
+		enable_external_data,
 	};
 
 	struct PlaySoundCommandParam
 	{
+		int sound_index{};
 		SoundType sound_type{};
 		bool is_r3{};
 		bool is_looping{};
-		CacheItem* cache{};
 		AudioMixerVoiceHandle handle{};
 		const void* data{};
 		int data_size{};
@@ -210,6 +234,11 @@ private:
 		AudioMixerOutputGains output_gains{};
 	};
 
+	struct EnableExternalDataCommandParam
+	{
+		bool is_enable{};
+	};
+
 	union CommandParam
 	{
 		PlaySoundCommandParam play_sound;
@@ -229,6 +258,8 @@ private:
 
 		EnableSetVoiceOutputGainsCommandParam enable_set_voice_output_gains;
 		SetVoiceOutputGainsCommandParam set_voice_output_gains;
+
+		EnableExternalDataCommandParam enable_external_data;
 	};
 
 	struct Command
@@ -242,6 +273,7 @@ private:
 	using VoiceHandleMgr = AudioMixerVoiceHandleMgr<Voice>;
 
 	Logger& logger_;
+	Vfs& vfs_;
 	OplEmulatorType opl_emulator_type_{};
 	int dst_rate_{};
 	SysCallback sys_callback_{};
@@ -257,7 +289,8 @@ private:
 	Cache opl_music_cache_{};
 	Cache opl_sfx_cache_{};
 	Cache pc_speaker_sfx_cache_{};
-	Cache pcm_cache_{};
+	Cache pcm_sfx_cache_{};
+	Cache ext_sfx_cache_{};
 	int mix_size_ms_{};
 	bool is_mute_{};
 	double gain_{};
@@ -269,6 +302,9 @@ private:
 	bool is_listener_r3_orientation_changed_{};
 	std::atomic_bool is_state_suspended_{};
 	sys::PollingAudioDeviceUPtr sys_audio_device_{};
+	bool is_external_data_enabled_{};
+	ExtDescriptors vfs_descriptors_{};
+	ExtPathnameViews vfs_pathname_views_{};
 
 	int get_min_rate() const;
 	int get_default_rate() const;
@@ -282,6 +318,7 @@ private:
 	void initialize_listener_r3_orientation();
 	void initialize_voice_handles();
 	void initialize_voices(int max_voices);
+	void initialize_vfs_descriptors();
 
 	void callback(float* samples, int sample_count);
 
@@ -319,10 +356,12 @@ private:
 	void handle_set_voice_r3_position_command(const SetVoiceR3PositionCommandParam& param);
 	void handle_enable_set_voice_output_gains_command(const EnableSetVoiceOutputGainsCommandParam& param);
 	void handle_set_voice_output_gains_command(const SetVoiceOutputGainsCommandParam& param);
+	void handle_enable_external_data_command(const EnableExternalDataCommandParam& param);
 	void handle_commands();
 
 	void handle_play_sound_command(const Command& command);
-	bool initialize_cache_item(const Command& command, CacheItem& cache_item);
+	CacheItem* initialize_cache_item(const PlaySoundCommandParam& command_param);
+	CacheItem* initialize_ext_cache_item(const PlaySoundCommandParam& command_param);
 
 	void cache_music(const Voice& voice);
 	void cache_sfx(const Voice& voice);
@@ -332,11 +371,13 @@ private:
 	void spatialize_voices();
 
 	CacheItem* get_cache_item(SoundType sound_type, int sound_index);
+	CacheItem* get_ext_cache_item(SoundType sound_type, int sound_index);
 
 	static int calculate_mix_frame_count(int dst_rate, int mix_size_ms);
 	AudioDecoderUPtr create_decoder_by_sound_type(SoundType sound_type) const;
 	static bool is_sound_type_valid(SoundType sound_type);
 	static bool is_sound_index_valid(int sound_index, SoundType sound_type);
+	AudioDecoderUPtr try_create_external_decoder(const PlaySoundCommandParam& play_sound_param);
 };
 
 // -------------------------------------
@@ -359,7 +400,8 @@ void SystemAudioMixer::SysCallback::invoke(float* samples, int sample_count)
 SystemAudioMixer::SystemAudioMixer(const AudioMixerInitParam& param)
 try
 	:
-	logger_{*param.logger}
+	logger_{*param.logger},
+	vfs_{*param.vfs}
 {
 	if (param.max_voices < 0)
 		BSTONE_THROW_STATIC_SOURCE("Max voice count out of range.");
@@ -401,7 +443,8 @@ try
 	opl_music_cache_.resize(LASTMUSIC);
 	opl_sfx_cache_.resize(NUMSOUNDS);
 	pc_speaker_sfx_cache_.resize(NUMSOUNDS);
-	pcm_cache_.resize(NUMSOUNDS);
+	pcm_sfx_cache_.resize(NUMSOUNDS);
+	ext_sfx_cache_.resize(NUMSOUNDS);
 	const int commands_reserve = param.max_voices * 4;
 	commands_.reserve(commands_reserve);
 	mt_commands_.reserve(commands_reserve);
@@ -411,6 +454,7 @@ try
 	initialize_listener_r3_orientation();
 	initialize_voice_handles();
 	initialize_voices(param.max_voices);
+	initialize_vfs_descriptors();
 	audio_device->pause(false);
 	sys_audio_device_.swap(audio_device);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
@@ -624,6 +668,15 @@ try
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
+void SystemAudioMixer::enable_external_data(bool is_enable)
+{
+	Command command{};
+	command.type = CommandType::enable_external_data;
+	command.param.enable_external_data.is_enable = is_enable;
+	const MtLockGuard guard_lock{mt_commands_lock_};
+	mt_commands_.emplace_back(command);
+}
+
 void SystemAudioMixer::initialize_is_mute()
 {
 	is_mute_ = false;
@@ -657,6 +710,29 @@ void SystemAudioMixer::initialize_voices(int max_voices)
 {
 	voices_.clear();
 	voices_.resize(max_voices);
+}
+
+void SystemAudioMixer::initialize_vfs_descriptors()
+{
+	int i_descriptor = 0;
+	{
+		ExtDescriptor& vfs_descriptor = vfs_descriptors_[i_descriptor++];
+		vfs_descriptor.file_extension = ".flac";
+		vfs_descriptor.decoder_maker = &make_flac_audio_decoder;
+		vfs_descriptor.pathname.reserve(64);
+	}
+	{
+		ExtDescriptor& vfs_descriptor = vfs_descriptors_[i_descriptor++];
+		vfs_descriptor.file_extension = ".ogg";
+		vfs_descriptor.decoder_maker = &make_vorbis_audio_decoder;
+		vfs_descriptor.pathname.reserve(64);
+	}
+	{
+		ExtDescriptor& vfs_descriptor = vfs_descriptors_[i_descriptor++];
+		vfs_descriptor.file_extension = ".wav";
+		vfs_descriptor.decoder_maker = &make_wav_audio_decoder;
+		vfs_descriptor.pathname.reserve(64);
+	}
 }
 
 void SystemAudioMixer::callback(float* samples, [[maybe_unused]] int sample_count)
@@ -749,10 +825,16 @@ void SystemAudioMixer::mix_samples()
 		switch (voice.type)
 		{
 			case SoundType::opl_music:
-				gain_scale = music_gain_scale;
+				if (cache_item->is_external)
+					gain_scale = 1.0;
+				else
+					gain_scale = music_gain_scale;
 				break;
 			case SoundType::opl_sfx:
-				gain_scale = sfx_gain_scale;
+				if (cache_item->is_external)
+					gain_scale = 1.0;
+				else
+					gain_scale = sfx_gain_scale;
 				break;
 			default:
 				gain_scale = 1.0;
@@ -926,6 +1008,22 @@ void SystemAudioMixer::handle_set_voice_output_gains_command(const SetVoiceOutpu
 		voice->custom_output_gains = param.output_gains;
 }
 
+void SystemAudioMixer::handle_enable_external_data_command(const EnableExternalDataCommandParam& param)
+{
+	is_external_data_enabled_ = param.is_enable;
+	for (Voice& voice : voices_)
+	{
+		if (!voice.is_active)
+			continue;
+		voice.is_active = false;
+		voice_handle_mgr_.unmap(voice.handle);
+	}
+	for (CacheItem& cache_item : opl_music_cache_)
+		cache_item = CacheItem{};
+	for (CacheItem& cache_item : ext_sfx_cache_)
+		cache_item = CacheItem{};
+}
+
 void SystemAudioMixer::handle_commands()
 {
 	if (is_state_suspended_.load(std::memory_order_acquire))
@@ -983,6 +1081,9 @@ void SystemAudioMixer::handle_commands()
 			case CommandType::set_voice_output_gains:
 				handle_set_voice_output_gains_command(command.param.set_voice_output_gains);
 				break;
+			case CommandType::enable_external_data:
+				handle_enable_external_data_command(command.param.enable_external_data);
+				break;
 			default:
 				BSTONE_ASSERT(false && "Unknown command.");
 				break;
@@ -995,20 +1096,17 @@ void SystemAudioMixer::handle_play_sound_command(const Command& command)
 {
 	bool is_started = false;
 	Voice* voice = nullptr;
-
+	const PlaySoundCommandParam& play_sound_param = command.param.play_sound;
 	const auto voice_handle_guard = make_scope_exit(
-		[this, &is_started, &voice, &command]()
+		[this, &is_started, &voice, &play_sound_param]()
 		{
 			if (is_started && voice != nullptr)
 				voice_handle_mgr_.uncache_and_map(voice->handle, voice);
 			else
-				voice_handle_mgr_.uncache(command.param.play_sound.handle);
+				voice_handle_mgr_.uncache(play_sound_param.handle);
 		});
-
-	CacheItem* const cache_item = command.param.play_sound.cache;
+	CacheItem* const cache_item = initialize_cache_item(play_sound_param);
 	if (cache_item == nullptr)
-		return;
-	if (!initialize_cache_item(command, *cache_item))
 		return;
 	for (Voice& i_voice : voices_)
 	{
@@ -1020,14 +1118,13 @@ void SystemAudioMixer::handle_play_sound_command(const Command& command)
 	}
 	if (voice == nullptr)
 		return;
-	const PlaySoundCommandParam& play_sound_param = command.param.play_sound;
 	voice->type = play_sound_param.sound_type;
 	voice->is_r3 = play_sound_param.is_r3;
 	voice->is_looping = play_sound_param.is_looping;
 	voice->is_paused = false;
 	voice->is_r3_position_changed = voice->is_r3;
 	voice->is_custom_output_gains = false;
-	voice->cache = play_sound_param.cache;
+	voice->cache = cache_item;
 	voice->decode_offset = 0;
 	voice->gain = audio_mixer_default_gain;
 	voice->output_gains.fill(audio_mixer_max_gain * 0.5 * voice->gain);
@@ -1039,36 +1136,82 @@ void SystemAudioMixer::handle_play_sound_command(const Command& command)
 	is_started = true;
 }
 
-bool SystemAudioMixer::initialize_cache_item(const Command& command, CacheItem& cache_item)
+auto SystemAudioMixer::initialize_cache_item(const PlaySoundCommandParam& command_param) -> CacheItem*
 {
-	const bool is_opl_music = (command.param.play_sound.sound_type == SoundType::opl_music);
-	if (cache_item.is_active)
+	CacheItem* cache_item = nullptr;
+	if (is_external_data_enabled_)
+	{
+		cache_item = initialize_ext_cache_item(command_param);
+		if (cache_item != nullptr)
+			return cache_item;
+	}
+	cache_item = get_cache_item(command_param.sound_type, command_param.sound_index);
+	const bool is_opl_music = (command_param.sound_type == SoundType::opl_music);
+	if (cache_item->is_active)
 	{
 		if (!is_opl_music)
-			return !cache_item.is_invalid;
+		{
+			if (cache_item->is_invalid)
+				return nullptr;
+			return cache_item;
+		}
 	}
-	cache_item = CacheItem{};
-	cache_item.is_invalid = true;
-	AudioDecoderUPtr decoder = create_decoder_by_sound_type(command.param.play_sound.sound_type);
+	*cache_item = CacheItem{};
+	cache_item->is_invalid = true;
+	AudioDecoderUPtr decoder = create_decoder_by_sound_type(command_param.sound_type);
 	if (decoder == nullptr)
-		return false;
+		return nullptr;
 	const AudioDecoderInitParam param{
-		.src_raw_data = command.param.play_sound.data,
-		.src_raw_size = command.param.play_sound.data_size,
+		.vfs_stream = VfsInputStreamUPtr{},
+		.src_raw_data = command_param.data,
+		.src_raw_size = command_param.data_size,
 		.dst_rate = dst_rate_};
 	if (!decoder->initialize(param))
-		return false;
-	cache_item.is_active = true;
-	cache_item.is_invalid = false;
-	cache_item.is_decoded = false;
-	cache_item.sound_type = command.param.play_sound.sound_type;
-	cache_item.frame_count = 0;
+		return nullptr;
+	cache_item->is_active = true;
+	cache_item->is_invalid = false;
+	cache_item->is_decoded = false;
+	cache_item->is_external = false;
+	cache_item->sound_type = command_param.sound_type;
+	cache_item->frame_count = 0;
 	if (is_opl_music)
-		cache_item.samples.resize(mix_frame_count_ * decoder->get_channel_count());
+		cache_item->samples.resize(mix_frame_count_ * decoder->get_channel_count());
 	else
-		cache_item.samples.clear();
-	cache_item.decoder.swap(decoder);
-	return true;
+		cache_item->samples.clear();
+	cache_item->decoder.swap(decoder);
+	return cache_item;
+}
+
+auto SystemAudioMixer::initialize_ext_cache_item(const PlaySoundCommandParam& command_param) -> CacheItem*
+{
+	CacheItem* const cache_item = get_ext_cache_item(command_param.sound_type, command_param.sound_index);
+	const bool is_opl_music = (command_param.sound_type == SoundType::opl_music);
+	if (cache_item->is_active)
+	{
+		if (!is_opl_music)
+		{
+			if (cache_item->is_invalid)
+				return nullptr;
+			return cache_item;
+		}
+	}
+	*cache_item = CacheItem{};
+	cache_item->is_invalid = true;
+	AudioDecoderUPtr decoder = try_create_external_decoder(command_param);
+	if (decoder == nullptr)
+		return nullptr;
+	cache_item->is_active = true;
+	cache_item->is_invalid = false;
+	cache_item->is_decoded = false;
+	cache_item->is_external = true;
+	cache_item->sound_type = command_param.sound_type;
+	cache_item->frame_count = 0;
+	if (is_opl_music)
+		cache_item->samples.resize(mix_frame_count_ * decoder->get_channel_count());
+	else
+		cache_item->samples.clear();
+	cache_item->decoder.swap(decoder);
+	return cache_item;
 }
 
 void SystemAudioMixer::cache_music(const Voice& voice)
@@ -1175,10 +1318,10 @@ try
 	const AudioMixerVoiceHandle voice_handle = voice_handle_mgr_.generate();
 	Command command{};
 	command.type = CommandType::play_sound;
+	command.param.play_sound.sound_index = param.sound_index;
 	command.param.play_sound.sound_type = param.sound_type;
 	command.param.play_sound.is_r3 = param.is_r3;
 	command.param.play_sound.is_looping = param.is_looping;
-	command.param.play_sound.cache = get_cache_item(param.sound_type, param.sound_index);
 	command.param.play_sound.handle = voice_handle;
 	command.param.play_sound.data = param.data;
 	command.param.play_sound.data_size = param.data_size;
@@ -1210,8 +1353,25 @@ SystemAudioMixer::CacheItem* SystemAudioMixer::get_cache_item(SoundType sound_ty
 		case SoundType::opl_music: return &opl_music_cache_[sound_index];
 		case SoundType::opl_sfx: return &opl_sfx_cache_[sound_index];
 		case SoundType::pc_speaker_sfx: return &pc_speaker_sfx_cache_[sound_index];
-		case SoundType::pcm: return &pcm_cache_[sound_index];
+		case SoundType::pcm: return &pcm_sfx_cache_[sound_index];
 		default: return nullptr;
+	}
+}
+
+SystemAudioMixer::CacheItem* SystemAudioMixer::get_ext_cache_item(SoundType sound_type, int sound_index)
+{
+	if (!is_sound_index_valid(sound_index, sound_type))
+		return nullptr;
+	switch (sound_type)
+	{
+		case SoundType::opl_music:
+			return &opl_music_cache_[sound_index];
+		case SoundType::opl_sfx:
+		case SoundType::pc_speaker_sfx:
+		case SoundType::pcm:
+			 return &ext_sfx_cache_[sound_index];
+		default:
+			return nullptr;
 	}
 }
 
@@ -1259,6 +1419,40 @@ bool SystemAudioMixer::is_sound_index_valid(int sound_index, SoundType sound_typ
 		default:
 			return false;
 	}
+}
+
+AudioDecoderUPtr SystemAudioMixer::try_create_external_decoder(const PlaySoundCommandParam& play_sound_param)
+{
+	const AssetsInfo& assets_info = get_assets_info();
+	const bool is_music = play_sound_param.sound_type == SoundType::opl_music;
+	for (int i_descriptor = 0; i_descriptor < ext_max_descriptors; ++i_descriptor)
+	{
+		ExtDescriptor& descriptor = vfs_descriptors_[i_descriptor];
+		descriptor.pathname.clear();
+		if (is_music)
+			AudioMixerUtils::append_music_chunk_pathname(play_sound_param.sound_index, assets_info, descriptor.pathname);
+		else
+			AudioMixerUtils::append_sfx_chunk_pathname(play_sound_param.sound_index, assets_info, descriptor.pathname);
+		descriptor.pathname += descriptor.file_extension;
+		fs_utils::normalize_separators_portable_inplace(descriptor.pathname);
+		vfs_pathname_views_[i_descriptor] = descriptor.pathname;
+	}
+	VfsInputStreamUPtr vfs_stream = vfs_.open_any_file(vfs_pathname_views_);
+	if (vfs_stream == nullptr)
+		return nullptr;
+	ExtDescriptor& chosen_descriptor = vfs_descriptors_[vfs_stream->get_pathname_index()];
+	AudioDecoderUPtr audio_decoder = chosen_descriptor.decoder_maker();
+	const AudioDecoderInitParam audio_decoder_init_param{
+		.vfs_stream = std::move(vfs_stream),
+		.src_raw_data = nullptr,
+		.src_raw_size = 0,
+		.dst_rate = dst_rate_};
+	if (!audio_decoder->initialize(audio_decoder_init_param))
+	{
+		logger_.log_error("Failed to initialize an audio decoder. (pathname={})", chosen_descriptor.pathname);
+		return nullptr;
+	}
+	return audio_decoder;
 }
 
 } // namespace

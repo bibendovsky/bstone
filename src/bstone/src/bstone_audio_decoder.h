@@ -11,11 +11,14 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #define BSTONE_AUDIO_DECODER_INCLUDED
 
 #include "bstone_opl_emulator.h"
+#include "bstone_vfs.h"
 #include <memory>
 
 namespace bstone {
 
 inline constexpr int audio_decoder_w3d_pcm_frequency = 7'000;
+inline constexpr int audio_decoder_min_sample_rate = 8000;
+inline constexpr int audio_decoder_max_sample_rate = 96000;
 
 enum class AudioDecoderType
 {
@@ -27,6 +30,7 @@ enum class AudioDecoderType
 
 struct AudioDecoderInitParam
 {
+	VfsInputStreamUPtr&& vfs_stream;
 	const void* src_raw_data;
 	int src_raw_size;
 	int dst_rate;
@@ -45,7 +49,7 @@ public:
 	virtual bool is_initialized() const = 0;
 	virtual const char* get_error_message() const = 0;
 	virtual int get_channel_count() const = 0;
-	virtual int decode_frames(float* samples, int frame_count) = 0;
+	virtual int decode_frames(float* samples, int max_frames) = 0;
 	virtual bool rewind() = 0;
 };
 

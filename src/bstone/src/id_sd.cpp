@@ -251,6 +251,18 @@ auto snd_music_volume_cvar = bstone::CVar{
 	sd_min_volume,
 	sd_max_volume};
 
+// snd_external_audio
+
+constexpr std::string_view snd_external_data_cvar_name{"snd_external_data"};
+constexpr bool snd_external_data_cvar_default = false;
+
+bstone::CVar snd_external_data_cvar{
+	bstone::CVarBoolTag{},
+	snd_external_data_cvar_name,
+	bstone::CVarFlags::archive,
+	snd_external_data_cvar_default};
+
+
 } // namespace
 
 void sd_initialize_cvars(bstone::CVarMgr& cvar_mgr)
@@ -268,6 +280,7 @@ void sd_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 	cvar_mgr.add(snd_sfx_volume_cvar);
 	cvar_mgr.add(snd_is_music_enabled_cvar);
 	cvar_mgr.add(snd_music_volume_cvar);
+	cvar_mgr.add(snd_external_data_cvar);
 }
 
 const std::string& sd_get_snd_string()
@@ -405,6 +418,7 @@ try {
 
 	auto param = bstone::AudioMixerInitParam{};
 	param.logger = bstone::globals::logger.get();
+	param.vfs = bstone::globals::vfs.get();
 	param.audio_driver_type = audio_driver_type;
 	param.opl_emulator_type = sd_get_opl_emulator_type_from_cvar();
 	param.dst_rate = sample_rate;
@@ -518,6 +532,7 @@ void sd_startup()
 			audio_content_mgr = bstone::make_audio_content_mgr(*bstone::globals::vswap);
 			audio_content_mgr->set_sfx_type(sd_get_sfx_type_from_cvar());
 			audio_content_mgr->set_is_sfx_digitized(snd_is_sfx_digitized_cvar.get_bool());
+			sd_mixer_->enable_external_data(snd_external_data_cvar.get_bool());
 		}
 		else
 		{
@@ -1468,4 +1483,21 @@ void sd_handle_command_line(const bstone::Cl& cl)
 		const std::string_view value = cl_option.args.front();
 		snd_oal_device_name_cvar.set_string(value);
 	}
+}
+
+bool sd_cfg_get_is_external_data()
+{
+	return snd_external_data_cvar.get_bool();
+}
+
+void sd_cfg_set_is_external_data(bool is_external)
+{
+	snd_external_data_cvar.set_bool(is_external);
+}
+
+void sd_apply_external_data()
+{
+	if (sd_mixer_ == nullptr || !sd_is_sound_enabled())
+		return;
+	sd_mixer_->enable_external_data(sd_cfg_get_is_external_data());
 }

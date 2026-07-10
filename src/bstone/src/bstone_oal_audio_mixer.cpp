@@ -21,12 +21,16 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_audio_mixer_voice_handle_mgr.h"
 #include "bstone_audio_sample_converter.h"
 #include "bstone_exception.h"
+#include "bstone_flac_audio_decoder.h"
+#include "bstone_fs_utils.h"
 #include "bstone_globals.h"
 #include "bstone_logger.h"
 #include "bstone_oal_source.h"
 #include "bstone_oal_loader.h"
 #include "bstone_oal_resource.h"
 #include "bstone_scope_exit.h"
+#include "bstone_vorbis_audio_decoder.h"
+#include "bstone_wav_audio_decoder.h"
 #include <cfloat>
 #include <array>
 #include <algorithm>
@@ -80,7 +84,11 @@ public:
 	void enable_set_voice_output_gains(AudioMixerVoiceHandle voice_handle, bool is_enable) override;
 	void set_voice_output_gains(AudioMixerVoiceHandle voice_handle, AudioMixerOutputGains& output_gains) override;
 
+	void enable_external_data(bool is_enable) override;
+
 private:
+	inline static constexpr int ext_max_descriptors = 3;
+
 	using Mutex = std::mutex;
 	using MutexUniqueLock = std::unique_lock<Mutex>;
 
@@ -112,6 +120,18 @@ private:
 	using Voices = std::vector<Voice>;
 	using VoiceMutex = std::mutex;
 
+	using MakeDecoderFunc = AudioDecoderUPtr (*)();
+
+	struct ExtDescriptor
+	{
+		std::string_view file_extension{};
+		MakeDecoderFunc decoder_maker{};
+		std::string pathname{};
+	};
+
+	using ExtDescriptors = std::array<ExtDescriptor, ext_max_descriptors>;
+	using ExtPathnameViews = std::array<std::string_view, ext_max_descriptors>;
+
 	enum class CommandType
 	{
 		none,
@@ -131,6 +151,8 @@ private:
 
 		set_voice_gain,
 		set_voice_r3_position,
+
+		enable_external_data,
 	};
 
 	struct PlayMusicCommandParam
@@ -199,6 +221,11 @@ private:
 		AudioMixerVoiceR3Position position{};
 	};
 
+	struct EnableExternalDataCommandParam
+	{
+		bool is_enable{};
+	};
+
 	union CommandParam
 	{
 		PlayMusicCommandParam play_music;
@@ -216,6 +243,8 @@ private:
 
 		SetVoiceGainCommandParam set_voice_gain;
 		SetVoiceR3PositionCommandParam set_voice_r3_position;
+
+		EnableExternalDataCommandParam enable_external_data;
 	};
 
 	struct Command
@@ -251,6 +280,7 @@ private:
 	using VoiceHandleMgr = AudioMixerVoiceHandleMgr<Voice>;
 
 	Logger& logger_;
+	Vfs& vfs_;
 	OplEmulatorType opl_emulator_type_{};
 	int dst_rate_{};
 	int mix_frame_count_{};
@@ -277,9 +307,9 @@ private:
 	Commands commands_{};
 	Commands mt_commands_{};
 
-	OalSourceUncachingSound r2s_sound_{};
-	OalSource r2s_oal_source_{};
-	SamplesF32 r2s_samples_f32_mix_{};
+	OalSourceUncachingSound r3s_sound_{};
+	OalSource r3s_oal_source_{};
+	SamplesF32 r3s_samples_f32_mix_{};
 
 	SfxOplSounds sfx_opl_sounds_{};
 	SfxPcSpeakerSounds sfx_pc_speaker_sounds_{};
@@ -292,6 +322,10 @@ private:
 	Thread thread_{};
 
 	std::atomic_bool is_state_suspended_{};
+
+	bool is_external_data_enabled_{};
+	ExtDescriptors vfs_descriptors_{};
+	ExtPathnameViews vfs_pathname_views_{};
 
 	[[noreturn]] static void fail_unsupported();
 
@@ -338,16 +372,17 @@ private:
 	void initialize_voice_handles();
 	void initialize_command_queue();
 	void initialize_voices();
-	void initialize_r2s_sound();
-	void initialize_r2s_oal_source();
-	void initialize_r2s();
-	void uninitialize_r2s();
+	void initialize_r3s_sound();
+	void initialize_r3s_oal_source();
+	void initialize_r3s();
+	void uninitialize_r3s();
 	void initialize_sfx_opl_sounds();
 	void initialize_sfx_pc_speaker_sounds();
 	void initialize_sfx_pcm_sounds();
 	void initialize_sfx();
 	void uninitialize_sfx();
 	void initialize_misc();
+	void initialize_vfs_descriptors();
 
 	void on_music_stop(Voice& voice);
 	void on_sfx_stop(const Voice& voice);
@@ -358,6 +393,7 @@ private:
 	void update_al_gain();
 
 	void handle_play_music_command(const PlayMusicCommandParam& param);
+	OalSourceCachingSound* initialize_ext_sfx_sound(const PlaySfxCommandParam& param);
 	void handle_play_sfx_command(const PlaySfxCommandParam& param);
 	void handle_set_mute_command(const SetMuteCommandParam& param);
 	void handle_set_gain_command(const SetGainCommandParam& param);
@@ -369,18 +405,16 @@ private:
 	void handle_stop_voice_command(const StopVoiceCommandParam& param);
 	void handle_set_voice_gain_command(const SetVoiceGainCommandParam& param);
 	void handle_set_voice_r3_position_command(const SetVoiceR3PositionCommandParam& param);
+	void handle_enable_external_data_command(const EnableExternalDataCommandParam& param);
 	void handle_commands();
 
-	void decode_opl_sound(OalSourceCachingSound& opl_sound, float gain_scale);
-	void decode_pc_speaker_sound(OalSourceCachingSound& pc_speaker_sound);
-	void decode_pcm_sound(OalSourceCachingSound& pcm_sound);
-	void cache_sound(OalSourceCachingSound& sound, float pre_gain);
+	void cache_sound(OalSourceCachingSound& sound);
 
 	void mix_sfx_voice(Voice& voice);
-	void mix_r2s_music(Voice& voice);
-	void mix_r2s_sfx(Voice& voice);
-	void r2s_update_oal_source();
-	void mix_r2s();
+	void mix_r3s_music(Voice& voice);
+	void mix_r3s_sfx(Voice& voice);
+	void r3s_update_oal_source();
+	void mix_r3s();
 
 	void initialize_thread();
 	void thread_func();
@@ -396,6 +430,11 @@ private:
 
 	static float scale_sample(float sample, float scalar);
 	static float get_pre_gain(SoundType sound_type);
+
+	void expunge_uncaching_sound(OalSourceUncachingSound& sound);
+	void expunge_caching_sound(OalSourceCachingSound& sound);
+	void expunge_voice(Voice& voice);
+	AudioDecoderUPtr create_ext_audio_decoder(SoundType sound_type, int sound_index);
 };
 
 // -------------------------------------
@@ -403,7 +442,8 @@ private:
 OalAudioMixer::OalAudioMixer(const AudioMixerInitParam& param)
 try
 	:
-	logger_{*param.logger}
+	logger_{*param.logger},
+	vfs_{*param.vfs}
 {
 	switch (param.opl_emulator_type)
 	{
@@ -431,9 +471,10 @@ try
 	initialize_voice_handles();
 	initialize_voices();
 	initialize_command_queue();
-	initialize_r2s();
+	initialize_r3s();
 	initialize_sfx();
 	initialize_misc();
+	initialize_vfs_descriptors();
 	initialize_thread();
 	is_mute_ = false;
 }
@@ -447,7 +488,7 @@ OalAudioMixer::~OalAudioMixer()
 	}
 	if (thread_.joinable())
 		thread_.join();
-	uninitialize_r2s();
+	uninitialize_r3s();
 	uninitialize_sfx();
 	oal_context_resource_ = nullptr;
 	oal_device_resource_ = nullptr;
@@ -688,6 +729,15 @@ try
 	fail_unsupported();
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+void OalAudioMixer::enable_external_data(bool is_enable)
+{
+	Command command{};
+	command.type = CommandType::enable_external_data;
+	command.param.enable_external_data.is_enable = is_enable;
+	const MutexUniqueLock commands_lock{commands_mutex_};
+	commands_.emplace_back(command);
+}
 
 [[noreturn]] void OalAudioMixer::fail_unsupported()
 {
@@ -1068,24 +1118,24 @@ void OalAudioMixer::initialize_voices()
 	}
 }
 
-void OalAudioMixer::initialize_r2s_sound()
+void OalAudioMixer::initialize_r3s_sound()
 {
-	r2s_sound_.is_initialized = true;
-	r2s_sound_.is_stereo = true;
-	r2s_sound_.queue_size = 0;
-	r2s_sound_.read_frame_offset = 0;
-	r2s_sound_.write_frame_offset = 0;
-	r2s_sound_.samples.resize(mix_frame_count_ * oal_source_max_streaming_buffers * sample_size_ * audio_mixer_max_channels);
-	r2s_sound_.audio_decoder = make_audio_decoder(AudioDecoderType::opl_music, opl_emulator_type_);
+	r3s_sound_.is_initialized = true;
+	r3s_sound_.is_stereo = true;
+	r3s_sound_.queue_size = 0;
+	r3s_sound_.read_frame_offset = 0;
+	r3s_sound_.write_frame_offset = 0;
+	r3s_sound_.samples.resize(mix_frame_count_ * oal_source_max_streaming_buffers * sample_size_ * audio_mixer_max_channels);
+	r3s_sound_.audio_decoder = nullptr;
 }
 
-void OalAudioMixer::initialize_r2s_oal_source()
+void OalAudioMixer::initialize_r3s_oal_source()
 {
 	const OalSourceInitParam init_param{
 		.mix_sample_rate = dst_rate_,
 		.mix_frame_count = mix_frame_count_,
 		.sample_size = sample_size_};
-	if (!r2s_oal_source_.initialize(init_param))
+	if (!r3s_oal_source_.initialize(init_param))
 		return;
 	const OalSourceOpenStreamingParam open_param{
 		.is_3d = false,
@@ -1095,24 +1145,24 @@ void OalAudioMixer::initialize_r2s_oal_source()
 		.sample_size = sample_size_,
 		.al_format = has_al_ext_float32_ ? AL_FORMAT_STEREO_FLOAT32 : AL_FORMAT_STEREO16,
 		.caching_sound = nullptr,
-		.uncaching_sound = &r2s_sound_,
+		.uncaching_sound = &r3s_sound_,
 	};
-	r2s_oal_source_.open(open_param);
-	r2s_oal_source_.play();
-	r2s_samples_f32_mix_.resize(mix_frame_count_ * 2);
+	r3s_oal_source_.open(open_param);
+	r3s_oal_source_.play();
+	r3s_samples_f32_mix_.resize(mix_frame_count_ * 2);
 }
 
-void OalAudioMixer::initialize_r2s()
+void OalAudioMixer::initialize_r3s()
 {
-	initialize_r2s_sound();
-	initialize_r2s_oal_source();
+	initialize_r3s_sound();
+	initialize_r3s_oal_source();
 }
 
-void OalAudioMixer::uninitialize_r2s()
+void OalAudioMixer::uninitialize_r3s()
 {
-	r2s_sound_.is_initialized = false;
-	r2s_sound_.audio_decoder = nullptr;
-	r2s_oal_source_.terminate();
+	r3s_sound_.is_initialized = false;
+	r3s_sound_.audio_decoder = nullptr;
+	r3s_oal_source_.terminate();
 }
 
 void OalAudioMixer::initialize_sfx_opl_sounds()
@@ -1120,9 +1170,7 @@ void OalAudioMixer::initialize_sfx_opl_sounds()
 	for (OalSourceCachingSound& sfx_opl_sound : sfx_opl_sounds_)
 	{
 		sfx_opl_sound.is_initialized = false;
-		sfx_opl_sound.audio_decoder = make_audio_decoder(AudioDecoderType::opl_sfx, opl_emulator_type_);
-		if (sfx_opl_sound.audio_decoder == nullptr)
-			BSTONE_THROW_STATIC_SOURCE("Failed to create SFX OPL audio decoder.");
+		sfx_opl_sound.audio_decoder = nullptr;
 	}
 }
 
@@ -1168,6 +1216,29 @@ void OalAudioMixer::initialize_misc()
 {
 	samples_f32_.resize(dst_rate_ * oal_source_max_streaming_buffers * audio_mixer_max_channels);
 	samples_s16_.resize(dst_rate_ * oal_source_max_streaming_buffers * audio_mixer_max_channels);
+}
+
+void OalAudioMixer::initialize_vfs_descriptors()
+{
+	int i_descriptor = 0;
+	{
+		ExtDescriptor& vfs_descriptor = vfs_descriptors_[i_descriptor++];
+		vfs_descriptor.file_extension = ".flac";
+		vfs_descriptor.decoder_maker = &make_flac_audio_decoder;
+		vfs_descriptor.pathname.reserve(64);
+	}
+	{
+		ExtDescriptor& vfs_descriptor = vfs_descriptors_[i_descriptor++];
+		vfs_descriptor.file_extension = ".ogg";
+		vfs_descriptor.decoder_maker = &make_vorbis_audio_decoder;
+		vfs_descriptor.pathname.reserve(64);
+	}
+	{
+		ExtDescriptor& vfs_descriptor = vfs_descriptors_[i_descriptor++];
+		vfs_descriptor.file_extension = ".wav";
+		vfs_descriptor.decoder_maker = &make_wav_audio_decoder;
+		vfs_descriptor.pathname.reserve(64);
+	}
 }
 
 void OalAudioMixer::on_music_stop(Voice& voice)
@@ -1225,7 +1296,7 @@ void OalAudioMixer::update_al_gain()
 
 void OalAudioMixer::handle_play_music_command(const PlayMusicCommandParam& param)
 {
-	if (!r2s_oal_source_.is_initialized())
+	if (!r3s_oal_source_.is_initialized())
 		return;
 	bool is_started = false;
 	Voice* voice = nullptr;
@@ -1250,25 +1321,37 @@ void OalAudioMixer::handle_play_music_command(const PlayMusicCommandParam& param
 		voice = find_free_voice();
 	if (voice == nullptr)
 		return;
-	const AudioDecoderInitParam audio_decoder_param{
-		.src_raw_data = param.data,
-		.src_raw_size = param.data_size,
-		.dst_rate = dst_rate_};
-	if (!r2s_sound_.audio_decoder->initialize(audio_decoder_param))
+	r3s_sound_.is_initialized = false;
+	AudioDecoderUPtr& audio_decoder = r3s_sound_.audio_decoder;
+	audio_decoder = nullptr;
+	float pre_gain;
+	if (is_external_data_enabled_)
 	{
-		logger_.log_error("Failed to initialize music decoder. (message: {}; sound_index: {})",
-			r2s_sound_.audio_decoder->get_error_message(),
-			param.sound_index);
-		return;
+		pre_gain = 1.0F;
+		audio_decoder = create_ext_audio_decoder(SoundType::opl_music, param.sound_index);
 	}
-	OalSourceOpenStreamingParam source_param{};
-	source_param.is_3d = false;
-	source_param.is_looping = param.is_looping;
-	source_param.is_stereo = true;
-	source_param.sample_rate = dst_rate_;
-	source_param.sample_size = sample_size_;
-	source_param.al_format = has_al_ext_float32_ ? AL_FORMAT_STEREO_FLOAT32 : AL_FORMAT_STEREO16;
-	source_param.uncaching_sound = &r2s_sound_;
+	if (audio_decoder == nullptr)
+	{
+		audio_decoder = make_audio_decoder(AudioDecoderType::opl_music, opl_emulator_type_);
+		const AudioDecoderInitParam audio_decoder_param{
+			.vfs_stream = nullptr,
+			.src_raw_data = param.data,
+			.src_raw_size = param.data_size,
+			.dst_rate = dst_rate_};
+		if (!audio_decoder->initialize(audio_decoder_param))
+		{
+			logger_.log_error("Failed to initialize music decoder. (message: {}; sound_index: {})",
+				audio_decoder->get_error_message(),
+				param.sound_index);
+			return;
+		}
+		pre_gain = opl_music_gain_scale;
+	}
+	r3s_sound_.is_initialized = true;
+	r3s_sound_.queue_size = 0;
+	r3s_sound_.read_frame_offset = 0;
+	r3s_sound_.write_frame_offset = 0;
+	r3s_sound_.pre_gain = pre_gain;
 	voice->is_active = true;
 	voice->is_r3 = false;
 	voice->is_looping = param.is_looping;
@@ -1279,6 +1362,27 @@ void OalAudioMixer::handle_play_music_command(const PlayMusicCommandParam& param
 	voice->r3s_gain = 1.0F;
 	voice->r3s_sound = nullptr;
 	is_started = true;
+}
+
+OalSourceCachingSound* OalAudioMixer::initialize_ext_sfx_sound(const PlaySfxCommandParam& param)
+{
+	if (!is_external_data_enabled_)
+		return nullptr;
+	OalSourceCachingSound& sound = sfx_opl_sounds_[param.sound_index];
+	if (sound.is_initialized)
+		return &sound;
+	AudioDecoderUPtr& audio_decoder = sound.audio_decoder;
+	audio_decoder = create_ext_audio_decoder(SoundType::opl_sfx, param.sound_index);
+	if (audio_decoder == nullptr)
+		return nullptr;
+	sound.is_initialized = true;
+	sound.is_decoded = false;
+	sound.frame_count = 0;
+	sound.pre_gain = 1.0F;
+	sound.samples.clear();
+	sound.stereo_samples.clear();
+	cache_sound(sound);
+	return &sound;
 }
 
 void OalAudioMixer::handle_play_sfx_command(const PlaySfxCommandParam& param)
@@ -1293,62 +1397,83 @@ void OalAudioMixer::handle_play_sfx_command(const PlaySfxCommandParam& param)
 			else
 				voice_handle_mgr_.uncache(param.voice_handle);
 		});
-	OalSourceCachingSound& sfx_sound = (
-		param.sound_type == SoundType::opl_sfx ?
-			sfx_opl_sounds_[param.sound_index] :
-			(
-				param.sound_type == SoundType::pc_speaker_sfx ?
-					sfx_pc_speaker_sounds_[param.sound_index] :
-					sfx_pcm_sounds_[param.sound_index])
-			);
-	if (!sfx_sound.is_initialized)
+	OalSourceCachingSound* sfx_sound = initialize_ext_sfx_sound(param);
+	if (sfx_sound == nullptr)
 	{
-		const AudioDecoderInitParam audio_decoder_param{
-			.src_raw_data = param.data,
-			.src_raw_size = param.data_size,
-			.dst_rate = dst_rate_};
-		AudioDecoder* const audio_decoder = sfx_sound.audio_decoder.get();
-		if (!audio_decoder->initialize(audio_decoder_param))
+		AudioDecoderType audio_decoder_type;
+		switch (param.sound_type)
 		{
-			const std::string_view sound_type_name = AudioMixerUtils::get_sound_type_name(param.sound_type);
-			logger_.log_error(
-				"Failed to initialize {} SFX decoder. (message: {}; sound_index: {})",
-				sound_type_name,
-				audio_decoder->get_error_message(),
-				param.sound_index);
-			return;
+			case SoundType::opl_sfx:
+				sfx_sound = &sfx_opl_sounds_[param.sound_index];
+				audio_decoder_type = AudioDecoderType::opl_sfx;
+				break;
+			case SoundType::pc_speaker_sfx:
+				sfx_sound = &sfx_pc_speaker_sounds_[param.sound_index];
+				audio_decoder_type = AudioDecoderType::pc_speaker;
+				break;
+			case SoundType::pcm:
+				sfx_sound = &sfx_pcm_sounds_[param.sound_index];
+				audio_decoder_type = AudioDecoderType::pcm;
+				break;
+			default:
+				BSTONE_ASSERT(false && "Unknown sound type.");
+				return;
 		}
-		sfx_sound.is_initialized = true;
-		sfx_sound.is_decoded = false;
-		sfx_sound.frame_count = 0;
-		sfx_sound.samples.clear();
-		sfx_sound.stereo_samples.clear();
-		cache_sound(sfx_sound, get_pre_gain(param.sound_type));
-		if (sfx_sound.is_decoded && sfx_sound.frame_count == 0)
-			return;
+		if (!sfx_sound->is_initialized)
+		{
+			AudioDecoderUPtr& audio_decoder = sfx_sound->audio_decoder;
+			audio_decoder = make_audio_decoder(audio_decoder_type, opl_emulator_type_);
+			if (audio_decoder == nullptr)
+				return;
+			const AudioDecoderInitParam audio_decoder_param{
+				.vfs_stream = nullptr,
+				.src_raw_data = param.data,
+				.src_raw_size = param.data_size,
+				.dst_rate = dst_rate_};
+			if (!audio_decoder->initialize(audio_decoder_param))
+			{
+				const std::string_view sound_type_name = AudioMixerUtils::get_sound_type_name(param.sound_type);
+				logger_.log_error(
+					"Failed to initialize {} SFX decoder. (message: {}; sound_index: {})",
+					sound_type_name,
+					audio_decoder->get_error_message(),
+					param.sound_index);
+				return;
+			}
+			const float pre_gain = get_pre_gain(param.sound_type);
+			sfx_sound->is_initialized = true;
+			sfx_sound->is_decoded = false;
+			sfx_sound->frame_count = 0;
+			sfx_sound->pre_gain = pre_gain;
+			sfx_sound->samples.clear();
+			sfx_sound->stereo_samples.clear();
+			cache_sound(*sfx_sound);
+		}
 	}
+	if (sfx_sound->is_decoded && sfx_sound->frame_count == 0)
+		return;
 	voice = find_free_voice();
 	if (voice == nullptr)
 		return;
 	const bool is_3d = param.is_r3;
-	const bool is_stereo = sfx_sound.audio_decoder->get_channel_count() == 2;
+	const bool is_stereo = sfx_sound->audio_decoder->get_channel_count() == 2;
 	const bool is_r3s = !is_3d && is_stereo;
 	if (is_r3s)
 	{
-		if (!r2s_oal_source_.is_initialized())
+		if (!r3s_oal_source_.is_initialized())
 			return;
 	}
 	else
 	{
-		if (sfx_sound.is_decoded)
+		if (sfx_sound->is_decoded)
 		{
-			const int decoded_data_size = sfx_sound.frame_count * sample_size_;
+			const int decoded_data_size = sfx_sound->frame_count * sample_size_;
 			const OalSourceOpenStaticParam source_param{
 				.is_3d = is_3d,
 				.sample_rate = dst_rate_,
 				.sample_size = sample_size_,
 				.al_format = has_al_ext_float32_ ? AL_FORMAT_MONO_FLOAT32 : AL_FORMAT_MONO16,
-				.data = sfx_sound.samples.data(),
+				.data = sfx_sound->samples.data(),
 				.data_size = decoded_data_size};
 			voice->oal_source.open(source_param);
 		}
@@ -1361,7 +1486,7 @@ void OalAudioMixer::handle_play_sfx_command(const PlaySfxCommandParam& param)
 				.sample_rate = dst_rate_,
 				.sample_size = sample_size_,
 				.al_format = has_al_ext_float32_ ? AL_FORMAT_MONO_FLOAT32 : AL_FORMAT_MONO16,
-				.caching_sound = &sfx_sound};
+				.caching_sound = sfx_sound};
 			voice->oal_source.open(source_param);
 		}
 	}
@@ -1374,7 +1499,7 @@ void OalAudioMixer::handle_play_sfx_command(const PlaySfxCommandParam& param)
 		voice->r3s_is_paused = false;
 		voice->r3s_frame_offset = 0;
 		voice->r3s_gain = 1.0F;
-		voice->r3s_sound = &sfx_sound;
+		voice->r3s_sound = sfx_sound;
 	}
 	else
 		voice->is_r3s = false;
@@ -1480,6 +1605,20 @@ void OalAudioMixer::handle_set_voice_r3_position_command(const SetVoiceR3Positio
 	voice->oal_source.set_position(param.position.x, param.position.y, param.position.z);
 }
 
+void OalAudioMixer::handle_enable_external_data_command(const EnableExternalDataCommandParam& param)
+{
+	is_external_data_enabled_ = param.is_enable;
+	for (Voice& voice : voices_)
+		expunge_voice(voice);
+	for (OalSourceCachingSound& sfx_opl_sound : sfx_opl_sounds_)
+		expunge_caching_sound(sfx_opl_sound);
+	for (OalSourceCachingSound& sfx_pc_speaker_sound : sfx_pc_speaker_sounds_)
+		expunge_caching_sound(sfx_pc_speaker_sound);
+	for (OalSourceCachingSound& sfx_pcm_sound : sfx_pcm_sounds_)
+		expunge_caching_sound(sfx_pcm_sound);
+	expunge_uncaching_sound(r3s_sound_);
+}
+
 void OalAudioMixer::handle_commands()
 {
 	if (is_state_suspended_.load(std::memory_order_acquire))
@@ -1526,6 +1665,9 @@ void OalAudioMixer::handle_commands()
 			case CommandType::set_voice_r3_position:
 				handle_set_voice_r3_position_command(command.param.set_voice_r3_position);
 				break;
+			case CommandType::enable_external_data:
+				handle_enable_external_data_command(command.param.enable_external_data);
+				break;
 			default:
 				BSTONE_ASSERT(false && "Unknown command.");
 				break;
@@ -1534,24 +1676,12 @@ void OalAudioMixer::handle_commands()
 	mt_commands_.clear();
 }
 
-void OalAudioMixer::decode_opl_sound(OalSourceCachingSound& opl_sound, float gain_scale)
+void OalAudioMixer::cache_sound(OalSourceCachingSound& sound)
 {
-	cache_sound(opl_sound, gain_scale);
-}
-
-void OalAudioMixer::decode_pc_speaker_sound(OalSourceCachingSound& pc_speaker_sound)
-{
-	cache_sound(pc_speaker_sound, 1.0F);
-}
-
-void OalAudioMixer::decode_pcm_sound(OalSourceCachingSound& pcm_sound)
-{
-	cache_sound(pcm_sound, 1.0F);
-}
-
-void OalAudioMixer::cache_sound(OalSourceCachingSound& sound, float pre_gain)
-{
-	if (!sound.is_initialized || sound.is_decoded)
+	if (!sound.is_initialized ||
+		sound.is_decoded ||
+		sound.audio_decoder == nullptr ||
+		!sound.audio_decoder->is_initialized())
 		return;
 	const int frame_count_to_decode = oal_source_max_streaming_buffers * dst_rate_;
 	const int src_channel_count = sound.audio_decoder->get_channel_count();
@@ -1562,6 +1692,7 @@ void OalAudioMixer::cache_sound(OalSourceCachingSound& sound, float pre_gain)
 		const int new_buffer_size_2 = 2 * new_buffer_size;
 		sound.stereo_samples.resize(new_buffer_size_2);
 	}
+	const float pre_gain = sound.pre_gain;
 	int decoded_frame_count = 0;
 	if (has_al_ext_float32_)
 	{
@@ -1638,7 +1769,7 @@ void OalAudioMixer::mix_sfx_voice(Voice& voice)
 	}
 }
 
-void OalAudioMixer::mix_r2s_music(Voice& voice)
+void OalAudioMixer::mix_r3s_music(Voice& voice)
 {
 	if (!voice.is_active)
 		return;
@@ -1647,9 +1778,13 @@ void OalAudioMixer::mix_r2s_music(Voice& voice)
 	BSTONE_ASSERT(voice.r3s_gain >= 0.0F && voice.r3s_gain <= 1.0F);
 	if (voice.r3s_is_paused)
 		return;
-	AudioDecoder* const audio_decoder = r2s_sound_.audio_decoder.get();
+	if (!r3s_sound_.is_initialized)
+		return;
+	AudioDecoder* const audio_decoder = r3s_sound_.audio_decoder.get();
+	if (audio_decoder == nullptr)
+		return;
 	const int channel_count = audio_decoder->get_channel_count();
-	const float gain = opl_music_gain_scale * voice.r3s_gain;
+	const float gain = r3s_sound_.pre_gain * voice.r3s_gain;
 	float* const src_samples = samples_f32_.data();
 	int frame_offset = 0;
 	while (frame_offset < mix_frame_count_)
@@ -1664,7 +1799,7 @@ void OalAudioMixer::mix_r2s_music(Voice& voice)
 			}
 			continue;
 		}
-		float* const dst_samples = &r2s_samples_f32_mix_[frame_offset * 2];
+		float* const dst_samples = &r3s_samples_f32_mix_[frame_offset * 2];
 		if (channel_count == 1)
 		{
 			for (int i = 0; i < decoded_count; ++i)
@@ -1688,7 +1823,7 @@ void OalAudioMixer::mix_r2s_music(Voice& voice)
 		on_music_stop(voice);
 }
 
-void OalAudioMixer::mix_r2s_sfx(Voice& voice)
+void OalAudioMixer::mix_r3s_sfx(Voice& voice)
 {
 	if (!voice.is_active)
 		return;
@@ -1715,57 +1850,57 @@ void OalAudioMixer::mix_r2s_sfx(Voice& voice)
 	if (has_al_ext_float32_)
 	{
 		const auto src_samples = reinterpret_cast<const float*>(&sound.stereo_samples[voice.r3s_frame_offset * 4 * 2]);
-		float* const dst_samples = r2s_samples_f32_mix_.data();
+		float* const dst_samples = r3s_samples_f32_mix_.data();
 		for (int i = 0; i < sample_count; ++i)
 			dst_samples[i] += src_samples[i] * voice.r3s_gain;
 	}
 	else
 	{
 		const auto src_samples = reinterpret_cast<const std::int16_t*>(&sound.stereo_samples[voice.r3s_frame_offset * 2 * 2]);
-		float* const dst_samples = r2s_samples_f32_mix_.data();
+		float* const dst_samples = r3s_samples_f32_mix_.data();
 		for (int i = 0; i < sample_count; ++i)
 			dst_samples[i] += AudioSampleConverter::s16_to_f32(src_samples[i]) * voice.r3s_gain;
 	}
 	voice.r3s_frame_offset += frame_count;
 }
 
-void OalAudioMixer::r2s_update_oal_source()
+void OalAudioMixer::r3s_update_oal_source()
 {
-	if (!r2s_sound_.is_initialized || !r2s_oal_source_.is_open())
+	if (!r3s_sound_.is_initialized || !r3s_oal_source_.is_open())
 		return;
-	r2s_oal_source_.mix();
+	r3s_oal_source_.mix();
 }
 
-void OalAudioMixer::mix_r2s()
+void OalAudioMixer::mix_r3s()
 {
 	const int max_frames = mix_frame_count_ * oal_source_max_streaming_buffers;
-	while (r2s_sound_.queue_size < oal_source_max_streaming_buffers)
+	while (r3s_sound_.queue_size < oal_source_max_streaming_buffers)
 	{
 		// Fill the mixing buffer with silence.
-		std::fill(r2s_samples_f32_mix_.begin(), r2s_samples_f32_mix_.end(), 0.0F);
+		std::fill(r3s_samples_f32_mix_.begin(), r3s_samples_f32_mix_.end(), 0.0F);
 		// Mix in voices.
 		for (Voice& voice : voices_)
 		{
 			if (voice.is_r3s)
 			{
 				if (voice.is_music)
-					mix_r2s_music(voice);
+					mix_r3s_music(voice);
 				else
-					mix_r2s_sfx(voice);
+					mix_r3s_sfx(voice);
 			}
 		}
 		// Convert samples.
-		const int dst_byte_offset = r2s_sound_.write_frame_offset * sample_size_ * 2;
+		const int dst_byte_offset = r3s_sound_.write_frame_offset * sample_size_ * 2;
 		if (has_al_ext_float32_)
 		{
-			const auto dst_samples = reinterpret_cast<float*>(&r2s_sound_.samples[dst_byte_offset]);
-			std::copy_n(r2s_samples_f32_mix_.cbegin(), mix_frame_count_ * 2, dst_samples);
+			const auto dst_samples = reinterpret_cast<float*>(&r3s_sound_.samples[dst_byte_offset]);
+			std::copy_n(r3s_samples_f32_mix_.cbegin(), mix_frame_count_ * 2, dst_samples);
 		}
 		else
 		{
 			// Normalize the peak.
 			float abs_max_amplitude = 1.0F;
-			for (const float sample : r2s_samples_f32_mix_)
+			for (const float sample : r3s_samples_f32_mix_)
 			{
 				const float abs_amplitude = std::abs(sample);
 				if (abs_amplitude > abs_max_amplitude)
@@ -1774,23 +1909,23 @@ void OalAudioMixer::mix_r2s()
 			if (abs_max_amplitude > 1.0F)
 			{
 				const float scalar = 1.0F / abs_max_amplitude;
-				for (float& sample : r2s_samples_f32_mix_)
+				for (float& sample : r3s_samples_f32_mix_)
 					sample *= scalar;
 			}
 			// Convert the samples.
-			const float* const src_samples = r2s_samples_f32_mix_.data();
-			const auto dst_samples = reinterpret_cast<std::int16_t*>(&r2s_sound_.samples[dst_byte_offset]);
+			const float* const src_samples = r3s_samples_f32_mix_.data();
+			const auto dst_samples = reinterpret_cast<std::int16_t*>(&r3s_sound_.samples[dst_byte_offset]);
 			const int sample_count_to_convert = mix_frame_count_ * 2;
 			for (int i = 0; i < sample_count_to_convert; ++i)
 				dst_samples[i] = AudioSampleConverter::f32_to_s16(src_samples[i]);
 		}
 		// Advance.
-		r2s_sound_.write_frame_offset += mix_frame_count_;
-		if (r2s_sound_.write_frame_offset >= max_frames)
-			r2s_sound_.write_frame_offset = 0;
-		r2s_sound_.queue_size += 1;
+		r3s_sound_.write_frame_offset += mix_frame_count_;
+		if (r3s_sound_.write_frame_offset >= max_frames)
+			r3s_sound_.write_frame_offset = 0;
+		r3s_sound_.queue_size += 1;
 	}
-	r2s_update_oal_source();
+	r3s_update_oal_source();
 }
 
 void OalAudioMixer::initialize_thread()
@@ -1810,16 +1945,16 @@ void OalAudioMixer::thread_func()
 				return;
 		}
 		for (OalSourceCachingSound& sfx_opl_sound : sfx_opl_sounds_)
-			decode_opl_sound(sfx_opl_sound, opl_sfx_gain_scale);
+			cache_sound(sfx_opl_sound);
 		for (OalSourceCachingSound& sfx_pc_speaker_sound : sfx_pc_speaker_sounds_)
-			decode_pc_speaker_sound(sfx_pc_speaker_sound);
+			cache_sound(sfx_pc_speaker_sound);
 		for (OalSourceCachingSound& sfx_pcm_sound : sfx_pcm_sounds_)
-			decode_pcm_sound(sfx_pcm_sound);
+			cache_sound(sfx_pcm_sound);
 		alcSuspendContext(oal_context_resource_.get());
 		handle_commands();
 		for (Voice& voice : voices_)
 			mix_sfx_voice(voice);
-		mix_r2s();
+		mix_r3s();
 		alcProcessContext(oal_context_resource_.get());
 		std::this_thread::sleep_for(sleep_delay);
 	}
@@ -1902,6 +2037,70 @@ float OalAudioMixer::get_pre_gain(SoundType sound_type)
 		case SoundType::opl_sfx: return opl_sfx_gain_scale;
 		default: return 1.0F;
 	}
+}
+
+void OalAudioMixer::expunge_caching_sound(OalSourceCachingSound& sound)
+{
+	sound.is_initialized = false;
+	sound.is_decoded = false;
+	sound.frame_count = 0;
+	sound.pre_gain = 0.0F;
+	OalSourceSoundSamples new_samples{};
+	sound.samples.swap(new_samples);
+	OalSourceSoundSamples new_stereo_samples{};
+	sound.stereo_samples.swap(new_stereo_samples);
+	sound.audio_decoder = nullptr;
+}
+
+void OalAudioMixer::expunge_uncaching_sound(OalSourceUncachingSound& sound)
+{
+	sound.queue_size = 0;
+	sound.read_frame_offset = 0;
+	sound.write_frame_offset = 0;
+	sound.audio_decoder = nullptr;
+}
+
+void OalAudioMixer::expunge_voice(Voice& voice)
+{
+	if (!voice.is_active)
+		return;
+	voice.is_active = false;
+	voice.oal_source.close();
+	voice_handle_mgr_.unmap(voice.handle);
+}
+
+AudioDecoderUPtr OalAudioMixer::create_ext_audio_decoder(SoundType sound_type, int sound_index)
+{
+	const AssetsInfo& assets_info = get_assets_info();
+	const bool is_music = sound_type == SoundType::opl_music;
+	for (int i_descriptor = 0; i_descriptor < ext_max_descriptors; ++i_descriptor)
+	{
+		ExtDescriptor& descriptor = vfs_descriptors_[i_descriptor];
+		descriptor.pathname.clear();
+		if (is_music)
+			AudioMixerUtils::append_music_chunk_pathname(sound_index, assets_info, descriptor.pathname);
+		else
+			AudioMixerUtils::append_sfx_chunk_pathname(sound_index, assets_info, descriptor.pathname);
+		descriptor.pathname += descriptor.file_extension;
+		fs_utils::normalize_separators_portable_inplace(descriptor.pathname);
+		vfs_pathname_views_[i_descriptor] = descriptor.pathname;
+	}
+	VfsInputStreamUPtr vfs_stream = vfs_.open_any_file(vfs_pathname_views_);
+	if (vfs_stream == nullptr)
+		return nullptr;
+	ExtDescriptor& chosen_descriptor = vfs_descriptors_[vfs_stream->get_pathname_index()];
+	AudioDecoderUPtr audio_decoder = chosen_descriptor.decoder_maker();
+	const AudioDecoderInitParam audio_decoder_init_param{
+		.vfs_stream = std::move(vfs_stream),
+		.src_raw_data = nullptr,
+		.src_raw_size = 0,
+		.dst_rate = dst_rate_};
+	if (!audio_decoder->initialize(audio_decoder_init_param))
+	{
+		logger_.log_error("Failed to initialize an audio decoder. (pathname={})", chosen_descriptor.pathname);
+		return nullptr;
+	}
+	return audio_decoder;
 }
 
 } // namespace

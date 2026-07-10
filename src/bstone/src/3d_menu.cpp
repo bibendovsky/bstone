@@ -409,7 +409,7 @@ extern bool refresh_screen;
 
 CP_iteminfo MainItems = {MENU_X, MENU_Y, 12, MM_NEW_MISSION, 0, 9, {77, 1, 154, 9, 1}};
 CP_iteminfo GopItems = {MENU_X, MENU_Y + 25, 6, 0, 0, 9, {77, 1, 154, 9, 1}};
-CP_iteminfo SndItems = {SM_X, SM_Y, 6, 0, 0, 8, {87, -1, 144, 7, 1}};
+CP_iteminfo SndItems = {SM_X, SM_Y, 7, 0, 0, 8, {87, -1, 144, 7, 1}};
 CP_iteminfo LSItems = {LSM_X, LSM_Y, 10, 0, 0, 8, {86, -1, 144, 8, 1}};
 CP_iteminfo CtlItems = {CTL_X, CTL_Y, 3, -1, 0, 9, {87, 1, 174, 9, 1}};
 CP_iteminfo CusItems = {CST_X, CST_Y + 7, 6, -1, 0, 15, {54, -1, 203, 7, 1}};
@@ -475,6 +475,7 @@ CP_itemtype SndMenu[] =
 	{AT_ENABLED, "BACKGROUND MUSIC", 0},
 	{AT_ENABLED, "DRIVER", 0},
 	{AT_ENABLED, "OPL EMULATOR", 0},
+	{AT_ENABLED, "EXTERNAL DATA", 0},
 };
 
 CP_itemtype CtlMenu[] = {
@@ -2915,6 +2916,15 @@ void CP_Sound(
 
 			break;
 
+		case 6:
+			sd_cfg_set_is_external_data(!sd_cfg_get_is_external_data());
+			sd_apply_external_data();
+			if (sd_is_music_enabled())
+				StartCPMusic(MENUSONG);
+			DrawSoundMenu();
+			ShootSnd();
+			break;
+
 		default:
 			break;
 		}
@@ -3024,6 +3034,11 @@ void DrawAllSoundLights(
 					sound_opl_emulator_types[sound_opl_emulator_type_index].name
 				);
 				continue;
+
+			case 6:
+				if (sd_cfg_get_is_external_data())
+					++Shape;
+				break;
 
 			default:
 				continue;

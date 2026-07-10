@@ -7,8 +7,14 @@ SPDX-License-Identifier: MIT
 // Endianness
 
 #include "bstone_endian.h"
+#include <bit>
+#include <limits>
 
 namespace bstone::endian {
+
+static_assert(std::numeric_limits<float>::is_iec559, "Requires IEC 559 binary32 data type.");
+
+// =====================================
 
 std::int16_t read_s16_le(const void* buffer)
 {
@@ -36,6 +42,11 @@ std::uint32_t read_u32_le(const void* buffer)
 		(static_cast<std::uint_fast32_t>(bytes[1]) <<  8) |
 		(static_cast<std::uint_fast32_t>(bytes[2]) << 16) |
 		(static_cast<std::uint_fast32_t>(bytes[3]) << 24);
+}
+
+float read_f32_le(const void* buffer)
+{
+	return std::bit_cast<float>(read_u32_le(buffer));
 }
 
 void write_s16_le(std::int16_t value, void* buffer)

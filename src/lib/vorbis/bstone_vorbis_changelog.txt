@@ -1,0 +1,5 @@
+Based on https://downloads.xiph.org/releases/vorbis/libvorbis-1.3.7.zip
+Lookup "/* bstone */" for changes.
+
+- Essential files related to decoding only.
+- Custom CMake scripts.

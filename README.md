@@ -26,19 +26,24 @@ Contents
    9.3 Naming conventions  
    9.4 Supported file formats  
    9.5 File format search order
-10. Taking screenshots
-11. Compiling  
-   11.1. Generic instructions for Linux-based system or build environment (MinGW)
-12. Command-line options
-13. Cheat key
-14. Debug keys
-15. Third party use
-16. Credits
-17. Links  
-    17.1. Essentials  
-    17.2. General  
-    17.3. Add-ons for Aliens Of Gold (full)  
-    17.4. Add-ons for Planet Strike
+10. External audio  
+    10.1 Naming conventions  
+    10.2 Supported file formats
+    10.3 List of music tracks
+    10.4 List of SFX sounds
+11. Taking screenshots
+12. Compiling  
+   12.1. Generic instructions for Linux-based system or build environment (MinGW)
+13. Command-line options
+14. Cheat key
+15. Debug keys
+16. Third party use
+17. Credits
+18. Links  
+    18.1. Essentials  
+    18.2. General  
+    18.3. Add-ons for Aliens Of Gold (full)  
+    18.4. Add-ons for Planet Strike
 
 
 1 - Disclaimer
@@ -448,14 +453,231 @@ Examples:
 - [PNG](http://wikipedia.org/wiki/Portable_Network_Graphics)
 
 
-9.5 -  File format search order
-===============================
+9.5 - File format search order
+==============================
 
 1. PNG
 2. BMP
 
 
-10 - Taking screenshots
+10 - External audio
+===================
+
+Allows to replace stocked audio with custom ones.
+
+Supported targets: music, sfx.
+
+Option `GAME OPTIONS - SOUND - EXTERNAL DATA` enables or disables them on the fly.  
+WARNING Changing the option may take some time.
+
+WARNING The source port caches *whole* SFX audio into memory, thus it's not recommended to use large audio files.
+
+
+10.1 - Naming conventions
+=========================
+
+All pathnames are lowercase.
+Generic pathname pattern: `<game>/<type>/<name><.ext>`, where
+- <game> - `aog` (Aliens of Gold) or `ps` (Planet Strike);
+- <type> - `music` or `sfx`;
+- <name> - name of the resource (see 10.3 and 10.4);
+- <.ext> - one of the supported format (see 10.2).
+
+Examples:
+- `aog/music/drkhalla.ogg`
+- `ps/sfx/hitwall.wav`
+
+10.2 - Supported file formats
+=============================
+
+Common requirements:
+- Channel count: 1 (mono) or 2 (stereo)
+- Range of sample rate: 8000-96000
+
+File formats and their requirements:
+- [FLAC](https://xiph.org/flac/)  
+  File extension: `.flac`  
+  Ogg container: not supported  
+  Bit depth: 8 (unsigned) / 16 / 24 / 32 bit
+- [Ogg Vorbis](https://xiph.org/vorbis/)  
+  File extension: `.ogg`  
+  Number of logical bitstreams: 1 (single)
+- [WAV](https://en.wikipedia.org/wiki/WAV)  
+  File extension: `.wav`  
+  Bit depth: 8 (unsigned) / 16 / 24 / 32 (integer or floating-point) bit  
+  Maximum file size: 2147483647 bytes
+
+(The file formats are ordered by the search priority - from the highest to the lowest)
+
+
+10.3 - List of music tracks
+===========================
+
+Aliens of Gold
+
+|   Name   | Number |
+|==========|========|
+| s2100a   |    0   |
+| golda    |    1   |
+| apogfnfm |    2   |
+| drkhalla |    3   |
+| freedoma |    4   |
+| genefunk |    5   |
+| timea    |    6   |
+| hidinga  |    7   |
+| incnratn |    8   |
+| junglea  |    9   |
+| levela   |   10   |
+| meetinga |   11   |
+| struta   |   12   |
+| racshufl |   13   |
+| rumbaa   |   14   |
+| searchna |   15   |
+| theme    |   16   |
+| thewaya  |   17   |
+| intrigea |   18   |
+
+Planet Strike
+
+|   Name   | Number |
+|==========|========|
+| catacomb |    0   |
+| sticks   |    1   |
+| apogfnfm |    2   |
+| plot     |    3   |
+| circles  |    4   |
+| lastlaff |    5   |
+| tohell   |    6   |
+| fortress |    7   |
+| giving   |    8   |
+| hartbeat |    9   |
+| lurking  |   10   |
+| majmin   |   11   |
+| vaccinap |   12   |
+| darkness |   13   |
+| monastry |   14   |
+| tombp    |   15   |
+| time     |   16   |
+| mourning |   17   |
+| serpent  |   18   |
+| hiscore  |   19   |
+| theme    |   20   |
+
+10.4 - List of SFX sounds
+===========================
+
+Shared sounds
+
+|      Name      | Number |
+|================|========|
+| hitwall        |    0   |
+| term_type      |    1   |
+| getpistol      |    2   |
+| liquiddie      |    3   |
+| movegun2       |    4   |
+| movegun1       |    5   |
+| noway          |    6   |
+| scout_alert    |    7   |
+| gurney         |    8   |
+| playerdeath    |    9   |
+| concessions    |   10   |
+| atkioncannon   |   11   |
+| getkey         |   12   |
+| warpout        |   13   |
+| warpin         |   14   |
+| robot_servo    |   15   |
+| informantdeath |   16   |
+| goldsternhalt  |   17   |
+| opendoor       |   18   |
+| closedoor      |   19   |
+| halt           |   21   |
+| rentdeath2     |   22   |
+| atkautocharge  |   23   |
+| atkcharged     |   24   |
+| atkburstrifle  |   26   |
+| vital_gone     |   27   |
+| shootdoor      |   28   |
+| rentdeath1     |   29   |
+| getburstrifle  |   30   |
+| getammo        |   31   |
+| shoot          |   32   |
+| health1        |   33   |
+| health2        |   34   |
+| bonus1         |   35   |
+| bonus2         |   36   |
+| bonus3         |   37   |
+| getioncannon   |   38   |
+| escpressed     |   39   |
+| elecappear     |   40   |
+| extra_man      |   41   |
+| elev_button    |   42   |
+| interrogate    |   43   |
+| bonus5         |   44   |
+| bonus4         |   45   |
+| pushwall       |   46   |
+| term_beep      |   47   |
+| roll_score     |   48   |
+| turret         |   49   |
+| explode1       |   50   |
+| swatdie        |   52   |
+| gguardhalt     |   53   |
+| explode2       |   54   |
+| blueboyhalt    |   55   |
+| proguarddeath  |   56   |
+| dogboyhalt     |   57   |
+| engine_thrust  |   58   |
+| scanhalt       |   59   |
+| getcannon      |   60   |
+| lcanhalt       |   61   |
+| prohalt        |   62   |
+| gguarddeath    |   63   |
+| blueboydeath   |   64   |
+| goldsternlaugh |   65   |
+| scientisthalt  |   66   |
+| scientistdeath |   67   |
+| dogboydeath    |   68   |
+| h_beat         |   69   |
+| swathalt       |   70   |
+| scandeath      |   71   |
+| lcandeath      |   72   |
+| informdeath2   |   73   |
+| informdeath3   |   74   |
+| gurneydeath    |   75   |
+| prodeath2      |   76   |
+| swatdeath2     |   78   |
+| lcanbreak      |   79   |
+| scanbreak      |   80   |
+| htechdooropen  |   81   |
+| htechdoorclose |   82   |
+| elecarcdamage  |   83   |
+| podhatch       |   84   |
+| electshot      |   85   |
+| elecdie        |   86   |
+| atkgrenade     |   87   |
+| clawattack     |   88   |
+| punchattack    |   89   |
+| spitattack     |   90   |
+| poddeath       |   91   |
+| podhalt        |   92   |
+| scideath2      |   94   |
+| scideath3      |   95   |
+| gottoken       |   96   |
+| switch         |   97   |
+| stats1         |   98   |
+| stats2         |   99   |
+
+Unique sounds
+
+|      AOG     |       PS      | Number |
+|==============|===============|========|
+| __unused__   | getdetonator  |   20   |
+| rentdeath3   | radar_powerup |   25   |
+| __unused_2__ | __unused_51__ |   51   |
+| prodeath3    | __unused_77__ |   77   |
+| swatdeath3   | __unused_93__ |   93   |
+
+
+11 - Taking screenshots
 =======================
 
 Default key is <kbd>F5</kbd>.  
@@ -466,7 +688,7 @@ Taken screenshots are placed in the profile directory.
 Supported format: [PNG](http://wikipedia.org/wiki/Portable_Network_Graphics)
 
 
-11 - Compiling
+12 - Compiling
 ==============
 
 Minimum requirements:
@@ -523,7 +745,7 @@ Notes:
 * Use `ON` value to enable option and value `OFF` to disable option.
 
 
-11.1 - Generic instructions for Linux-based system or build environment (MinGW)
+12.1 - Generic instructions for Linux-based system or build environment (MinGW)
 ===============================================================================
 
 1. Install minimum required software described above.
@@ -541,7 +763,7 @@ Notes:
 6. On success you will find executable and text files in the directory `~/bstone-x.y.z/build/install`.
 
 
-12 - Command-line options
+13 - Command-line options
 =========================
 
 * `--version`  
@@ -775,6 +997,11 @@ Notes:
   Values: `dbopl` (DOSBox DBOPL) or `nuked_opl3` (Nuked OPL3)  
   Default: `dbopl`
 
+* `--snd_external_data value`  
+  Toggles use of external audio files.  
+  Values: `0` (disable) or `1` (enable)  
+  Default: `0`
+
 * `--calculate_hashes`  
   Calculates hashes (SHA-1) of all resource files and outputs them into the log.
 
@@ -812,14 +1039,14 @@ Notes:
   Extracts all resources (walls, sprites, etc.) into directory `dir`.
 
 
-13 - Cheat key
+14 - Cheat key
 ==============
 
 <kbd>J</kbd> <kbd>A</kbd> <kbd>M</kbd> <kbd>Enter</kbd>  
 Press specified keys sequentially. Shows message "NOW you're jammin'!!", and gives to you all keys, all weapons and restores health to 100% but zeroes score points. Not available in shareware version.
 
 
-14 - Debug keys
+15 - Debug keys
 ===============
 
 Add option `--cheats` to enable these keys.
@@ -904,7 +1131,7 @@ Add option `--cheats` to enable these keys.
   Dumps information into the log about remaining bonus items and enemies.
 
 
-15 - Third party use
+16 - Third party use
 ====================
 
 * [SDL (Simple DirectMedia Library)](http://libsdl.org/)  
@@ -924,8 +1151,17 @@ Add option `--cheats` to enable these keys.
 * [Nuked OPL3](http://github.com/nukeykt/Nuked-OPL3)  
   See file `src/lib/nuked_opl3/LICENSE` for license information
 
+* [FLAC](https://xiph.org/flac/)  
+  See file `src/lib/flac/COPYING.Xiph` for license information
 
-16 - Credits
+* [Ogg](https://www.xiph.org/ogg/)  
+  See file `src/lib/ogg/COPYING` for license information
+
+* [Vorbis](https://www.xiph.org/vorbis/)  
+  See file `src/lib/vorbis/COPYING` for license information
+
+
+17 - Credits
 ============
 
 * [id Software](http://www.idsoftware.com/)  
@@ -946,18 +1182,18 @@ Add option `--cheats` to enable these keys.
 * Various contributors for providing fixies, ideas, etc.
 
 
-17 - Links
+18 - Links
 ==========
 
 
-17.1 - Essentials
+18.1 - Essentials
 =================
 
 * [Home page](http://bibendovsky.github.io/bstone/)
 * [Precompiled binaries and their source code](http://github.com/bibendovsky/bstone/releases)
 
 
-17.2 - General
+18.2 - General
 ==============
 
 * [Blake Stone: Aliens Of Gold official site](http://legacy.3drealms.com/blake/index.html)
@@ -967,7 +1203,7 @@ Add option `--cheats` to enable these keys.
 * [Repacked shareware Blake Stone: Aliens Of Gold (v3.0)](http://bibendovsky.github.io/bstone/files/official/repack/bs_aog_v3_0_sw.zip)
 
 
-17.3 - Add-ons for Aliens Of Gold (full)
+18.3 - Add-ons for Aliens Of Gold (full)
 ========================================
 
 * Add-on [BSE90](http://bibendovsky.github.io/bstone/files/community/aog/bse90.zip) by ack
@@ -975,7 +1211,7 @@ Add option `--cheats` to enable these keys.
 * Ling's Blake Stone [Levels](http://bibendovsky.github.io/bstone/files/community/aog/lingstone.zip) by Ling Yan Li
 
 
-17.4 - Add-ons for Planet Strike
+18.4 - Add-ons for Planet Strike
 ================================
 
 * Add-on [BSE24](http://bibendovsky.github.io/bstone/files/community/ps/bse24.zip) by ack

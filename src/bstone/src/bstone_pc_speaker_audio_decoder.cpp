@@ -26,7 +26,7 @@ public:
 	bool is_initialized() const override;
 	const char* get_error_message() const override;
 	int get_channel_count() const override;
-	int decode_frames(float* samples, int frame_count) override;
+	int decode_frames(float* samples, int max_frames) override;
 	bool rewind() override;
 
 private:
@@ -110,7 +110,7 @@ int PcSpeakerAudioDecoder::get_channel_count() const
 	return channel_count;
 }
 
-int PcSpeakerAudioDecoder::decode_frames(float* samples, int frame_count)
+int PcSpeakerAudioDecoder::decode_frames(float* samples, int max_frames)
 {
 	BSTONE_ASSERT(is_initialized());
 	if (is_finished_)
@@ -118,7 +118,7 @@ int PcSpeakerAudioDecoder::decode_frames(float* samples, int frame_count)
 	int frame_offset = 0;
 	for (;;)
 	{
-		if (frame_offset >= frame_count)
+		if (frame_offset >= max_frames)
 			break;
 		if (command_counter_ >= dst_sample_rate_)
 		{
