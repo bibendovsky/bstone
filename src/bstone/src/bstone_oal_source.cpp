@@ -16,12 +16,12 @@ namespace bstone {
 bool OalSource::initialize(const OalSourceInitParam& param)
 {
 	BSTONE_ASSERT(param.mix_sample_rate > 0);
-	BSTONE_ASSERT(param.mix_sample_count > 0);
+	BSTONE_ASSERT(param.mix_frame_count > 0);
 	BSTONE_ASSERT(param.sample_size == 2 || param.sample_size == 4);
 	terminate();
-	streaming_mix_sample_count_ = param.mix_sample_count;
+	streaming_mix_frame_count_ = param.mix_frame_count;
 	sample_size_ = param.sample_size;
-	streaming_mix_buffer_.resize(streaming_mix_sample_count_ * sample_size_ * 2);
+	streaming_mix_buffer_.resize(streaming_mix_frame_count_ * sample_size_ * 2);
 	if (!initialize_al_resources())
 	{
 		terminate();
@@ -95,7 +95,7 @@ void OalSource::open(const OalSourceOpenStreamingParam& param)
 	streaming_sample_rate_ = param.sample_rate;
 	streaming_caching_sound_ = param.caching_sound;
 	streaming_uncaching_sound_ = param.uncaching_sound;
-	streaming_caching_sample_offset_ = 0;
+	streaming_caching_frame_offset_ = 0;
 	streaming_mix_oal_buffer_func_ = (streaming_uncaching_sound_ ?
 		&OalSource::streaming_mix_uncaching_sound :
 		&OalSource::streaming_mix_caching_sound);
@@ -417,23 +417,23 @@ void OalSource::set_static_al_buffer_data(const OalSourceOpenStaticParam& param)
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
-void OalSource::set_streaming_al_buffer_data(ALint al_buffer, int frame_count, std::byte* samples_data)
+void OalSource::set_streaming_al_buffer_data(ALint al_buffer, int frame_count, std::byte* sample_bytes)
 {
 	BSTONE_ASSERT(al_buffer != 0);
 	BSTONE_ASSERT(frame_count > 0);
-	BSTONE_ASSERT(samples_data != nullptr);
+	BSTONE_ASSERT(sample_bytes != nullptr);
 	BSTONE_ASSERT(alGetError != nullptr);
 	BSTONE_ASSERT(alBufferData != nullptr);
 	BSTONE_ASSERT(al_format_ != 0);
 	const int buffer_size = frame_count * sample_size_ * (1 + is_stereo_);
 	BSTONE_ASSERT((alGetError(), true));
-	alBufferData(al_buffer, al_format_, samples_data, buffer_size, streaming_sample_rate_);
+	alBufferData(al_buffer, al_format_, sample_bytes, buffer_size, streaming_sample_rate_);
 	BSTONE_ASSERT(alGetError() == AL_NO_ERROR);
 }
 
 void OalSource::set_streaming_al_buffer_data(ALint al_buffer)
 {
-	set_streaming_al_buffer_data(al_buffer, streaming_mix_sample_count_, streaming_mix_buffer_.data());
+	set_streaming_al_buffer_data(al_buffer, streaming_mix_frame_count_, streaming_mix_buffer_.data());
 }
 
 void OalSource::set_streaming_al_buffer_defaults()
@@ -472,28 +472,28 @@ bool OalSource::streaming_mix_uncaching_sound(ALuint al_buffer)
 	if (streaming_uncaching_sound_->queue_size <= 0)
 		return false;
 	--streaming_uncaching_sound_->queue_size;
-	const int streaming_max_mix_sample_count = oal_source_max_streaming_buffers * streaming_mix_sample_count_;
-	if (streaming_uncaching_sound_->read_sample_offset >= streaming_max_mix_sample_count)
-		streaming_uncaching_sound_->read_sample_offset = 0;
+	const int streaming_max_mix_frame_count = oal_source_max_streaming_buffers * streaming_mix_frame_count_;
+	if (streaming_uncaching_sound_->read_frame_offset >= streaming_max_mix_frame_count)
+		streaming_uncaching_sound_->read_frame_offset = 0;
 	const int channel_count = 1 + streaming_uncaching_sound_->is_stereo;
 	set_streaming_al_buffer_data(
 		al_buffer,
-		streaming_mix_sample_count_,
-		&streaming_uncaching_sound_->samples[streaming_uncaching_sound_->read_sample_offset * sample_size_ * channel_count]);
-	streaming_uncaching_sound_->read_sample_offset += streaming_mix_sample_count_;
+		streaming_mix_frame_count_,
+		&streaming_uncaching_sound_->samples[streaming_uncaching_sound_->read_frame_offset * sample_size_ * channel_count]);
+	streaming_uncaching_sound_->read_frame_offset += streaming_mix_frame_count_;
 	enqueue_al_buffer(al_buffer);
 	return true;
 }
 
 bool OalSource::streaming_mix_caching_sound(ALuint al_buffer)
 {
-	const int remain_sample_count = streaming_caching_sound_->sample_count - streaming_caching_sample_offset_;
-	if (remain_sample_count <= 0)
+	const int frames_left = streaming_caching_sound_->frame_count - streaming_caching_frame_offset_;
+	if (frames_left <= 0)
 		return false;
-	const int sample_count = std::min(remain_sample_count, streaming_mix_sample_count_);
-	set_streaming_al_buffer_data(al_buffer, sample_count, &streaming_caching_sound_->samples[streaming_caching_sample_offset_ * sample_size_]);
+	const int frame_count = std::min(frames_left, streaming_mix_frame_count_);
+	set_streaming_al_buffer_data(al_buffer, frame_count, &streaming_caching_sound_->samples[streaming_caching_frame_offset_ * sample_size_]);
 	enqueue_al_buffer(al_buffer);
-	streaming_caching_sample_offset_ += sample_count;
+	streaming_caching_frame_offset_ += frame_count;
 	return true;
 }
 

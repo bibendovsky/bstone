@@ -91,7 +91,7 @@ private:
 		bool is_invalid{};
 		bool is_decoded{};
 		SoundType sound_type{};
-		int samples_count{};
+		int frame_count{};
 		Samples samples{};
 		AudioDecoderUPtr decoder{};
 	};
@@ -246,7 +246,7 @@ private:
 	int dst_rate_{};
 	SysCallback sys_callback_{};
 	sys::AudioMgr* sys_audio_mgr_{};
-	int mix_samples_count_{};
+	int mix_frame_count_{};
 	Samples buffer_{};
 	MixSamples mix_buffer_{};
 	VoiceHandleMgr voice_handle_mgr_{};
@@ -333,7 +333,7 @@ private:
 
 	CacheItem* get_cache_item(SoundType sound_type, int sound_index);
 
-	static int calculate_mix_samples_count(int dst_rate, int mix_size_ms);
+	static int calculate_mix_frame_count(int dst_rate, int mix_size_ms);
 	AudioDecoderUPtr create_decoder_by_sound_type(SoundType sound_type) const;
 	static bool is_sound_type_valid(SoundType sound_type);
 	static bool is_sound_index_valid(int sound_index, SoundType sound_type);
@@ -381,7 +381,7 @@ try
 		mix_size_ms_ = std::max(param.mix_size_ms, get_min_mix_size_ms());
 	if (bstone::globals::sys_system_mgr == nullptr)
 		BSTONE_THROW_STATIC_SOURCE("Null system manager.");
-	mix_samples_count_ = calculate_mix_samples_count(dst_rate_, mix_size_ms_);
+	mix_frame_count_ = calculate_mix_frame_count(dst_rate_, mix_size_ms_);
 	sys_audio_mgr_ = &bstone::globals::sys_system_mgr->get_audio_mgr();
 	if (!sys_audio_mgr_->is_initialized())
 		BSTONE_THROW_STATIC_SOURCE("Audio system not available.");
@@ -389,13 +389,13 @@ try
 	const bstone::sys::PollingAudioDeviceOpenParam audio_device_param{
 		.desired_rate = dst_rate_,
 		.channel_count = get_max_channels(),
-		.desired_frame_count = mix_samples_count_,
+		.desired_frame_count = mix_frame_count_,
 		.callback = &sys_callback_};
 	sys::PollingAudioDeviceUPtr audio_device = sys_audio_mgr_->make_polling_audio_device(audio_device_param);
 	dst_rate_ = audio_device->get_rate();
-	mix_samples_count_ = audio_device->get_frame_count();
+	mix_frame_count_ = audio_device->get_frame_count();
 	opl_emulator_type_ = param.opl_emulator_type;
-	const int total_samples = get_max_channels() * mix_samples_count_;
+	const int total_samples = get_max_channels() * mix_frame_count_;
 	buffer_.resize(total_samples);
 	mix_buffer_.resize(total_samples);
 	opl_music_cache_.resize(LASTMUSIC);
@@ -739,7 +739,7 @@ void SystemAudioMixer::mix_samples()
 		}
 		const bool is_opl_music = (voice.type == SoundType::opl_music);
 		CacheItem* const cache_item = voice.cache;
-		if (!is_opl_music && voice.decode_offset >= cache_item->samples_count)
+		if (!is_opl_music && voice.decode_offset >= cache_item->frame_count)
 		{
 			voice_handle_mgr_.unmap(voice.handle);
 			voice.is_active = false;
@@ -762,12 +762,12 @@ void SystemAudioMixer::mix_samples()
 			gain_scale *= voice.gain;
 		int decode_count = 0;
 		if (is_opl_music)
-			decode_count = cache_item->samples_count;
+			decode_count = cache_item->frame_count;
 		else
 		{
-			const auto remain_count = cache_item->samples_count - voice.decode_offset;
+			const auto remain_count = cache_item->frame_count - voice.decode_offset;
 			BSTONE_ASSERT(remain_count >= 0);
-			decode_count = std::min(remain_count, mix_samples_count_);
+			decode_count = std::min(remain_count, mix_frame_count_);
 		}
 		if (!is_mute_)
 		{
@@ -796,12 +796,12 @@ void SystemAudioMixer::mix_samples()
 		bool is_erase = false;
 		if (is_opl_music)
 		{
-			if (cache_item->samples_count == 0)
+			if (cache_item->frame_count == 0)
 				is_erase = true;
 		}
 		else
 		{
-			if (voice.decode_offset >= cache_item->samples_count)
+			if (voice.decode_offset >= cache_item->frame_count)
 			{
 				if (cache_item->is_decoded)
 					is_erase = true;
@@ -1062,9 +1062,9 @@ bool SystemAudioMixer::initialize_cache_item(const Command& command, CacheItem& 
 	cache_item.is_invalid = false;
 	cache_item.is_decoded = false;
 	cache_item.sound_type = command.param.play_sound.sound_type;
-	cache_item.samples_count = 0;
+	cache_item.frame_count = 0;
 	if (is_opl_music)
-		cache_item.samples.resize(mix_samples_count_ * decoder->get_channel_count());
+		cache_item.samples.resize(mix_frame_count_ * decoder->get_channel_count());
 	else
 		cache_item.samples.clear();
 	cache_item.decoder.swap(decoder);
@@ -1075,13 +1075,13 @@ void SystemAudioMixer::cache_music(const Voice& voice)
 {
 	CacheItem& cache_item = *voice.cache;
 	const int channel_count = cache_item.decoder->get_channel_count();
-	cache_item.samples_count = 0;
-	while (cache_item.samples_count < mix_samples_count_)
+	cache_item.frame_count = 0;
+	while (cache_item.frame_count < mix_frame_count_)
 	{
 		const int decoded_frame_count = cache_item.decoder->decode_frames(
-			cache_item.samples.data() + cache_item.samples_count * channel_count,
-			mix_samples_count_ - cache_item.samples_count);
-		cache_item.samples_count += decoded_frame_count;
+			cache_item.samples.data() + cache_item.frame_count * channel_count,
+			mix_frame_count_ - cache_item.frame_count);
+		cache_item.frame_count += decoded_frame_count;
 		if (decoded_frame_count == 0)
 		{
 			if (voice.is_looping)
@@ -1101,12 +1101,12 @@ void SystemAudioMixer::cache_sfx(const Voice& voice)
 	if (cache_item.is_decoded)
 		return;
 	const int channel_count = cache_item.decoder->get_channel_count();
-	const int new_sample_count = (cache_item.samples_count + mix_samples_count_) * channel_count;
+	const int new_sample_count = (cache_item.frame_count + mix_frame_count_) * channel_count;
 	cache_item.samples.resize(new_sample_count);
 	const int decoded_frame_count = cache_item.decoder->decode_frames(
-		cache_item.samples.data() + cache_item.samples_count * channel_count,
-		mix_samples_count_);
-	cache_item.samples_count += decoded_frame_count;
+		cache_item.samples.data() + cache_item.frame_count * channel_count,
+		mix_frame_count_);
+	cache_item.frame_count += decoded_frame_count;
 	if (decoded_frame_count == 0)
 		cache_item.is_decoded = true;
 }
@@ -1189,7 +1189,7 @@ try
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-int SystemAudioMixer::calculate_mix_samples_count(int dst_rate, int mix_size_ms)
+int SystemAudioMixer::calculate_mix_frame_count(int dst_rate, int mix_size_ms)
 {
 	const int exact_count = (dst_rate * mix_size_ms) / 1000;
 	int actual_count = 1;

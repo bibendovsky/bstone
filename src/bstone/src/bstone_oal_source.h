@@ -27,7 +27,7 @@ struct OalSourceCachingSound
 {
 	bool is_initialized{};
 	bool is_decoded{};
-	int sample_count{};
+	int frame_count{};
 	OalSourceSoundSamples samples{};
 	OalSourceSoundSamples stereo_samples{};
 	AudioDecoderUPtr audio_decoder{};
@@ -38,8 +38,8 @@ struct OalSourceUncachingSound
 	bool is_initialized{};
 	bool is_stereo{};
 	int queue_size{};
-	int read_sample_offset{};
-	int write_sample_offset{};
+	int read_frame_offset{};
+	int write_frame_offset{};
 	OalSourceSoundSamples samples{};
 	AudioDecoderUPtr audio_decoder{};
 };
@@ -49,7 +49,7 @@ struct OalSourceUncachingSound
 struct OalSourceInitParam
 {
 	int mix_sample_rate{};
-	int mix_sample_count{};
+	int mix_frame_count{};
 	int sample_size{};
 };
 
@@ -125,8 +125,8 @@ private:
 	mutable bool is_stopped_{};
 	OalBufferResource static_al_buffer_resource_{};
 	int streaming_sample_rate_{};
-	int streaming_mix_sample_count_{};
-	int streaming_caching_sample_offset_{};
+	int streaming_mix_frame_count_{};
+	int streaming_caching_frame_offset_{};
 	int sample_size_{};
 	ALenum al_format_{};
 	StreamingMixOalBufferFunc streaming_mix_oal_buffer_func_{};

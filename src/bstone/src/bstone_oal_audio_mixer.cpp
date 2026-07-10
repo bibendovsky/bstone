@@ -253,7 +253,7 @@ private:
 	Logger& logger_;
 	OplEmulatorType opl_emulator_type_{};
 	int dst_rate_{};
-	int mix_sample_count_{};
+	int mix_frame_count_{};
 	int mix_size_ms_{};
 	bool is_mute_{};
 	double gain_{};
@@ -421,7 +421,7 @@ try
 		mix_size_ms_ = get_default_mix_size_ms();
 	else
 		mix_size_ms_ = param.mix_size_ms;
-	mix_sample_count_ = static_cast<int>((static_cast<long long>(dst_rate_) * mix_size_ms_) / 1000);
+	mix_frame_count_ = static_cast<int>((static_cast<long long>(dst_rate_) * mix_size_ms_) / 1000);
 	initialize_distance_model();
 	initialize_is_mute();
 	initialize_gain();
@@ -1058,7 +1058,7 @@ void OalAudioMixer::initialize_voices()
 	voices_.reserve(max_mono_voices);
 	const OalSourceInitParam param{
 		.mix_sample_rate = dst_rate_,
-		.mix_sample_count = mix_sample_count_,
+		.mix_frame_count = mix_frame_count_,
 		.sample_size = sample_size_};
 	for (int i_voice = 0; i_voice < max_mono_voices; ++i_voice)
 	{
@@ -1073,9 +1073,9 @@ void OalAudioMixer::initialize_r2s_sound()
 	r2s_sound_.is_initialized = true;
 	r2s_sound_.is_stereo = true;
 	r2s_sound_.queue_size = 0;
-	r2s_sound_.read_sample_offset = 0;
-	r2s_sound_.write_sample_offset = 0;
-	r2s_sound_.samples.resize(mix_sample_count_ * oal_source_max_streaming_buffers * sample_size_ * audio_mixer_max_channels);
+	r2s_sound_.read_frame_offset = 0;
+	r2s_sound_.write_frame_offset = 0;
+	r2s_sound_.samples.resize(mix_frame_count_ * oal_source_max_streaming_buffers * sample_size_ * audio_mixer_max_channels);
 	r2s_sound_.audio_decoder = make_audio_decoder(AudioDecoderType::opl_music, opl_emulator_type_);
 }
 
@@ -1083,7 +1083,7 @@ void OalAudioMixer::initialize_r2s_oal_source()
 {
 	const OalSourceInitParam init_param{
 		.mix_sample_rate = dst_rate_,
-		.mix_sample_count = mix_sample_count_,
+		.mix_frame_count = mix_frame_count_,
 		.sample_size = sample_size_};
 	if (!r2s_oal_source_.initialize(init_param))
 		return;
@@ -1099,7 +1099,7 @@ void OalAudioMixer::initialize_r2s_oal_source()
 	};
 	r2s_oal_source_.open(open_param);
 	r2s_oal_source_.play();
-	r2s_samples_f32_mix_.resize(mix_sample_count_ * 2);
+	r2s_samples_f32_mix_.resize(mix_frame_count_ * 2);
 }
 
 void OalAudioMixer::initialize_r2s()
@@ -1320,11 +1320,11 @@ void OalAudioMixer::handle_play_sfx_command(const PlaySfxCommandParam& param)
 		}
 		sfx_sound.is_initialized = true;
 		sfx_sound.is_decoded = false;
-		sfx_sound.sample_count = 0;
+		sfx_sound.frame_count = 0;
 		sfx_sound.samples.clear();
 		sfx_sound.stereo_samples.clear();
 		cache_sound(sfx_sound, get_pre_gain(param.sound_type));
-		if (sfx_sound.is_decoded && sfx_sound.sample_count == 0)
+		if (sfx_sound.is_decoded && sfx_sound.frame_count == 0)
 			return;
 	}
 	voice = find_free_voice();
@@ -1342,7 +1342,7 @@ void OalAudioMixer::handle_play_sfx_command(const PlaySfxCommandParam& param)
 	{
 		if (sfx_sound.is_decoded)
 		{
-			const int decoded_data_size = sfx_sound.sample_count * sample_size_;
+			const int decoded_data_size = sfx_sound.frame_count * sample_size_;
 			const OalSourceOpenStaticParam source_param{
 				.is_3d = is_3d,
 				.sample_rate = dst_rate_,
@@ -1555,7 +1555,7 @@ void OalAudioMixer::cache_sound(OalSourceCachingSound& sound, float pre_gain)
 		return;
 	const int frame_count_to_decode = oal_source_max_streaming_buffers * dst_rate_;
 	const int src_channel_count = sound.audio_decoder->get_channel_count();
-	const int new_buffer_size = (sound.sample_count + frame_count_to_decode) * src_channel_count * sample_size_;
+	const int new_buffer_size = (sound.frame_count + frame_count_to_decode) * src_channel_count * sample_size_;
 	sound.samples.resize(new_buffer_size);
 	if (src_channel_count == 2)
 	{
@@ -1567,15 +1567,15 @@ void OalAudioMixer::cache_sound(OalSourceCachingSound& sound, float pre_gain)
 	{
 		if (src_channel_count == 1)
 		{
-			const auto dst_samples = reinterpret_cast<float*>(&sound.samples[sound.sample_count * 4]);
+			const auto dst_samples = reinterpret_cast<float*>(&sound.samples[sound.frame_count * 4]);
 			decoded_frame_count = sound.audio_decoder->decode_frames(dst_samples, frame_count_to_decode);
 			for (int i = 0; i < decoded_frame_count; ++i)
 				dst_samples[i] *= pre_gain;
 		}
 		else if (src_channel_count == 2)
 		{
-			const auto dst_samples = reinterpret_cast<float*>(&sound.samples[sound.sample_count * 4]);
-			const auto dst_stereo_samples = reinterpret_cast<float*>(&sound.stereo_samples[sound.sample_count * 4 * 2]);
+			const auto dst_samples = reinterpret_cast<float*>(&sound.samples[sound.frame_count * 4]);
+			const auto dst_stereo_samples = reinterpret_cast<float*>(&sound.stereo_samples[sound.frame_count * 4 * 2]);
 			decoded_frame_count = sound.audio_decoder->decode_frames(dst_stereo_samples, frame_count_to_decode);
 			for (int i = 0; i < decoded_frame_count; ++i)
 			{
@@ -1593,7 +1593,7 @@ void OalAudioMixer::cache_sound(OalSourceCachingSound& sound, float pre_gain)
 		{
 			const auto src_samples = samples_f32_.data();
 			decoded_frame_count = sound.audio_decoder->decode_frames(src_samples, frame_count_to_decode);
-			const auto dst_samples = reinterpret_cast<std::int16_t*>(&sound.samples[sound.sample_count * 2]);
+			const auto dst_samples = reinterpret_cast<std::int16_t*>(&sound.samples[sound.frame_count * 2]);
 			for (int i = 0; i < decoded_frame_count; ++i)
 				dst_samples[i] = AudioSampleConverter::f32_to_s16(src_samples[i] * pre_gain);
 		}
@@ -1601,8 +1601,8 @@ void OalAudioMixer::cache_sound(OalSourceCachingSound& sound, float pre_gain)
 		{
 			const auto src_samples = samples_f32_.data();
 			decoded_frame_count = sound.audio_decoder->decode_frames(src_samples, frame_count_to_decode);
-			const auto dst_samples = reinterpret_cast<std::int16_t*>(&sound.samples[sound.sample_count * 2]);
-			const auto dst_stereo_samples = reinterpret_cast<std::int16_t*>(&sound.stereo_samples[sound.sample_count * 2 * 2]);
+			const auto dst_samples = reinterpret_cast<std::int16_t*>(&sound.samples[sound.frame_count * 2]);
+			const auto dst_stereo_samples = reinterpret_cast<std::int16_t*>(&sound.stereo_samples[sound.frame_count * 2 * 2]);
 			for (int i = 0; i < decoded_frame_count; ++i)
 			{
 				const float left_sample = src_samples[i * 2 + 0] * pre_gain;
@@ -1614,7 +1614,7 @@ void OalAudioMixer::cache_sound(OalSourceCachingSound& sound, float pre_gain)
 			}
 		}
 	}
-	sound.sample_count += decoded_frame_count;
+	sound.frame_count += decoded_frame_count;
 	if (decoded_frame_count < frame_count_to_decode)
 		sound.is_decoded = true;
 }
@@ -1652,9 +1652,9 @@ void OalAudioMixer::mix_r2s_music(Voice& voice)
 	const float gain = opl_music_gain_scale * voice.r3s_gain;
 	float* const src_samples = samples_f32_.data();
 	int frame_offset = 0;
-	while (frame_offset < mix_sample_count_)
+	while (frame_offset < mix_frame_count_)
 	{
-		const int decoded_count = audio_decoder->decode_frames(src_samples, mix_sample_count_ - frame_offset);
+		const int decoded_count = audio_decoder->decode_frames(src_samples, mix_frame_count_ - frame_offset);
 		if (decoded_count == 0)
 		{
 			if (!voice.is_looping || !audio_decoder->rewind())
@@ -1701,7 +1701,7 @@ void OalAudioMixer::mix_r2s_sfx(Voice& voice)
 	const OalSourceCachingSound& sound = *voice.r3s_sound;
 	if (!sound.is_initialized)
 		return;
-	const int frame_count = std::min(sound.sample_count - voice.r3s_frame_offset, mix_sample_count_);
+	const int frame_count = std::min(sound.frame_count - voice.r3s_frame_offset, mix_frame_count_);
 	if (frame_count <= 0)
 	{
 		if (sound.is_decoded)
@@ -1738,7 +1738,7 @@ void OalAudioMixer::r2s_update_oal_source()
 
 void OalAudioMixer::mix_r2s()
 {
-	const int max_frames = mix_sample_count_ * oal_source_max_streaming_buffers;
+	const int max_frames = mix_frame_count_ * oal_source_max_streaming_buffers;
 	while (r2s_sound_.queue_size < oal_source_max_streaming_buffers)
 	{
 		// Fill the mixing buffer with silence.
@@ -1755,11 +1755,11 @@ void OalAudioMixer::mix_r2s()
 			}
 		}
 		// Convert samples.
-		const int dst_byte_offset = r2s_sound_.write_sample_offset * sample_size_ * 2;
+		const int dst_byte_offset = r2s_sound_.write_frame_offset * sample_size_ * 2;
 		if (has_al_ext_float32_)
 		{
 			const auto dst_samples = reinterpret_cast<float*>(&r2s_sound_.samples[dst_byte_offset]);
-			std::copy_n(r2s_samples_f32_mix_.cbegin(), mix_sample_count_ * 2, dst_samples);
+			std::copy_n(r2s_samples_f32_mix_.cbegin(), mix_frame_count_ * 2, dst_samples);
 		}
 		else
 		{
@@ -1780,14 +1780,14 @@ void OalAudioMixer::mix_r2s()
 			// Convert the samples.
 			const float* const src_samples = r2s_samples_f32_mix_.data();
 			const auto dst_samples = reinterpret_cast<std::int16_t*>(&r2s_sound_.samples[dst_byte_offset]);
-			const int convert_count = mix_sample_count_ * 2;
-			for (int i = 0; i < convert_count; ++i)
+			const int sample_count_to_convert = mix_frame_count_ * 2;
+			for (int i = 0; i < sample_count_to_convert; ++i)
 				dst_samples[i] = AudioSampleConverter::f32_to_s16(src_samples[i]);
 		}
 		// Advance.
-		r2s_sound_.write_sample_offset += mix_sample_count_;
-		if (r2s_sound_.write_sample_offset >= max_frames)
-			r2s_sound_.write_sample_offset = 0;
+		r2s_sound_.write_frame_offset += mix_frame_count_;
+		if (r2s_sound_.write_frame_offset >= max_frames)
+			r2s_sound_.write_frame_offset = 0;
 		r2s_sound_.queue_size += 1;
 	}
 	r2s_update_oal_source();
