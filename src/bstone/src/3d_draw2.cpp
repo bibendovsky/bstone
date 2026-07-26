@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 
 #include "3d_def.h"
+#include <algorithm>
 #include "d3_d2.h"
 #include "id_vl.h"
 

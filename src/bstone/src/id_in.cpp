@@ -31,6 +31,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_globals.h"
 #include "bstone_string_builder.h"
 #include "bstone_sys_keyboard_key.h"
+#include <algorithm>
 #include <cstring>
 #include <charconv>
 #include <format>

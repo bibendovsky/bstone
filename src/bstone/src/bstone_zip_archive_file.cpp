@@ -5,6 +5,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 */
 
 #include "bstone_zip_archive_file.h"
+#include <algorithm>
 #include "bstone_archive_file_input_stream.h"
 #include "bstone_assert.h"
 #include "bstone_endian.h"

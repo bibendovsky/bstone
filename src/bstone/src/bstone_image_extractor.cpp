@@ -16,6 +16,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_sys_fs.h"
 #include "id_ca.h"
 #include "id_vh.h"
+#include <algorithm>
 #include <cstdint>
 #include <array>
 #include <format>

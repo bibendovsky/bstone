@@ -8,6 +8,7 @@ SPDX-License-Identifier: MIT
 // https://www.ietf.org/rfc/rfc3174.txt
 
 #include "bstone_sha1.h"
+#include <algorithm>
 #include "bstone_exception.h"
 
 namespace bstone {

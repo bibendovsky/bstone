@@ -13,6 +13,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_hw_texture_mgr.h"
 
+#include <algorithm>
 #include <array>
 #include <unordered_map>
 #include <utility>
