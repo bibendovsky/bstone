@@ -6,6 +6,8 @@ SPDX-License-Identifier: MIT
 
 // Utilities for Windows
 
+#ifdef _WIN32
+
 namespace bstone::win32 {
 
 int get_string_size(const char* string);
@@ -19,3 +21,5 @@ int utf16_to_utf8(const wchar_t* u16_chars, int u16_count, char* u8_chars, int u
 int utf16_to_utf8(const wchar_t* u16_chars, int u16_count);
 
 } // namespace bstone::win32
+
+#endif // _WIN32

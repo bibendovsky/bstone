@@ -6,6 +6,16 @@ SPDX-License-Identifier: MIT
 
 // Utilities for Windows
 
+#ifdef _WIN32
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
 #include "bstone_win32_utility.h"
 #include "bstone_assert.h"
 #include "bstone_win32_os_version.h"
@@ -137,3 +147,5 @@ int utf16_to_utf8(const wchar_t* u16_chars, int u16_count)
 }
 
 } // namespace bstone::win32
+
+#endif // _WIN32
