@@ -2,9 +2,9 @@
 #include "bstone_assert.h"
 #include <cstddef>
 #include <algorithm>
-#include <limits>
 #include <utility>
-#include "vorbis/vorbisfile.h"
+#include <vector>
+#include "stb_vorbis.h"
 
 namespace bstone {
 
@@ -21,41 +21,39 @@ public:
 	bool is_initialized() const override;
 	const char* get_error_message() const override;
 	int get_channel_count() const override;
-	int decode_frames(float* samples, int sample_count) override;
+	int decode_frames(float* samples, int max_frames) override;
 	bool rewind() override;
 
 private:
-	inline static constexpr int cache_capacity = 256;
-
-	using DecodeFramesFunc = int (VorbisAudioDecoder::*)(float* samples, int frame_count);
+	using DecodeFramesFunc = int (VorbisAudioDecoder::*)(float* samples, int max_frames);
 
 	const char* error_message_{};
-	OggVorbis_File vf_{};
-	VfsInputStreamUPtr stream_{};
+	stb_vorbis* vorbis_{};
+	// stb_vorbis references this buffer for its whole lifetime, so it must outlive vorbis_.
+	std::vector<unsigned char> data_{};
+	bool is_open_{};
 	int channel_count_{};
 	int src_frame_rate_{};
 	int dst_frame_rate_{};
+	// Points into stb_vorbis's internal buffer; valid until the next get_frame_float call.
 	float** cache_samples_{};
 	int cache_frame_count_{};
 	int cache_frame_offset_{};
 	int cache_frame_offset_counter_{};
 	DecodeFramesFunc decode_frames_{};
 
-	const char* get_vorbis_error_code_string(int error_code);
+	static const char* get_vorbis_error_code_string(int error_code);
 	void set_error_message(const char* message);
 	void set_error_message_from_vorbis_code(int error_code);
 
-	static std::size_t vorbis_callback_read(void* ptr, std::size_t size, std::size_t nmemb, void* datasource);
-
 	bool impl_is_initialized() const;
-	void impl_terminate_vorbis();
-	bool impl_initialize_vorbis();
+	void impl_close_vorbis();
+	bool impl_open_vorbis();
 	void impl_terminate();
 	bool impl_initialize(const AudioDecoderInitParam& param);
-
-	std::size_t impl_callback_read(void* ptr, std::size_t size, std::size_t nmemb);
-	int decode_frames_as_is(float* samples, int max_frames);
+	bool refill_cache();
 	bool update_cache();
+	int decode_frames_as_is(float* samples, int max_frames);
 	int decode_frames_with_resample(float* samples, int max_frames);
 };
 
@@ -63,11 +61,12 @@ private:
 
 VorbisAudioDecoder::~VorbisAudioDecoder()
 {
-	impl_terminate_vorbis();
+	impl_close_vorbis();
 }
 
 bool VorbisAudioDecoder::initialize(const AudioDecoderInitParam& param)
 {
+	error_message_ = nullptr;
 	if (!impl_initialize(param))
 	{
 		impl_terminate();
@@ -107,47 +106,45 @@ int VorbisAudioDecoder::decode_frames(float* samples, int max_frames)
 bool VorbisAudioDecoder::rewind()
 {
 	BSTONE_ASSERT(impl_is_initialized());
-	if (!stream_->rewind())
+	if (stb_vorbis_seek_start(vorbis_) == 0)
 	{
 		set_error_message("Failed to rewind a stream.");
 		return false;
 	}
-	const int old_channel_count = channel_count_;
-	const int old_src_sample_rate = src_frame_rate_;
-	if (!impl_initialize_vorbis())
-		return false;
-	if (channel_count_ != old_channel_count ||
-		src_frame_rate_ != old_src_sample_rate)
-	{
-		set_error_message("Parameters mismatch.");
-		return false;
-	}
+	cache_samples_ = nullptr;
 	cache_frame_count_ = 0;
 	cache_frame_offset_ = 0;
+	cache_frame_offset_counter_ = 0;
 	return true;
 }
 
 const char* VorbisAudioDecoder::get_vorbis_error_code_string(int error_code)
 {
-	BSTONE_ASSERT(error_code < 0);
 #define BSTONE_MACRO(x) case x: return #x;
 	switch (error_code)
 	{
-		BSTONE_MACRO(OV_FALSE);
-		BSTONE_MACRO(OV_EOF);
-		BSTONE_MACRO(OV_HOLE);
-		BSTONE_MACRO(OV_EREAD);
-		BSTONE_MACRO(OV_EFAULT);
-		BSTONE_MACRO(OV_EIMPL);
-		BSTONE_MACRO(OV_EINVAL);
-		BSTONE_MACRO(OV_ENOTVORBIS);
-		BSTONE_MACRO(OV_EBADHEADER);
-		BSTONE_MACRO(OV_EVERSION);
-		BSTONE_MACRO(OV_ENOTAUDIO);
-		BSTONE_MACRO(OV_EBADPACKET);
-		BSTONE_MACRO(OV_EBADLINK);
-		BSTONE_MACRO(OV_ENOSEEK);
-		default: return "OV_???";
+		BSTONE_MACRO(VORBIS__no_error);
+		BSTONE_MACRO(VORBIS_need_more_data);
+		BSTONE_MACRO(VORBIS_invalid_api_mixing);
+		BSTONE_MACRO(VORBIS_outofmem);
+		BSTONE_MACRO(VORBIS_feature_not_supported);
+		BSTONE_MACRO(VORBIS_too_many_channels);
+		BSTONE_MACRO(VORBIS_file_open_failure);
+		BSTONE_MACRO(VORBIS_seek_without_length);
+		BSTONE_MACRO(VORBIS_unexpected_eof);
+		BSTONE_MACRO(VORBIS_seek_invalid);
+		BSTONE_MACRO(VORBIS_invalid_setup);
+		BSTONE_MACRO(VORBIS_invalid_stream);
+		BSTONE_MACRO(VORBIS_missing_capture_pattern);
+		BSTONE_MACRO(VORBIS_invalid_stream_structure_version);
+		BSTONE_MACRO(VORBIS_continued_packet_flag_invalid);
+		BSTONE_MACRO(VORBIS_incorrect_stream_serial_number);
+		BSTONE_MACRO(VORBIS_invalid_first_page);
+		BSTONE_MACRO(VORBIS_bad_packet_type);
+		BSTONE_MACRO(VORBIS_cant_find_last_page);
+		BSTONE_MACRO(VORBIS_seek_failed);
+		BSTONE_MACRO(VORBIS_ogg_skeleton_not_supported);
+		default: return "VORBIS_???";
 	}
 #undef BSTONE_MACRO
 }
@@ -162,53 +159,42 @@ void VorbisAudioDecoder::set_error_message_from_vorbis_code(int error_code)
 	set_error_message(get_vorbis_error_code_string(error_code));
 }
 
-std::size_t VorbisAudioDecoder::vorbis_callback_read(void* ptr, std::size_t size, std::size_t nmemb, void* datasource)
-{
-	return static_cast<VorbisAudioDecoder*>(datasource)->impl_callback_read(ptr, size, nmemb);
-}
-
 bool VorbisAudioDecoder::impl_is_initialized() const
 {
-	return stream_ != nullptr;
+	return is_open_;
 }
 
-void VorbisAudioDecoder::impl_terminate_vorbis()
+void VorbisAudioDecoder::impl_close_vorbis()
 {
-	ov_clear(&vf_);
+	if (vorbis_ != nullptr)
+	{
+		stb_vorbis_close(vorbis_);
+		vorbis_ = nullptr;
+	}
+	is_open_ = false;
 }
 
-bool VorbisAudioDecoder::impl_initialize_vorbis()
+bool VorbisAudioDecoder::impl_open_vorbis()
 {
-	ov_callbacks callbacks{
-		.read_func = &VorbisAudioDecoder::vorbis_callback_read,
-		.seek_func = nullptr,
-		.close_func = nullptr,
-		.tell_func = nullptr};
-	const int ov_open_result = ov_open_callbacks(this, &vf_, nullptr, 0, callbacks);
-	if (ov_open_result != 0)
+	int error_code = VORBIS__no_error;
+	vorbis_ = stb_vorbis_open_memory(data_.data(), static_cast<int>(data_.size()), &error_code, nullptr);
+	if (vorbis_ == nullptr)
 	{
-		set_error_message_from_vorbis_code(ov_open_result);
+		set_error_message_from_vorbis_code(error_code);
 		return false;
 	}
-	const vorbis_info* const info = ov_info(&vf_, -1);
-	if (info == nullptr)
-	{
-		set_error_message("Failed to get Vorbis info.");
-		return false;
-	}
-	if (ov_streams(&vf_) != 1)
-	{
-		set_error_message("Multiple logical bitstreams.");
-		return false;
-	}
-	channel_count_ = info->channels;
-	src_frame_rate_ = static_cast<int>(info->rate);
+	const stb_vorbis_info info = stb_vorbis_get_info(vorbis_);
+	channel_count_ = info.channels;
+	src_frame_rate_ = static_cast<int>(info.sample_rate);
+	is_open_ = true;
 	return true;
 }
 
 void VorbisAudioDecoder::impl_terminate()
 {
-	stream_ = nullptr;
+	impl_close_vorbis();
+	data_.clear();
+	data_.shrink_to_fit();
 }
 
 bool VorbisAudioDecoder::impl_initialize(const AudioDecoderInitParam& param)
@@ -224,8 +210,21 @@ bool VorbisAudioDecoder::impl_initialize(const AudioDecoderInitParam& param)
 		set_error_message("Invalid destination audio frame rate.");
 		return false;
 	}
-	stream_ = std::move(param.vfs_stream);
-	if (!impl_initialize_vorbis())
+	// Read the whole stream into memory up front; stb_vorbis decodes from the buffer.
+	VfsInputStreamUPtr stream = std::move(param.vfs_stream);
+	const int stream_size = stream->get_size();
+	if (stream_size <= 0)
+	{
+		set_error_message("Empty or invalid stream.");
+		return false;
+	}
+	data_.resize(static_cast<std::size_t>(stream_size));
+	if (!stream->read_exactly(data_.data(), stream_size))
+	{
+		set_error_message("Failed to read a stream.");
+		return false;
+	}
+	if (!impl_open_vorbis())
 		return false;
 	switch (channel_count_)
 	{
@@ -253,12 +252,21 @@ bool VorbisAudioDecoder::impl_initialize(const AudioDecoderInitParam& param)
 	return true;
 }
 
-std::size_t VorbisAudioDecoder::impl_callback_read(void* ptr, std::size_t size, std::size_t nmemb)
+bool VorbisAudioDecoder::refill_cache()
 {
-	if (const int read_size = stream_->read(ptr, static_cast<int>(size * nmemb));
-		read_size > 0)
-		return read_size;
-	return 0;
+	// stb_vorbis yields one packet of planar per-channel float samples per call; 0 == end of stream.
+	int channels = 0;
+	const int read_frame_count = stb_vorbis_get_frame_float(vorbis_, &channels, &cache_samples_);
+	cache_frame_count_ = read_frame_count;
+	cache_frame_offset_ = 0;
+	return read_frame_count > 0;
+}
+
+bool VorbisAudioDecoder::update_cache()
+{
+	if (cache_frame_offset_ < cache_frame_count_)
+		return true;
+	return refill_cache();
 }
 
 int VorbisAudioDecoder::decode_frames_as_is(float* samples, int max_frames)
@@ -266,46 +274,22 @@ int VorbisAudioDecoder::decode_frames_as_is(float* samples, int max_frames)
 	int written_frame_count = 0;
 	while (written_frame_count < max_frames)
 	{
-		int bitstream;
-		float** vorbis_samples;
-		const long read_frame_count = ov_read_float(&vf_, &vorbis_samples, max_frames - written_frame_count, &bitstream);
-		if (read_frame_count == 0)
-			break;
-		if (read_frame_count < 0)
+		if (cache_frame_offset_ >= cache_frame_count_)
 		{
-			if (read_frame_count == OV_HOLE)
-				continue;
-			set_error_message_from_vorbis_code(read_frame_count);
-			return -1;
+			if (!refill_cache())
+				break;
 		}
-		for (int i_frame = 0; i_frame < read_frame_count; ++i_frame)
+		const int frame_count = std::min(max_frames - written_frame_count, cache_frame_count_ - cache_frame_offset_);
+		for (int i_frame = 0; i_frame < frame_count; ++i_frame)
 		{
 			for (int i_channel = 0; i_channel < channel_count_; ++i_channel)
-				*samples++ = vorbis_samples[i_channel][i_frame];
+				samples[i_channel] = cache_samples_[i_channel][cache_frame_offset_ + i_frame];
+			samples += channel_count_;
 		}
-		written_frame_count += read_frame_count;
+		written_frame_count += frame_count;
+		cache_frame_offset_ += frame_count;
 	}
 	return written_frame_count;
-}
-
-bool VorbisAudioDecoder::update_cache()
-{
-	if (cache_frame_offset_ < cache_frame_count_)
-		return true;
-	cache_frame_count_ = 0;
-	cache_frame_offset_ = 0;
-	for (;;)
-	{
-		const long read_frame_count = ov_read_float(&vf_, &cache_samples_, cache_capacity, nullptr);
-		if (read_frame_count < 0)
-		{
-			if (read_frame_count == OV_HOLE)
-				continue;
-			return false;
-		}
-		cache_frame_count_ = static_cast<int>(read_frame_count);
-		return cache_frame_offset_ < cache_frame_count_;
-	}
 }
 
 int VorbisAudioDecoder::decode_frames_with_resample(float* samples, int max_frames)

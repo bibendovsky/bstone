@@ -285,13 +285,11 @@ target_link_libraries(bstone
 		${CMAKE_DL_LIBS}
 		bstone::lib::sdl
 		Threads::Threads
-		bstone::lib::flac
+		bstone::lib::dr_flac
 		bstone::lib::khronos
 		bstone::lib::nuked_opl3
-		bstone::lib::ogg
 		bstone::lib::openal_soft
-		bstone::lib::vorbis
-		bstone::lib::vorbisfile
+		bstone::lib::stb_vorbis
 		bstone::lib::xbrz
 		bstone::lib::zlib
 		bstone::lib::vulkan

@@ -1151,14 +1151,11 @@ Add option `--cheats` to enable these keys.
 * [Nuked OPL3](http://github.com/nukeykt/Nuked-OPL3)  
   See file `src/lib/nuked_opl3/LICENSE` for license information
 
-* [FLAC](https://xiph.org/flac/)  
-  See file `src/lib/flac/COPYING.Xiph` for license information
+* [dr_flac](https://github.com/mackron/dr_libs)  
+  FLAC decoder. See the license statement at the end of file `src/lib/dr_flac/dr_flac.h` (public domain or MIT-0).
 
-* [Ogg](https://www.xiph.org/ogg/)  
-  See file `src/lib/ogg/COPYING` for license information
-
-* [Vorbis](https://www.xiph.org/vorbis/)  
-  See file `src/lib/vorbis/COPYING` for license information
+* [stb_vorbis](https://github.com/nothings/stb)  
+  Ogg Vorbis decoder. See the license statement at the end of file `src/lib/stb_vorbis/stb_vorbis.c` (public domain or MIT).
 
 
 17 - Credits
