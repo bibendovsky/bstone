@@ -38,7 +38,7 @@ class SystemAudioMixer final : public AudioMixer
 {
 public:
 	SystemAudioMixer(const AudioMixerInitParam& param);
-	~SystemAudioMixer() override = default;
+	~SystemAudioMixer() override;
 
 	OplEmulatorType get_opl_emulator_type() const override;
 	int get_rate() const override;
@@ -458,6 +458,14 @@ try
 	audio_device->pause(false);
 	sys_audio_device_.swap(audio_device);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+SystemAudioMixer::~SystemAudioMixer()
+{
+	// Closing the device waits for an in-flight callback, and that callback
+	// reads and writes most of the other members. Do it before any of them is
+	// destroyed rather than relying on the declaration order.
+	sys_audio_device_ = nullptr;
+}
 
 OplEmulatorType SystemAudioMixer::get_opl_emulator_type() const
 {
