@@ -550,6 +550,21 @@ bool ZipArchiveFile::is_central_file_supported(const CentralFileHeader& header) 
 	{
 		return false;
 	}
+	// A stored entry occupies exactly as many bytes as it yields. The entry stream takes
+	// its extent from the uncompressed size alone, so a header claiming a bigger one would
+	// hand out whatever follows the entry in the archive.
+	if (header.compression_method == compression_method_store &&
+		header.compressed_size != header.uncompressed_size)
+	{
+		return false;
+	}
+	// The inflate stream is built for an entry that has something to decode on both sides,
+	// which until now was only a precondition its factory asserted.
+	if (header.compression_method == compression_method_deflate &&
+		(header.compressed_size == 0 || header.uncompressed_size == 0))
+	{
+		return false;
+	}
 	if (header.file_name_length == 0)
 		return false;
 	if (header.local_header_offset == zip64_marker_32)
