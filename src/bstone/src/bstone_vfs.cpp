@@ -332,6 +332,7 @@ void VfsImpl::impl_terminate()
 {
 	is_open_ = false;
 	logger_ = nullptr;
+	search_paths_.clear();
 }
 
 bool VfsImpl::impl_initialize(const VfsInitParam& param)
@@ -340,6 +341,7 @@ bool VfsImpl::impl_initialize(const VfsInitParam& param)
 	logger_ = param.logger;
 	logger_->log_information("[{}] Initialize.", log_prefix);
 	add_search_paths(param);
+	is_open_ = true;
 	return true;
 }
 
