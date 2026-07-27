@@ -1004,6 +1004,12 @@ const char* OalAudioMixer::get_oal_default_library_file_name()
 	return
 #if _WIN32
 		"OpenAL32.dll"
+#elif defined(__APPLE__)
+		// Apple ships OpenAL as a framework, and the loader only finds it by its
+		// full path: neither the bare library name nor a relative framework path
+		// resolves. Someone with a newer implementation installed can still point
+		// at it with the custom library setting.
+		"/System/Library/Frameworks/OpenAL.framework/OpenAL"
 #else
 		"libopenal.so"
 #endif // _WIN32
