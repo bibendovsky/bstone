@@ -315,7 +315,6 @@ try
 	initialize_transient_command_pool();
 	initialize_command_pool();
 	initialize_command_buffer();
-	initialize_swapchain_sync_objects();
 	initialize_sync_objects();
 	initialize_descriptor_pool();
 	initialize_pipeline_mgr();
