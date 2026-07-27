@@ -554,7 +554,6 @@ void vid_schedule_take_screenshot();
 void vid_schedule_save_screenshot_task(
 	int width,
 	int height,
-	int stride_rgb_888,
 	ScreenshotBuffer&& src_pixels_rgb_888,
 	bool is_flipped_vertically);
 

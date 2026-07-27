@@ -30,6 +30,12 @@ struct RendererViewport : public Rect
 	using Rect::Rect;
 };
 
+struct RendererOutputSize
+{
+	int width;
+	int height;
+};
+
 // ======================================
 
 class Renderer
@@ -39,12 +45,20 @@ public:
 	virtual ~Renderer() = default;
 
 	virtual const char* get_name() const = 0;
+
+	// Size of the current rendering target in pixels.
+	virtual RendererOutputSize get_output_size() const = 0;
+
 	virtual void set_viewport() = 0;
 	virtual void clear() = 0;
 	virtual void set_draw_color(Color color) = 0;
 	virtual void fill(std::span<const FRect> rects) = 0;
 	virtual void present() = 0;
-	virtual void read_pixels(PixelFormat pixel_format, void* pixels, int pitch) = 0;
+
+	// Reads the rendering target into a buffer with tightly packed rows. The
+	// destination must be of exactly the same size as the target.
+	virtual void read_pixels(PixelFormat pixel_format, int width, int height, void* pixels) = 0;
+
 	virtual TextureUPtr make_texture(const TextureInitParam& param) = 0;
 };
 

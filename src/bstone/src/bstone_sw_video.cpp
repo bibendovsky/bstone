@@ -43,11 +43,7 @@ public:
 	bool is_hardware() const override;
 	std::string_view get_renderer_name() override;
 	void clear_vga_buffer() override;
-	void take_screenshot(
-		int width,
-		int height,
-		int stride_rgb_888,
-		ScreenshotBuffer&& src_pixels_rgb_888) override;
+	void take_screenshot() override;
 	void vsync_present() override;
 	void present() override;
 
@@ -232,18 +228,23 @@ try {
 	renderer_->set_viewport();
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void SwVideo::take_screenshot(
-	int width,
-	int height,
-	int stride_rgb_888,
-	ScreenshotBuffer&& src_pixels_rgb_888)
+void SwVideo::take_screenshot()
 try {
-	renderer_->read_pixels(sys::PixelFormat::r8g8b8, src_pixels_rgb_888.get(), stride_rgb_888);
+	// The renderer knows how big the rendered image really is; the video mode
+	// cvars do not, because the window manager is free to hand out a drawable
+	// of some other size.
+	const sys::RendererOutputSize output_size = renderer_->get_output_size();
+	const auto width = output_size.width;
+	const auto height = output_size.height;
+
+	auto src_pixels_rgb_888 = std::make_unique<std::uint8_t[]>(
+		static_cast<std::size_t>(3) * width * height);
+
+	renderer_->read_pixels(sys::PixelFormat::r8g8b8, width, height, src_pixels_rgb_888.get());
 
 	vid_schedule_save_screenshot_task(
 		width,
 		height,
-		stride_rgb_888,
 		std::move(src_pixels_rgb_888),
 		false);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED

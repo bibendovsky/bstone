@@ -63,6 +63,7 @@ public:
 
 	sys::Window& get_window() const override;
 	void handle_resize(sys::WindowSize new_size) override;
+	sys::WindowSize get_screen_size() const override;
 
 	bool get_vsync() const override;
 	void enable_vsync(bool is_enabled) override;
@@ -70,8 +71,7 @@ public:
 	void set_anti_aliasing(R3rAaType aa_type, int aa_value) override;
 
 	void read_pixels(
-		sys::PixelFormat pixel_format,
-		void* buffer,
+		const R3rReadPixelsParam& param,
 		bool& is_flipped_vertically) override;
 
 	void present() override;
@@ -369,6 +369,13 @@ try
 }
 BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
+sys::WindowSize VkR3rImpl::get_screen_size() const
+{
+	return sys::WindowSize{
+		static_cast<int>(context_.vk_offscreen_width),
+		static_cast<int>(context_.vk_offscreen_height)};
+}
+
 bool VkR3rImpl::get_vsync() const
 {
 	return context_.vk_present_mode_khr == VK_PRESENT_MODE_FIFO_KHR;
@@ -403,14 +410,13 @@ void VkR3rImpl::set_anti_aliasing(R3rAaType aa_type, int aa_value)
 }
 
 void VkR3rImpl::read_pixels(
-	sys::PixelFormat pixel_format,
-	void* buffer,
+	const R3rReadPixelsParam& param,
 	bool& is_flipped_vertically)
 {
-	if (pixel_format != sys::PixelFormat::r8g8b8)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Unsupported pixel format.");
-	}
+	r3r_validate_read_pixels_param(
+		param,
+		static_cast<int>(context_.vk_offscreen_width),
+		static_cast<int>(context_.vk_offscreen_height));
 	if (context_.surface_format != VK_FORMAT_R8G8B8A8_UNORM &&
 		context_.surface_format != VK_FORMAT_B8G8R8A8_UNORM)
 	{
@@ -544,7 +550,7 @@ void VkR3rImpl::read_pixels(
 			std::uint8_t a;
 		};
 		const RgbaPixel* const rgba_pixels = reinterpret_cast<const RgbaPixel*>(intermediate_pixels);
-		RgbPixel* const rgb_pixels = static_cast<RgbPixel*>(buffer);
+		RgbPixel* const rgb_pixels = static_cast<RgbPixel*>(param.buffer);
 		for (std::size_t i_pixel = 0; i_pixel < pixel_count; ++i_pixel)
 		{
 			const RgbaPixel& rgba_pixel = rgba_pixels[i_pixel];
@@ -565,7 +571,7 @@ void VkR3rImpl::read_pixels(
 		};
 
 		const BgraPixel* bgra_pixels = reinterpret_cast<const BgraPixel*>(intermediate_pixels);
-		RgbPixel* const rgb_pixels = static_cast<RgbPixel*>(buffer);
+		RgbPixel* const rgb_pixels = static_cast<RgbPixel*>(param.buffer);
 		for (std::size_t i_pixel = 0; i_pixel < pixel_count; ++i_pixel)
 		{
 			const BgraPixel& bgra_pixel = bgra_pixels[i_pixel];

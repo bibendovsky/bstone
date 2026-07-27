@@ -455,7 +455,6 @@ public:
 	void reset(
 		int width,
 		int height,
-		int stride_rgb_888,
 		ScreenshotBuffer&& src_pixels_rgb_888,
 		bool is_flipped_vertically);
 
@@ -467,7 +466,6 @@ private:
 
 	int width_{};
 	int height_{};
-	int stride_rgb_888_{};
 	ScreenshotBuffer src_pixels_rgb_888_{};
 	bool is_flipped_vertically_{};
 }; // SaveScreenshotMtTask
@@ -512,28 +510,32 @@ try
 
 	vid_log("Taking screenshot \"" + path + "\".");
 
+	// The image encoder expects tightly packed rows, so that is what the
+	// renderers are asked to produce.
+	const auto stride_rgb_888 = 3 * width_;
+
 	if (is_flipped_vertically_)
 	{
-		auto row_buffer = std::make_unique<std::uint8_t[]>(stride_rgb_888_);
+		auto row_buffer = std::make_unique<std::uint8_t[]>(stride_rgb_888);
 		auto tmp_row = row_buffer.get();
 
 		const auto half_height = height_ / 2;
 
 		auto src_row = src_pixels_rgb_888_.get();
-		auto dst_row = src_row + (stride_rgb_888_ * (height_ - 1));
+		auto dst_row = src_row + (stride_rgb_888 * (height_ - 1));
 
 		for (auto h = 0; h < half_height; ++h)
 		{
-			std::copy_n(src_row, stride_rgb_888_, tmp_row);
-			std::copy_n(dst_row, stride_rgb_888_, src_row);
-			std::copy_n(tmp_row, stride_rgb_888_, dst_row);
+			std::copy_n(src_row, stride_rgb_888, tmp_row);
+			std::copy_n(dst_row, stride_rgb_888, src_row);
+			std::copy_n(tmp_row, stride_rgb_888, dst_row);
 
-			src_row += stride_rgb_888_;
-			dst_row -= stride_rgb_888_;
+			src_row += stride_rgb_888;
+			dst_row -= stride_rgb_888;
 		}
 	}
 
-	const auto max_dst_buffer_size = stride_rgb_888_ * height_;
+	const auto max_dst_buffer_size = stride_rgb_888 * height_;
 	auto dst_buffer = std::make_unique<std::uint8_t[]>(max_dst_buffer_size);
 	auto image_encoder = bstone::make_image_encoder(bstone::ImageEncoderType::png);
 
@@ -599,7 +601,6 @@ void SaveScreenshotMtTask::set_failed(
 void SaveScreenshotMtTask::reset(
 	int width,
 	int height,
-	int stride_rgb_888,
 	ScreenshotBuffer&& src_pixels_rgb_888,
 	bool is_flipped_vertically)
 {
@@ -609,7 +610,6 @@ void SaveScreenshotMtTask::reset(
 
 	width_ = width;
 	height_ = height;
-	stride_rgb_888_ = stride_rgb_888;
 	src_pixels_rgb_888_ = std::move(src_pixels_rgb_888);
 	is_flipped_vertically_ = is_flipped_vertically;
 }
@@ -1290,7 +1290,6 @@ try {
 void vid_schedule_save_screenshot_task(
 	int width,
 	int height,
-	int stride_rgb_888,
 	ScreenshotBuffer&& src_pixels_rgb_888,
 	bool is_flipped_vertically)
 try {
@@ -1301,7 +1300,6 @@ try {
 			task.reset(
 				width,
 				height,
-				stride_rgb_888,
 				std::move(src_pixels_rgb_888),
 				is_flipped_vertically
 			);
@@ -1322,17 +1320,7 @@ try
 {
 	vid_is_take_screenshot_scheduled = false;
 
-	const auto width = vid_cfg_get_width();
-	const auto height = vid_cfg_get_height();
-	const auto stride_rgb_888 = (((3 * width) + 3) / 4) * 4;
-	auto src_rgb_888_pixels = std::make_unique<std::uint8_t[]>(stride_rgb_888 * height);
-
-	g_video->take_screenshot(
-		width,
-		height,
-		stride_rgb_888,
-		std::move(src_rgb_888_pixels)
-	);
+	g_video->take_screenshot();
 }
 catch (const std::exception& ex)
 {
