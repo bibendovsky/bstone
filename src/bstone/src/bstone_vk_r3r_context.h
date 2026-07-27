@@ -75,6 +75,7 @@ public:
 	};
 
 	PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr{};
+	PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr{};
 	PFN_vkCreateInstance vkCreateInstance{};
 	PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties{};
 	PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties{};

@@ -118,6 +118,8 @@ private:
 	R3rDeviceInfo device_info_{};
 	sys::WindowUPtr window_{};
 	VkR3rContext context_{};
+	// Set once the logical device exists, so the resolver can prefer it.
+	VkDevice symbol_device_{};
 	VkR3rPipelineMgrUPtr pipeline_mgr_{};
 	FrameState frame_state_{};
 
@@ -128,6 +130,23 @@ private:
 	void resolve_symbol(VkInstance instance, const char* name, T& symbol)
 	{
 		BSTONE_ASSERT(context_.vkGetInstanceProcAddr != nullptr);
+		// Once there is a device, ask it first. A device-level command obtained this
+		// way skips the loader's dispatch and so must be paired with the handles that
+		// same path produces; mixing the two hands a command a handle it cannot
+		// dispatch on. Anything that is not device-level answers null here and falls
+		// through to the instance, which is how the two lists stay separated without
+		// naming every command twice.
+		if (symbol_device_ != VK_NULL_HANDLE && context_.vkGetDeviceProcAddr != nullptr)
+		{
+			PFN_vkVoidFunction const device_symbol_void = context_.vkGetDeviceProcAddr(
+				/* device */ symbol_device_,
+				/* pName */  name);
+			if (device_symbol_void != nullptr)
+			{
+				symbol = reinterpret_cast<T>(device_symbol_void);
+				return;
+			}
+		}
 		PFN_vkVoidFunction const symbol_void = context_.vkGetInstanceProcAddr(
 			/* instance */ instance,
 			/* pName */    name);
@@ -177,6 +196,7 @@ private:
 	void initialize_enabled_global_extensions();
 	void initialize_instance();
 	void initialize_instance_symbols();
+	void initialize_device_symbols();
 	void initialize_debug_utils_messenger();
 	void initialize_surface();
 	void update_surface_capabilities();
@@ -1216,6 +1236,26 @@ void VkR3rImpl::initialize_instance()
 
 void VkR3rImpl::initialize_instance_symbols()
 {
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCreateDevice));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkDestroySurfaceKHR));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkEnumerateDeviceExtensionProperties));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkEnumeratePhysicalDevices));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetDeviceProcAddr));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceFeatures));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceMemoryProperties));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceFormatProperties));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceProperties));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceQueueFamilyProperties));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceSurfaceCapabilitiesKHR));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceSurfaceFormatsKHR));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceSurfacePresentModesKHR));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceSurfaceSupportKHR));
+}
+
+void VkR3rImpl::initialize_device_symbols()
+{
+	// Resolved through the device, so these dispatch on the handles the device
+	// itself produces rather than going back through the instance.
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkAcquireNextImageKHR));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkAllocateCommandBuffers));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkAllocateDescriptorSets));
@@ -1244,7 +1284,6 @@ void VkR3rImpl::initialize_instance_symbols()
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCreateCommandPool));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCreateDescriptorPool));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCreateDescriptorSetLayout));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCreateDevice));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCreateFence));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCreateFramebuffer));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCreateGraphicsPipelines));
@@ -1271,27 +1310,15 @@ void VkR3rImpl::initialize_instance_symbols()
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkDestroySampler));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkDestroySemaphore));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkDestroyShaderModule));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkDestroySurfaceKHR));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkDestroySwapchainKHR));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkDeviceWaitIdle));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkEndCommandBuffer));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkEnumerateDeviceExtensionProperties));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkEnumeratePhysicalDevices));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkFreeCommandBuffers));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkFreeDescriptorSets));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkFreeMemory));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetBufferMemoryRequirements));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetDeviceQueue));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetImageMemoryRequirements));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceFeatures));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceMemoryProperties));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceFormatProperties));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceProperties));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceQueueFamilyProperties));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceSurfaceCapabilitiesKHR));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceSurfaceFormatsKHR));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceSurfacePresentModesKHR));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceSurfaceSupportKHR));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetSwapchainImagesKHR));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkMapMemory));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkQueuePresentKHR));
@@ -1564,6 +1591,12 @@ void VkR3rImpl::initialize_logical_device()
 		/* pDevice */        &vk_device);
 	ensure_vk_result(vk_result, "vkCreateDevice");
 	context_.device = VkR3rDeviceResource{vk_device, VkR3rDeviceDeleter{context_}};
+	// Take the device-level commands from the device now that there is one. This has
+	// to happen before the queue is fetched: a command obtained from the device
+	// dispatches on the handles that path produces, so the queue and the calls that
+	// later submit to it must both come from it.
+	symbol_device_ = vk_device;
+	initialize_device_symbols();
 	context_.vkGetDeviceQueue(
 		/* device */           vk_device,
 		/* queueFamilyIndex */ context_.queue_family_index,
