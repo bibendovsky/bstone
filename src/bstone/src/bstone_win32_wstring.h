@@ -37,6 +37,7 @@ public:
 		const int u16_size_with_null = utf8_to_utf16(u8_string, u8_size_with_null);
 		if (u16_size_with_null < 0)
 		{
+			storage_ = nullptr;
 			return;
 		}
 		if (u16_size_with_null <= TStackCapacity)
@@ -90,7 +91,7 @@ public:
 
 private:
 	wchar_t stack_storage_[TStackCapacity];
-	wchar_t* storage_;
+	wchar_t* storage_{};
 	int size_{};
 
 	void deallocate()
