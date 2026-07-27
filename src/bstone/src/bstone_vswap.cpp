@@ -51,6 +51,7 @@ private:
 	static constexpr int max_file_size = 4'000'000;
 	static constexpr int min_chunks = 0;
 	static constexpr int max_chunks = 1400;
+	static constexpr int wall_page_size = 64 * 64;
 
 	struct BytesDeleter
 	{
@@ -114,6 +115,12 @@ VswapImpl::VswapImpl()
 		if (chunk_offset < data_start || chunk_offset > file_size || chunk_offset + chunk_size > file_size)
 		{
 			BSTONE_THROW_STATIC_SOURCE("Invalid chunk boundaries.");
+		}
+		// Every consumer of a wall reads a whole page without consulting the
+		// declared size, so a short one would be read past its end.
+		if (i < sprite_start && chunk_size != wall_page_size)
+		{
+			BSTONE_THROW_STATIC_SOURCE("Invalid wall size.");
 		}
 	}
 }
