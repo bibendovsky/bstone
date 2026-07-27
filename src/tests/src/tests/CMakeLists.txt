@@ -132,6 +132,8 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_opl_music_decoder.cpp
 		../../../bstone/src/bstone_opl_music_decoder.h
 		../../../bstone/src/bstone_r3r.h
+		../../../bstone/src/jm_lzh.cpp
+		../../../bstone/src/jm_lzh.h
 	PRIVATE
 		src/bstone_tests_ascii.cpp
 		src/bstone_tests_char_conv.cpp
@@ -161,7 +163,11 @@ target_sources(bstone_tests
 		src/bstone_tests_opl_sfx_decoder.cpp
 		src/bstone_tests_opl_music_decoder.cpp
 		src/bstone_tests_r3r.cpp
+<<<<<<< HEAD
 		src/bstone_tests_r3r_sample_count.cpp
+=======
+		src/bstone_tests_jm_lzh.cpp
+>>>>>>> fda5696d ([LZH] Stop the decoder writing past the end of the output buffer)
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h
