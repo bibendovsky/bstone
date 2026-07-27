@@ -203,6 +203,13 @@ void Movie::show_frame()
 		{
 			BSTONE_THROW_STATIC_SOURCE("Truncated draw data.");
 		}
+		// The chunk offset is an index into the screen buffer and VL_Plot clamps
+		// nothing, so a chunk reaching past the last pixel would write past the end
+		// of the buffer.
+		if (anim_chunk_offset + anim_chunk_length > vga_ref_width * vga_ref_height)
+		{
+			BSTONE_THROW_STATIC_SOURCE("Draw data out of screen.");
+		}
 		jm_draw_block(anim_chunk_offset, static_cast<const std::uint8_t*>(reader.get_current_data()), anim_chunk_length);
 		reader.skip(anim_chunk_length);
 	}
