@@ -122,6 +122,7 @@ bool WavAudioDecoder::rewind()
 		return false;
 	cache_frame_count_ = 0;
 	cache_frame_offset_ = 0;
+	cache_frame_offset_counter_ = 0;
 	wav_offset_ = 0;
 	return true;
 }
