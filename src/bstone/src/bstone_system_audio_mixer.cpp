@@ -1154,6 +1154,8 @@ auto SystemAudioMixer::initialize_cache_item(const PlaySoundCommandParam& comman
 			return cache_item;
 	}
 	cache_item = get_cache_item(command_param.sound_type, command_param.sound_index);
+	if (cache_item == nullptr)
+		return nullptr;
 	const bool is_opl_music = (command_param.sound_type == SoundType::opl_music);
 	if (cache_item->is_active)
 	{
@@ -1193,6 +1195,8 @@ auto SystemAudioMixer::initialize_cache_item(const PlaySoundCommandParam& comman
 auto SystemAudioMixer::initialize_ext_cache_item(const PlaySoundCommandParam& command_param) -> CacheItem*
 {
 	CacheItem* const cache_item = get_ext_cache_item(command_param.sound_type, command_param.sound_index);
+	if (cache_item == nullptr)
+		return nullptr;
 	const bool is_opl_music = (command_param.sound_type == SoundType::opl_music);
 	if (cache_item->is_active)
 	{
