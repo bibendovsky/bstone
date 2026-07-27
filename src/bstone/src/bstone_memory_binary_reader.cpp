@@ -39,7 +39,9 @@ void MemoryBinaryReader::skip(int count)
 
 bool MemoryBinaryReader::can_read_n(int count) const
 {
-	return size_ - position_ >= count;
+	// Counts often come from the data being parsed. A negative one would sail
+	// through the comparison below and vouch for a read that can not be made.
+	return count >= 0 && size_ - position_ >= count;
 }
 
 bool MemoryBinaryReader::can_read_x8() const

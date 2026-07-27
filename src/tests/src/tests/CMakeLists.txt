@@ -131,6 +131,7 @@ target_sources(bstone_tests
 		src/bstone_tests_steam_manifest.cpp
 		src/bstone_tests_vdf.cpp
 		src/bstone_tests_zip_archive_file.cpp
+		src/bstone_tests_memory_binary_reader.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h
