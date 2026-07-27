@@ -275,7 +275,6 @@ try
 			{
 				window_param.aa_type = R3rAaType::none;
 				window_param.aa_value = 0;
-				window_param.is_default_depth_buffer_disabled = true;
 			}
 		}
 		else
