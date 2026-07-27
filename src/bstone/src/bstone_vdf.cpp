@@ -151,6 +151,7 @@ private:
 		if (peek() != '{')
 			return parse_token(node.value);
 		++pos_; // Opening brace.
+		node.is_block = true;
 		while (true)
 		{
 			skip_space_and_comments();
@@ -185,7 +186,7 @@ bool are_names_equal(std::string_view lhs, std::string_view rhs) noexcept
 
 bool VdfNode::is_object() const noexcept
 {
-	return !children.empty();
+	return is_block;
 }
 
 const VdfNode* VdfNode::find_child(std::string_view child_name) const noexcept

@@ -20,12 +20,17 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-// A node is either an object (it has children) or a leaf (it has a value).
+// A node is either an object (it was written as a `{ ... }` block) or a leaf (it
+// has a value).
 struct VdfNode
 {
 	std::string name;
 	std::string value; // Meaningful only for a leaf.
 	std::vector<VdfNode> children;
+	// Set when the node was written as a block. An empty block is real - a library
+	// folder with no games installed writes `"apps" {}` - so emptiness of `children`
+	// must not be used to tell an object from a leaf.
+	bool is_block{};
 
 	bool is_object() const noexcept;
 

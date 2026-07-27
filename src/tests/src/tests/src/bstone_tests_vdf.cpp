@@ -258,6 +258,75 @@ void test_e18zvbckv4wvf97j()
 		obj != nullptr && obj->is_object());
 }
 
+// bool VdfNode::is_object() const
+// An empty block is still an object. Steam writes `"apps" {}` for a library
+// folder with nothing installed in it.
+void test_pw1tqk4vsyn8j2ba()
+{
+	auto root = bstone::VdfNode{};
+	const auto is_parsed = bstone::parse_vdf("\"apps\"\n{\n}\n\"scalar\" \"\"", root);
+	const auto* const apps = root.find_child("apps");
+	const auto* const scalar = root.find_child("scalar");
+	tester.check(
+		is_parsed &&
+		apps != nullptr && apps->is_object() && apps->children.empty() &&
+		scalar != nullptr && !scalar->is_object());
+}
+
+// bool parse_vdf(std::string_view, VdfNode&)
+// Brackets inside a quoted value are literal, not a platform conditional.
+void test_74n2wcbzsp2hbcyc()
+{
+	auto root = bstone::VdfNode{};
+	const auto is_parsed = bstone::parse_vdf("\"path\" \"D:\\\\Games\\\\[Steam]\"", root);
+	tester.check(is_parsed && root.find_value("path") == "D:\\Games\\[Steam]");
+}
+
+// bool parse_vdf(std::string_view, VdfNode&)
+// A UNC library path only survives if escapes are processed.
+void test_bnbx7yrpc5f5owsc()
+{
+	auto root = bstone::VdfNode{};
+	const auto is_parsed = bstone::parse_vdf("\"path\" \"\\\\\\\\NAS\\\\Share\"", root);
+	tester.check(is_parsed && root.find_value("path") == "\\\\NAS\\Share");
+}
+
+// bool parse_vdf(std::string_view, VdfNode&)
+// Scalar siblings sit alongside the numbered library entries, so a caller must be
+// able to tell them apart.
+void test_yqbm5f8hbnjy1mjb()
+{
+	constexpr auto text =
+		"\"libraryfolders\"\n"
+		"{\n"
+		"\t\"contentstatsid\"\t\t\"123456789\"\n"
+		"\t\"0\"\n"
+		"\t{\n"
+		"\t\t\"path\"\t\t\"/steam\"\n"
+		"\t}\n"
+		"}\n";
+	auto root = bstone::VdfNode{};
+	const auto is_parsed = bstone::parse_vdf(text, root);
+	const auto* const folders = root.find_child("libraryfolders");
+	const auto* const stats = folders != nullptr ? folders->find_child("contentstatsid") : nullptr;
+	const auto* const entry = folders != nullptr ? folders->find_child("0") : nullptr;
+	tester.check(
+		is_parsed &&
+		folders != nullptr && folders->children.size() == 2 &&
+		stats != nullptr && !stats->is_object() &&
+		entry != nullptr && entry->is_object() &&
+		entry->find_value("path") == "/steam");
+}
+
+// const VdfNode* VdfNode::find_child(std::string_view) const
+// Duplicate keys are kept, and the first one wins, as KeyValues does.
+void test_h1i2pvjnz6ftwgg2()
+{
+	auto root = bstone::VdfNode{};
+	const auto is_parsed = bstone::parse_vdf("\"k\" \"first\" \"k\" \"second\"", root);
+	tester.check(is_parsed && root.children.size() == 2 && root.find_value("k") == "first");
+}
+
 // ==========================================================================
 
 // bool parse_vdf(std::string_view, VdfNode&)
@@ -348,6 +417,11 @@ private:
 		tester.register_test("Vdf#5lariqpxs8t1lb69", test_5lariqpxs8t1lb69);
 		tester.register_test("Vdf#lcle5r4sogsq8xyb", test_lcle5r4sogsq8xyb);
 		tester.register_test("Vdf#e18zvbckv4wvf97j", test_e18zvbckv4wvf97j);
+		tester.register_test("Vdf#pw1tqk4vsyn8j2ba", test_pw1tqk4vsyn8j2ba);
+		tester.register_test("Vdf#74n2wcbzsp2hbcyc", test_74n2wcbzsp2hbcyc);
+		tester.register_test("Vdf#bnbx7yrpc5f5owsc", test_bnbx7yrpc5f5owsc);
+		tester.register_test("Vdf#yqbm5f8hbnjy1mjb", test_yqbm5f8hbnjy1mjb);
+		tester.register_test("Vdf#h1i2pvjnz6ftwgg2", test_h1i2pvjnz6ftwgg2);
 	}
 
 	void register_malformed()
