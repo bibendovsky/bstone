@@ -30,6 +30,7 @@ target_compile_options(bstone_tests
 target_include_directories(bstone_tests
 	PRIVATE
 		${PROJECT_SOURCE_DIR}/../../../bstone/src
+		${PROJECT_SOURCE_DIR}/../../../bstone/src/dosbox
 )
 
 target_link_libraries(bstone_tests
@@ -39,6 +40,7 @@ target_link_libraries(bstone_tests
 		bstone::lib::sdl
 		bstone::lib::stb_vorbis
 		bstone::lib::zlib
+		bstone::lib::nuked_opl3
 )
 
 target_sources(bstone_tests
@@ -110,6 +112,22 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_audio_decoder.h
 		../../../bstone/src/bstone_pc_speaker_audio_decoder.cpp
 		../../../bstone/src/bstone_pc_speaker_audio_decoder.h
+		../../../bstone/src/bstone_audio_sample_converter.cpp
+		../../../bstone/src/bstone_audio_sample_converter.h
+		../../../bstone/src/bstone_opl_sfx_decoder.cpp
+		../../../bstone/src/bstone_opl_sfx_decoder.h
+		../../../bstone/src/bstone_opl_emulator.cpp
+		../../../bstone/src/bstone_opl_emulator.h
+		../../../bstone/src/bstone_opl_utility.cpp
+		../../../bstone/src/bstone_opl_utility.h
+		../../../bstone/src/bstone_dbopl_emulator.cpp
+		../../../bstone/src/bstone_dbopl_emulator.h
+		../../../bstone/src/bstone_nuked_opl3_emulator.cpp
+		../../../bstone/src/bstone_nuked_opl3_emulator.h
+		../../../bstone/src/dosbox/dbopl.cpp
+		../../../bstone/src/dosbox/dbopl.h
+		../../../bstone/src/dosbox/mixer.cpp
+		../../../bstone/src/dosbox/mixer.h
 	PRIVATE
 		src/bstone_tests_ascii.cpp
 		src/bstone_tests_char_conv.cpp
@@ -136,6 +154,7 @@ target_sources(bstone_tests
 		src/bstone_tests_zip_archive_file.cpp
 		src/bstone_tests_memory_binary_reader.cpp
 		src/bstone_tests_pc_speaker_audio_decoder.cpp
+		src/bstone_tests_opl_sfx_decoder.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h
