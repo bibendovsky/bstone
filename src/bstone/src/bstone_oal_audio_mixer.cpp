@@ -1880,6 +1880,10 @@ void OalAudioMixer::r3s_update_oal_source()
 
 void OalAudioMixer::mix_r3s()
 {
+	// The mixing buffer is allocated only when the source is ready for it, so
+	// without a source there is nothing to mix into.
+	if (!r3s_sound_.is_initialized || !r3s_oal_source_.is_open())
+		return;
 	const int max_frames = mix_frame_count_ * oal_source_max_streaming_buffers;
 	while (r3s_sound_.queue_size < oal_source_max_streaming_buffers)
 	{
