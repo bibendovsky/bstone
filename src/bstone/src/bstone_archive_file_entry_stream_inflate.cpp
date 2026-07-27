@@ -101,6 +101,7 @@ int ArchiveFileInflateStream::read(void* buffer, int count)
 	BSTONE_ASSERT(count >= 0);
 	count = std::min(count, uncompressed_size_ - uncompressed_position_);
 	::Bytef* dst_bytes = static_cast<::Bytef*>(buffer);
+	bool is_stream_end = false;
 	while (count > 0)
 	{
 		if (zlib_out_cache_offset_ < zlib_stream_.total_out)
@@ -117,6 +118,11 @@ int ArchiveFileInflateStream::read(void* buffer, int count)
 		}
 		else
 		{
+			// The cache is drained. Once inflate is done it keeps reporting the end of the
+			// stream without producing anything, so an entry that decodes to less than its
+			// declared uncompressed size would spin here forever.
+			if (is_stream_end)
+				break;
 			zlib_out_cache_offset_ = 0;
 			zlib_stream_.next_out = zlib_out_cache_;
 			zlib_stream_.avail_out = zlib_out_cache_max_capacity;
@@ -143,7 +149,9 @@ int ArchiveFileInflateStream::read(void* buffer, int count)
 		switch (zlib_result)
 		{
 			case Z_OK:
+				break;
 			case Z_STREAM_END:
+				is_stream_end = true;
 				break;
 			case Z_NEED_DICT:
 			case Z_ERRNO:
