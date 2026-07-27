@@ -62,7 +62,10 @@ public:
 private:
 	static constexpr std::size_t storage_size = sizeof(TextureLockSdl);
 	bool is_allocated_{};
-	std::byte storage_[storage_size];
+
+	// The buffer stands in for the default allocator, so it has to be aligned
+	// for the object it holds and not for the byte it is made of.
+	alignas(TextureLockSdl) std::byte storage_[storage_size];
 };
 
 // ======================================
