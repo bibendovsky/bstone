@@ -1029,10 +1029,36 @@ void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 	std::string oal_library_string{};
 	const std::string_view oal_library = sd_get_oal_library();
 	if (oal_library.empty())
-		oal_library_string = get_oal_default_library_file_name();
+	{
+#if defined(__APPLE__)
+		// Apple's own framework is deprecated and renders silence for some
+		// sources on modern macOS, so an installed openal-soft gets first
+		// refusal before falling back to it.
+		static constexpr const char* candidate_library_file_names[] = {
+			"/opt/homebrew/opt/openal-soft/lib/libopenal.dylib", // Homebrew, Apple Silicon.
+			"/usr/local/opt/openal-soft/lib/libopenal.dylib", // Homebrew, Intel.
+		};
+		for (const char* candidate_library_file_name : candidate_library_file_names)
+		{
+			try
+			{
+				oal_loader_ = make_oal_loader(candidate_library_file_name);
+				oal_library_string = candidate_library_file_name;
+				break;
+			}
+			catch (...)
+			{
+			}
+		}
+#endif // __APPLE__
+		if (oal_loader_ == nullptr)
+			oal_library_string = get_oal_default_library_file_name();
+	}
 	else
 		oal_library_string.append(oal_library.data(), oal_library.size());
-	oal_loader_ = make_oal_loader(oal_library_string.c_str());
+	if (oal_loader_ == nullptr)
+		oal_loader_ = make_oal_loader(oal_library_string.c_str());
+	log(std::string{"Using library: \""} + oal_library_string + '\"');
 	oal_loader_->load_alc_symbols();
 	detect_alc_extensions();
 	log_oal_devices();
