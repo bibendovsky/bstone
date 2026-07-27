@@ -38,9 +38,10 @@ private:
 	using ImageLayouts = std::array<VkImageLayout, R3rLimits::max_mip_levels>;
 
 	VkR3rContext& context_;
+	// Destroyed in reverse declaration order: the view first, then the image, then its memory.
 	VkR3rDeviceMemoryResource image_device_memory_resource_{};
-	VkR3rImageViewResource image_view_resource_{};
 	VkR3rImageResource image_resource_{};
+	VkR3rImageViewResource image_view_resource_{};
 	VkR3rDeviceMemoryResource staging_buffer_device_memory_resource_{};
 	VkR3rBufferResource staging_buffer_resource_{};
 	void* staging_buffer_mapped_memory_{};
