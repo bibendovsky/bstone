@@ -3712,12 +3712,10 @@ void ReadGameNames()
 
 		if (chunk_size > 0)
 		{
-			char temp[GAME_DESCRIPTION_LEN + 1];
-
-			std::fill_n(
-				temp,
-				GAME_DESCRIPTION_LEN,
-				'\0');
+			// The description is stored without a terminator and can occupy
+			// every one of its characters, so the extra byte has to be zeroed
+			// as well.
+			char temp[GAME_DESCRIPTION_LEN + 1]{};
 
 			auto temp_size = std::min(GAME_DESCRIPTION_LEN, chunk_size);
 
