@@ -38,6 +38,7 @@ target_link_libraries(bstone_tests
 		${CMAKE_DL_LIBS}
 		bstone::lib::dr_flac
 			bstone::lib::nuked_opl3
+		bstone::lib::nuked_opl3
 		bstone::lib::sdl
 		bstone::lib::stb_vorbis
 		bstone::lib::zlib
@@ -113,6 +114,12 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_audio_sample_converter.h
 		../../../bstone/src/bstone_opl_emulator.cpp
 		../../../bstone/src/bstone_opl_emulator.h
+		../../../bstone/src/bstone_memory_binary_reader.cpp
+		../../../bstone/src/bstone_memory_binary_reader.h
+		../../../bstone/src/bstone_opl_emulator.cpp
+		../../../bstone/src/bstone_opl_emulator.h
+		../../../bstone/src/bstone_opl_music_decoder.cpp
+		../../../bstone/src/bstone_opl_music_decoder.h
 		../../../bstone/src/bstone_opl_utility.cpp
 		../../../bstone/src/bstone_opl_utility.h
 		../../../bstone/src/bstone_dbopl_emulator.cpp
@@ -154,6 +161,7 @@ target_sources(bstone_tests
 		src/bstone_tests_memory_binary_reader.cpp
 		src/bstone_tests_pc_speaker_audio_decoder.cpp
 		src/bstone_tests_opl_sfx_decoder.cpp
+		src/bstone_tests_opl_music_decoder.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h
