@@ -38,6 +38,7 @@ target_link_libraries(bstone_tests
 		bstone::lib::dr_flac
 		bstone::lib::sdl
 		bstone::lib::stb_vorbis
+		bstone::lib::zlib
 )
 
 target_sources(bstone_tests
@@ -93,6 +94,19 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_steam_manifest.h
 		../../../bstone/src/bstone_vdf.cpp
 		../../../bstone/src/bstone_vdf.h
+		../../../bstone/src/bstone_memory_binary_reader.cpp
+		../../../bstone/src/bstone_memory_binary_reader.h
+		../../../bstone/src/bstone_archive_file.h
+		../../../bstone/src/bstone_archive_file_entry_stream.h
+		../../../bstone/src/bstone_archive_file_entry_stream_inflate.cpp
+		../../../bstone/src/bstone_archive_file_entry_stream_store.cpp
+		../../../bstone/src/bstone_archive_file_input_stream.h
+		../../../bstone/src/bstone_archive_file_input_stream_file.cpp
+		../../../bstone/src/bstone_archive_file_input_stream_memory.cpp
+		../../../bstone/src/bstone_zip_archive_file.cpp
+		../../../bstone/src/bstone_zip_archive_file.h
+		../../../bstone/src/bstone_zip_archive_file_crc_32.cpp
+		../../../bstone/src/bstone_zip_archive_file_crc_32.h
 	PRIVATE
 		src/bstone_tests_ascii.cpp
 		src/bstone_tests_char_conv.cpp
@@ -116,6 +130,7 @@ target_sources(bstone_tests
 		src/bstone_tests_four_cc.cpp
 		src/bstone_tests_steam_manifest.cpp
 		src/bstone_tests_vdf.cpp
+		src/bstone_tests_zip_archive_file.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h

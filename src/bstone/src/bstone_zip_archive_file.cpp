@@ -596,7 +596,7 @@ bool ZipArchiveFile::initialize_entry_name(const CentralFileHeader& header, Arch
 void ZipArchiveFile::reserve_entries(int capacity)
 {
 	BSTONE_ASSERT(capacity >= 0);
-	BSTONE_ASSERT(capacity <= INT_MAX / sizeof(ArchiveFileEntry));
+	BSTONE_ASSERT(capacity <= static_cast<int>(INT_MAX / sizeof(ArchiveFileEntry)));
 	if (entries_capacity_ >= capacity)
 		return;
 	const int storage_size = capacity * sizeof(ArchiveFileEntry);
