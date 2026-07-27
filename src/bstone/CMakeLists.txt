@@ -565,6 +565,8 @@ source_group("bstone/renderer/3d/gl" FILES ${BSTONE_BSTONE_RENDERER_3D_GL_SOURCE
 # ---------------------------------------------------------------------------
 
 set(BSTONE_BSTONE_RENDERER_3D_VK_SOURCES
+	src/bstone_vdf.cpp
+	src/bstone_vdf.h
 	src/bstone_vk_r3r.cpp
 	src/bstone_vk_r3r.h
 	src/bstone_vk_r3r_buffer.cpp
