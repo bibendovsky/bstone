@@ -1016,6 +1016,12 @@ try {
 		return;
 	}
 
+	// The frame that was just submitted is still sitting in the MSAA
+	// framebuffer. Resolving it here rather than waiting for the presentation
+	// keeps the screenshot from picking up whatever the default framebuffer
+	// was left with by the previous buffer swap.
+	blit_framebuffers();
+
 	bind_framebuffer(GL_FRAMEBUFFER, 0);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
