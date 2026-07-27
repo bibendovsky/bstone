@@ -10,6 +10,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_exception.h"
 #include "bstone_sdl.h"
 #include <cstddef>
+#include "SDL3/SDL_timer.h"
 #include "SDL3/SDL_time.h"
 
 namespace bstone::sys {
@@ -22,6 +23,11 @@ TimeNs get_current_time_ns()
 		sdl::fail("SDL_GetCurrentTime");
 	}
 	return sdl_time;
+}
+
+TimeNs get_elapsed_time_ns()
+{
+	return static_cast<TimeNs>(SDL_GetTicksNS());
 }
 
 DateTime time_ns_to_date_time(TimeNs time_ns, DateTimeKind date_time_kind)

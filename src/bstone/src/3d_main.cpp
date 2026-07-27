@@ -10793,7 +10793,7 @@ void sys_sleep_for_ns(long long nanoseconds)
 
 long long sys_get_time_ns()
 {
-	return bstone::sys::get_current_time_ns();
+	return bstone::sys::get_elapsed_time_ns();
 }
 
 void sys_default_sleep_for()
