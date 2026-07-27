@@ -895,16 +895,13 @@ int OalAudioMixer::get_max_voice_count()
 	using OalSourceResources = std::array<OalSourceResource, voices_limit>;
 	OalSourceResources oal_source_resources{};
 	int voice_count = 0;
-	try
+	for (OalSourceResource& oal_source_resource : oal_source_resources)
 	{
-		for (auto& oal_source_resource : oal_source_resources)
-		{
-			oal_source_resource = make_oal_source();
-			++voice_count;
-		}
+		oal_source_resource = make_oal_source();
+		if (oal_source_resource.is_empty())
+			break;
+		++voice_count;
 	}
-	catch (...)
-	{}
 	return voice_count;
 }
 

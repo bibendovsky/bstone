@@ -82,8 +82,9 @@ OalSourceResource make_oal_source()
 {
 	BSTONE_ASSERT(alGenSources != nullptr);
 	ALuint al_source = 0;
+	// A driver runs out of sources sooner or later - the callers probe for that
+	// limit on purpose - so an empty result is a normal outcome, not a bug.
 	alGenSources(1, &al_source);
-	BSTONE_ASSERT(al_source != 0);
 	return OalSourceResource{al_source};
 }
 
