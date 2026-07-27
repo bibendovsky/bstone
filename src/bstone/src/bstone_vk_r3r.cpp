@@ -13,6 +13,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_scope_exit.h"
 #include "bstone_r3r_cmd_buffer.h"
 #include "bstone_r3r_limits.h"
+#include "bstone_r3r_sample_count.h"
 #include "bstone_string_builder.h"
 #include "bstone_sys_logger.h"
 #include "bstone_vk_r3r_array_extractor.h"
@@ -852,15 +853,7 @@ void VkR3rImpl::ensure_vk_result(VkResult vk_result, const char* vk_name)
 
 int VkR3rImpl::get_max_sample_count() const
 {
-	for (int i_bit = 6; i_bit >= 0; --i_bit)
-	{
-		const unsigned int sample_count = 1U << i_bit;
-		if ((context_.sample_count_bitmask & sample_count) != 0)
-		{
-			return static_cast<int>(sample_count);
-		}
-	}
-	return 1;
+	return R3rSampleCount::get_max(context_.sample_count_bitmask);
 }
 
 int VkR3rImpl::choose_sample_count(R3rAaType aa_type, int aa_degree) const
@@ -873,17 +866,7 @@ int VkR3rImpl::choose_sample_count(R3rAaType aa_type, int aa_degree) const
 		default:
 			return 1;
 	}
-	const unsigned int max_sample_count = static_cast<unsigned int>(std::min(aa_degree, get_max_sample_count()));
-	for (int i_bit = 6; i_bit >= 0; --i_bit)
-	{
-		const unsigned int sample_count = 1U << i_bit;
-		if ((context_.sample_count_bitmask & sample_count) != 0 &&
-			sample_count <= max_sample_count)
-		{
-			return static_cast<int>(sample_count);
-		}
-	}
-	return 1;
+	return R3rSampleCount::choose(context_.sample_count_bitmask, aa_degree);
 }
 
 VkPresentModeKHR VkR3rImpl::choose_present_mode(bool enable_vsync) const
@@ -2478,7 +2461,7 @@ void VkR3rImpl::initialize_sample_count(const R3rInitParam& r3r_init_param)
 	// Ensure at least one sample count.
 	context_.sample_count_bitmask |= VK_SAMPLE_COUNT_1_BIT;
 	// Apply the limit.
-	context_.sample_count_bitmask &= R3rLimits::max_aa - 1;
+	context_.sample_count_bitmask = R3rSampleCount::clamp_bitmask(context_.sample_count_bitmask);
 	BSTONE_ASSERT(context_.sample_count_bitmask != 0);
 	context_.sample_count = choose_sample_count(r3r_init_param.aa_type, r3r_init_param.aa_value);
 }

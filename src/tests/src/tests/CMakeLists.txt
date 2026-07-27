@@ -84,6 +84,8 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_win32_advapi32_symbols.cpp
 		../../../bstone/src/bstone_win32_advapi32_symbols.h
 		../../../bstone/src/bstone_four_cc.h
+		../../../bstone/src/bstone_r3r_limits.h
+		../../../bstone/src/bstone_r3r_sample_count.h
 		../../../bstone/src/bstone_win32_os_version.cpp
 		../../../bstone/src/bstone_win32_os_version.h
 		../../../bstone/src/bstone_win32_utility.cpp
@@ -159,6 +161,7 @@ target_sources(bstone_tests
 		src/bstone_tests_opl_sfx_decoder.cpp
 		src/bstone_tests_opl_music_decoder.cpp
 		src/bstone_tests_r3r.cpp
+		src/bstone_tests_r3r_sample_count.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h
