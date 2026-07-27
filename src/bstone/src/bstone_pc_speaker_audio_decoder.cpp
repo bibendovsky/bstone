@@ -170,7 +170,15 @@ int PcSpeakerAudioDecoder::decode_frames(float* samples, int max_frames)
 bool PcSpeakerAudioDecoder::rewind()
 {
 	BSTONE_ASSERT(is_initialized());
+	// The command counter and the PIT state carry the phase of the playback, so
+	// they have to go back to their initial values too for the sound to start
+	// over exactly as it did the first time.
 	command_offset_ = 0;
+	last_command_ = 0;
+	pit_signal_level_ = 0;
+	pit_counter_step_ = 0;
+	pit_counter_ = 0;
+	command_counter_ = dst_sample_rate_;
 	is_finished_ = false;
 	return true;
 }

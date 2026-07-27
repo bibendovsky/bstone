@@ -180,6 +180,39 @@ void test_4e4mervbv9g39vqa()
 
 // ==========================================================================
 
+// bool rewind()
+// A rewound sound plays back exactly as it did the first time.
+void test_wujzbduytphe9hvl()
+{
+	constexpr int command_count = 2;
+	const auto chunk = make_chunk(command_count, command_count);
+	auto decoder = bstone::make_pc_speaker_audio_decoder();
+
+	const auto is_initialized = decoder->initialize(
+		bstone::AudioDecoderInitParam{
+			.vfs_stream = bstone::VfsInputStreamUPtr{},
+			.src_raw_data = chunk.data(),
+			.src_raw_size = static_cast<int>(chunk.size()),
+			.dst_rate = test_dst_rate});
+
+	auto first_samples = std::vector<float>(test_dst_rate);
+	const auto first_frame_count = decoder->decode_frames(first_samples.data(), test_dst_rate);
+	const auto is_rewound = decoder->rewind();
+	auto second_samples = std::vector<float>(test_dst_rate);
+	const auto second_frame_count = decoder->decode_frames(second_samples.data(), test_dst_rate);
+
+	const auto is_valid =
+		is_initialized &&
+		is_rewound &&
+		first_frame_count == command_count * test_frames_per_command &&
+		second_frame_count == first_frame_count &&
+		first_samples == second_samples;
+
+	tester.check(is_valid);
+}
+
+// ==========================================================================
+
 class Registrator
 {
 public:
@@ -187,6 +220,7 @@ public:
 	{
 		register_initialize();
 		register_decode_frames();
+		register_rewind();
 	}
 
 private:
@@ -204,6 +238,11 @@ private:
 	void register_decode_frames()
 	{
 		tester.register_test("PcSpeakerAudioDecoder#4e4mervbv9g39vqa", test_4e4mervbv9g39vqa);
+	}
+
+	void register_rewind()
+	{
+		tester.register_test("PcSpeakerAudioDecoder#wujzbduytphe9hvl", test_wujzbduytphe9hvl);
 	}
 };
 
