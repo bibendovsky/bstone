@@ -9993,9 +9993,16 @@ int main(
 
 		void log(bstone::sys::LogLevel level, const char* message) override
 		{
-			BSTONE_ASSERT(level == bstone::sys::LogLevel::information);
-			static_cast<void>(level);
-			logger_.log_information(message != nullptr ? message : "");
+			// The graphics and audio back-ends report real warnings and failures
+			// through here - a lost device, for one - so the level has to be carried
+			// across rather than assumed to be informational.
+			const char* const text = message != nullptr ? message : "";
+			switch (level)
+			{
+				case bstone::sys::LogLevel::warning: logger_.log_warning(text); break;
+				case bstone::sys::LogLevel::error: logger_.log_error(text); break;
+				default: logger_.log_information(text); break;
+			}
 		}
 
 	private:
