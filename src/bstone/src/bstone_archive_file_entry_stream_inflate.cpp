@@ -76,6 +76,11 @@ bool ArchiveFileInflateStream::rewind()
 		return false;
 	if (::inflateReset2(&zlib_stream_, -15) != Z_OK)
 		return false;
+	// The reset leaves the input side to the caller, so any bytes still buffered from
+	// before the rewind would be handed to the fresh inflate state as if they were the
+	// beginning of the stream.
+	zlib_stream_.next_in = zlib_in_cache_;
+	zlib_stream_.avail_in = 0;
 	compressed_position_ = compressed_begin_position_;
 	uncompressed_position_ = 0;
 	zlib_out_cache_offset_ = 0;
