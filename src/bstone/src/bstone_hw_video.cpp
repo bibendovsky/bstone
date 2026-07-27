@@ -1500,7 +1500,22 @@ try {
 
 HwVideo::~HwVideo()
 {
-	uninitialize_video();
+	// Tearing down waits for the device, and that wait fails once the device has
+	// been lost. A destructor may not throw, so report the failure and let the
+	// rest of the shut-down run. Reporting must not throw either, or the
+	// destructor ends the process just the same.
+	try
+	{
+		uninitialize_video();
+	}
+	catch (...)
+	{
+		try
+		{
+			log_error("Failed to uninitialize the video system.");
+		}
+		catch (...) {}
+	}
 }
 
 bool HwVideo::is_hardware() const
