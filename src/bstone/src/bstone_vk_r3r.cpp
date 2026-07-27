@@ -9,6 +9,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_vk_r3r.h"
 #include "bstone_assert.h"
 #include "bstone_exception.h"
+#include "bstone_exception_utils.h"
 #include "bstone_scope_exit.h"
 #include "bstone_r3r_cmd_buffer.h"
 #include "bstone_r3r_limits.h"
@@ -262,7 +263,19 @@ private:
 
 VkR3rImpl::~VkR3rImpl()
 {
-	impl_wait_for_device();
+	// A lost device makes the wait fail, and a destructor may not throw. Report the
+	// failure and carry on with the teardown.
+	try
+	{
+		impl_wait_for_device();
+	}
+	catch (...)
+	{
+		for (const std::string& message : extract_exception_messages())
+		{
+			logger_.log_error(message.c_str());
+		}
+	}
 }
 
 VkR3rImpl::VkR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param)
