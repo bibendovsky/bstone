@@ -484,9 +484,13 @@ bool ZipArchiveFile::deserialize_central_file_header(MemoryBinaryReader& binary_
 	// Look up for language-related extra fields.
 	header.has_extended_language_encoding_data = false;
 	header.has_info_zip_unicode_path_extra_field = false;
+	// Bound every record by the extra field it lives in, not merely by the directory buffer.
+	// A record allowed to run past the field would leave the reader parked somewhere inside
+	// a later header and desynchronize the whole directory walk.
 	for (int extra_field_offset = 0; extra_field_offset < header.extra_field_length; )
 	{
-		if (!binary_reader.can_read_n(4))
+		const int extra_field_left = header.extra_field_length - extra_field_offset;
+		if (extra_field_left < 4)
 			return false;
 		const int extra_header_id = binary_reader.read_u16_le();
 		const int extra_header_size = binary_reader.read_u16_le();
@@ -499,7 +503,7 @@ bool ZipArchiveFile::deserialize_central_file_header(MemoryBinaryReader& binary_
 				header.has_info_zip_unicode_path_extra_field = true;
 				break;
 		}
-		if (!binary_reader.can_read_n(extra_header_size))
+		if (extra_header_size > extra_field_left - 4)
 			return false;
 		binary_reader.skip(extra_header_size);
 		extra_field_offset += 4 + extra_header_size;
