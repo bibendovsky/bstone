@@ -2527,16 +2527,20 @@ void VkR3rImpl::wait_for_previous_frame()
 
 void VkR3rImpl::swapchain_acquire_next_image()
 {
-	if (!context_.has_swapchain())
+	// A zero-sized surface has no swapchain to acquire an image from, and recreating it
+	// will not produce one until the surface has an area again. Bail out in that case,
+	// leaving the image index unset - the frame will be dropped.
+	constexpr int max_attempt_count = 4;
+	for (int i_attempt = 0; i_attempt < max_attempt_count; ++i_attempt)
 	{
-		recreate_swapchain();
 		if (!context_.has_swapchain())
 		{
-			return;
+			recreate_swapchain();
+			if (!context_.has_swapchain())
+			{
+				return;
+			}
 		}
-	}
-	for (;;)
-	{
 		const VkResult vk_result = context_.vkAcquireNextImageKHR(
 			/* device */      context_.device.get(),
 			/* swapchain */   context_.swapchain.get(),
@@ -2556,6 +2560,9 @@ void VkR3rImpl::swapchain_acquire_next_image()
 				return;
 		}
 	}
+	// A freshly recreated swapchain that is out of date again means the surface never
+	// settles. Report it instead of spinning here forever.
+	BSTONE_THROW_STATIC_SOURCE("Out of date swapchain.");
 }
 
 void VkR3rImpl::recreate_swapchain()
