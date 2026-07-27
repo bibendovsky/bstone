@@ -18,6 +18,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstdint>
 #include <algorithm>
 #include <limits>
+#include <memory>
 #include <ranges>
 #include <string>
 #include <string_view>
@@ -185,6 +186,8 @@ struct VfsSearchPathImpl : VfsSearchPath
 	VfsSearchPathImplArchiveLookup impl_archive_lookup;
 };
 
+using VfsSearchPathImplUPtr = std::unique_ptr<VfsSearchPathImpl>;
+
 struct VfsFindArchivesContext
 {
 	const std::string_view archive_extension;
@@ -228,7 +231,9 @@ private:
 	inline constinit static const std::string_view log_prefix = "VFS";
 	inline constinit static const std::string_view zip_extenstion = ".bstone_zip";
 
-	using SearchPaths = std::vector<VfsSearchPathImpl>;
+	// Every search path hands out a pointer into its own pathname, so the
+	// entries have to keep their addresses as the list grows.
+	using SearchPaths = std::vector<VfsSearchPathImplUPtr>;
 
 	bool is_open_{};
 	Logger* logger_{};
@@ -281,7 +286,7 @@ int VfsImpl::get_search_path_count()
 const VfsSearchPath& VfsImpl::get_search_path(int index)
 {
 	BSTONE_ASSERT(index >= 0 && index < get_search_path_count());
-	return search_paths_[index];
+	return *search_paths_[index];
 }
 
 VfsInputStreamUPtr VfsImpl::open_file(std::string_view vfs_pathname)
@@ -300,7 +305,7 @@ VfsInputStreamUPtr VfsImpl::open_any_file(std::span<std::string_view> vfs_pathna
 {
 	for (const auto& search_path : std::views::reverse(search_paths_))
 	{
-		if (VfsInputStreamUPtr stream = open_any_file(search_path, vfs_pathnames);
+		if (VfsInputStreamUPtr stream = open_any_file(*search_path, vfs_pathnames);
 			stream != nullptr)
 			return stream;
 	}
@@ -414,7 +419,7 @@ void VfsImpl::add_search_path_archive(const std::string& pathname)
 		return;
 	}
 	logger_->log_information("[{}] Found {} compatible entries.", log_prefix, archive_lookup.size());
-	VfsSearchPathImpl& search_path = search_paths_.emplace_back();
+	VfsSearchPathImpl& search_path = *search_paths_.emplace_back(std::make_unique<VfsSearchPathImpl>());
 	search_path.impl_path = pathname;
 	search_path.impl_archive.swap(archive);
 	search_path.impl_archive_lookup.swap(archive_lookup);
@@ -456,7 +461,7 @@ void VfsImpl::add_search_path_directory(const std::string& pathname)
 		logger_->log_error("[{}] Unknown file type.", log_prefix);
 		return;
 	}
-	VfsSearchPathImpl& search_path = search_paths_.emplace_back();
+	VfsSearchPathImpl& search_path = *search_paths_.emplace_back(std::make_unique<VfsSearchPathImpl>());
 	search_path.impl_path = pathname;
 	search_path.type = VfsSearchPathType::directory;
 	search_path.path = search_path.impl_path.data();
