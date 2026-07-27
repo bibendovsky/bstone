@@ -48,6 +48,10 @@ namespace bstone {
 
 namespace {
 
+// Spelled out rather than taken from <vulkan/vulkan_beta.h>, which the build does
+// not include because it carries provisional extensions the port has no use for.
+constexpr const char* vk_khr_portability_subset_extension_name = "VK_KHR_portability_subset";
+
 class VkR3rImpl final : public R3r
 {
 public:
@@ -1099,6 +1103,10 @@ void VkR3rImpl::initialize_global_extensions()
 		{
 			context_.has_ext_debug_utils = true;
 		}
+		if (std::strcmp(extension.extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0)
+		{
+			context_.has_khr_portability_enumeration = true;
+		}
 	}
 }
 
@@ -1123,6 +1131,13 @@ void VkR3rImpl::initialize_enabled_global_extensions()
 		context_.enabled_extensions.emplace_back(context_.vk_ext_debug_utils_extension_name);
 	}
 #endif // NDEBUG
+	// A driver that implements Vulkan on top of another API - MoltenVK, on macOS -
+	// is hidden from an application that does not ask to see it, and creating an
+	// instance fails outright where such a driver is the only one installed.
+	if (context_.has_khr_portability_enumeration)
+	{
+		context_.enabled_extensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+	}
 	std::span<const char* const> sys_required_extensions = video_mgr_.get_vulkan_mgr().get_required_extensions(*window_);
 	context_.enabled_extensions.reserve(
 		context_.enabled_extensions.size() + sys_required_extensions.size());
@@ -1176,6 +1191,10 @@ void VkR3rImpl::initialize_instance()
 		vk_instance_create_info.pNext = &vk_debug_utils_messenger_create_info;
 	}
 #endif // NDEBUG
+	if (context_.has_khr_portability_enumeration)
+	{
+		vk_instance_create_info.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+	}
 	vk_instance_create_info.pApplicationInfo = &vk_application_info;
 	vk_instance_create_info.enabledLayerCount = static_cast<std::uint32_t>(context_.enabled_layers.size());
 	vk_instance_create_info.ppEnabledLayerNames = context_.enabled_layers.data();
@@ -1492,6 +1511,19 @@ void VkR3rImpl::initialize_enabled_device_extensions()
 	context_.enabled_device_extensions.clear();
 	context_.enabled_device_extensions.reserve(4);
 	context_.enabled_device_extensions.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+	// A device that implements only a subset of the specification must say so, and
+	// the specification requires an application that uses one to enable this.
+	const auto device_extensions = vk_r3r_extract_array(
+		context_.vkEnumerateDeviceExtensionProperties, context_.physical_device, nullptr);
+	for (const VkExtensionProperties& extension : device_extensions)
+	{
+		if (std::strcmp(extension.extensionName, vk_khr_portability_subset_extension_name) == 0)
+		{
+			context_.has_khr_portability_subset = true;
+			context_.enabled_device_extensions.emplace_back(vk_khr_portability_subset_extension_name);
+			break;
+		}
+	}
 }
 
 void VkR3rImpl::initialize_logical_device()

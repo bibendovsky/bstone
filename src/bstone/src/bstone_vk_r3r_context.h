@@ -171,6 +171,8 @@ public:
 
 	bool has_vk_layer_khronos_validation{};
 	bool has_ext_debug_utils{};
+	bool has_khr_portability_enumeration{};
+	bool has_khr_portability_subset{};
 	bool has_vk_present_mode_immediate_khr{};
 	bool has_vk_present_mode_fifo_khr{};
 
