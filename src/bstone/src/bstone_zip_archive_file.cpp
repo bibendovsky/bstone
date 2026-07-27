@@ -174,9 +174,9 @@ private:
 	bool deserialize_central_file_header(MemoryBinaryReader& binary_reader, CentralFileHeader& header);
 	bool validate_central_file_header(const CentralFileHeader& header) const;
 	bool is_central_file_supported(const CentralFileHeader& header) const;
-	void initialize_entry_name(const CentralFileHeader& header, ArchiveFileEntry& entry);
+	bool initialize_entry_name(const CentralFileHeader& header, ArchiveFileEntry& entry);
 	void reserve_entries(int capacity);
-	void add_entry(const CentralFileHeader& header);
+	bool add_entry(const CentralFileHeader& header);
 	void reserve_names(int capacity);
 	bool read_central_dir(const EndOfCentralDirRecord& eocdr);
 	bool prepare_input_stream_for_entry(ArchiveFileInputStream& input_stream, const ArchiveFileEntry& entry) const;
@@ -371,6 +371,11 @@ bool ZipArchiveFile::validate_end_of_central_dir_record(const EndOfCentralDirRec
 		return false;
 	if (record.dir_size > max_central_dir_size)
 		return false;
+	// The entry name arena is sized by subtracting the fixed part of every promised header
+	// from the directory size. Nothing else ties the two fields together, so a directory
+	// too small to hold the entries it promises would undersize the arena.
+	if (record.dir_size < static_cast<unsigned int>(central_file_header_size * record.dir_total_entries))
+		return false;
 	if (record.dir_offset == zip64_marker_32)
 		return false;
 	return true;
@@ -550,18 +555,23 @@ bool ZipArchiveFile::is_central_file_supported(const CentralFileHeader& header) 
 	return true;
 }
 
-void ZipArchiveFile::initialize_entry_name(const CentralFileHeader& header, ArchiveFileEntry& entry)
+bool ZipArchiveFile::initialize_entry_name(const CentralFileHeader& header, ArchiveFileEntry& entry)
 {
 	BSTONE_ASSERT(header.file_name_length > 0);
 	BSTONE_ASSERT(header.file_name != nullptr);
 	const int aligned_size = align_16(header.file_name_length + 1);
-	BSTONE_ASSERT(names_capacity_ - names_size_ >= aligned_size);
+	// The arena is sized from the central directory record, so this holds for any archive
+	// the validation accepted. Keep it as a real check anyway: the names are copied
+	// verbatim out of the archive and nothing else stands between them and the heap.
+	if (names_capacity_ - names_size_ < aligned_size)
+		return false;
 	char* const entry_name = names_.get() + names_size_;
 	names_size_ += aligned_size;
 	entry.name = entry_name;
 	std::copy_n(header.file_name, header.file_name_length, entry_name);
 	entry_name[header.file_name_length] = '\0';
 	entry.name = entry_name;
+	return true;
 }
 
 void ZipArchiveFile::reserve_entries(int capacity)
@@ -576,9 +586,12 @@ void ZipArchiveFile::reserve_entries(int capacity)
 	entries_capacity_ = capacity;
 }
 
-void ZipArchiveFile::add_entry(const CentralFileHeader& header)
+bool ZipArchiveFile::add_entry(const CentralFileHeader& header)
 {
-	BSTONE_ASSERT(entries_size_ < entries_capacity_);
+	// The directory promises no more entries than were reserved, but the promise is the
+	// archive's, so keep the bound where it holds in a release build too.
+	if (entries_size_ >= entries_capacity_)
+		return false;
 	ArchiveFileEntry& entry = entries_[entries_size_];
 	// Index.
 	entry.index = entries_size_++;
@@ -603,7 +616,8 @@ void ZipArchiveFile::add_entry(const CentralFileHeader& header)
 	// Name length.
 	entry.name_length = header.file_name_length;
 	// Name.
-	initialize_entry_name(header, entry);
+	if (!initialize_entry_name(header, entry))
+		return false;
 	// Compressed size.
 	entry.compressed_size = static_cast<int>(header.compressed_size);
 	// Uncompressed size.
@@ -613,6 +627,7 @@ void ZipArchiveFile::add_entry(const CentralFileHeader& header)
 	// CRC-32 type.
 	entry.crc_32_type = ArchiveFileCrc32Type::zip;
 	entry.crc_32 = header.crc_32;
+	return true;
 }
 
 void ZipArchiveFile::reserve_names(int capacity)
@@ -644,8 +659,8 @@ bool ZipArchiveFile::read_central_dir(const EndOfCentralDirRecord& eocdr)
 			return false;
 		if (!validate_central_file_header(file_header))
 			return false;
-		if (is_central_file_supported(file_header))
-			add_entry(file_header);
+		if (is_central_file_supported(file_header) && !add_entry(file_header))
+			return false;
 	}
 	return true;
 }
