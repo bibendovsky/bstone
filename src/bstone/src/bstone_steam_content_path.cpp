@@ -244,6 +244,9 @@ std::vector<std::string> make_steam_roots()
 	add_home_relative_steam_root(roots, ".steam/debian-installation");
 	add_home_relative_steam_root(roots, ".var/app/com.valvesoftware.Steam/.local/share/Steam");
 	add_home_relative_steam_root(roots, ".var/app/com.valvesoftware.Steam/data/Steam");
+	// The Snap package remaps the home directory, so its data sits outside the
+	// locations above.
+	add_home_relative_steam_root(roots, "snap/steam/common/.local/share/Steam");
 #endif // _WIN32
 
 	return roots;

@@ -97,6 +97,19 @@ void test_g5wmv2xhqe0sbrz3()
 		bstone::parse_steam_library_paths("\"libraryfolders\" { \"0\" { ").empty());
 }
 
+// std::vector<std::string> parse_steam_library_paths(std::string_view)
+// The entry count is bounded, so a file crafted to hold a huge number of them
+// cannot hand the caller an unbounded amount of work during start-up.
+void test_m4hgo7wct2zbrn5v()
+{
+	auto text = std::string{"\"libraryfolders\"\n{\n"};
+	for (auto i = 0; i < 5000; ++i)
+		text += "\t\"" + std::to_string(i) + "\"\t\"/lib" + std::to_string(i) + "\"\n";
+	text += "}\n";
+	const auto paths = bstone::parse_steam_library_paths(text);
+	tester.check(!paths.empty() && paths.size() <= 64 && paths[0] == "/lib0");
+}
+
 // ==========================================================================
 
 // bool parse_steam_install_dir(std::string_view, std::string&)
@@ -218,6 +231,7 @@ private:
 		tester.register_test("SteamManifest#wq2ncvf5xd8g0nkh", test_wq2ncvf5xd8g0nkh);
 		tester.register_test("SteamManifest#p6bkq0dtnf3zj7la", test_p6bkq0dtnf3zj7la);
 		tester.register_test("SteamManifest#g5wmv2xhqe0sbrz3", test_g5wmv2xhqe0sbrz3);
+		tester.register_test("SteamManifest#m4hgo7wct2zbrn5v", test_m4hgo7wct2zbrn5v);
 	}
 
 	void register_install_dir()

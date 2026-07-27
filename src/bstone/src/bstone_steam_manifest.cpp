@@ -19,6 +19,11 @@ namespace {
 // update is pending or running, which is still playable.
 constexpr std::uint64_t app_state_fully_installed = 4;
 
+// Real installations have a handful of library folders. The bound keeps a file
+// crafted to hold hundreds of thousands of entries from turning the caller's
+// de-duplication into minutes of work during start-up.
+constexpr std::size_t max_library_paths = 64;
+
 // Parses an unsigned decimal, rejecting anything else.
 bool parse_uint(std::string_view string, std::uint64_t& value) noexcept
 {
@@ -58,8 +63,11 @@ std::vector<std::string> parse_steam_library_paths(std::string_view vdf_text)
 		const auto path = entry.is_object() ?
 			entry.find_value("path") :
 			std::string_view{entry.value};
-		if (!path.empty())
-			library_paths.emplace_back(path);
+		if (path.empty())
+			continue;
+		library_paths.emplace_back(path);
+		if (library_paths.size() >= max_library_paths)
+			break;
 	}
 	return library_paths;
 }
