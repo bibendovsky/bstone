@@ -7,18 +7,26 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.name }}
+    name: ${{ matrix.platform }} (${{ matrix.toolchain }}) ${{ matrix.build_type }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
+      # Full cross-product: every platform in both configurations. The include
+      # entries key off `os`, an existing matrix value, so they merge into the
+      # matching combinations rather than creating extra jobs.
       matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        build_type: [Debug, Release]
         include:
-          - name: Linux (GCC)
-            os: ubuntu-latest
-          - name: Windows (MSVC)
-            os: windows-latest
-          - name: macOS (Clang)
-            os: macos-latest
+          - os: ubuntu-latest
+            platform: Linux
+            toolchain: GCC
+          - os: windows-latest
+            platform: Windows
+            toolchain: MSVC
+          - os: macos-latest
+            platform: macOS
+            toolchain: Clang
 
     steps:
       - name: Checkout
@@ -39,7 +47,29 @@ jobs:
             libdbus-1-dev libudev-dev
 
       - name: Configure
-        run: cmake -S . -B build -DBSTONE_SDL_BUNDLED=ON -DCMAKE_BUILD_TYPE=Release
+        run: >
+          cmake -S . -B build
+          -DBSTONE_SDL_BUNDLED=ON
+          -DBSTONE_TESTS=ON
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
-      - name: Build
-        run: cmake --build build --config Release --target bstone --parallel
+      # No --target, so this builds every target: the game, the tools, the
+      # bundled libraries and the test suite.
+      - name: Build all targets
+        run: cmake --build build --config ${{ matrix.build_type }} --parallel
+
+      # Run in both configurations on purpose. A Release build defines NDEBUG,
+      # which compiles BSTONE_ASSERT away, so the Debug run is what exercises
+      # the assertion-guarded failure paths.
+      - name: Run tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          bin=$(find build -type f \( -name bstone_tests -o -name bstone_tests.exe \) | head -1)
+          if [ -z "$bin" ]; then
+            echo "::error::bstone_tests binary not found"
+            find build -name 'bstone_tests*' || true
+            exit 1
+          fi
+          echo "Running $bin"
+          "$bin"
