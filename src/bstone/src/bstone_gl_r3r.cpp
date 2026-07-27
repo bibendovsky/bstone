@@ -508,8 +508,14 @@ try {
 	is_flipped_vertically = true;
 	bind_framebuffers_for_read_pixels();
 
-	glReadBuffer(GL_BACK);
-	GlR3rError::ensure_no_errors();
+	// OpenGL ES gained glReadBuffer only in 3.0, so on the ES 2.0 path the
+	// symbol may well be missing. Nothing is lost: the back buffer is the
+	// default read buffer of the default framebuffer anyway.
+	if (glReadBuffer != nullptr)
+	{
+		glReadBuffer(GL_BACK);
+		GlR3rError::ensure_no_errors();
+	}
 
 	// The destination rows are tightly packed, unlike the four byte row
 	// alignment OpenGL packs into by default.
