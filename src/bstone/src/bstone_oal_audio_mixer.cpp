@@ -1787,18 +1787,25 @@ void OalAudioMixer::mix_r3s_music(Voice& voice)
 	const float gain = r3s_sound_.pre_gain * voice.r3s_gain;
 	float* const src_samples = samples_f32_.data();
 	int frame_offset = 0;
+	// A decoder with no decodable content - an empty OPL command block, an
+	// external file with no sample data - keeps returning no frames while
+	// happily rewinding. Stop the voice once a rewind fails to make progress
+	// instead of retrying it forever on the mixer thread.
+	bool is_rewound = false;
 	while (frame_offset < mix_frame_count_)
 	{
 		const int decoded_count = audio_decoder->decode_frames(src_samples, mix_frame_count_ - frame_offset);
 		if (decoded_count == 0)
 		{
-			if (!voice.is_looping || !audio_decoder->rewind())
+			if (!voice.is_looping || is_rewound || !audio_decoder->rewind())
 			{
 				voice.is_active = false;
 				break;
 			}
+			is_rewound = true;
 			continue;
 		}
+		is_rewound = false;
 		float* const dst_samples = &r3s_samples_f32_mix_[frame_offset * 2];
 		if (channel_count == 1)
 		{
