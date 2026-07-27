@@ -223,6 +223,14 @@ bool Movie::get_frame()
 		binary_reader_.set_position(binary_reader_.get_size());
 		return false;
 	}
+	// The record size decides both how much payload a handler may consume and how far
+	// the reader advances afterwards. An oversized one hands out a payload that runs
+	// past the end of the file, and a negative one rewinds the reader onto the very
+	// same frame, so the movie would never end.
+	if (anim_frame_recsize_ < 0 || !binary_reader_.can_read_n(anim_frame_recsize_))
+	{
+		BSTONE_THROW_STATIC_SOURCE("Frame size out of range.");
+	}
 	return true;
 }
 
@@ -233,7 +241,7 @@ void Movie::handle_page(const Descriptor& descriptor)
 	{
 		case AN_SOUND:
 			// Sound Chunk
-			if (!binary_reader_.can_read_x16())
+			if (anim_frame_recsize_ < 2)
 			{
 				BSTONE_THROW_STATIC_SOURCE("No sound index.");
 			}
@@ -253,7 +261,7 @@ void Movie::handle_page(const Descriptor& descriptor)
 			break;
 		case AN_PAUSE:
 			// Pause
-			if (!binary_reader_.can_read_x16())
+			if (anim_frame_recsize_ < 2)
 			{
 				BSTONE_THROW_STATIC_SOURCE("No pause ticks.");
 			}
