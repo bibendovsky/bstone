@@ -1137,6 +1137,10 @@ void VkR3rImpl::initialize_enabled_global_extensions()
 	if (context_.has_khr_portability_enumeration)
 	{
 		context_.enabled_extensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+		// The device half of portability depends on this one, and the device is
+		// created from this instance, so it has to be asked for here too.
+		context_.enabled_extensions.emplace_back(
+			VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 	}
 	std::span<const char* const> sys_required_extensions = video_mgr_.get_vulkan_mgr().get_required_extensions(*window_);
 	context_.enabled_extensions.reserve(
@@ -1545,8 +1549,10 @@ void VkR3rImpl::initialize_logical_device()
 		.flags = VkDeviceCreateFlags{},
 		.queueCreateInfoCount = 1,
 		.pQueueCreateInfos = &vk_device_queue_create_info,
-		.enabledLayerCount = static_cast<std::uint32_t>(context_.enabled_layers.size()),
-		.ppEnabledLayerNames = context_.enabled_layers.data(),
+		// Device-level layers were removed from the specification; a device now
+		// inherits the instance's, and passing any here is invalid.
+		.enabledLayerCount = 0,
+		.ppEnabledLayerNames = nullptr,
 		.enabledExtensionCount = static_cast<std::uint32_t>(context_.enabled_device_extensions.size()),
 		.ppEnabledExtensionNames = context_.enabled_device_extensions.data(),
 		.pEnabledFeatures = &vk_physical_device_features};
