@@ -8,6 +8,7 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"
+#include "bstone_sdl.h"
 #include "bstone_sys_gl_context_sdl.h"
 #include <format>
 #include <string>
@@ -42,6 +43,10 @@ private:
 GlContextSdl::GlContextSdl(SDL_Window& sdl_window)
 {
 	SDL_GLContext sdl_gl_context = SDL_GL_CreateContext(&sdl_window);
+	if (sdl_gl_context == nullptr)
+	{
+		sdl::fail("SDL_GL_CreateContext");
+	}
 	const auto scope_exit = make_scope_exit(
 		[&sdl_gl_context]()
 		{
