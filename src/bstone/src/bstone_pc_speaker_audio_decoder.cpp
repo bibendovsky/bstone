@@ -74,7 +74,14 @@ bool PcSpeakerAudioDecoder::initialize(const AudioDecoderInitParam& param)
 		set_error_message("Sample rate too small.");
 		return false;
 	}
+	// The command count is stored inside the chunk, so it can not be trusted to
+	// describe the bytes the chunk actually holds.
 	const int data_size = static_cast<int>(endian::read_u32_le(param.src_raw_data));
+	if (data_size < 0 || data_size > param.src_raw_size - min_src_size)
+	{
+		set_error_message("Command count out of range.");
+		return false;
+	}
 	dst_sample_rate_ = param.dst_rate;
 	commands_ = static_cast<const std::uint8_t*>(param.src_raw_data) + min_src_size;
 	commands_size_ = data_size;
