@@ -471,6 +471,12 @@ bool EventMgrSdl::handle_event(const SDL_Event& sdl_e, Event& e)
 		case SDL_EVENT_WINDOW_FOCUS_GAINED:
 		case SDL_EVENT_WINDOW_FOCUS_LOST:
 			return handle_event(sdl_e.window, e.window);
+		case SDL_EVENT_QUIT:
+			// Closing the last window, quitting from the dock or the application
+			// menu, and a termination request from the system all arrive as this.
+			e.common.type = EventType::quit;
+			e.common.timestamp = static_cast<unsigned long long>(sdl_e.quit.timestamp);
+			return true;
 		default:
 			return false;
 	}
