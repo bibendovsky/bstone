@@ -595,6 +595,10 @@ void HwTextureMgrImpl::uninitialize()
 
 void HwTextureMgrImpl::recreate_indexed_resources()
 try {
+	// The textures replaced below are destroyed as soon as they are overwritten, so any
+	// frame still executing on the device must finish before that happens.
+	renderer_->wait_for_device();
+
 	// Sprites.
 	//
 	for (auto& sprite_item : sprite_map_)
