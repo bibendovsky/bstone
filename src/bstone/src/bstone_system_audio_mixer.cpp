@@ -1219,6 +1219,11 @@ void SystemAudioMixer::cache_music(const Voice& voice)
 	CacheItem& cache_item = *voice.cache;
 	const int channel_count = cache_item.decoder->get_channel_count();
 	cache_item.frame_count = 0;
+	// A decoder with no decodable content - an empty OPL command block, an
+	// external file with no sample data - keeps returning no frames while
+	// happily rewinding. Give up once a rewind fails to make progress instead
+	// of retrying it forever on the audio thread.
+	bool is_rewound = false;
 	while (cache_item.frame_count < mix_frame_count_)
 	{
 		const int decoded_frame_count = cache_item.decoder->decode_frames(
@@ -1227,14 +1232,16 @@ void SystemAudioMixer::cache_music(const Voice& voice)
 		cache_item.frame_count += decoded_frame_count;
 		if (decoded_frame_count == 0)
 		{
-			if (voice.is_looping)
+			if (voice.is_looping && !is_rewound)
 			{
 				if (!cache_item.decoder->rewind())
 					break;
+				is_rewound = true;
 				continue;
 			}
 			break;
 		}
+		is_rewound = false;
 	}
 }
 
