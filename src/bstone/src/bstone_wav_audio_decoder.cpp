@@ -25,7 +25,10 @@ public:
 
 private:
 	inline static constexpr int max_channels = 2;
-	inline static constexpr int wav_min_meta_size = 44;
+	inline static constexpr int riff_header_size = 12;
+	inline static constexpr int chunk_header_size = 8;
+	inline static constexpr int fmt0x20_min_chunk_size = 16;
+	inline static constexpr int skip_buffer_size = 256;
 	inline static constexpr int byte_cache_capacity = 1024;
 	inline static constexpr int cache_capacity = byte_cache_capacity / (max_channels * static_cast<int>(sizeof(float)));
 
@@ -45,6 +48,7 @@ private:
 	int cache_frame_offset_counter_{};
 	int wav_size_{};
 	int wav_offset_{};
+	int data_offset_{};
 	ConvertSamplesFunc convert_samples_{};
 	Cache cache_{};
 	DecodeFramesFunc decode_frames_{};
@@ -56,7 +60,9 @@ private:
 	bool impl_wav_open();
 	void impl_terminate();
 	bool impl_initialize(const AudioDecoderInitParam& param);
-	bool impl_wav_read_meta(unsigned char (&meta)[wav_min_meta_size]);
+	bool impl_wav_read(void* buffer, int size);
+	bool impl_wav_skip(int size);
+	bool impl_wav_read_fmt0x20();
 
 	void convert_u8(const unsigned char* bytes, int sample_count);
 	void convert_s16(const unsigned char* bytes, int sample_count);
@@ -117,8 +123,7 @@ bool WavAudioDecoder::rewind()
 		set_error_message("Failed to reset a stream.");
 		return false;
 	}
-	unsigned char meta[wav_min_meta_size];
-	if (!impl_wav_read_meta(meta))
+	if (!impl_wav_skip(data_offset_))
 		return false;
 	cache_frame_count_ = 0;
 	cache_frame_offset_ = 0;
@@ -141,50 +146,172 @@ void WavAudioDecoder::impl_wav_close()
 {
 	wav_size_ = 0;
 	wav_offset_ = 0;
+	data_offset_ = 0;
 }
 
 bool WavAudioDecoder::impl_wav_open()
 {
-	constexpr int wav_max_chunk_size = 0x7FFFFFFF - 8;
-	constexpr int wav_format_pcm = 1;
-	constexpr int wav_format_ieee_float = 3;
-	constexpr unsigned int wav_max_file_size = 0x7FFFFFFFU - 8;
-	unsigned char meta[wav_min_meta_size];
-	if (!impl_wav_read_meta(meta))
+	constexpr unsigned int wav_max_chunk_size = 0x7FFFFFFFU - chunk_header_size;
+	unsigned char riff_header[riff_header_size];
+	if (!impl_wav_read(riff_header, riff_header_size))
 		return false;
-	MemoryBinaryReader reader{meta, wav_min_meta_size};
+	MemoryBinaryReader riff_reader{riff_header, riff_header_size};
 	// RIFF id
-	if (reader.read_u32_le() != 0x46464952U)
+	if (riff_reader.read_u32_le() != 0x46464952U)
 	{
 		set_error_message("Expected 'RIFF' chunk id.");
 		return false;
 	}
 	// RIFF chunk size
-	const unsigned int riff_chunk_size_u32 = reader.read_u32_le();
+	const unsigned int riff_chunk_size_u32 = riff_reader.read_u32_le();
 	if (riff_chunk_size_u32 > wav_max_chunk_size)
 	{
 		set_error_message("'RIFF' chunk size too big.");
 		return false;
 	}
 	// WAVE id
-	if (reader.read_u32_le() != 0x45564157U)
+	if (riff_reader.read_u32_le() != 0x45564157U)
 	{
 		set_error_message("Expected 'WAVE' chunk id.");
 		return false;
 	}
-	// "fmt " chunk id
-	if (reader.read_u32_le() != 0x20746D66U)
+	// Walk the chunks until "data" turns up. Nothing in the format promises
+	// that "fmt " and "data" are adjacent, or that "fmt " has no extension -
+	// encoders routinely interleave "fact", "LIST" or padding chunks.
+	const int riff_end_offset = static_cast<int>(riff_chunk_size_u32) + chunk_header_size;
+	bool has_fmt0x20 = false;
+	int offset = riff_header_size;
+	for (;;)
 	{
-		set_error_message("Expected 'fmt ' chunk id.");
+		if (riff_end_offset - offset < chunk_header_size)
+		{
+			set_error_message("Missing 'data' chunk.");
+			return false;
+		}
+		unsigned char chunk_header[chunk_header_size];
+		if (!impl_wav_read(chunk_header, chunk_header_size))
+			return false;
+		MemoryBinaryReader chunk_reader{chunk_header, chunk_header_size};
+		const unsigned int chunk_id_u32 = chunk_reader.read_u32_le();
+		const unsigned int chunk_size_u32 = chunk_reader.read_u32_le();
+		offset += chunk_header_size;
+		if (chunk_size_u32 > static_cast<unsigned int>(riff_end_offset - offset))
+		{
+			set_error_message("Chunk is beyond 'RIFF' bounds.");
+			return false;
+		}
+		const int chunk_size = static_cast<int>(chunk_size_u32);
+		switch (chunk_id_u32)
+		{
+			case 0x20746D66U: // "fmt "
+				if (has_fmt0x20)
+				{
+					set_error_message("Duplicate 'fmt ' chunk.");
+					return false;
+				}
+				if (chunk_size < fmt0x20_min_chunk_size)
+				{
+					set_error_message("Unsupported 'fmt ' chunk size.");
+					return false;
+				}
+				if (!impl_wav_read_fmt0x20())
+					return false;
+				if (!impl_wav_skip(chunk_size - fmt0x20_min_chunk_size))
+					return false;
+				has_fmt0x20 = true;
+				break;
+			case 0x61746164U: // "data"
+				if (!has_fmt0x20)
+				{
+					set_error_message("Missing 'fmt ' chunk.");
+					return false;
+				}
+				wav_size_ = chunk_size;
+				data_offset_ = offset;
+				return true;
+			default:
+				if (!impl_wav_skip(chunk_size))
+					return false;
+				break;
+		}
+		offset += chunk_size;
+		// Chunks are word-aligned, an odd-sized one is followed by a pad octet.
+		if ((chunk_size % 2) != 0)
+		{
+			if (!impl_wav_skip(1))
+				return false;
+			++offset;
+		}
+	}
+}
+
+void WavAudioDecoder::impl_terminate()
+{
+	is_initialized_ = false;
+	stream_ = nullptr;
+}
+
+bool WavAudioDecoder::impl_initialize(const AudioDecoderInitParam& param)
+{
+	if (param.vfs_stream == nullptr)
+	{
+		set_error_message("No VFS stream.");
 		return false;
 	}
-	// "fmt " chunk size
-	const unsigned int fmt0x20_chunk_size_u32 = reader.read_u32_le();
-	if (fmt0x20_chunk_size_u32 != 16)
+	if (param.dst_rate < 1)
 	{
-		set_error_message("Unsupported 'fmt ' chunk size.");
+		set_error_message("Invalid destination audio frame rate.");
 		return false;
 	}
+	stream_ = std::move(param.vfs_stream);
+	if (!impl_wav_open())
+		return false;
+	dst_sample_rate_ = param.dst_rate;
+	cache_frame_count_ = 0;
+	cache_frame_offset_ = 0;
+	cache_frame_offset_counter_ = 0;
+	if (src_sample_rate_ == param.dst_rate)
+		decode_frames_ = &WavAudioDecoder::decode_frames_as_is;
+	else
+		decode_frames_ = &WavAudioDecoder::decode_frames_with_resample;
+	is_initialized_ = true;
+	return true;
+}
+
+bool WavAudioDecoder::impl_wav_read(void* buffer, int size)
+{
+	if (!stream_->read_exactly(buffer, size))
+	{
+		set_error_message("Failed to read WAV meta data.");
+		return false;
+	}
+	return true;
+}
+
+bool WavAudioDecoder::impl_wav_skip(int size)
+{
+	BSTONE_ASSERT(size >= 0);
+	// The stream can only be read forward, so discard the bytes to skip over.
+	unsigned char buffer[skip_buffer_size];
+	int skipped_size = 0;
+	while (skipped_size < size)
+	{
+		const int read_size = std::min(size - skipped_size, skip_buffer_size);
+		if (!impl_wav_read(buffer, read_size))
+			return false;
+		skipped_size += read_size;
+	}
+	return true;
+}
+
+bool WavAudioDecoder::impl_wav_read_fmt0x20()
+{
+	constexpr int wav_format_pcm = 1;
+	constexpr int wav_format_ieee_float = 3;
+	unsigned char fmt0x20[fmt0x20_min_chunk_size];
+	if (!impl_wav_read(fmt0x20, fmt0x20_min_chunk_size))
+		return false;
+	MemoryBinaryReader reader{fmt0x20, fmt0x20_min_chunk_size};
 	// format tag
 	const int format_tag = reader.read_u16_le();
 	switch (format_tag)
@@ -253,79 +380,9 @@ bool WavAudioDecoder::impl_wav_open()
 		set_error_message("Invalid byte rate.");
 		return false;
 	}
-	// DATA id
-	if (reader.read_u32_le() != 0x61746164U)
-	{
-		set_error_message("Expected 'data' chunk id.");
-		return false;
-	}
-	// DATA chunk size
-	const unsigned int data_chunk_size_u32 = reader.read_u32_le();
-	if (data_chunk_size_u32 > wav_max_chunk_size)
-	{
-		set_error_message("Unsupported 'data' chunk size.");
-		return false;
-	}
-	// check for bounds
-	if (wav_max_file_size - 8 < riff_chunk_size_u32)
-	{
-		set_error_message("Chunk 'RIFF' out of bounds.");
-		return false;
-	}
-	const unsigned int riff_end_position = riff_chunk_size_u32 + 8;
-	if (data_chunk_size_u32 > riff_end_position ||
-		riff_end_position - data_chunk_size_u32 < wav_min_meta_size)
-	{
-		set_error_message("Chunk 'data' is beyond 'RIFF' bounds.");
-		return false;
-	}
 	channel_count_ = channel_count;
 	src_byte_depth_ = bit_depth / 8;
 	src_sample_rate_ = static_cast<int>(sample_rate_u32);
-	wav_size_ = static_cast<int>(data_chunk_size_u32);
-	return true;
-}
-
-void WavAudioDecoder::impl_terminate()
-{
-	is_initialized_ = false;
-	stream_ = nullptr;
-}
-
-bool WavAudioDecoder::impl_initialize(const AudioDecoderInitParam& param)
-{
-	if (param.vfs_stream == nullptr)
-	{
-		set_error_message("No VFS stream.");
-		return false;
-	}
-	if (param.dst_rate < 1)
-	{
-		set_error_message("Invalid destination audio frame rate.");
-		return false;
-	}
-	stream_ = std::move(param.vfs_stream);
-	if (!impl_wav_open())
-		return false;
-	dst_sample_rate_ = param.dst_rate;
-	cache_frame_count_ = 0;
-	cache_frame_offset_ = 0;
-	cache_frame_offset_counter_ = 0;
-	if (src_sample_rate_ == param.dst_rate)
-		decode_frames_ = &WavAudioDecoder::decode_frames_as_is;
-	else
-		decode_frames_ = &WavAudioDecoder::decode_frames_with_resample;
-	is_initialized_ = true;
-	return true;
-}
-
-bool WavAudioDecoder::impl_wav_read_meta(unsigned char (&meta)[wav_min_meta_size])
-{
-	if (!stream_->read_exactly(meta, wav_min_meta_size))
-	{
-		set_error_message("Failed to read WAV meta data.");
-		return false;
-	}
 	return true;
 }
 
