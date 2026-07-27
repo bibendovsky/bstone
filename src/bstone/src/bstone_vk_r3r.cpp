@@ -2218,10 +2218,11 @@ void VkR3rImpl::initialize_post_pipelines()
 
 void VkR3rImpl::initialize_post()
 {
-	if (!context_.has_swapchain())
-	{
-		return;
-	}
+	// Everything but the framebuffers and the pipelines is independent of the swapchain,
+	// and those two skip themselves while there is none. So create the rest right away:
+	// a renderer born without a swapchain still has to have a mapped uniform buffer and a
+	// descriptor set to write to, and the swapchain recreation expects the render pass and
+	// the shader modules to be around.
 	initialize_post_sampler();
 	initialize_post_uniform_buffer();
 	initialize_post_descriptor_set_layout();
