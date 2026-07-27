@@ -360,6 +360,7 @@ try
 	context_.vk_offscreen_height = static_cast<std::uint32_t>(new_size.height);
 	if (context_.vk_offscreen_width != old_width || context_.vk_offscreen_height != old_height)
 	{
+		impl_wait_for_device();
 		terminate_offscreen_framebuffer();
 		initialize_offscreen_framebuffer();
 		context_.draw_state_update_scissor();
