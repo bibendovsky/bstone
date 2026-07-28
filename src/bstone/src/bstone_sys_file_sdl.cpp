@@ -57,9 +57,6 @@ bool File::open(const char* path, FileMode mode)
 			sdl_mode = "wb";
 			break;
 		default:
-			// FileMode::none is the state of a default-constructed stream, so an
-			// unusable mode is a rejected request, not a programming error - report
-			// it through the return value like any other failure to open.
 			return false;
 	}
 	handle_ = SDL_IOFromFile(path, sdl_mode);
