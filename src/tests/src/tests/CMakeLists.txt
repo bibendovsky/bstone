@@ -35,7 +35,9 @@ target_include_directories(bstone_tests
 target_link_libraries(bstone_tests
 	PRIVATE
 		${CMAKE_DL_LIBS}
+		bstone::lib::dr_flac
 		bstone::lib::sdl
+		bstone::lib::stb_vorbis
 )
 
 target_sources(bstone_tests
@@ -60,6 +62,10 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_stream.cpp
 		../../../bstone/src/bstone_stream.h
 		../../../bstone/src/bstone_file_stream.cpp
+		../../../bstone/src/bstone_flac_audio_decoder.cpp
+		../../../bstone/src/bstone_flac_audio_decoder.h
+		../../../bstone/src/bstone_vorbis_audio_decoder.cpp
+		../../../bstone/src/bstone_vorbis_audio_decoder.h
 		../../../bstone/src/bstone_file_stream.h
 		../../../bstone/src/bstone_memory_stream.cpp
 		../../../bstone/src/bstone_memory_stream.h
@@ -96,6 +102,8 @@ target_sources(bstone_tests
 		src/bstone_tests_cgm_transform.cpp
 		src/bstone_tests_sha1.cpp
 		src/bstone_tests_file_stream.cpp
+		src/bstone_tests_flac_audio_decoder.cpp
+		src/bstone_tests_vorbis_audio_decoder.cpp
 		src/bstone_tests_memory_stream.cpp
 		src/bstone_tests_static_memory_stream.cpp
 		src/bstone_tests_static_ro_memory_stream.cpp
