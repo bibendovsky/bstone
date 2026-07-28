@@ -442,6 +442,13 @@ bool EventMgrSdl::handle_event(const SDL_WindowEvent& sdl_e, WindowEvent& e)
 		case SDL_EVENT_WINDOW_FOCUS_LOST:
 			e.event_type = WindowEventType::keyboard_focus_lost;
 			break;
+		case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+			// SDL3 mode changes land asynchronously (deferred past show() for
+			// windows created hidden), so the real size arrives here.
+			e.event_type = WindowEventType::pixel_size_changed;
+			e.width = static_cast<int>(sdl_e.data1);
+			e.height = static_cast<int>(sdl_e.data2);
+			break;
 		default:
 			is_handled = false;
 			break;

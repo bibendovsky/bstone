@@ -122,12 +122,13 @@ try {
 	return window_mgr.make_window(window_param);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
-void R3rUtils::set_window_mode(sys::Window& window, const R3rUtilsSetWindowModeParam& param)
+sys::WindowSize R3rUtils::set_window_mode(sys::Window& window, const R3rUtilsSetWindowModeParam& param)
 try {
 	sys::DisplayMode display_mode = param.display_mode;
 	display_mode.width = std::max(display_mode.width, window_min_width);
 	display_mode.height = std::max(display_mode.height, window_min_height);
 	display_mode.refresh_rate = std::max(display_mode.refresh_rate, 0.0F);
+	sys::WindowSize window_size{};
 	switch (param.fullscreen_mode)
 	{
 		case sys::WindowFullscreenType::none:
@@ -142,14 +143,30 @@ try {
 			{
 				window.center();
 			}
+			window_size = sys::WindowSize{.width = display_mode.width, .height = display_mode.height};
 			break;
 		case sys::WindowFullscreenType::exclusive:
-			window.set_exclusive_fullscreen_mode(display_mode);
+		{
+			// Size from the chosen mode, not the window: the fullscreen
+			// transition is asynchronous, and a still-hidden startup window
+			// keeps reporting its pre-fullscreen size until shown.
+			const sys::DisplayMode chosen_mode = window.set_exclusive_fullscreen_mode(display_mode);
+			window_size = sys::WindowSize{.width = chosen_mode.width, .height = chosen_mode.height};
 			break;
+		}
 		case sys::WindowFullscreenType::fake:
 			window.set_fake_fullscreen_mode();
 			break;
 	}
+	window.sync();
+	if (window_size.width <= 0 || window_size.height <= 0)
+	{
+		// Fake fullscreen: no requested size to fall back on. After sync()
+		// a visible window reports the truth; a hidden one corrects itself
+		// via the pixel-size-changed event once shown.
+		window_size = window.get_size_in_pixels();
+	}
+	return window_size;
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void R3rUtils::validate_initialize_param(const R3rInitParam& param)

@@ -71,7 +71,11 @@ public:
 		const R3rUtilsCreateWindowParam& param,
 		sys::WindowMgr& window_mgr);
 
-	static void set_window_mode(sys::Window& window, const R3rUtilsSetWindowModeParam& param);
+	// Applies the mode and returns the window's resulting size in pixels.
+	// SDL3 applies mode changes asynchronously (and defers them entirely for
+	// hidden windows), so the returned size is derived from the requested or
+	// chosen mode rather than a live query wherever possible.
+	static sys::WindowSize set_window_mode(sys::Window& window, const R3rUtilsSetWindowModeParam& param);
 
 	static void validate_initialize_param(const R3rInitParam& param);
 

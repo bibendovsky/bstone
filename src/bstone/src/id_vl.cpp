@@ -1266,6 +1266,15 @@ auto g_video = bstone::VideoUPtr{};
 } // namespace
 
 
+void vid_handle_window_size_changed(int width, int height)
+{
+	if (g_video == nullptr)
+	{
+		return;
+	}
+	g_video->handle_window_size_changed(width, height);
+}
+
 std::string vid_get_window_title_for_renderer(std::string_view renderer_name)
 try {
 	const auto game_name_and_game_version_string = vid_get_game_name_and_game_version_string();

@@ -777,6 +777,10 @@ void in_handle_window(const bstone::sys::WindowEvent& e)
 			sd_mute(true);
 			break;
 
+		case bstone::sys::WindowEventType::pixel_size_changed:
+			vid_handle_window_size_changed(e.width, e.height);
+			break;
+
 		default: break;
 	}
 

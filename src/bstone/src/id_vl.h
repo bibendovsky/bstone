@@ -293,6 +293,10 @@ void VL_ScreenToMem(
 
 void vid_initialize_cvars(bstone::CVarMgr& cvar_mgr);
 
+// Forwards the window's actual pixel size to the active video system once
+// SDL3's asynchronous mode change has really been applied.
+void vid_handle_window_size_changed(int width, int height);
+
 
 VideoModeCfg vid_cfg_get_video_mode();
 

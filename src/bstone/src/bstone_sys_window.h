@@ -151,8 +151,14 @@ public:
 	virtual void set_rounded_corner_type(WindowRoundedCornerType value) = 0;
 	virtual WindowFullscreenType get_fullscreen_mode() = 0;
 	virtual void set_windowed_mode(WindowSize window_size) = 0;
-	virtual void set_exclusive_fullscreen_mode(DisplayMode display_mode) = 0;
+	// Returns the display mode that was actually chosen for the window; the
+	// transition itself may still be pending (SDL3 applies it asynchronously,
+	// and not before a hidden window is shown).
+	virtual DisplayMode set_exclusive_fullscreen_mode(DisplayMode display_mode) = 0;
 	virtual void set_fake_fullscreen_mode() = 0;
+	// Blocks until pending size/mode changes are applied where possible;
+	// a hidden window keeps its changes deferred, so this returns at once.
+	virtual void sync() = 0;
 	virtual GlContextUPtr gl_make_context() = 0;
 	virtual WindowSize get_size_in_pixels() = 0;
 	virtual void gl_swap_buffers() = 0;

@@ -68,6 +68,7 @@ public:
 
 	void apply_widescreen() override;
 	void apply_window_mode() override;
+	void handle_window_size_changed(int width, int height) override;
 	void apply_filler_color_index() override;
 
 	void apply_brightness() override;
@@ -970,6 +971,7 @@ private:
 	void initialize_palette();
 
 	void calculate_dimensions(int window_width, int window_height);
+	void apply_window_size(sys::WindowSize window_size);
 
 	void build_2d_model_matrix();
 	void build_2d_view_matrix();
@@ -1796,8 +1798,12 @@ try {
 		},
 	};
 	sys::Window& window = renderer_->get_window();
-	R3rUtils::set_window_mode(window, param);
-	const sys::WindowSize window_size = window.get_size_in_pixels();
+	const sys::WindowSize window_size = R3rUtils::set_window_mode(window, param);
+	apply_window_size(window_size);
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+void HwVideo::apply_window_size(sys::WindowSize window_size)
+try {
 	calculate_dimensions(window_size.width, window_size.height);
 	vid_initialize_vanilla_raycaster();
 	renderer_->handle_resize(sys::WindowSize{vid_layout_.window_width, vid_layout_.window_height});
@@ -1815,6 +1821,15 @@ try {
 		//
 		build_matrices();
 	}
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+void HwVideo::handle_window_size_changed(int width, int height)
+try {
+	if (width == vid_layout_.window_width && height == vid_layout_.window_height)
+	{
+		return;
+	}
+	apply_window_size(sys::WindowSize{.width = width, .height = height});
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void HwVideo::apply_filler_color_index()
