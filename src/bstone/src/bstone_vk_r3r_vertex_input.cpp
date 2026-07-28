@@ -148,11 +148,14 @@ try
 			.inputRate = VK_VERTEX_INPUT_RATE_VERTEX});
 	if (vk_generic_offset > 0)
 	{
+		// Every vertex must read the same default values. A zero stride would do, but
+		// VK_KHR_portability_subset (Metal) forbids attributes that extend past the
+		// stride; per-instance rate is equivalent since all draws are single-instance.
 		vk_vertex_input_binding_descriptions_.emplace_back(
 			VkVertexInputBindingDescription{
 				.binding   = 1,
-				.stride    = 0,
-				.inputRate = VK_VERTEX_INPUT_RATE_VERTEX});
+				.stride    = vk_generic_offset,
+				.inputRate = VK_VERTEX_INPUT_RATE_INSTANCE});
 		initialize_generic_buffer(default_values);
 	}
 	vk_pipeline_vertex_input_state_create_info_ = VkPipelineVertexInputStateCreateInfo{
