@@ -1,6 +1,7 @@
 #include "bstone_flac_audio_decoder.h"
 #include "bstone_assert.h"
 #include <cstddef>
+#include <cstdint>
 #include <algorithm>
 #include <utility>
 #include <vector>
@@ -26,13 +27,14 @@ public:
 
 private:
 	inline static constexpr int cache_capacity = 4096;
+	inline static constexpr int skip_buffer_size = 4096;
 
 	using DecodeFramesFunc = int (FlacAudioDecoder::*)(float* samples, int max_frames);
 
 	const char* error_message_{};
 	drflac* flac_{};
-	// dr_flac references this buffer for its whole lifetime, so it must outlive flac_.
-	std::vector<unsigned char> data_{};
+	VfsInputStreamUPtr stream_{};
+	std::int64_t stream_position_{};
 	bool is_open_{};
 	int bit_depth_{};
 	int channel_count_{};
@@ -44,6 +46,13 @@ private:
 	int cache_frame_offset_{};
 	int cache_frame_offset_counter_{};
 	DecodeFramesFunc decode_frames_{};
+
+	static std::size_t flac_callback_read(void* user_data, void* buffer, std::size_t size);
+	static drflac_bool32 flac_callback_seek(void* user_data, int offset, drflac_seek_origin origin);
+	static drflac_bool32 flac_callback_tell(void* user_data, drflac_int64* position);
+	std::size_t impl_callback_read(void* buffer, std::size_t size);
+	bool impl_callback_seek(int offset, drflac_seek_origin origin);
+	bool impl_skip(std::int64_t size);
 
 	void set_error_message(const char* message);
 
@@ -117,6 +126,91 @@ bool FlacAudioDecoder::rewind()
 	return true;
 }
 
+std::size_t FlacAudioDecoder::flac_callback_read(void* user_data, void* buffer, std::size_t size)
+{
+	return static_cast<FlacAudioDecoder*>(user_data)->impl_callback_read(buffer, size);
+}
+
+drflac_bool32 FlacAudioDecoder::flac_callback_seek(void* user_data, int offset, drflac_seek_origin origin)
+{
+	return static_cast<FlacAudioDecoder*>(user_data)->impl_callback_seek(offset, origin) ? DRFLAC_TRUE : DRFLAC_FALSE;
+}
+
+drflac_bool32 FlacAudioDecoder::flac_callback_tell(void* user_data, drflac_int64* position)
+{
+	*position = static_cast<drflac_int64>(static_cast<FlacAudioDecoder*>(user_data)->stream_position_);
+	return DRFLAC_TRUE;
+}
+
+std::size_t FlacAudioDecoder::impl_callback_read(void* buffer, std::size_t size)
+{
+	constexpr std::size_t max_read_size = 1 << 30;
+	const int clamped_size = static_cast<int>(std::min(size, max_read_size));
+	const auto bytes = static_cast<unsigned char*>(buffer);
+	// dr_flac takes a short read for the end of the stream, so fill the whole
+	// request from however many reads it takes.
+	int bytes_offset = 0;
+	while (bytes_offset < clamped_size)
+	{
+		const int read_size = stream_->read(bytes + bytes_offset, clamped_size - bytes_offset);
+		if (read_size <= 0)
+		{
+			break;
+		}
+		bytes_offset += read_size;
+	}
+	stream_position_ += bytes_offset;
+	return static_cast<std::size_t>(bytes_offset);
+}
+
+bool FlacAudioDecoder::impl_callback_seek(int offset, drflac_seek_origin origin)
+{
+	std::int64_t position;
+	switch (origin)
+	{
+		case DRFLAC_SEEK_SET:
+			position = offset;
+			break;
+		case DRFLAC_SEEK_CUR:
+			position = stream_position_ + offset;
+			break;
+		default:
+			return false;
+	}
+	if (position < 0)
+	{
+		return false;
+	}
+	if (position >= stream_position_)
+	{
+		return impl_skip(position - stream_position_);
+	}
+	// The VFS stream only rewinds; walk forward from the start.
+	if (!stream_->rewind())
+	{
+		return false;
+	}
+	stream_position_ = 0;
+	return impl_skip(position);
+}
+
+bool FlacAudioDecoder::impl_skip(std::int64_t size)
+{
+	unsigned char skip_buffer[skip_buffer_size];
+	while (size > 0)
+	{
+		const int to_read_size = static_cast<int>(std::min<std::int64_t>(size, skip_buffer_size));
+		const int read_size = stream_->read(skip_buffer, to_read_size);
+		if (read_size <= 0)
+		{
+			return false;
+		}
+		stream_position_ += read_size;
+		size -= read_size;
+	}
+	return true;
+}
+
 void FlacAudioDecoder::set_error_message(const char* message)
 {
 	error_message_ = message;
@@ -139,7 +233,12 @@ void FlacAudioDecoder::impl_close_flac()
 
 bool FlacAudioDecoder::impl_open_flac()
 {
-	flac_ = drflac_open_memory(data_.data(), data_.size(), nullptr);
+	flac_ = drflac_open(
+		&FlacAudioDecoder::flac_callback_read,
+		&FlacAudioDecoder::flac_callback_seek,
+		&FlacAudioDecoder::flac_callback_tell,
+		this,
+		nullptr);
 	if (flac_ == nullptr)
 	{
 		set_error_message("Failed to open a FLAC stream.");
@@ -155,8 +254,8 @@ bool FlacAudioDecoder::impl_open_flac()
 void FlacAudioDecoder::impl_terminate()
 {
 	impl_close_flac();
-	data_.clear();
-	data_.shrink_to_fit();
+	stream_ = nullptr;
+	stream_position_ = 0;
 	cache_.clear();
 	cache_.shrink_to_fit();
 }
@@ -174,22 +273,12 @@ bool FlacAudioDecoder::impl_initialize(const AudioDecoderInitParam& param)
 		set_error_message("Invalid destination audio frame rate.");
 		return false;
 	}
-	// Read the whole stream into memory up front; dr_flac decodes from the buffer.
-	VfsInputStreamUPtr stream = std::move(param.vfs_stream);
-	const int stream_size = stream->get_size();
-	if (stream_size <= 0)
-	{
-		set_error_message("Empty or invalid stream.");
-		return false;
-	}
-	data_.resize(static_cast<std::size_t>(stream_size));
-	if (!stream->read_exactly(data_.data(), stream_size))
-	{
-		set_error_message("Failed to read a stream.");
-		return false;
-	}
+	stream_ = std::move(param.vfs_stream);
+	stream_position_ = 0;
 	if (!impl_open_flac())
+	{
 		return false;
+	}
 	switch (bit_depth_)
 	{
 		case 8:
@@ -234,7 +323,9 @@ bool FlacAudioDecoder::impl_initialize(const AudioDecoderInitParam& param)
 bool FlacAudioDecoder::update_cache()
 {
 	if (cache_frame_offset_ < cache_frame_count_)
+	{
 		return true;
+	}
 	const drflac_uint64 read_frame_count = drflac_read_pcm_frames_f32(
 		flac_, static_cast<drflac_uint64>(cache_capacity), cache_.data());
 	cache_frame_count_ = static_cast<int>(read_frame_count);
@@ -256,7 +347,9 @@ int FlacAudioDecoder::decode_frames_with_resample(float* samples, int max_frames
 	while (written_frame_count < max_frames)
 	{
 		if (!update_cache())
+		{
 			break;
+		}
 		const float* const cache_frame = &cache_[static_cast<std::size_t>(cache_frame_offset_) * channel_count_];
 		std::copy_n(cache_frame, channel_count_, samples);
 		samples += channel_count_;
@@ -267,7 +360,9 @@ int FlacAudioDecoder::decode_frames_with_resample(float* samples, int max_frames
 			cache_frame_offset_counter_ -= dst_frame_rate_;
 			++cache_frame_offset_;
 			if (!update_cache())
+			{
 				break;
+			}
 		}
 	}
 	return written_frame_count;
@@ -283,3 +378,4 @@ AudioDecoderUPtr make_flac_audio_decoder()
 }
 
 } // namespace bstone
+

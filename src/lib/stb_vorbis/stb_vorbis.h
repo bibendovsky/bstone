@@ -10,7 +10,6 @@ here must match stb_vorbis_impl.c so the declared API matches the compiled one.
 #define BSTONE_STB_VORBIS_INCLUDED
 
 #define STB_VORBIS_NO_STDIO
-#define STB_VORBIS_NO_PUSHDATA_API
 #define STB_VORBIS_HEADER_ONLY
 
 #include "stb_vorbis.c"
