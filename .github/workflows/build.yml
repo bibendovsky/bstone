@@ -1,0 +1,75 @@
+name: build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: ${{ matrix.platform }} (${{ matrix.toolchain }}) ${{ matrix.build_type }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      # Full cross-product: every platform in both configurations. The include
+      # entries key off `os`, an existing matrix value, so they merge into the
+      # matching combinations rather than creating extra jobs.
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        build_type: [Debug, Release]
+        include:
+          - os: ubuntu-latest
+            platform: Linux
+            toolchain: GCC
+          - os: windows-latest
+            platform: Windows
+            toolchain: MSVC
+          - os: macos-latest
+            platform: macOS
+            toolchain: Clang
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      # The bundled SDL3 is built from source, so its Linux backends need the
+      # usual X11/Wayland/audio/GL development headers.
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxi-dev \
+            libxfixes-dev libxss-dev libxkbcommon-dev libxtst-dev \
+            libwayland-dev wayland-protocols libwayland-egl-backend-dev \
+            libegl1-mesa-dev libgles2-mesa-dev libgl1-mesa-dev \
+            libasound2-dev libpulse-dev libpipewire-0.3-dev \
+            libdbus-1-dev libudev-dev
+
+      - name: Configure
+        run: >
+          cmake -S . -B build
+          -DBSTONE_SDL_BUNDLED=ON
+          -DBSTONE_TESTS=ON
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+
+      # No --target, so this builds every target: the game, the tools, the
+      # bundled libraries and the test suite.
+      - name: Build all targets
+        run: cmake --build build --config ${{ matrix.build_type }} --parallel
+
+      # Run in both configurations on purpose. A Release build defines NDEBUG,
+      # which compiles BSTONE_ASSERT away, so the Debug run is what exercises
+      # the assertion-guarded failure paths.
+      - name: Run tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          bin=$(find build -type f \( -name bstone_tests -o -name bstone_tests.exe \) | head -1)
+          if [ -z "$bin" ]; then
+            echo "::error::bstone_tests binary not found"
+            find build -name 'bstone_tests*' || true
+            exit 1
+          fi
+          echo "Running $bin"
+          "$bin"

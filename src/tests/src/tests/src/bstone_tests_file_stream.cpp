@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cstdio>
 #include <fstream>
 #include <iterator>
 #include <utility>
@@ -619,6 +620,13 @@ public:
 		register_get_size();
 		register_set_size();
 		register_flush();
+	}
+
+	// The tests above leave their scratch file in the working directory;
+	// remove it once the run is over.
+	~Registrator()
+	{
+		std::remove(test_data_file_name);
 	}
 
 private:

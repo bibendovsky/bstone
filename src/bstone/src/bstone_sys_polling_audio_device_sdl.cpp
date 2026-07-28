@@ -10,6 +10,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_exception.h"
 #include "bstone_scope_exit.h"
 #include "bstone_sdl.h"
+#include <algorithm>
 #include <cstddef>
 #include <vector>
 #include "SDL3/SDL_audio.h"

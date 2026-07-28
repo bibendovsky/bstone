@@ -523,22 +523,6 @@ VfsInputStreamUPtr VfsImpl::open_input_stream_file(const VfsSearchPathImpl& sear
 
 // ======================================
 
-bool VfsInputStream::read_exactly(void* buffer, int buffer_size)
-{
-	const auto bytes = static_cast<unsigned char*>(buffer);
-	int bytes_offset = 0;
-	while (bytes_offset < buffer_size)
-	{
-		const int read_size = read(bytes + bytes_offset, buffer_size - bytes_offset);
-		if (read_size <= 0)
-			break;
-		bytes_offset += read_size;
-	}
-	return bytes_offset == buffer_size;
-}
-
-// ======================================
-
 VfsUPtr make_vfs()
 {
 	return std::make_unique<VfsImpl>();

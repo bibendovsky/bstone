@@ -57,7 +57,6 @@ bool File::open(const char* path, FileMode mode)
 			sdl_mode = "wb";
 			break;
 		default:
-			BSTONE_ASSERT(false && "Unknown mode.");
 			return false;
 	}
 	handle_ = SDL_IOFromFile(path, sdl_mode);
@@ -72,7 +71,6 @@ void File::close()
 
 int File::read(void* buffer, int size) const
 {
-	BSTONE_ASSERT(is_open());
 	BSTONE_ASSERT(buffer != nullptr);
 	BSTONE_ASSERT(size >= 0);
 	const std::size_t sdl_read_size = SDL_ReadIO(
@@ -90,7 +88,6 @@ int File::read(void* buffer, int size) const
 
 bool File::read_exactly(void* buffer, int size) const
 {
-	BSTONE_ASSERT(is_open());
 	BSTONE_ASSERT(buffer != nullptr);
 	BSTONE_ASSERT(size >= 0);
 	for (int offset = 0; offset < size;)
@@ -108,7 +105,6 @@ bool File::read_exactly(void* buffer, int size) const
 
 int File::write(const void* buffer, int size) const
 {
-	BSTONE_ASSERT(is_open());
 	BSTONE_ASSERT(buffer != nullptr);
 	BSTONE_ASSERT(size >= 0);
 	const std::size_t sdl_written_size = SDL_WriteIO(
@@ -126,7 +122,6 @@ int File::write(const void* buffer, int size) const
 
 bool File::write_exactly(const void* buffer, int size) const
 {
-	BSTONE_ASSERT(is_open());
 	BSTONE_ASSERT(buffer != nullptr);
 	BSTONE_ASSERT(size >= 0);
 	for (int offset = 0; offset < size;)
@@ -144,7 +139,6 @@ bool File::write_exactly(const void* buffer, int size) const
 
 std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 {
-	BSTONE_ASSERT(is_open());
 	SDL_IOWhence sdl_io_whence;
 	switch (origin)
 	{
@@ -166,32 +160,27 @@ std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 
 std::int64_t File::skip(std::int64_t offset) const
 {
-	BSTONE_ASSERT(is_open());
 	return SDL_SeekIO(static_cast<SDL_IOStream*>(handle_), offset, SDL_IO_SEEK_CUR);
 }
 
 std::int64_t File::get_position() const
 {
-	BSTONE_ASSERT(is_open());
 	return SDL_TellIO(static_cast<SDL_IOStream*>(handle_));
 }
 
 bool File::set_position(std::int64_t position) const
 {
-	BSTONE_ASSERT(is_open());
 	BSTONE_ASSERT(position >= 0);
 	return SDL_SeekIO(static_cast<SDL_IOStream*>(handle_), position, SDL_IO_SEEK_SET) >= 0;
 }
 
 std::int64_t File::get_size() const
 {
-	BSTONE_ASSERT(is_open());
 	return SDL_GetIOSize(static_cast<SDL_IOStream*>(handle_));
 }
 
 bool File::flush() const
 {
-	BSTONE_ASSERT(is_open());
 	return SDL_FlushIO(static_cast<SDL_IOStream*>(handle_));
 }
 

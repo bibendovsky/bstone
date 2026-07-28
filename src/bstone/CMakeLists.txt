@@ -285,13 +285,11 @@ target_link_libraries(bstone
 		${CMAKE_DL_LIBS}
 		bstone::lib::sdl
 		Threads::Threads
-		bstone::lib::flac
+		bstone::lib::dr_flac
 		bstone::lib::khronos
 		bstone::lib::nuked_opl3
-		bstone::lib::ogg
 		bstone::lib::openal_soft
-		bstone::lib::vorbis
-		bstone::lib::vorbisfile
+		bstone::lib::stb_vorbis
 		bstone::lib::xbrz
 		bstone::lib::zlib
 		bstone::lib::vulkan
@@ -956,9 +954,16 @@ source_group("bstone" FILES ${BSTONE_BSTONE_SOURCES})
 if (WIN32)
 	set(BSTONE_RESOURCES_WIN32_SOURCES
 		src/resources/win32/bstone_win32_rc.h
-		$<$<CXX_COMPILER_ID:MSVC>:src/resources/win32/bstone_win32_msvc.manifest>
 		"${PROJECT_BINARY_DIR}/src/resources/win32/bstone_win32.rc"
 	)
+
+	# The manifest is MSVC-only. Use a plain if(MSVC) rather than a
+	# $<CXX_COMPILER_ID:MSVC> genex in the source list: the Visual Studio generator
+	# rejects it ("$<CXX_COMPILER_ID> may only be used with binary targets").
+	if (MSVC)
+		list(APPEND BSTONE_RESOURCES_WIN32_SOURCES
+			src/resources/win32/bstone_win32_msvc.manifest)
+	endif ()
 
 	target_sources(bstone PRIVATE ${BSTONE_RESOURCES_WIN32_SOURCES})
 	source_group("resources/win32" FILES ${BSTONE_RESOURCES_WIN32_SOURCES})
