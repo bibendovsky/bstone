@@ -37,7 +37,20 @@ public:
 	virtual int get_size() = 0;
 	virtual bool rewind() = 0;
 	virtual int read(void* buffer, int buffer_size) = 0;
-	virtual bool read_exactly(void* buffer, int buffer_size);
+
+	virtual bool read_exactly(void* buffer, int buffer_size)
+	{
+		const auto bytes = static_cast<unsigned char*>(buffer);
+		int bytes_offset = 0;
+		while (bytes_offset < buffer_size)
+		{
+			const int read_size = read(bytes + bytes_offset, buffer_size - bytes_offset);
+			if (read_size <= 0)
+				break;
+			bytes_offset += read_size;
+		}
+		return bytes_offset == buffer_size;
+	}
 };
 
 using VfsInputStreamUPtr = std::unique_ptr<VfsInputStream>;
