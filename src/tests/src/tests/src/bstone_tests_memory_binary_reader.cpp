@@ -2,16 +2,200 @@
 
 #include <limits>
 
-#include "bstone_memory_binary_reader.h"
 #include "bstone_tester.h"
+
+#include "bstone_memory_binary_reader.h"
 
 namespace {
 
 auto tester = bstone::Tester{};
 
+const std::uint8_t bytes[8] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88};
 constexpr std::uint8_t test_data[8] = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88};
 
 // ==========================================================================
+
+// MemoryBinaryReader()
+void test_q7m4xk2vd9zr1ha3()
+{
+	const auto reader = bstone::MemoryBinaryReader{};
+	tester.check(reader.get_size() == 0);
+}
+
+// MemoryBinaryReader(const void*, int)
+void test_b3t8nw5cj0plye6u()
+{
+	const auto reader = bstone::MemoryBinaryReader{bytes, 8};
+	const auto is_valid_size = reader.get_size() == 8;
+	const auto is_valid_data = reader.get_current_data() == bytes;
+	tester.check(is_valid_size && is_valid_data);
+}
+
+// ==========================================================================
+
+// const void* get_current_data() const
+void test_z5hf1cyp8n3wqk7t()
+{
+	auto reader = bstone::MemoryBinaryReader{bytes, 8};
+	reader.skip(3);
+	tester.check(reader.get_current_data() == &bytes[3]);
+}
+
+// ==========================================================================
+
+// void set_position(int)
+void test_r2vjx6ma0eb9ts4l()
+{
+	auto reader = bstone::MemoryBinaryReader{bytes, 8};
+	reader.set_position(5);
+	const auto is_valid_position = reader.get_current_data() == &bytes[5];
+	reader.set_position(-100);
+	const auto is_clamped_to_begin = reader.get_current_data() == bytes;
+	reader.set_position(100);
+	const auto is_clamped_to_end = reader.get_current_data() == &bytes[8];
+	tester.check(is_valid_position && is_clamped_to_begin && is_clamped_to_end);
+}
+
+// ==========================================================================
+
+// void skip(int)
+void test_n8plq3zd5kw7cy1x()
+{
+	auto reader = bstone::MemoryBinaryReader{bytes, 8};
+	reader.skip(2);
+	const auto is_valid_position_1 = reader.get_current_data() == &bytes[2];
+	reader.skip(4);
+	const auto is_valid_position_2 = reader.get_current_data() == &bytes[6];
+	tester.check(is_valid_position_1 && is_valid_position_2);
+}
+
+// A negative count moves the position backwards.
+void test_w4cs9gtb2meh6ru0()
+{
+	auto reader = bstone::MemoryBinaryReader{bytes, 8};
+	reader.skip(6);
+	reader.skip(-4);
+	const auto is_rewound = reader.get_current_data() == &bytes[2];
+	reader.skip(-100);
+	const auto is_clamped_to_begin = reader.get_current_data() == bytes;
+	tester.check(is_rewound && is_clamped_to_begin);
+}
+
+// ==========================================================================
+
+// bool can_read_n(int) const
+void test_e6yn0kfa7jvx3qd2()
+{
+	auto reader = bstone::MemoryBinaryReader{bytes, 8};
+	const auto can_read_all = reader.can_read_n(8);
+	const auto can_read_too_much = reader.can_read_n(9);
+	reader.skip(6);
+	const auto can_read_rest = reader.can_read_n(2);
+	const auto can_read_past_rest = reader.can_read_n(3);
+	tester.check(can_read_all && !can_read_too_much && can_read_rest && !can_read_past_rest);
+}
+
+// bool can_read_x8() const
+// bool can_read_x16() const
+// bool can_read_x32() const
+void test_t1zb5rho4pcm8ws9()
+{
+	auto reader = bstone::MemoryBinaryReader{bytes, 8};
+	reader.skip(4);
+	const auto can_read_x32 = reader.can_read_x32();
+	reader.skip(1);
+	const auto can_not_read_x32 = !reader.can_read_x32();
+	reader.skip(1);
+	const auto can_read_x16 = reader.can_read_x16();
+	reader.skip(1);
+	const auto can_not_read_x16 = !reader.can_read_x16();
+	const auto can_read_x8 = reader.can_read_x8();
+	reader.skip(1);
+	const auto can_not_read_x8 = !reader.can_read_x8();
+
+	tester.check(
+		can_read_x32 &&
+		can_not_read_x32 &&
+		can_read_x16 &&
+		can_not_read_x16 &&
+		can_read_x8 &&
+		can_not_read_x8);
+}
+
+// ==========================================================================
+
+// std::int8_t read_s8()
+void test_g0uk7dxq9lna2vf5()
+{
+	auto reader = bstone::MemoryBinaryReader{bytes, 8};
+	reader.skip(7);
+	const std::int8_t value = reader.read_s8();
+	tester.check(value == static_cast<std::int8_t>(0x88));
+}
+
+// std::uint8_t read_u8()
+void test_m3wp6svr1oyc4hz8()
+{
+	auto reader = bstone::MemoryBinaryReader{bytes, 8};
+	const std::uint8_t value_1 = reader.read_u8();
+	const std::uint8_t value_2 = reader.read_u8();
+	tester.check(value_1 == 0x11 && value_2 == 0x22);
+}
+
+// std::int16_t read_s16_le()
+void test_c7jl4bnf2xqu0kd6()
+{
+	auto reader = bstone::MemoryBinaryReader{bytes, 8};
+	reader.skip(6);
+	const std::int16_t value = reader.read_s16_le();
+	tester.check(value == static_cast<std::int16_t>(0x8877));
+}
+
+// std::uint16_t read_u16_le()
+void test_y9rt3ahz6egm5pv1()
+{
+	auto reader = bstone::MemoryBinaryReader{bytes, 8};
+	const std::uint16_t value = reader.read_u16_le();
+	const auto is_advanced = reader.get_current_data() == &bytes[2];
+	tester.check(value == 0x2211 && is_advanced);
+}
+
+// std::int32_t read_s32_le()
+void test_d2fx8qwc5ivb7no4()
+{
+	auto reader = bstone::MemoryBinaryReader{bytes, 8};
+	reader.skip(4);
+	const std::int32_t value = reader.read_s32_le();
+	tester.check(value == static_cast<std::int32_t>(0x88776655U));
+}
+
+// std::uint32_t read_u32_le()
+void test_s5nk1eop3rtd9ug7()
+{
+	auto reader = bstone::MemoryBinaryReader{bytes, 8};
+	const std::uint32_t value = reader.read_u32_le();
+	const auto is_advanced = reader.get_current_data() == &bytes[4];
+	tester.check(value == 0x44332211U && is_advanced);
+}
+
+// ==========================================================================
+
+// void read(void*, int)
+void test_h6qm2yvl8bxa4jc0()
+{
+	auto reader = bstone::MemoryBinaryReader{bytes, 8};
+	reader.skip(2);
+	std::uint8_t buffer[3] = {};
+	reader.read(buffer, 3);
+	const auto is_valid_value = buffer[0] == 0x33 && buffer[1] == 0x44 && buffer[2] == 0x55;
+	const auto is_advanced = reader.get_current_data() == &bytes[5];
+	tester.check(is_valid_value && is_advanced);
+}
+
+// ==========================================================================
+
+// ==========================================================================
+
 
 // MemoryBinaryReader()
 void test_8z214ykyxfxr14b3()
@@ -182,8 +366,10 @@ public:
 	Registrator()
 	{
 		register_ctor();
+		register_get_current_data();
 		register_set_position();
 		register_skip();
+		register_can_read();
 		register_can_read_n();
 		register_can_read_x();
 		register_read_8();
@@ -195,19 +381,35 @@ public:
 private:
 	void register_ctor()
 	{
+		tester.register_test("MemoryBinaryReader#q7m4xk2vd9zr1ha3", test_q7m4xk2vd9zr1ha3);
+		tester.register_test("MemoryBinaryReader#b3t8nw5cj0plye6u", test_b3t8nw5cj0plye6u);
 		tester.register_test("MemoryBinaryReader#8z214ykyxfxr14b3", test_8z214ykyxfxr14b3);
 		tester.register_test("MemoryBinaryReader#djr24u31gl1diex9", test_djr24u31gl1diex9);
 	}
 
+	void register_get_current_data()
+	{
+		tester.register_test("MemoryBinaryReader#z5hf1cyp8n3wqk7t", test_z5hf1cyp8n3wqk7t);
+	}
+
 	void register_set_position()
 	{
+		tester.register_test("MemoryBinaryReader#r2vjx6ma0eb9ts4l", test_r2vjx6ma0eb9ts4l);
 		tester.register_test("MemoryBinaryReader#ta7q1jby7efgnpx4", test_ta7q1jby7efgnpx4);
 		tester.register_test("MemoryBinaryReader#vbk02bh4q3qfadk4", test_vbk02bh4q3qfadk4);
 	}
 
 	void register_skip()
 	{
+		tester.register_test("MemoryBinaryReader#n8plq3zd5kw7cy1x", test_n8plq3zd5kw7cy1x);
+		tester.register_test("MemoryBinaryReader#w4cs9gtb2meh6ru0", test_w4cs9gtb2meh6ru0);
 		tester.register_test("MemoryBinaryReader#ybwmn0y31zt4nst5", test_ybwmn0y31zt4nst5);
+	}
+
+	void register_can_read()
+	{
+		tester.register_test("MemoryBinaryReader#e6yn0kfa7jvx3qd2", test_e6yn0kfa7jvx3qd2);
+		tester.register_test("MemoryBinaryReader#t1zb5rho4pcm8ws9", test_t1zb5rho4pcm8ws9);
 	}
 
 	void register_can_read_n()
@@ -239,6 +441,13 @@ private:
 
 	void register_read()
 	{
+		tester.register_test("MemoryBinaryReader#g0uk7dxq9lna2vf5", test_g0uk7dxq9lna2vf5);
+		tester.register_test("MemoryBinaryReader#m3wp6svr1oyc4hz8", test_m3wp6svr1oyc4hz8);
+		tester.register_test("MemoryBinaryReader#c7jl4bnf2xqu0kd6", test_c7jl4bnf2xqu0kd6);
+		tester.register_test("MemoryBinaryReader#y9rt3ahz6egm5pv1", test_y9rt3ahz6egm5pv1);
+		tester.register_test("MemoryBinaryReader#d2fx8qwc5ivb7no4", test_d2fx8qwc5ivb7no4);
+		tester.register_test("MemoryBinaryReader#s5nk1eop3rtd9ug7", test_s5nk1eop3rtd9ug7);
+		tester.register_test("MemoryBinaryReader#h6qm2yvl8bxa4jc0", test_h6qm2yvl8bxa4jc0);
 		tester.register_test("MemoryBinaryReader#dyeqho9i94ssnjdo", test_dyeqho9i94ssnjdo);
 	}
 };
