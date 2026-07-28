@@ -394,6 +394,32 @@ void test_g7pz9khn3bwr1amx()
 
 // ==========================================================================
 
+// ArchiveFileEntryStreamUPtr open_entry_stream(int) const
+// A zero-byte member stored with the deflate method, the way Python's zipfile
+// and .NET write one: method 8, two compressed bytes (the empty deflate
+// stream), no uncompressed bytes, a zero CRC.
+void test_e2vm8qk4xjw1zryd()
+{
+	const auto data = make_pattern_bytes(64);
+	const auto zip = make_test_zip({
+		make_stored_entry("assets/one.txt", data),
+		make_deflated_entry("assets/empty.txt", Bytes{})});
+	const auto archive_file = bstone::make_zip_archive_file();
+	if (!open_test_zip(*archive_file, zip))
+		tester.fail("Failed to open the archive.");
+	if (archive_file->get_entry_count() != 2)
+		tester.fail("Missing the zero-byte entry.");
+	tester.check(
+		archive_file->get_entry(1).uncompressed_size == 0 &&
+		archive_file->get_entry(1).is_compressed);
+	const auto stream = archive_file->open_entry_stream(1);
+	if (stream == nullptr)
+		tester.fail("Failed to open the entry stream.");
+	auto actual_data = Bytes(16);
+	const auto read_size = stream->read(actual_data.data(), static_cast<int>(actual_data.size()));
+	tester.check(stream->get_size() == 0 && read_size == 0);
+}
+
 class Registrator
 {
 public:
@@ -422,6 +448,7 @@ private:
 		tester.register_test("ZipArchiveFile#n1cb6mfxr8u3ypgo", test_n1cb6mfxr8u3ypgo);
 		tester.register_test("ZipArchiveFile#y4jq0ei5tsl7dvzc", test_y4jq0ei5tsl7dvzc);
 		tester.register_test("ZipArchiveFile#g7pz9khn3bwr1amx", test_g7pz9khn3bwr1amx);
+		tester.register_test("ZipArchiveFile#e2vm8qk4xjw1zryd", test_e2vm8qk4xjw1zryd);
 	}
 };
 

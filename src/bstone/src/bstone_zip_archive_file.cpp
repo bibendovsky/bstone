@@ -558,10 +558,11 @@ bool ZipArchiveFile::is_central_file_supported(const CentralFileHeader& header) 
 	{
 		return false;
 	}
-	// The inflate stream is built for an entry that has something to decode on both sides,
-	// which until now was only a precondition its factory asserted.
+	// A deflate stream is never empty - even zero bytes of input deflate into a
+	// two-byte stream, which is how zipfile and friends store an empty member -
+	// so only an entry with nothing to decode is malformed.
 	if (header.compression_method == compression_method_deflate &&
-		(header.compressed_size == 0 || header.uncompressed_size == 0))
+		header.compressed_size == 0)
 	{
 		return false;
 	}

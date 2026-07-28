@@ -246,7 +246,7 @@ ArchiveFileEntryStreamUPtr make_archive_file_inflate_entry_stream(
 	BSTONE_ASSERT(archive_file_entry.compression_method == ArchiveFileCompressionMethod::deflate);
 	BSTONE_ASSERT(archive_file_entry.is_compressed);
 	BSTONE_ASSERT(archive_file_entry.compressed_size > 0);
-	BSTONE_ASSERT(archive_file_entry.uncompressed_size > 0);
+	BSTONE_ASSERT(archive_file_entry.uncompressed_size >= 0);
 	return std::make_unique<ArchiveFileInflateStream>(std::move(input_stream_uptr), archive_file_entry);
 }
 
