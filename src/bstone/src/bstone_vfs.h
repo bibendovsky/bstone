@@ -46,7 +46,9 @@ public:
 		{
 			const int read_size = read(bytes + bytes_offset, buffer_size - bytes_offset);
 			if (read_size <= 0)
+			{
 				break;
+			}
 			bytes_offset += read_size;
 		}
 		return bytes_offset == buffer_size;
