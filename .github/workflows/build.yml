@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # The bundled SDL3 is built from source, so its Linux backends need the
       # usual X11/Wayland/audio/GL development headers.
