@@ -57,9 +57,9 @@ bool File::open(const char* path, FileMode mode)
 			sdl_mode = "wb";
 			break;
 		default:
-			// An unusable mode (FileMode::none is the default-constructed state) is a
-			// rejected request, not a programming error - report it through the return
-			// value like any other failure to open.
+			// FileMode::none is the state of a default-constructed stream, so an
+			// unusable mode is a rejected request, not a programming error - report
+			// it through the return value like any other failure to open.
 			return false;
 	}
 	handle_ = SDL_IOFromFile(path, sdl_mode);
@@ -72,16 +72,10 @@ void File::close()
 	handle_ = nullptr;
 }
 
-// Operating on a closed file is a runtime failure, not a programming error: the
-// caller gets it back through the return value, which FileStream turns into an
-// exception. Asserting instead would abort a debug build, and would leave the
-// release build relying on SDL's own null-handle checks for correctness.
 int File::read(void* buffer, int size) const
 {
 	BSTONE_ASSERT(buffer != nullptr);
 	BSTONE_ASSERT(size >= 0);
-	if (!is_open())
-		return -1;
 	const std::size_t sdl_read_size = SDL_ReadIO(
 		static_cast<SDL_IOStream*>(handle_),
 		buffer,
@@ -99,8 +93,6 @@ bool File::read_exactly(void* buffer, int size) const
 {
 	BSTONE_ASSERT(buffer != nullptr);
 	BSTONE_ASSERT(size >= 0);
-	if (!is_open())
-		return false;
 	for (int offset = 0; offset < size;)
 	{
 		const std::size_t sdl_read_size = SDL_ReadIO(
@@ -118,8 +110,6 @@ int File::write(const void* buffer, int size) const
 {
 	BSTONE_ASSERT(buffer != nullptr);
 	BSTONE_ASSERT(size >= 0);
-	if (!is_open())
-		return -1;
 	const std::size_t sdl_written_size = SDL_WriteIO(
 		static_cast<SDL_IOStream*>(handle_),
 		buffer,
@@ -137,8 +127,6 @@ bool File::write_exactly(const void* buffer, int size) const
 {
 	BSTONE_ASSERT(buffer != nullptr);
 	BSTONE_ASSERT(size >= 0);
-	if (!is_open())
-		return false;
 	for (int offset = 0; offset < size;)
 	{
 		const std::size_t sdl_written_size = SDL_WriteIO(
@@ -154,8 +142,6 @@ bool File::write_exactly(const void* buffer, int size) const
 
 std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 {
-	if (!is_open())
-		return -1;
 	SDL_IOWhence sdl_io_whence;
 	switch (origin)
 	{
@@ -169,7 +155,7 @@ std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 			sdl_io_whence = SDL_IO_SEEK_END;
 			break;
 		default:
-			// An unknown origin is a rejected request; report it like any other failure.
+			BSTONE_ASSERT(false && "Unknown origin.");
 			return -1;
 	}
 	return SDL_SeekIO(static_cast<SDL_IOStream*>(handle_), offset, sdl_io_whence);
@@ -177,37 +163,27 @@ std::int64_t File::seek(std::int64_t offset, FileOrigin origin) const
 
 std::int64_t File::skip(std::int64_t offset) const
 {
-	if (!is_open())
-		return -1;
 	return SDL_SeekIO(static_cast<SDL_IOStream*>(handle_), offset, SDL_IO_SEEK_CUR);
 }
 
 std::int64_t File::get_position() const
 {
-	if (!is_open())
-		return -1;
 	return SDL_TellIO(static_cast<SDL_IOStream*>(handle_));
 }
 
 bool File::set_position(std::int64_t position) const
 {
 	BSTONE_ASSERT(position >= 0);
-	if (!is_open())
-		return false;
 	return SDL_SeekIO(static_cast<SDL_IOStream*>(handle_), position, SDL_IO_SEEK_SET) >= 0;
 }
 
 std::int64_t File::get_size() const
 {
-	if (!is_open())
-		return -1;
 	return SDL_GetIOSize(static_cast<SDL_IOStream*>(handle_));
 }
 
 bool File::flush() const
 {
-	if (!is_open())
-		return false;
 	return SDL_FlushIO(static_cast<SDL_IOStream*>(handle_));
 }
 
