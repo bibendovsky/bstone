@@ -17,7 +17,13 @@ struct FolderDialog
 {
 	// Asks the user for a folder and blocks until they answer. Returns an empty
 	// string if they cancelled, or if the platform has no folder dialog.
-	static std::string show(const char* title, const char* default_path);
+	//
+	// "parent_window" is the sys::Window handle to hang the dialog off, so it
+	// belongs to the window that asked instead of appearing on its own.
+	static std::string show(const char* title, const char* default_path, void* parent_window);
+
+	// Where the dialog should start, for someone who has not chosen before.
+	static const char* get_default_location();
 };
 
 } // namespace bstone::sys

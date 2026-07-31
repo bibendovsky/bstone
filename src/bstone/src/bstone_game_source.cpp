@@ -133,32 +133,34 @@ GameSourcePaths find_game_sources(const std::string& path)
 	return std::move(state.paths);
 }
 
+std::string make_display_path(const std::string& path)
+{
+	// Everything below an application bundle is that bundle's business, and
+	// the whole chain is far too long to read.
+	const std::size_t app_pos = path.find(".app/");
+	return app_pos != std::string::npos ? path.substr(0, app_pos + 4) : path;
+}
+
 const char* get_game_source_prompt()
 {
-#if defined(_WIN32)
 	return
-		"Choose a folder holding Blake Stone.\n"
-		"\n"
-		"The games are sold on Steam and on GOG; installing either way lets them "
-		"be found on their own next time. Otherwise choose the folder you "
-		"installed to, or one holding the game's files.";
-#elif defined(__APPLE__)
+		"BStone automatically searches Steam and GOG installations.\n"
+		"You can also choose a folder to search for supported game files.";
+}
+
+const char* get_game_source_dialog_note()
+{
+#if defined(__APPLE__)
 	return
-		"Choose a folder holding Blake Stone.\n"
-		"\n"
-		"The games are sold on Steam and on GOG; installing either way lets them "
-		"be found on their own next time. Both keep the files inside an "
-		"application, which cannot be opened from this dialog - choose the "
-		"folder the application is in, such as Applications, and it will be "
-		"found from there.";
+		"On macOS, you may choose the Applications folder. "
+		"BStone will search inside game applications automatically.";
+#elif defined(_WIN32)
+	return "Choose where a game was installed, or a folder holding its files.";
 #else
 	return
-		"Choose a folder holding Blake Stone.\n"
-		"\n"
-		"The games are sold on Steam, which installs them here and lets them be "
-		"found on their own next time. GOG has no client for this platform: "
-		"download the offline installer from your GOG library, run it, and "
-		"choose where it installed - GOG Games in your home folder by default.";
+		"Steam installs are searched already. For GOG, run the offline "
+		"installer and choose where it installed - GOG Games in your home "
+		"folder by default.";
 #endif
 }
 

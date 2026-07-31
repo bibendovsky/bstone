@@ -32,6 +32,12 @@ GameSourcePaths find_game_sources(const std::string& path);
 // platform they are on and how the game is sold for it.
 const char* get_game_source_prompt();
 
+// A path short enough to read: cut at the application bundle holding the game.
+std::string make_display_path(const std::string& path);
+
+// A smaller note for the moment the folder dialog is about to open.
+const char* get_game_source_dialog_note();
+
 } // namespace bstone
 
 #endif // BSTONE_GAME_SOURCE_INCLUDED

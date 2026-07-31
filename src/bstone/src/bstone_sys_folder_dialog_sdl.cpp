@@ -12,6 +12,7 @@ SPDX-License-Identifier: MIT
 #include "SDL3/SDL_dialog.h"
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_init.h"
+#include "SDL3/SDL_video.h"
 #include "SDL3/SDL_timer.h"
 
 namespace bstone::sys {
@@ -39,7 +40,18 @@ void SDLCALL folder_dialog_callback(void* userdata, const char* const* file_list
 
 } // namespace
 
-std::string FolderDialog::show(const char* title, const char* default_path)
+const char* FolderDialog::get_default_location()
+{
+#if defined(__APPLE__)
+	// Where both storefronts put the game, and the folder to pick: the
+	// applications themselves cannot be opened from a folder dialog.
+	return "/Applications";
+#else
+	return nullptr;
+#endif
+}
+
+std::string FolderDialog::show(const char* title, const char* default_path, void* parent_window)
 {
 	static_cast<void>(title);
 
@@ -51,7 +63,12 @@ std::string FolderDialog::show(const char* title, const char* default_path)
 	}
 
 	auto state = FolderDialogState{};
-	SDL_ShowOpenFolderDialog(folder_dialog_callback, &state, nullptr, default_path, false);
+	SDL_ShowOpenFolderDialog(
+		folder_dialog_callback,
+		&state,
+		static_cast<SDL_Window*>(parent_window),
+		default_path != nullptr ? default_path : get_default_location(),
+		false);
 
 	// The dialog is asynchronous everywhere; it reports back through the event
 	// loop, so pump it until the callback has run.
