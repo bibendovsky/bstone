@@ -103,8 +103,8 @@ constexpr LauncherColor color_title{232, 230, 227};
 constexpr LauncherColor color_detail{138, 144, 153};
 constexpr LauncherColor color_border{58, 65, 77};
 
-constexpr int window_width = 640;
-constexpr int window_height = 480;
+constexpr int window_width = 820;
+constexpr int window_height = 620;
 constexpr int pad = 32;
 
 const std::uint8_t* find_glyph_rows(char ch)
@@ -136,7 +136,7 @@ void fill_rect(SDL_Renderer* renderer, float x, float y, float w, float h)
 	SDL_RenderFillRect(renderer, &rect);
 }
 
-void draw_text(SDL_Renderer* renderer, float x, float y, int scale, LauncherColor color, const std::string& text)
+void draw_text(SDL_Renderer* renderer, float x, float y, float scale, LauncherColor color, const std::string& text)
 {
 	set_color(renderer, color);
 	float pen_x = x;
@@ -155,33 +155,33 @@ void draw_text(SDL_Renderer* renderer, float x, float y, int scale, LauncherColo
 					{
 						fill_rect(
 							renderer,
-							pen_x + static_cast<float>(bit * scale),
-							y + static_cast<float>(row * scale),
-							static_cast<float>(scale),
-							static_cast<float>(scale));
+							pen_x + static_cast<float>(bit) * scale,
+							y + static_cast<float>(row) * scale,
+							scale,
+							scale);
 					}
 				}
 			}
 		}
 
-		pen_x += static_cast<float>(6 * scale);
+		pen_x += 6.0F * scale;
 	}
 }
 
-float measure_text(int scale, const std::string& text)
+float measure_text(float scale, const std::string& text)
 {
-	return static_cast<float>(text.size() * 6 * scale);
+	return static_cast<float>(text.size()) * 6.0F * scale;
 }
 
 // Long paths say most at their two ends, so drop the middle to fit.
-std::string elide_middle(const std::string& text, int scale, float max_width)
+std::string elide_middle(const std::string& text, float scale, float max_width)
 {
 	if (measure_text(scale, text) <= max_width)
 	{
 		return text;
 	}
 
-	const auto max_chars = static_cast<std::size_t>(max_width / static_cast<float>(6 * scale));
+	const auto max_chars = static_cast<std::size_t>(max_width / (6.0F * scale));
 
 	if (max_chars <= 5)
 	{
@@ -195,7 +195,7 @@ std::string elide_middle(const std::string& text, int scale, float max_width)
 }
 
 // Splits into lines that fit, breaking on spaces.
-std::vector<std::string> wrap_text(const std::string& text, int scale, float max_width)
+std::vector<std::string> wrap_text(const std::string& text, float scale, float max_width)
 {
 	std::vector<std::string> lines{};
 	std::string line{};
@@ -274,24 +274,24 @@ struct LauncherLayout
 void build_layout(std::span<const LauncherItem> items, LauncherLayout& layout)
 {
 	layout.widgets.clear();
-	float y = 128.0F;
+	float y = 150.0F;
 
 	for (int i = 0; i < static_cast<int>(items.size()); ++i)
 	{
 		auto& widget = layout.widgets.emplace_back();
-		widget.rect = SDL_FRect{pad, y, window_width - 2.0F * pad, 72.0F};
+		widget.rect = SDL_FRect{pad, y, window_width - 2.0F * pad, 76.0F};
 		widget.action = LauncherAction::play;
 		widget.item_index = i;
 		widget.title = items[i].title;
 		widget.detail = items[i].detail;
-		y += 84.0F;
+		y += 90.0F;
 	}
 
-	const float button_y = window_height - pad - 40.0F;
+	const float button_y = window_height - pad - 44.0F;
 
 	{
 		auto& widget = layout.widgets.emplace_back();
-		widget.rect = SDL_FRect{pad, button_y, 220.0F, 40.0F};
+		widget.rect = SDL_FRect{pad, button_y, 260.0F, 44.0F};
 		widget.action = LauncherAction::add_source;
 		widget.item_index = -1;
 		widget.title = "Add game source";
@@ -299,7 +299,7 @@ void build_layout(std::span<const LauncherItem> items, LauncherLayout& layout)
 
 	{
 		auto& widget = layout.widgets.emplace_back();
-		widget.rect = SDL_FRect{window_width - pad - 100.0F, button_y, 100.0F, 40.0F};
+		widget.rect = SDL_FRect{window_width - pad - 120.0F, button_y, 120.0F, 44.0F};
 		widget.action = LauncherAction::quit;
 		widget.item_index = -1;
 		widget.title = "Quit";
@@ -316,25 +316,29 @@ void draw_panel(
 	set_color(renderer, color_background);
 	SDL_RenderClear(renderer);
 
-	draw_text(renderer, pad, pad, 4, color_title, "BSTONE");
+	static const std::string wordmark = "BSTONE";
+	constexpr float wordmark_scale = 4.0F;
+	draw_text(renderer, pad, pad, wordmark_scale, color_title, wordmark);
 	set_color(renderer, color_accent);
-	fill_rect(renderer, pad, pad + 36.0F, 168.0F, 3.0F);
+	// The advance after the last glyph is spacing, not part of the word.
+	const float wordmark_width = measure_text(wordmark_scale, wordmark) - wordmark_scale;
+	fill_rect(renderer, pad, pad + 36.0F, wordmark_width, 3.0F);
 	draw_text(
 		renderer,
 		pad,
-		pad + 50.0F,
-		1,
+		pad + 54.0F,
+		2.0F,
 		color_detail,
 		items.empty() ? "No games found yet" : "Choose a game");
 
 	if (items.empty())
 	{
-		float y = 128.0F;
+		float y = 142.0F;
 
-		for (const std::string& line : wrap_text(empty_message, 1, window_width - 2.0F * pad))
+		for (const std::string& line : wrap_text(empty_message, 2.0F, window_width - 2.0F * pad))
 		{
-			draw_text(renderer, pad, y, 1, color_detail, line);
-			y += 14.0F;
+			draw_text(renderer, pad, y, 2.0F, color_detail, line);
+			y += 22.0F;
 		}
 	}
 
@@ -354,31 +358,31 @@ void draw_panel(
 				fill_rect(renderer, widget.rect.x, widget.rect.y, 3.0F, widget.rect.h);
 			}
 
-			const float art_size = widget.rect.h - 16.0F;
+			const float art_size = widget.rect.h - 20.0F;
 			const bool has_art = (widget.art != nullptr);
 
 			if (has_art)
 			{
-				const SDL_FRect art_rect{widget.rect.x + 8.0F, widget.rect.y + 8.0F, art_size, art_size};
+				const SDL_FRect art_rect{widget.rect.x + 12.0F, widget.rect.y + 10.0F, art_size, art_size};
 				SDL_RenderTexture(renderer, widget.art, nullptr, &art_rect);
 			}
 
-			const float text_x = widget.rect.x + (has_art ? art_size + 20.0F : 16.0F);
+			const float text_x = widget.rect.x + (has_art ? art_size + 28.0F : 20.0F);
 			const float text_w = widget.rect.w - (text_x - widget.rect.x) - 16.0F;
 			draw_text(
 				renderer,
 				text_x,
-				widget.rect.y + 16.0F,
-				2,
+				widget.rect.y + 13.0F,
+				3.0F,
 				color_title,
-				elide_middle(widget.title, 2, text_w));
+				elide_middle(widget.title, 3.0F, text_w));
 			draw_text(
 				renderer,
 				text_x,
-				widget.rect.y + 42.0F,
-				1,
+				widget.rect.y + 45.0F,
+				2.0F,
 				color_detail,
-				elide_middle(widget.detail, 1, text_w));
+				elide_middle(widget.detail, 2.0F, text_w));
 		}
 		else
 		{
@@ -389,19 +393,19 @@ void draw_panel(
 			fill_rect(renderer, widget.rect.x, widget.rect.y + widget.rect.h - 1.0F, widget.rect.w, 1.0F);
 			fill_rect(renderer, widget.rect.x, widget.rect.y, 1.0F, widget.rect.h);
 			fill_rect(renderer, widget.rect.x + widget.rect.w - 1.0F, widget.rect.y, 1.0F, widget.rect.h);
-			const float text_x = widget.rect.x + (widget.rect.w - measure_text(2, widget.title)) / 2.0F;
-			draw_text(renderer, text_x, widget.rect.y + 13.0F, 2, color_title, widget.title);
+			const float text_x = widget.rect.x + (widget.rect.w - measure_text(2.0F, widget.title)) / 2.0F;
+			draw_text(renderer, text_x, widget.rect.y + 15.0F, 2.0F, color_title, widget.title);
 		}
 	}
 
-	if (add_source_note != nullptr)
+	if (add_source_note != nullptr && items.empty())
 	{
-		float y = window_height - pad - 76.0F;
+		float y = window_height - pad - 104.0F;
 
-		for (const std::string& line : wrap_text(add_source_note, 1, window_width - 2.0F * pad))
+		for (const std::string& line : wrap_text(add_source_note, 2.0F, window_width - 2.0F * pad))
 		{
-			draw_text(renderer, pad, y, 1, color_detail, line);
-			y += 12.0F;
+			draw_text(renderer, pad, y, 2.0F, color_detail, line);
+			y += 22.0F;
 		}
 	}
 
@@ -519,6 +523,11 @@ LauncherResult Launcher::run(
 
 		widget.art = SDL_CreateTextureFromSurface(renderer, surface);
 		SDL_DestroySurface(surface);
+
+		if (widget.art != nullptr)
+		{
+			SDL_SetTextureScaleMode(widget.art, SDL_SCALEMODE_LINEAR);
+		}
 	}
 
 	draw_panel(renderer, items, empty_message, add_source_note, layout);

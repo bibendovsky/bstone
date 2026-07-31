@@ -9,6 +9,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_game_source.h"
 
 #include <algorithm>
+#include <cstring>
 
 #include "bstone_ascii.h"
 #include "bstone_fs_utils.h"
@@ -131,6 +132,58 @@ GameSourcePaths find_game_sources(const std::string& path)
 	auto state = SearchState{};
 	search(path, 0, state);
 	return std::move(state.paths);
+}
+
+const char* get_game_source_label(const std::string& path)
+{
+	if (path.find("/steamapps/") != std::string::npos)
+	{
+		return "Steam";
+	}
+
+	if (path.find("/GOG Games/") != std::string::npos)
+	{
+		return "GOG";
+	}
+
+	// A GOG application carries the id file its installer dropped; look for it
+	// beside the bundle the game sits in.
+	std::string probe_path = path;
+
+	while (!probe_path.empty())
+	{
+		const std::size_t app_pos = probe_path.rfind(".app");
+
+		if (app_pos == std::string::npos)
+		{
+			break;
+		}
+
+		probe_path.resize(app_pos + 4);
+		const std::string resources_path = fs_utils::append_path(probe_path, "Contents/Resources");
+		bool is_gog = false;
+		sys::enumerate_directory(
+			resources_path.c_str(),
+			[](void* user_data, const char*, const char* file_name) -> sys::EnumDirCallbackResult
+			{
+				if (std::strncmp(file_name, ".goggame-", 9) == 0)
+				{
+					*static_cast<bool*>(user_data) = true;
+				}
+
+				return sys::EnumDirCallbackResult::resume;
+			},
+			&is_gog);
+
+		if (is_gog)
+		{
+			return "GOG";
+		}
+
+		probe_path.resize(app_pos);
+	}
+
+	return "Folder";
 }
 
 std::string make_display_path(const std::string& path)

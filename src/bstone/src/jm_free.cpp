@@ -149,6 +149,11 @@ public:
 		return ps_asset_bundle_;
 	}
 
+	const std::vector<AssetBundle>& get_found_asset_bundles() const
+	{
+		return found_asset_bundles_;
+	}
+
 	static const char* get_bundle_version_string(AssetsVersion bundle_version)
 	{
 		switch (bundle_version)
@@ -188,6 +193,9 @@ private:
 	AssetBundle aog_sw_asset_bundle_{};
 	AssetBundle aog_asset_bundle_{};
 	AssetBundle ps_asset_bundle_{};
+	// Every copy found. Two stores can each hold the same game, at different
+	// versions, and both are the user's to choose from.
+	std::vector<AssetBundle> found_asset_bundles_{};
 
 	void initialize_versions()
 	{
@@ -361,6 +369,7 @@ private:
 		if (aog_sw_found_bundle.vfs_search_path != nullptr && aog_sw_found_bundle.assets_version != AssetsVersion::none)
 		{
 			logger_.log_information("Found {}.", get_bundle_version_string(aog_sw_found_bundle.assets_version));
+			found_asset_bundles_.emplace_back(aog_sw_found_bundle);
 			if (aog_sw_found_bundle.assets_version > aog_sw_asset_bundle_.assets_version)
 				aog_sw_asset_bundle_ = aog_sw_found_bundle;
 			if (aog_sw_found_bundle.assets_version == AssetsVersion::aog_sw_v2_1)
@@ -381,6 +390,7 @@ private:
 		if (aog_found_bundle.vfs_search_path != nullptr && aog_found_bundle.assets_version != AssetsVersion::none)
 		{
 			logger_.log_information("Found {}.", get_bundle_version_string(aog_found_bundle.assets_version));
+			found_asset_bundles_.emplace_back(aog_found_bundle);
 			if (aog_found_bundle.assets_version > aog_asset_bundle_.assets_version)
 				aog_asset_bundle_ = aog_found_bundle;
 			if (aog_found_bundle.assets_version == AssetsVersion::aog_full_v2_1)
@@ -401,6 +411,7 @@ private:
 		if (ps_found_bundle.vfs_search_path != nullptr && ps_found_bundle.assets_version != AssetsVersion::none)
 		{
 			logger_.log_information("Found {}.", get_bundle_version_string(ps_found_bundle.assets_version));
+			found_asset_bundles_.emplace_back(ps_found_bundle);
 			if (ps_found_bundle.assets_version > ps_asset_bundle_.assets_version)
 				ps_asset_bundle_ = ps_found_bundle;
 		}
@@ -521,12 +532,10 @@ bool find_contents_once()
 	}
 	else
 	{
-		if (!aog_asset_bundle.is_empty())
-			products_to_choose.emplace_back(&aog_asset_bundle);
-		if (!ps_asset_bundle.is_empty())
-			products_to_choose.emplace_back(&ps_asset_bundle);
-		if (!aog_sw_asset_bundle.is_empty())
-			products_to_choose.emplace_back(&aog_sw_asset_bundle);
+		for (const AssetBundle& found_bundle : asset_bundle_mgr.get_found_asset_bundles())
+		{
+			products_to_choose.emplace_back(&found_bundle);
+		}
 	}
 	const AssetBundle* choosen_bundle = nullptr;
 
@@ -547,16 +556,21 @@ bool find_contents_once()
 		launcher_items.reserve(products_to_choose.size());
 		// The artwork belongs to the copy of the game it was read from, and
 		// lives only as long as the launcher shows it.
+		// The card art is drawn small; ask for it at twice that, so a dense
+		// display has pixels to use and the rest is a gentle shrink.
+		constexpr int launcher_art_size = 128;
 		std::vector<bstone::GameArt> launcher_arts{};
 		launcher_arts.reserve(products_to_choose.size());
 
 		for (const AssetBundle* const product_to_choose : products_to_choose)
 		{
 			const std::string game_path = product_to_choose->vfs_search_path->path;
-			const bstone::GameArt& art = launcher_arts.emplace_back(bstone::find_game_art(game_path));
+			const bstone::GameArt& art = launcher_arts.emplace_back(bstone::find_game_art(game_path, launcher_art_size));
 			auto& launcher_item = launcher_items.emplace_back();
 			launcher_item.title = AssetBundleMgr::get_bundle_version_string(product_to_choose->assets_version);
-			launcher_item.detail = bstone::make_display_path(game_path);
+			launcher_item.detail =
+				std::string{bstone::get_game_source_label(game_path)} + "  -  " +
+				bstone::make_display_path(game_path);
 			launcher_item.art_pixels = art.is_empty() ? nullptr : art.pixels.data();
 			launcher_item.art_width = art.width;
 			launcher_item.art_height = art.height;
@@ -602,6 +616,53 @@ bool find_contents_once()
 		}
 	}
 
+	// Two copies of the same game hold the same file names, and the file
+	// system answers from the last path that has one. Drop the copies that
+	// were not chosen, so only the chosen one can answer for them.
+	{
+		std::vector<std::string> game_paths{};
+
+		for (const AssetBundle& found_bundle : asset_bundle_mgr.get_found_asset_bundles())
+		{
+			game_paths.emplace_back(found_bundle.vfs_search_path->path);
+		}
+
+		const std::string chosen_path = choosen_bundle->vfs_search_path->path;
+		std::vector<std::string> kept_paths{};
+		kept_paths.reserve(static_cast<std::size_t>(vfs.get_search_path_count()));
+		kept_paths.emplace_back(chosen_path);
+
+		for (int i = 0; i < vfs.get_search_path_count(); ++i)
+		{
+			const std::string path = vfs.get_search_path(i).path;
+			const bool is_another_copy = path != chosen_path &&
+				std::find(game_paths.cbegin(), game_paths.cend(), path) != game_paths.cend();
+
+			if (!is_another_copy && path != chosen_path)
+			{
+				kept_paths.emplace_back(path);
+			}
+		}
+
+		extra_search_paths = std::move(kept_paths);
+		std::vector<const char*> search_path_ptrs{};
+		search_path_ptrs.reserve(extra_search_paths.size());
+
+		for (const std::string& path : extra_search_paths)
+		{
+			search_path_ptrs.emplace_back(path.c_str());
+		}
+
+		const bstone::VfsInitParam vfs_init_param{
+			.logger = &logger,
+			.search_paths = std::span{search_path_ptrs.data(), search_path_ptrs.size()}};
+
+		if (!vfs.initialize(vfs_init_param))
+		{
+			BSTONE_THROW_STATIC_SOURCE("Failed to reopen the virtual file system.");
+		}
+	}
+
 	AssetsInfo& assets_info = get_assets_info();
 	switch (choosen_bundle->assets_version)
 	{
@@ -636,6 +697,7 @@ bool find_contents_once()
 			BSTONE_THROW_STATIC_SOURCE("Unknown version of the asset bundle.");
 	}
 	assets_info.set_version(choosen_bundle->assets_version);
+	return true;
 }
 
 

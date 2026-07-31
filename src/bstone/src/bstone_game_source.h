@@ -32,6 +32,9 @@ GameSourcePaths find_game_sources(const std::string& path);
 // platform they are on and how the game is sold for it.
 const char* get_game_source_prompt();
 
+// Which store a copy of the game came from, for telling two copies apart.
+const char* get_game_source_label(const std::string& path);
+
 // A path short enough to read: cut at the application bundle holding the game.
 std::string make_display_path(const std::string& path);
 

@@ -11,6 +11,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include <cstdint>
 #include <cstring>
 
+#include <algorithm>
+
 #include "bstone_fs_utils.h"
 #include "bstone_image_decoder.h"
 #include "bstone_sys_file.h"
@@ -70,10 +72,27 @@ bool is_png(const unsigned char* bytes, std::size_t size)
 	return size >= sizeof(png_signature) && std::memcmp(bytes, png_signature, sizeof(png_signature)) == 0;
 }
 
-// An icns file is a header and then a run of typed chunks. Every icon big
-// enough to be worth showing is stored as PNG, so take the largest of those
-// and leave the older raw formats alone.
-bool extract_png_from_icns(const Bytes& icns, Bytes& png)
+// A PNG says its size in the header, which is enough to choose between the
+// sizes an icon file holds without decoding any of them.
+bool read_png_size(const unsigned char* bytes, std::size_t size, int& width, int& height)
+{
+	constexpr std::size_t ihdr_offset = 16;
+
+	if (size < ihdr_offset + 8 || !is_png(bytes, size))
+	{
+		return false;
+	}
+
+	width = static_cast<int>(read_u32_be(&bytes[ihdr_offset]));
+	height = static_cast<int>(read_u32_be(&bytes[ihdr_offset + 4]));
+	return width > 0 && height > 0;
+}
+
+// An icns file is a header and then a run of typed chunks. It holds the same
+// icon at many sizes - 32 through 1024 - so take the smallest one that is
+// still at least as big as it will be drawn. Taking the largest and letting
+// it be squeezed down throws away most of its pixels and looks it.
+bool extract_png_from_icns(const Bytes& icns, int desired_size, Bytes& png)
 {
 	constexpr std::size_t header_size = 8;
 	constexpr std::size_t chunk_header_size = 8;
@@ -86,6 +105,7 @@ bool extract_png_from_icns(const Bytes& icns, Bytes& png)
 	std::size_t offset = header_size;
 	std::size_t best_offset = 0;
 	std::size_t best_size = 0;
+	int best_width = 0;
 
 	while (offset + chunk_header_size <= icns.size())
 	{
@@ -98,11 +118,23 @@ bool extract_png_from_icns(const Bytes& icns, Bytes& png)
 
 		const std::size_t data_offset = offset + chunk_header_size;
 		const std::size_t data_size = chunk_size - chunk_header_size;
+		int width = 0;
+		int height = 0;
 
-		if (data_size > best_size && is_png(&icns[data_offset], data_size))
+		if (read_png_size(&icns[data_offset], data_size, width, height))
 		{
-			best_offset = data_offset;
-			best_size = data_size;
+			// Prefer the smallest that still covers the size wanted; failing
+			// that - every one is too small - the biggest there is.
+			const bool is_better = best_width == 0 ||
+				(best_width < desired_size ? width > best_width :
+					(width >= desired_size && width < best_width));
+
+			if (is_better)
+			{
+				best_offset = data_offset;
+				best_size = data_size;
+				best_width = width;
+			}
 		}
 
 		offset += chunk_size;
@@ -121,7 +153,7 @@ bool extract_png_from_icns(const Bytes& icns, Bytes& png)
 
 // The game's files sit deep inside the application that holds them, so walk
 // back up looking for the artwork at each step.
-bool find_art_bytes(const std::string& game_path, Bytes& png)
+bool find_art_bytes(const std::string& game_path, int desired_size, Bytes& png)
 {
 	std::string path = game_path;
 
@@ -142,7 +174,7 @@ bool find_art_bytes(const std::string& game_path, Bytes& png)
 				return true;
 			}
 
-			if (extract_png_from_icns(bytes, png))
+			if (extract_png_from_icns(bytes, desired_size, png))
 			{
 				return true;
 			}
@@ -161,14 +193,72 @@ bool find_art_bytes(const std::string& game_path, Bytes& png)
 	return false;
 }
 
+// Averages whole blocks of the source into each pixel, so shrinking keeps
+// what is there instead of sampling a few pixels and missing the rest.
+GameArt downscale(const GameArt& src, int size)
+{
+	auto dst = GameArt{};
+	dst.width = size;
+	dst.height = size;
+	dst.pixels.resize(static_cast<std::size_t>(size) * size);
+
+	for (int y = 0; y < size; ++y)
+	{
+		const int y0 = y * src.height / size;
+		const int y1 = std::max(y0 + 1, (y + 1) * src.height / size);
+
+		for (int x = 0; x < size; ++x)
+		{
+			const int x0 = x * src.width / size;
+			const int x1 = std::max(x0 + 1, (x + 1) * src.width / size);
+			int r = 0;
+			int g = 0;
+			int b = 0;
+			int a = 0;
+			int count = 0;
+
+			for (int sy = y0; sy < y1; ++sy)
+			{
+				for (int sx = x0; sx < x1; ++sx)
+				{
+					const Rgba8& pixel = src.pixels[static_cast<std::size_t>(sy) * src.width + sx];
+					// Weight colour by coverage, or transparent pixels drag
+					// the edges towards whatever colour they happen to hold.
+					r += pixel.r_ * pixel.a_;
+					g += pixel.g_ * pixel.a_;
+					b += pixel.b_ * pixel.a_;
+					a += pixel.a_;
+					++count;
+				}
+			}
+
+			Rgba8& out = dst.pixels[static_cast<std::size_t>(y) * size + x];
+
+			if (a > 0)
+			{
+				out.r_ = static_cast<std::uint8_t>(r / a);
+				out.g_ = static_cast<std::uint8_t>(g / a);
+				out.b_ = static_cast<std::uint8_t>(b / a);
+				out.a_ = static_cast<std::uint8_t>(a / count);
+			}
+			else
+			{
+				out = Rgba8{};
+			}
+		}
+	}
+
+	return dst;
+}
+
 } // namespace
 
-GameArt find_game_art(const std::string& game_path)
+GameArt find_game_art(const std::string& game_path, int desired_size)
 {
 	auto art = GameArt{};
 	auto png = Bytes{};
 
-	if (!find_art_bytes(game_path, png))
+	if (desired_size <= 0 || !find_art_bytes(game_path, desired_size, png))
 	{
 		return art;
 	}
@@ -187,6 +277,11 @@ GameArt find_game_art(const std::string& game_path)
 	catch (...)
 	{
 		return GameArt{};
+	}
+
+	if (art.width > desired_size && art.width == art.height)
+	{
+		art = downscale(art, desired_size);
 	}
 
 	return art;

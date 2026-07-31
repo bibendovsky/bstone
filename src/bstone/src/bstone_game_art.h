@@ -29,11 +29,11 @@ struct GameArt
 };
 
 // Looks for the artwork a store put next to the game - the icon of the
-// application holding it - and decodes it.
+// application holding it - and decodes it at about the size asked for.
 //
 // Nothing here is distributed with BStone: the artwork is read from the copy
 // of the game the user pointed at, and only for as long as it is shown.
-GameArt find_game_art(const std::string& game_path);
+GameArt find_game_art(const std::string& game_path, int desired_size);
 
 } // namespace bstone
 
