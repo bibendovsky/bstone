@@ -281,6 +281,7 @@ endif ()
 
 target_link_libraries(bstone
 	PRIVATE
+		$<$<BOOL:${APPLE}>:sqlite3>
 		$<$<AND:$<BOOL:${WIN32}>,$<BOOL:${MINGW}>>:-municode>
 		${CMAKE_DL_LIBS}
 		bstone::lib::sdl
