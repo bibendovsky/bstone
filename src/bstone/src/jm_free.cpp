@@ -39,6 +39,12 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_sha1.h"
 #include "bstone_sys_message_box.h"
 #include "bstone_vfs.h"
+#include "bstone_game_art.h"
+#include "bstone_game_source.h"
+#include "bstone_sys_folder_dialog.h"
+#include "bstone_sys_launcher.h"
+
+void content_remember_dir(const std::string& dir);
 
 
 extern SpanStart spanstart;
@@ -421,7 +427,75 @@ private:
 	}
 };
 
-void find_contents()
+
+// The virtual file system keeps the pointers it is given, so the strings behind
+// them have to outlive every reopening.
+std::vector<std::string> extra_search_paths{};
+
+bool add_game_source(bstone::Logger& logger, bstone::Vfs& vfs, void* parent_window)
+{
+	const std::string picked_path = bstone::sys::FolderDialog::show(
+		"Choose a folder holding Blake Stone",
+		nullptr,
+		parent_window);
+	logger.log_information("Game source dialog returned \"{}\".", picked_path);
+
+	if (picked_path.empty())
+	{
+		return false;
+	}
+
+	const bstone::GameSourcePaths found_paths = bstone::find_game_sources(picked_path);
+	logger.log_information("Found {} game folder(s) under {}.", static_cast<int>(found_paths.size()), picked_path);
+
+	if (found_paths.empty())
+	{
+		bstone::sys::MessageBox::show_simple(
+			get_message_box_title().c_str(),
+			"No game was found under that folder.",
+			bstone::sys::MessageBoxType::warning);
+		return false;
+	}
+
+	content_remember_dir(picked_path);
+
+	// The file system points into the very list being grown here, so take a
+	// copy of what it has before touching that list.
+	std::vector<std::string> current_paths{};
+	current_paths.reserve(static_cast<std::size_t>(vfs.get_search_path_count()));
+
+	for (int i = 0; i < vfs.get_search_path_count(); ++i)
+	{
+		current_paths.emplace_back(vfs.get_search_path(i).path);
+	}
+
+	current_paths.insert(current_paths.end(), found_paths.cbegin(), found_paths.cend());
+	extra_search_paths.clear();
+
+	for (const std::string& path : current_paths)
+	{
+		if (std::find(extra_search_paths.cbegin(), extra_search_paths.cend(), path) == extra_search_paths.cend())
+		{
+			extra_search_paths.emplace_back(path);
+		}
+	}
+
+	std::vector<const char*> search_path_ptrs{};
+	search_path_ptrs.reserve(extra_search_paths.size());
+
+	for (const std::string& search_path : extra_search_paths)
+	{
+		search_path_ptrs.emplace_back(search_path.c_str());
+	}
+
+	const bstone::VfsInitParam vfs_init_param{
+		.logger = &logger,
+		.search_paths = std::span{search_path_ptrs.data(), search_path_ptrs.size()}};
+
+	return vfs.initialize(vfs_init_param);
+}
+
+bool find_contents_once()
 {
 	bstone::Logger& logger = *bstone::globals::logger;
 	bstone::Vfs& vfs = *bstone::globals::vfs;
@@ -454,75 +528,80 @@ void find_contents()
 		if (!aog_sw_asset_bundle.is_empty())
 			products_to_choose.emplace_back(&aog_sw_asset_bundle);
 	}
-	if (products_to_choose.empty())
-		BSTONE_THROW_STATIC_SOURCE("Compatible product not found.");
 	const AssetBundle* choosen_bundle = nullptr;
-	if (products_to_choose.size() > 1)
+
+	if (force_aog_sw || force_aog || force_ps)
 	{
-		logger.log_information("Bundles to choose:");
-		std::vector<bstone::sys::MessageBoxButton> message_box_buttons{};
-		message_box_buttons.reserve(products_to_choose.size() + 1);
-		int button_id = 0;
-		for (const AssetBundle* const product_to_choose : products_to_choose)
+		if (products_to_choose.empty())
 		{
-			const char* button_title;
-			switch (product_to_choose->assets_version)
-			{
-				case AssetsVersion::aog_sw_v1_0:
-				case AssetsVersion::aog_sw_v2_0:
-				case AssetsVersion::aog_sw_v2_1:
-				case AssetsVersion::aog_sw_v3_0:
-					button_title = "AoG (shareware)";
-					break;
-				case AssetsVersion::aog_full_v1_0:
-				case AssetsVersion::aog_full_v2_0:
-				case AssetsVersion::aog_full_v2_1:
-				case AssetsVersion::aog_full_v3_0:
-					button_title = "AoG";
-					break;
-				case AssetsVersion::ps:
-					button_title = "PS";
-					break;
-				default:
-					button_title = "???";
-					break;
-			}
-			bstone::sys::MessageBoxButtonFlags flags = bstone::sys::MessageBoxButtonFlags::none;
-			if (button_id == 0)
-				flags = bstone::sys::MessageBoxButtonFlags::default_for_return_key;
-			message_box_buttons.emplace_back(bstone::sys::MessageBoxButton{
-				.id = button_id,
-				.flags = flags,
-				.text = button_title});
-			++button_id;
-			const char* const version_string = AssetBundleMgr::get_bundle_version_string(product_to_choose->assets_version);
-			logger.log_information("{}) {} at {}", button_id, version_string, product_to_choose->vfs_search_path->path);
+			BSTONE_THROW_STATIC_SOURCE("Compatible product not found.");
 		}
-		message_box_buttons.emplace_back(bstone::sys::MessageBoxButton{
-			.id = button_id,
-			.flags = bstone::sys::MessageBoxButtonFlags::default_for_escape_key,
-			.text = "Cancel"});
-		const bstone::sys::MessageBoxInitParam message_box_init_param{
-			.title = get_message_box_title().c_str(),
-			.message = "Choose a product.",
-			.type = bstone::sys::MessageBoxType::information,
-			.buttons = std::span{message_box_buttons.data(), message_box_buttons.size()}};
-		const int clicked_button_id = bstone::sys::MessageBox::show(message_box_init_param);
-		if (clicked_button_id == products_to_choose.size())
-		{
-			bstone::globals::logger->log_information("Cancelled by user.");
-			Quit();
-		}
-		choosen_bundle = products_to_choose[clicked_button_id];
-		const char* const version_string = AssetBundleMgr::get_bundle_version_string(choosen_bundle->assets_version);
-		logger.log_information("User chose {}.", version_string);
-	}
-	else
-	{
+
 		choosen_bundle = products_to_choose.front();
 		const char* const version_string = AssetBundleMgr::get_bundle_version_string(choosen_bundle->assets_version);
 		logger.log_information("Chose {} at {}.", version_string, choosen_bundle->vfs_search_path->path);
 	}
+	else
+	{
+		std::vector<bstone::sys::LauncherItem> launcher_items{};
+		launcher_items.reserve(products_to_choose.size());
+		// The artwork belongs to the copy of the game it was read from, and
+		// lives only as long as the launcher shows it.
+		std::vector<bstone::GameArt> launcher_arts{};
+		launcher_arts.reserve(products_to_choose.size());
+
+		for (const AssetBundle* const product_to_choose : products_to_choose)
+		{
+			const std::string game_path = product_to_choose->vfs_search_path->path;
+			const bstone::GameArt& art = launcher_arts.emplace_back(bstone::find_game_art(game_path));
+			auto& launcher_item = launcher_items.emplace_back();
+			launcher_item.title = AssetBundleMgr::get_bundle_version_string(product_to_choose->assets_version);
+			launcher_item.detail = bstone::make_display_path(game_path);
+			launcher_item.art_pixels = art.is_empty() ? nullptr : art.pixels.data();
+			launcher_item.art_width = art.width;
+			launcher_item.art_height = art.height;
+		}
+
+		struct AddSourceContext
+		{
+			bstone::Logger* logger;
+			bstone::Vfs* vfs;
+		};
+
+		auto add_source_context = AddSourceContext{&logger, &vfs};
+		const bstone::sys::LauncherAddSourceFunc add_source_func =
+			[](void* user_data, void* parent_window) -> bool
+			{
+				auto& context = *static_cast<AddSourceContext*>(user_data);
+				return add_game_source(*context.logger, *context.vfs, parent_window);
+			};
+		const bstone::sys::LauncherResult launcher_result = bstone::sys::Launcher::run(
+			std::span{launcher_items.data(), launcher_items.size()},
+			bstone::get_game_source_prompt(),
+			bstone::get_game_source_dialog_note(),
+			add_source_func,
+			&add_source_context);
+
+		switch (launcher_result.action)
+		{
+			case bstone::sys::LauncherAction::play:
+				choosen_bundle = products_to_choose[launcher_result.item_index];
+				logger.log_information(
+					"User chose {}.",
+					AssetBundleMgr::get_bundle_version_string(choosen_bundle->assets_version));
+				break;
+
+			case bstone::sys::LauncherAction::add_source:
+				// The launcher already added it; probe again with the new paths.
+				return false;
+
+			default:
+				logger.log_information("Cancelled by user.");
+				Quit();
+				return true;
+		}
+	}
+
 	AssetsInfo& assets_info = get_assets_info();
 	switch (choosen_bundle->assets_version)
 	{
@@ -557,6 +636,16 @@ void find_contents()
 			BSTONE_THROW_STATIC_SOURCE("Unknown version of the asset bundle.");
 	}
 	assets_info.set_version(choosen_bundle->assets_version);
+}
+
+
+void find_contents()
+{
+	// Adding a source reopens the file system and asks again, so keep going
+	// until a game is chosen or the user leaves.
+	while (!find_contents_once())
+	{
+	}
 }
 
 } // namespace

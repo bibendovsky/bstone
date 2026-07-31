@@ -15,7 +15,8 @@ set(SDL_UNINSTALL OFF CACHE BOOL "Enable uninstallation of SDL3" FORCE)
 set(SDL_VENDOR_INFO "BStone" CACHE STRING "Vendor name and/or version to add to SDL_REVISION" FORCE)
 # Subsystems
 set(SDL_CAMERA OFF CACHE BOOL "Enable the Camera subsystem" FORCE)
-set(SDL_DIALOG OFF CACHE BOOL "Enable the Dialog subsystem" FORCE)
+# The launcher asks for the folder a game is in with the native dialog.
+set(SDL_DIALOG ON CACHE BOOL "Enable the Dialog subsystem" FORCE)
 set(SDL_DISKAUDIO OFF CACHE BOOL "Support the disk writer audio driver" FORCE)
 set(SDL_GPU OFF CACHE BOOL "Enable the GPU subsystem" FORCE)
 set(SDL_HAPTIC OFF CACHE BOOL "Enable the Haptic subsystem" FORCE)
