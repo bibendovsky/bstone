@@ -1115,7 +1115,9 @@ void SystemAudioMixer::handle_play_sound_command(const Command& command)
 		});
 	CacheItem* const cache_item = initialize_cache_item(play_sound_param);
 	if (cache_item == nullptr)
+	{
 		return;
+	}
 	for (Voice& i_voice : voices_)
 	{
 		if (!i_voice.is_active)
@@ -1155,7 +1157,9 @@ auto SystemAudioMixer::initialize_cache_item(const PlaySoundCommandParam& comman
 	}
 	cache_item = get_cache_item(command_param.sound_type, command_param.sound_index);
 	if (cache_item == nullptr)
+	{
 		return nullptr;
+	}
 	const bool is_opl_music = (command_param.sound_type == SoundType::opl_music);
 	if (cache_item->is_active)
 	{
@@ -1196,7 +1200,9 @@ auto SystemAudioMixer::initialize_ext_cache_item(const PlaySoundCommandParam& co
 {
 	CacheItem* const cache_item = get_ext_cache_item(command_param.sound_type, command_param.sound_index);
 	if (cache_item == nullptr)
+	{
 		return nullptr;
+	}
 	const bool is_opl_music = (command_param.sound_type == SoundType::opl_music);
 	if (cache_item->is_active)
 	{
@@ -1277,7 +1283,9 @@ bool SystemAudioMixer::decode_voice(const Voice& voice)
 {
 	CacheItem* const cache_item = voice.cache;
 	if (cache_item == nullptr)
+	{
 		return false;
+	}
 	if (!cache_item->is_active)
 		return false;
 	if (cache_item->is_invalid)

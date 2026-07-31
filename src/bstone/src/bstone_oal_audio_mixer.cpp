@@ -899,7 +899,9 @@ int OalAudioMixer::get_max_voice_count()
 	{
 		oal_source_resource = make_oal_source();
 		if (oal_source_resource.is_empty())
+		{
 			break;
+		}
 		++voice_count;
 	}
 	return voice_count;
@@ -1871,7 +1873,9 @@ void OalAudioMixer::mix_r3s_sfx(Voice& voice)
 void OalAudioMixer::r3s_update_oal_source()
 {
 	if (!r3s_sound_.is_initialized || !r3s_oal_source_.is_open())
+	{
 		return;
+	}
 	r3s_oal_source_.mix();
 }
 
@@ -1880,7 +1884,9 @@ void OalAudioMixer::mix_r3s()
 	// The mixing buffer is allocated only when the source is ready for it, so
 	// without a source there is nothing to mix into.
 	if (!r3s_sound_.is_initialized || !r3s_oal_source_.is_open())
+	{
 		return;
+	}
 	const int max_frames = mix_frame_count_ * oal_source_max_streaming_buffers;
 	while (r3s_sound_.queue_size < oal_source_max_streaming_buffers)
 	{
