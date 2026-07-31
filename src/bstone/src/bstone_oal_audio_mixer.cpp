@@ -1052,12 +1052,16 @@ void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 		}
 #endif // __APPLE__
 		if (oal_loader_ == nullptr)
+		{
 			oal_library_string = get_oal_default_library_file_name();
+		}
 	}
 	else
 		oal_library_string.append(oal_library.data(), oal_library.size());
 	if (oal_loader_ == nullptr)
+	{
 		oal_loader_ = make_oal_loader(oal_library_string.c_str());
+	}
 	log(std::string{"Using library: \""} + oal_library_string + '\"');
 	oal_loader_->load_alc_symbols();
 	detect_alc_extensions();
