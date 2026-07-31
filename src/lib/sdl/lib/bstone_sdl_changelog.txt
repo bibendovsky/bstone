@@ -4,3 +4,5 @@ SDL v3.4.0 changelog
 - Removed directory "examples".
 - Removed directory "test".
 - Disabled dynamic API in "src/dynapi/SDL_dynapi.h".
+- Treat file packages as directories in a folder dialog on macOS, so an
+  application bundle can be chosen and entered (src/dialog/cocoa).
