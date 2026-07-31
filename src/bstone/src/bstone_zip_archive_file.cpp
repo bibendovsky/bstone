@@ -275,10 +275,6 @@ void ZipArchiveFile::deserialize_local_file_header(MemoryBinaryReader& binary_re
 	header.extra_field_length = binary_reader.read_u16_le();
 }
 
-// Everything checked here was read out of the archive, which is a file the user was given
-// and dropped into a search path. A header that fails to make sense is a rejected archive,
-// not a programming error, so none of these report themselves by asserting: a debug build
-// would abort on a file the release build merely refuses.
 bool ZipArchiveFile::validate_local_file_header(const LocalFileHeader& header, const ArchiveFileEntry& entry)
 {
 	if (header.signature != 0x04034B50U)
@@ -436,9 +432,6 @@ bool ZipArchiveFile::read_end_of_central_dir_record(EndOfCentralDirRecord& recor
 
 bool ZipArchiveFile::deserialize_central_file_header(MemoryBinaryReader& binary_reader, CentralFileHeader& header)
 {
-	// Truncation anywhere below is a malformed archive, which the return value already
-	// expresses; asserting would abort a debug build on a file the user merely has to be
-	// told is unusable.
 	if (!binary_reader.can_read_n(central_file_header_size))
 		return false;
 	// central file header signature   4 bytes  (0x02014B50)
@@ -586,9 +579,6 @@ bool ZipArchiveFile::initialize_entry_name(const CentralFileHeader& header, Arch
 	BSTONE_ASSERT(header.file_name_length > 0);
 	BSTONE_ASSERT(header.file_name != nullptr);
 	const int aligned_size = align_16(header.file_name_length + 1);
-	// The arena is sized from the central directory record, so this holds for any archive
-	// the validation accepted. Keep it as a real check anyway: the names are copied
-	// verbatim out of the archive and nothing else stands between them and the heap.
 	if (names_capacity_ - names_size_ < aligned_size)
 	{
 		return false;
