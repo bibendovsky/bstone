@@ -637,6 +637,8 @@ set(BSTONE_BSTONE_SYS_SOURCES
 	src/bstone_sys_keyboard_key.h
 	src/bstone_sys_logger.cpp
 	src/bstone_sys_logger.h
+	src/bstone_game_source.h
+	src/bstone_sys_folder_dialog.h
 	src/bstone_sys_message_box.h
 	src/bstone_sys_mouse.h
 	src/bstone_sys_mouse_mgr.h
@@ -680,6 +682,8 @@ set(BSTONE_BSTONE_SYS_SDL_SOURCES
 	src/bstone_sys_gl_symbol_resolver_sdl.cpp
 	src/bstone_sys_gl_symbol_resolver_sdl.h
 	src/bstone_sys_limits_sdl.h
+	src/bstone_game_source.cpp
+	src/bstone_sys_folder_dialog_sdl.cpp
 	src/bstone_sys_message_box_sdl.cpp
 	src/bstone_sys_mouse_mgr_sdl.cpp
 	src/bstone_sys_mouse_mgr_sdl.h
