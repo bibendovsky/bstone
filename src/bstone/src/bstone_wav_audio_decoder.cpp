@@ -124,7 +124,9 @@ bool WavAudioDecoder::rewind()
 		return false;
 	}
 	if (!impl_wav_skip(data_offset_))
+	{
 		return false;
+	}
 	cache_frame_count_ = 0;
 	cache_frame_offset_ = 0;
 	cache_frame_offset_counter_ = 0;
@@ -154,7 +156,9 @@ bool WavAudioDecoder::impl_wav_open()
 	constexpr unsigned int wav_max_chunk_size = 0x7FFFFFFFU - chunk_header_size;
 	unsigned char riff_header[riff_header_size];
 	if (!impl_wav_read(riff_header, riff_header_size))
+	{
 		return false;
+	}
 	MemoryBinaryReader riff_reader{riff_header, riff_header_size};
 	// RIFF id
 	if (riff_reader.read_u32_le() != 0x46464952U)
@@ -190,7 +194,9 @@ bool WavAudioDecoder::impl_wav_open()
 		}
 		unsigned char chunk_header[chunk_header_size];
 		if (!impl_wav_read(chunk_header, chunk_header_size))
+		{
 			return false;
+		}
 		MemoryBinaryReader chunk_reader{chunk_header, chunk_header_size};
 		const unsigned int chunk_id_u32 = chunk_reader.read_u32_le();
 		const unsigned int chunk_size_u32 = chunk_reader.read_u32_le();
@@ -215,9 +221,13 @@ bool WavAudioDecoder::impl_wav_open()
 					return false;
 				}
 				if (!impl_wav_read_fmt0x20())
+				{
 					return false;
+				}
 				if (!impl_wav_skip(chunk_size - fmt0x20_min_chunk_size))
+				{
 					return false;
+				}
 				has_fmt0x20 = true;
 				break;
 			case 0x61746164U: // "data"
@@ -231,7 +241,9 @@ bool WavAudioDecoder::impl_wav_open()
 				return true;
 			default:
 				if (!impl_wav_skip(chunk_size))
+				{
 					return false;
+				}
 				break;
 		}
 		offset += chunk_size;
@@ -239,7 +251,9 @@ bool WavAudioDecoder::impl_wav_open()
 		if ((chunk_size % 2) != 0)
 		{
 			if (!impl_wav_skip(1))
+			{
 				return false;
+			}
 			++offset;
 		}
 	}
@@ -265,15 +279,21 @@ bool WavAudioDecoder::impl_initialize(const AudioDecoderInitParam& param)
 	}
 	stream_ = std::move(param.vfs_stream);
 	if (!impl_wav_open())
+	{
 		return false;
+	}
 	dst_sample_rate_ = param.dst_rate;
 	cache_frame_count_ = 0;
 	cache_frame_offset_ = 0;
 	cache_frame_offset_counter_ = 0;
 	if (src_sample_rate_ == param.dst_rate)
+	{
 		decode_frames_ = &WavAudioDecoder::decode_frames_as_is;
+	}
 	else
+	{
 		decode_frames_ = &WavAudioDecoder::decode_frames_with_resample;
+	}
 	is_initialized_ = true;
 	return true;
 }
@@ -298,7 +318,9 @@ bool WavAudioDecoder::impl_wav_skip(int size)
 	{
 		const int read_size = std::min(size - skipped_size, skip_buffer_size);
 		if (!impl_wav_read(buffer, read_size))
+		{
 			return false;
+		}
 		skipped_size += read_size;
 	}
 	return true;
@@ -310,7 +332,9 @@ bool WavAudioDecoder::impl_wav_read_fmt0x20()
 	constexpr int wav_format_ieee_float = 3;
 	unsigned char fmt0x20[fmt0x20_min_chunk_size];
 	if (!impl_wav_read(fmt0x20, fmt0x20_min_chunk_size))
+	{
 		return false;
+	}
 	MemoryBinaryReader reader{fmt0x20, fmt0x20_min_chunk_size};
 	// format tag
 	const int format_tag = reader.read_u16_le();

@@ -27,7 +27,9 @@ Chunk make_chunk(std::uint32_t command_count, int command_octet_count)
 	chunk[3] = static_cast<std::uint8_t>(command_count >> 24);
 
 	for (int i = 0; i < command_octet_count; ++i)
+	{
 		chunk[static_cast<std::size_t>(6 + i)] = static_cast<std::uint8_t>(0x40 + i);
+	}
 
 	return chunk;
 }

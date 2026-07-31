@@ -33,7 +33,9 @@ Chunk make_chunk(std::uint32_t sfx_length, int command_count)
 	chunk[22] = 0x02; // Block.
 
 	for (int i = 0; i < command_count; ++i)
+	{
 		chunk[static_cast<std::size_t>(23 + i)] = 0x40;
+	}
 
 	return chunk;
 }

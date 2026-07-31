@@ -188,7 +188,9 @@ void AudioExtractorImpl::write_non_digitized_audio_chunk(const AudioChunk& audio
 	}
 	stream.set_position(0);
 	if (!write_wav_header(data_size, bit_depth, dst_rate, channel_count, stream))
+	{
 		BSTONE_THROW_STATIC_SOURCE("Write error.");
+	}
 	const double volume_factor = 32'767.0 / abs_max_sample;
 	bstone::globals::logger->log_information("\tSample rate: {}", dst_rate);
 	bstone::globals::logger->log_information("\tSample count: {}", total_samples);
