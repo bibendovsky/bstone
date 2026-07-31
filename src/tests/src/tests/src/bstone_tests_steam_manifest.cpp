@@ -104,7 +104,9 @@ void test_m4hgo7wct2zbrn5v()
 {
 	auto text = std::string{"\"libraryfolders\"\n{\n"};
 	for (auto i = 0; i < 5000; ++i)
+	{
 		text += "\t\"" + std::to_string(i) + "\"\t\"/lib" + std::to_string(i) + "\"\n";
+	}
 	text += "}\n";
 	const auto paths = bstone::parse_steam_library_paths(text);
 	tester.check(!paths.empty() && paths.size() <= 64 && paths[0] == "/lib0");

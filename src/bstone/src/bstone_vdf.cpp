@@ -53,13 +53,19 @@ public:
 		{
 			skip_space_and_comments();
 			if (is_eof())
+			{
 				return true;
+			}
 			// A stray closing brace at the top level is malformed.
 			if (peek() == '}')
+			{
 				return false;
+			}
 			VdfNode child;
 			if (!parse_entry(child, 0))
+			{
 				return false;
+			}
 			root.children.push_back(std::move(child));
 		}
 	}
@@ -82,7 +88,9 @@ private:
 			else if (peek() == '/' && pos_ + 1 < text_.size() && text_[pos_ + 1] == '/')
 			{
 				while (!is_eof() && peek() != '\n')
+				{
 					++pos_;
+				}
 			}
 			else
 			{
@@ -108,7 +116,9 @@ private:
 		while (true)
 		{
 			if (is_eof())
+			{
 				return false; // Unterminated.
+			}
 			const char ch = text_[pos_];
 			if (ch == '"')
 			{
@@ -119,7 +129,9 @@ private:
 			{
 				++pos_;
 				if (is_eof())
+				{
 					return false; // Trailing backslash.
+				}
 				// Steam writes Windows paths as "D:\\Games", so `\\` must collapse
 				// to a single separator. An unknown escape keeps its literal
 				// character, which is what KeyValues does.
@@ -142,21 +154,31 @@ private:
 	bool parse_entry(VdfNode& node, int depth)
 	{
 		if (depth >= max_depth)
+		{
 			return false;
+		}
 		if (!parse_token(node.name))
+		{
 			return false;
+		}
 		skip_space_and_comments();
 		if (is_eof())
+		{
 			return false; // A name with neither value nor block.
+		}
 		if (peek() != '{')
+		{
 			return parse_token(node.value);
+		}
 		++pos_; // Opening brace.
 		node.is_block = true;
 		while (true)
 		{
 			skip_space_and_comments();
 			if (is_eof())
+			{
 				return false; // Unterminated block.
+			}
 			if (peek() == '}')
 			{
 				++pos_; // Closing brace.
@@ -164,7 +186,9 @@ private:
 			}
 			VdfNode child;
 			if (!parse_entry(child, depth + 1))
+			{
 				return false;
+			}
 			node.children.push_back(std::move(child));
 		}
 	}
@@ -173,11 +197,15 @@ private:
 bool are_names_equal(std::string_view lhs, std::string_view rhs) noexcept
 {
 	if (lhs.size() != rhs.size())
+	{
 		return false;
+	}
 	for (std::size_t i = 0; i < lhs.size(); ++i)
 	{
 		if (ascii::to_lower(lhs[i]) != ascii::to_lower(rhs[i]))
+		{
 			return false;
+		}
 	}
 	return true;
 }
@@ -194,7 +222,9 @@ const VdfNode* VdfNode::find_child(std::string_view child_name) const noexcept
 	for (const VdfNode& child : children)
 	{
 		if (are_names_equal(child.name, child_name))
+		{
 			return &child;
+		}
 	}
 	return nullptr;
 }
@@ -210,7 +240,9 @@ try {
 	root = VdfNode{};
 	VdfParser parser{text};
 	if (parser.parse(root))
+	{
 		return true;
+	}
 	root = VdfNode{};
 	return false;
 } catch (...) {

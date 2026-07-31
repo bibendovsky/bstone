@@ -373,9 +373,13 @@ void test_0lwm7ztdn1hypbr1()
 	auto text = std::string{};
 	constexpr auto depth = 200;
 	for (auto i = 0; i < depth; ++i)
+	{
 		text += "\"a\"\n{\n";
+	}
 	for (auto i = 0; i < depth; ++i)
+	{
 		text += "}\n";
+	}
 	auto root = bstone::VdfNode{};
 	const auto is_parsed = bstone::parse_vdf(text, root);
 	tester.check(!is_parsed && root.children.empty());
