@@ -39,6 +39,10 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_sha1.h"
 #include "bstone_sys_message_box.h"
 #include "bstone_vfs.h"
+#include "bstone_game_source.h"
+#include "bstone_sys_folder_dialog.h"
+
+void content_remember_dir(const std::string& dir);
 
 
 extern SpanStart spanstart;
@@ -421,6 +425,70 @@ private:
 	}
 };
 
+
+bool locate_game_sources(bstone::Logger& logger, bstone::Vfs& vfs)
+{
+	while (true)
+	{
+		bstone::sys::MessageBoxButton message_box_buttons[2] = {
+			bstone::sys::MessageBoxButton{
+				.id = 0,
+				.flags = bstone::sys::MessageBoxButtonFlags::default_for_return_key,
+				.text = "Locate..."},
+			bstone::sys::MessageBoxButton{
+				.id = 1,
+				.flags = bstone::sys::MessageBoxButtonFlags::default_for_escape_key,
+				.text = "Quit"}};
+		const bstone::sys::MessageBoxInitParam message_box_init_param{
+			.title = get_message_box_title().c_str(),
+			.message = bstone::get_game_source_prompt(),
+			.type = bstone::sys::MessageBoxType::information,
+			.buttons = std::span{message_box_buttons, 2}};
+		if (bstone::sys::MessageBox::show(message_box_init_param) != 0)
+		{
+			return false;
+		}
+		const std::string picked_path = bstone::sys::FolderDialog::show("Choose a folder holding Blake Stone", nullptr);
+		if (picked_path.empty())
+		{
+			continue;
+		}
+		const bstone::GameSourcePaths found_paths = bstone::find_game_sources(picked_path);
+		if (found_paths.empty())
+		{
+			bstone::sys::MessageBox::show_simple(
+				get_message_box_title().c_str(),
+				"No game was found under that folder.",
+				bstone::sys::MessageBoxType::warning);
+			continue;
+		}
+		content_remember_dir(picked_path);
+		logger.log_information("Found {} game folder(s) under {}.", static_cast<int>(found_paths.size()), picked_path);
+		std::vector<std::string> search_paths{};
+		search_paths.reserve(static_cast<std::size_t>(vfs.get_search_path_count()) + found_paths.size());
+		for (int i = 0; i < vfs.get_search_path_count(); ++i)
+		{
+			search_paths.emplace_back(vfs.get_search_path(i).path);
+		}
+		search_paths.insert(search_paths.end(), found_paths.cbegin(), found_paths.cend());
+		std::vector<const char*> search_path_ptrs{};
+		search_path_ptrs.reserve(search_paths.size());
+		for (const std::string& search_path : search_paths)
+		{
+			search_path_ptrs.emplace_back(search_path.c_str());
+		}
+		const bstone::VfsInitParam vfs_init_param{
+			.logger = &logger,
+			.search_paths = std::span{search_path_ptrs.data(), search_path_ptrs.size()}};
+		if (!vfs.initialize(vfs_init_param))
+		{
+			return false;
+		}
+		return true;
+	}
+}
+
+
 void find_contents()
 {
 	bstone::Logger& logger = *bstone::globals::logger;
@@ -455,7 +523,14 @@ void find_contents()
 			products_to_choose.emplace_back(&aog_sw_asset_bundle);
 	}
 	if (products_to_choose.empty())
-		BSTONE_THROW_STATIC_SOURCE("Compatible product not found.");
+	{
+		if (!locate_game_sources(logger, vfs))
+		{
+			BSTONE_THROW_STATIC_SOURCE("Compatible product not found.");
+		}
+		find_contents();
+		return;
+	}
 	const AssetBundle* choosen_bundle = nullptr;
 	if (products_to_choose.size() > 1)
 	{
