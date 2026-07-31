@@ -97,9 +97,60 @@ auto content_dir_cvar = bstone::CVar{
 	bstone::CVarFlags::archive,
 	std::string_view{}};
 
+// Every folder the user has added, kept as one setting so they are all
+// searched again next time. A path cannot hold a newline, so it separates.
+constexpr char content_dir_separator = '\n';
+
+std::vector<std::string> content_get_dirs()
+{
+	std::vector<std::string> dirs{};
+	const std::string_view value = content_dir_cvar.get_string();
+	std::size_t offset = 0;
+
+	while (offset < value.size())
+	{
+		const std::size_t end = value.find(content_dir_separator, offset);
+		const std::size_t count = (end == std::string_view::npos ? value.size() : end) - offset;
+
+		if (count > 0)
+		{
+			dirs.emplace_back(value.substr(offset, count));
+		}
+
+		if (end == std::string_view::npos)
+		{
+			break;
+		}
+
+		offset = end + 1;
+	}
+
+	return dirs;
+}
+
 void content_remember_dir(const std::string& dir)
 {
-	content_dir_cvar.set_string(std::string_view{dir});
+	std::vector<std::string> dirs = content_get_dirs();
+
+	if (std::find(dirs.cbegin(), dirs.cend(), dir) != dirs.cend())
+	{
+		return;
+	}
+
+	dirs.emplace_back(dir);
+	std::string value{};
+
+	for (const std::string& item : dirs)
+	{
+		if (!value.empty())
+		{
+			value += content_dir_separator;
+		}
+
+		value += item;
+	}
+
+	content_dir_cvar.set_string(std::string_view{value});
 }
 
 void ClearPaletteShifts();
@@ -10050,8 +10101,13 @@ void InitDestPath()
 	// content_dir
 	// The folder the game-source dialog remembered; whatever games sit under
 	// it join the search.
-	const bstone::GameSourcePaths content_dir_paths =
-		bstone::find_game_sources(std::string{content_dir_cvar.get_string()});
+	bstone::GameSourcePaths content_dir_paths{};
+
+	for (const std::string& content_dir : content_get_dirs())
+	{
+		const bstone::GameSourcePaths found = bstone::find_game_sources(content_dir);
+		content_dir_paths.insert(content_dir_paths.end(), found.cbegin(), found.cend());
+	}
 	// mod_dir
 	constexpr std::string_view mod_dir_option_name{"mod_dir"};
 	std::string mod_dir{};
