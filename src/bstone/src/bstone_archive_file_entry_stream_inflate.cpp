@@ -122,7 +122,9 @@ int ArchiveFileInflateStream::read(void* buffer, int count)
 			// stream without producing anything, so an entry that decodes to less than its
 			// declared uncompressed size would spin here forever.
 			if (is_stream_end)
+			{
 				break;
+			}
 			zlib_out_cache_offset_ = 0;
 			zlib_stream_.next_out = zlib_out_cache_;
 			zlib_stream_.avail_out = zlib_out_cache_max_capacity;

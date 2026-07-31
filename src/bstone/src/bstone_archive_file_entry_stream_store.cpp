@@ -60,7 +60,9 @@ bool ArchiveFileStoreStream::rewind()
 	// The accumulator has to start over with the data, otherwise a rewind after a partial
 	// read hashes that prefix twice and the entry fails its own checksum.
 	if (is_zip_crc32_)
+	{
 		zip_crc_32_.reset();
+	}
 	return true;
 }
 

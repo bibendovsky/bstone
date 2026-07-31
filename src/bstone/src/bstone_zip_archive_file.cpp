@@ -375,7 +375,9 @@ bool ZipArchiveFile::validate_end_of_central_dir_record(const EndOfCentralDirRec
 	// from the directory size. Nothing else ties the two fields together, so a directory
 	// too small to hold the entries it promises would undersize the arena.
 	if (record.dir_size < static_cast<unsigned int>(central_file_header_size * record.dir_total_entries))
+	{
 		return false;
+	}
 	if (record.dir_offset == zip64_marker_32)
 		return false;
 	return true;
@@ -491,7 +493,9 @@ bool ZipArchiveFile::deserialize_central_file_header(MemoryBinaryReader& binary_
 	{
 		const int extra_field_left = header.extra_field_length - extra_field_offset;
 		if (extra_field_left < 4)
+		{
 			return false;
+		}
 		const int extra_header_id = binary_reader.read_u16_le();
 		const int extra_header_size = binary_reader.read_u16_le();
 		switch (extra_header_id)
@@ -504,7 +508,9 @@ bool ZipArchiveFile::deserialize_central_file_header(MemoryBinaryReader& binary_
 				break;
 		}
 		if (extra_header_size > extra_field_left - 4)
+		{
 			return false;
+		}
 		binary_reader.skip(extra_header_size);
 		extra_field_offset += 4 + extra_header_size;
 	}
@@ -584,7 +590,9 @@ bool ZipArchiveFile::initialize_entry_name(const CentralFileHeader& header, Arch
 	// the validation accepted. Keep it as a real check anyway: the names are copied
 	// verbatim out of the archive and nothing else stands between them and the heap.
 	if (names_capacity_ - names_size_ < aligned_size)
+	{
 		return false;
+	}
 	char* const entry_name = names_.get() + names_size_;
 	names_size_ += aligned_size;
 	entry.name = entry_name;
@@ -611,7 +619,9 @@ bool ZipArchiveFile::add_entry(const CentralFileHeader& header)
 	// The directory promises no more entries than were reserved, but the promise is the
 	// archive's, so keep the bound where it holds in a release build too.
 	if (entries_size_ >= entries_capacity_)
+	{
 		return false;
+	}
 	ArchiveFileEntry& entry = entries_[entries_size_];
 	// Index.
 	entry.index = entries_size_++;
@@ -637,7 +647,9 @@ bool ZipArchiveFile::add_entry(const CentralFileHeader& header)
 	entry.name_length = header.file_name_length;
 	// Name.
 	if (!initialize_entry_name(header, entry))
+	{
 		return false;
+	}
 	// Compressed size.
 	entry.compressed_size = static_cast<int>(header.compressed_size);
 	// Uncompressed size.
@@ -680,7 +692,9 @@ bool ZipArchiveFile::read_central_dir(const EndOfCentralDirRecord& eocdr)
 		if (!validate_central_file_header(file_header))
 			return false;
 		if (is_central_file_supported(file_header) && !add_entry(file_header))
+		{
 			return false;
+		}
 	}
 	return true;
 }
