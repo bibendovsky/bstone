@@ -377,7 +377,78 @@ bool find_game_dir(
 }
 
 
+// True when "path" is the directory "prefix", or something inside it. The two
+// come from different places, so both are spelled with the one separator
+// before being compared - the portable one, since it is also what the boundary
+// between the prefix and the rest is tested against.
+bool is_within(const std::string& path, const std::string& prefix)
+{
+	if (prefix.empty() || path.size() < prefix.size())
+	{
+		return false;
+	}
+
+	auto normalized_path = path;
+	auto normalized_prefix = prefix;
+	fs_utils::normalize_separators_portable_inplace(normalized_path);
+	fs_utils::normalize_separators_portable_inplace(normalized_prefix);
+
+	if (normalized_path.compare(0, normalized_prefix.size(), normalized_prefix) != 0)
+	{
+		return false;
+	}
+
+	return normalized_path.size() == normalized_prefix.size() ||
+		normalized_path[normalized_prefix.size()] == '/';
+}
+
+
 } // namespace
+
+
+std::string make_steam_art_path(const std::string& game_path)
+{
+	if (game_path.empty())
+	{
+		return std::string{};
+	}
+
+	// The pack shares one entry for both games, so its artwork is the same
+	// whichever of the two was found inside it.
+	constexpr const char* app_ids[] = {aog_app_id, ps_app_id, pack_app_id};
+
+	for (const auto& steam_root : make_steam_roots())
+	{
+		for (const auto& library_path : make_library_paths(steam_root))
+		{
+			for (const auto app_id : app_ids)
+			{
+				auto install_path = std::string{};
+
+				if (!find_app_install_dir(library_path, app_id, install_path) ||
+					!is_within(game_path, install_path))
+				{
+					continue;
+				}
+
+				// Only the logo is stored as PNG; the rest of what the client
+				// caches is JPEG, which BStone cannot read.
+				const auto art_path = fs_utils::append_path(
+					fs_utils::append_path(
+						fs_utils::append_path(steam_root, "appcache/librarycache"),
+						app_id),
+					"logo.png");
+
+				if (file_exists(art_path))
+				{
+					return art_path;
+				}
+			}
+		}
+	}
+
+	return std::string{};
+}
 
 
 AssetPath make_steam_content_path()

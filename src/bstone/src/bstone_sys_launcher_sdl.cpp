@@ -267,6 +267,8 @@ struct LauncherWidget
 {
 	SDL_FRect rect;
 	SDL_Texture* art;
+	int art_width;
+	int art_height;
 	LauncherAction action;
 	int item_index;
 	std::string title;
@@ -455,7 +457,18 @@ void draw_panel(
 
 			if (has_art)
 			{
-				const SDL_FRect art_rect{rect.x + 12.0F, rect.y + 10.0F, art_size, art_size};
+				// An icon is square but a store logo is wide, so fit the art
+				// inside the square left for it and centre what is left over.
+				float art_w = static_cast<float>(widget.art_width);
+				float art_h = static_cast<float>(widget.art_height);
+				const float scale = art_size / (art_w > art_h ? art_w : art_h);
+				art_w *= scale;
+				art_h *= scale;
+				const SDL_FRect art_rect{
+					rect.x + 12.0F + (art_size - art_w) / 2.0F,
+					rect.y + 10.0F + (art_size - art_h) / 2.0F,
+					art_w,
+					art_h};
 				SDL_RenderTexture(renderer, widget.art, nullptr, &art_rect);
 			}
 
@@ -643,6 +656,8 @@ LauncherResult Launcher::run(
 
 		if (widget.art != nullptr)
 		{
+			widget.art_width = item.art_width;
+			widget.art_height = item.art_height;
 			SDL_SetTextureScaleMode(widget.art, SDL_SCALEMODE_LINEAR);
 		}
 	}
