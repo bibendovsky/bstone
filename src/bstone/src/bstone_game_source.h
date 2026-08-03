@@ -38,6 +38,10 @@ const char* get_game_source_label(const std::string& path);
 // A path short enough to read: cut at the application bundle holding the game.
 std::string make_game_source_display_path(const std::string& path);
 
+// Where the shareware release can be had, for a user with no copy of the game
+// at all. It is the project's own repack of what Apogee gave away.
+const char* get_game_source_shareware_url();
+
 // A smaller note for the moment the folder dialog is about to open.
 const char* get_game_source_dialog_note();
 

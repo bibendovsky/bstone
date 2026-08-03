@@ -237,6 +237,11 @@ const char* get_game_source_prompt()
 		"You can also choose a folder to search for supported game files.";
 }
 
+const char* get_game_source_shareware_url()
+{
+	return "http://bibendovsky.github.io/bstone/files/official/repack/bs_aog_v3_0_sw.zip";
+}
+
 const char* get_game_source_dialog_note()
 {
 #if defined(__APPLE__)
