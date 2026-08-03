@@ -106,6 +106,14 @@ constexpr LauncherColor color_border{58, 65, 77};
 constexpr int window_width = 820;
 constexpr int window_height = 620;
 constexpr int pad = 32;
+constexpr float card_height = 76.0F;
+constexpr float card_stride = 90.0F;
+constexpr float button_height = 44.0F;
+constexpr float list_top = 150.0F;
+// The list ends above the buttons rather than behind them, so a long list is
+// cut off at a place the user can see and scroll from.
+constexpr float list_bottom = window_height - pad - button_height - 16.0F;
+constexpr float scrollbar_width = 6.0F;
 
 const std::uint8_t* find_glyph_rows(char ch)
 {
@@ -269,29 +277,98 @@ struct LauncherLayout
 {
 	std::vector<LauncherWidget> widgets;
 	int focus_index;
+	// How far the list has been scrolled, and the most it can be. Only the
+	// cards move; the buttons below them stay put.
+	float scroll;
+	float scroll_max;
 };
+
+// A card's rect is where it sits in the list; on screen it moves with the
+// scroll. The buttons are not part of the list, so they never move.
+bool is_scrollable(const LauncherWidget& widget)
+{
+	return widget.action == LauncherAction::play;
+}
+
+SDL_FRect screen_rect(const LauncherWidget& widget, float scroll)
+{
+	SDL_FRect rect = widget.rect;
+
+	if (is_scrollable(widget))
+	{
+		rect.y -= scroll;
+	}
+
+	return rect;
+}
+
+void clamp_scroll(LauncherLayout& layout)
+{
+	if (layout.scroll > layout.scroll_max)
+	{
+		layout.scroll = layout.scroll_max;
+	}
+
+	if (layout.scroll < 0.0F)
+	{
+		layout.scroll = 0.0F;
+	}
+}
+
+// Keeps the focused card within the visible part of the list, so moving the
+// focus with the keyboard scrolls rather than walking off the edge.
+void scroll_focus_into_view(LauncherLayout& layout)
+{
+	if (layout.focus_index < 0 || layout.focus_index >= static_cast<int>(layout.widgets.size()))
+	{
+		return;
+	}
+
+	const LauncherWidget& widget = layout.widgets[layout.focus_index];
+
+	if (!is_scrollable(widget))
+	{
+		return;
+	}
+
+	if (widget.rect.y - layout.scroll < list_top)
+	{
+		layout.scroll = widget.rect.y - list_top;
+	}
+	else if (widget.rect.y + widget.rect.h - layout.scroll > list_bottom)
+	{
+		layout.scroll = widget.rect.y + widget.rect.h - list_bottom;
+	}
+
+	clamp_scroll(layout);
+}
 
 void build_layout(std::span<const LauncherItem> items, LauncherLayout& layout)
 {
 	layout.widgets.clear();
-	float y = 150.0F;
+	float y = list_top;
 
 	for (int i = 0; i < static_cast<int>(items.size()); ++i)
 	{
 		auto& widget = layout.widgets.emplace_back();
-		widget.rect = SDL_FRect{pad, y, window_width - 2.0F * pad, 76.0F};
+		widget.rect = SDL_FRect{pad, y, window_width - 2.0F * pad, card_height};
 		widget.action = LauncherAction::play;
 		widget.item_index = i;
 		widget.title = items[i].title;
 		widget.detail = items[i].detail;
-		y += 90.0F;
+		y += card_stride;
 	}
 
-	const float button_y = window_height - pad - 44.0F;
+	// The last card needs its own height visible, not the gap that follows it.
+	const float content_height = items.empty() ? 0.0F : (y - card_stride + card_height) - list_top;
+	layout.scroll_max = content_height > (list_bottom - list_top) ? content_height - (list_bottom - list_top) : 0.0F;
+	clamp_scroll(layout);
+
+	const float button_y = window_height - pad - button_height;
 
 	{
 		auto& widget = layout.widgets.emplace_back();
-		widget.rect = SDL_FRect{pad, button_y, 260.0F, 44.0F};
+		widget.rect = SDL_FRect{pad, button_y, 260.0F, button_height};
 		widget.action = LauncherAction::add_source;
 		widget.item_index = -1;
 		widget.title = "Add game source";
@@ -299,7 +376,7 @@ void build_layout(std::span<const LauncherItem> items, LauncherLayout& layout)
 
 	{
 		auto& widget = layout.widgets.emplace_back();
-		widget.rect = SDL_FRect{window_width - pad - 120.0F, button_y, 120.0F, 44.0F};
+		widget.rect = SDL_FRect{window_width - pad - 120.0F, button_y, 120.0F, button_height};
 		widget.action = LauncherAction::quit;
 		widget.item_index = -1;
 		widget.title = "Quit";
@@ -342,60 +419,91 @@ void draw_panel(
 		}
 	}
 
+	// Cards are held inside the list so a partly scrolled one is cut off at the
+	// edge of the list rather than drawn over the header or the buttons.
+	const SDL_Rect list_clip{
+		0,
+		static_cast<int>(list_top),
+		window_width,
+		static_cast<int>(list_bottom - list_top)};
+
 	for (int i = 0; i < static_cast<int>(layout.widgets.size()); ++i)
 	{
 		const LauncherWidget& widget = layout.widgets[i];
 		const bool has_focus = (i == layout.focus_index);
+		const SDL_FRect rect = screen_rect(widget, layout.scroll);
 
 		if (widget.action == LauncherAction::play)
 		{
+			if (rect.y + rect.h <= list_top || rect.y >= list_bottom)
+			{
+				continue;
+			}
+
+			SDL_SetRenderClipRect(renderer, &list_clip);
 			set_color(renderer, has_focus ? color_card_focus : color_card);
-			fill_rect(renderer, widget.rect.x, widget.rect.y, widget.rect.w, widget.rect.h);
+			fill_rect(renderer, rect.x, rect.y, rect.w, rect.h);
 
 			if (has_focus)
 			{
 				set_color(renderer, color_accent);
-				fill_rect(renderer, widget.rect.x, widget.rect.y, 3.0F, widget.rect.h);
+				fill_rect(renderer, rect.x, rect.y, 3.0F, rect.h);
 			}
 
-			const float art_size = widget.rect.h - 20.0F;
+			const float art_size = rect.h - 20.0F;
 			const bool has_art = (widget.art != nullptr);
 
 			if (has_art)
 			{
-				const SDL_FRect art_rect{widget.rect.x + 12.0F, widget.rect.y + 10.0F, art_size, art_size};
+				const SDL_FRect art_rect{rect.x + 12.0F, rect.y + 10.0F, art_size, art_size};
 				SDL_RenderTexture(renderer, widget.art, nullptr, &art_rect);
 			}
 
-			const float text_x = widget.rect.x + (has_art ? art_size + 28.0F : 20.0F);
-			const float text_w = widget.rect.w - (text_x - widget.rect.x) - 16.0F;
+			const float text_x = rect.x + (has_art ? art_size + 28.0F : 20.0F);
+			const float text_w = rect.w - (text_x - rect.x) - 16.0F - (layout.scroll_max > 0.0F ? scrollbar_width + 8.0F : 0.0F);
 			draw_text(
 				renderer,
 				text_x,
-				widget.rect.y + 13.0F,
+				rect.y + 13.0F,
 				3.0F,
 				color_title,
 				elide_middle(widget.title, 3.0F, text_w));
 			draw_text(
 				renderer,
 				text_x,
-				widget.rect.y + 45.0F,
+				rect.y + 45.0F,
 				2.0F,
 				color_detail,
 				elide_middle(widget.detail, 2.0F, text_w));
+			SDL_SetRenderClipRect(renderer, nullptr);
 		}
 		else
 		{
 			set_color(renderer, has_focus ? color_card_focus : color_background);
-			fill_rect(renderer, widget.rect.x, widget.rect.y, widget.rect.w, widget.rect.h);
+			fill_rect(renderer, rect.x, rect.y, rect.w, rect.h);
 			set_color(renderer, has_focus ? color_accent : color_border);
-			fill_rect(renderer, widget.rect.x, widget.rect.y, widget.rect.w, 1.0F);
-			fill_rect(renderer, widget.rect.x, widget.rect.y + widget.rect.h - 1.0F, widget.rect.w, 1.0F);
-			fill_rect(renderer, widget.rect.x, widget.rect.y, 1.0F, widget.rect.h);
-			fill_rect(renderer, widget.rect.x + widget.rect.w - 1.0F, widget.rect.y, 1.0F, widget.rect.h);
-			const float text_x = widget.rect.x + (widget.rect.w - measure_text(2.0F, widget.title)) / 2.0F;
-			draw_text(renderer, text_x, widget.rect.y + 15.0F, 2.0F, color_title, widget.title);
+			fill_rect(renderer, rect.x, rect.y, rect.w, 1.0F);
+			fill_rect(renderer, rect.x, rect.y + rect.h - 1.0F, rect.w, 1.0F);
+			fill_rect(renderer, rect.x, rect.y, 1.0F, rect.h);
+			fill_rect(renderer, rect.x + rect.w - 1.0F, rect.y, 1.0F, rect.h);
+			const float text_x = rect.x + (rect.w - measure_text(2.0F, widget.title)) / 2.0F;
+			draw_text(renderer, text_x, rect.y + 15.0F, 2.0F, color_title, widget.title);
 		}
+	}
+
+	// A bar showing how much of the list is on screen, and where.
+	if (layout.scroll_max > 0.0F)
+	{
+		const float track_height = list_bottom - list_top;
+		const float track_x = window_width - pad - scrollbar_width;
+		set_color(renderer, color_border);
+		fill_rect(renderer, track_x, list_top, scrollbar_width, track_height);
+
+		const float visible_fraction = track_height / (track_height + layout.scroll_max);
+		const float thumb_height = track_height * visible_fraction;
+		const float thumb_y = list_top + (track_height - thumb_height) * (layout.scroll / layout.scroll_max);
+		set_color(renderer, color_accent);
+		fill_rect(renderer, track_x, thumb_y, scrollbar_width, thumb_height);
 	}
 
 	if (add_source_note != nullptr && items.empty())
@@ -416,7 +524,16 @@ int widget_at(const LauncherLayout& layout, float x, float y)
 {
 	for (int i = 0; i < static_cast<int>(layout.widgets.size()); ++i)
 	{
-		const SDL_FRect& rect = layout.widgets[i].rect;
+		const LauncherWidget& widget = layout.widgets[i];
+
+		// A card scrolled out of the list is not there to be clicked, even
+		// though the place it would occupy is.
+		if (is_scrollable(widget) && (y < list_top || y >= list_bottom))
+		{
+			continue;
+		}
+
+		const SDL_FRect rect = screen_rect(widget, layout.scroll);
 
 		if (x >= rect.x && x < rect.x + rect.w && y >= rect.y && y < rect.y + rect.h)
 		{
@@ -562,6 +679,11 @@ LauncherResult Launcher::run(
 				break;
 			}
 
+			case SDL_EVENT_MOUSE_WHEEL:
+				layout.scroll -= e.wheel.y * card_stride / 2.0F;
+				clamp_scroll(layout);
+				break;
+
 			case SDL_EVENT_MOUSE_BUTTON_DOWN:
 			{
 				const int index = widget_at(layout, e.button.x, e.button.y);
@@ -596,11 +718,13 @@ LauncherResult Launcher::run(
 						layout.focus_index =
 							(layout.focus_index + static_cast<int>(layout.widgets.size()) - 1) %
 							static_cast<int>(layout.widgets.size());
+						scroll_focus_into_view(layout);
 						break;
 
 					case SDLK_DOWN:
 					case SDLK_TAB:
 						layout.focus_index = (layout.focus_index + 1) % static_cast<int>(layout.widgets.size());
+						scroll_focus_into_view(layout);
 						break;
 
 					case SDLK_RETURN:
