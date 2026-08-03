@@ -106,6 +106,64 @@ const std::string& get_message_box_title()
 
 namespace {
 
+// The launcher shows a game once, so the shareware releases belong with the
+// full ones rather than under a game of their own.
+const char* get_game_title(AssetsVersion assets_version)
+{
+	switch (assets_version)
+	{
+		case AssetsVersion::ps: return "Planet Strike";
+		default: return "Aliens of Gold";
+	}
+}
+
+// What tells one release from another, taken from the files themselves rather
+// than from anything a store says. Planet Strike had only the one.
+const char* get_release_label(AssetsVersion assets_version)
+{
+	switch (assets_version)
+	{
+		case AssetsVersion::aog_sw_v1_0:
+		case AssetsVersion::aog_full_v1_0: return "1.0";
+		case AssetsVersion::aog_sw_v2_0:
+		case AssetsVersion::aog_full_v2_0: return "2.0";
+		case AssetsVersion::aog_sw_v2_1:
+		case AssetsVersion::aog_full_v2_1: return "2.1";
+		case AssetsVersion::aog_sw_v3_0:
+		case AssetsVersion::aog_full_v3_0: return "3.0";
+		default: return "";
+	}
+}
+
+struct KnownRelease
+{
+	const char* label;
+	const char* qualifier;
+};
+
+// Every release of a game there is, shown whether or not the user has it, so
+// the panel says what exists and not only what was found. The full ones come
+// first: they are laid out in this order, a row to a kind.
+constexpr KnownRelease aog_known_releases[] =
+{
+	{"1.0", ""}, {"2.0", ""}, {"2.1", ""}, {"3.0", ""},
+	{"1.0", "SW"}, {"2.0", "SW"}, {"2.1", "SW"}, {"3.0", "SW"},
+};
+
+constexpr KnownRelease ps_known_releases[] = {{"", ""}};
+
+const char* get_release_qualifier(AssetsVersion assets_version)
+{
+	switch (assets_version)
+	{
+		case AssetsVersion::aog_sw_v1_0:
+		case AssetsVersion::aog_sw_v2_0:
+		case AssetsVersion::aog_sw_v2_1:
+		case AssetsVersion::aog_sw_v3_0: return "SW";
+		default: return "";
+	}
+}
+
 struct AssetBundle
 {
 	const bstone::VfsSearchPath* vfs_search_path;
@@ -552,28 +610,109 @@ bool find_contents_once()
 	}
 	else
 	{
-		std::vector<bstone::sys::LauncherItem> launcher_items{};
-		launcher_items.reserve(products_to_choose.size());
 		// The artwork belongs to the copy of the game it was read from, and
-		// lives only as long as the launcher shows it.
-		// The card art is drawn small; ask for it at twice that, so a dense
-		// display has pixels to use and the rest is a gentle shrink.
-		constexpr int launcher_art_size = 128;
+		// lives only as long as the launcher shows it. It is drawn large, so
+		// ask for it at twice that and let the rest be a gentle shrink.
+		constexpr int launcher_art_size = 300;
 		std::vector<bstone::GameArt> launcher_arts{};
 		launcher_arts.reserve(products_to_choose.size());
+		std::vector<bstone::sys::LauncherItem> launcher_items{};
+		// How good a picture of the game each tile has so far, so a later copy
+		// only replaces it with a better one.
+		std::vector<int> launcher_art_ranks{};
 
-		for (const AssetBundle* const product_to_choose : products_to_choose)
+		for (int i = 0; i < static_cast<int>(products_to_choose.size()); ++i)
 		{
-			const std::string game_path = product_to_choose->vfs_search_path->path;
-			const bstone::GameArt& art = launcher_arts.emplace_back(bstone::find_game_art(game_path, launcher_art_size));
-			auto& launcher_item = launcher_items.emplace_back();
-			launcher_item.title = AssetBundleMgr::get_bundle_version_string(product_to_choose->assets_version);
-			launcher_item.detail =
-				std::string{bstone::get_game_source_label(game_path)} + "  -  " +
-				bstone::make_game_source_display_path(game_path);
-			launcher_item.art_pixels = art.is_empty() ? nullptr : art.pixels.data();
-			launcher_item.art_width = art.width;
-			launcher_item.art_height = art.height;
+			const AssetBundle* const product = products_to_choose[static_cast<std::size_t>(i)];
+			const std::string game_path = product->vfs_search_path->path;
+			const bstone::GameArt& art = launcher_arts.emplace_back(
+				bstone::find_game_art(game_path, launcher_art_size));
+			const char* const game_title = get_game_title(product->assets_version);
+			const char* const source = bstone::get_game_source_label(game_path);
+
+			auto item_index = std::size_t{};
+
+			for (; item_index < launcher_items.size(); ++item_index)
+			{
+				if (launcher_items[item_index].title == game_title)
+				{
+					break;
+				}
+			}
+
+			if (item_index == launcher_items.size())
+			{
+				launcher_items.emplace_back().title = game_title;
+				launcher_art_ranks.emplace_back(0);
+			}
+
+			bstone::sys::LauncherItem& item = launcher_items[item_index];
+
+			// A wide logo is a poor fit for the square kept for it, and GOG's
+			// icon is a disc on a transparent field where Steam's fills its
+			// frame - so of two square icons, Steam's is the better picture.
+			const bool is_square = art.width == art.height;
+			const bool is_steam = std::strcmp(source, "Steam") == 0;
+			const int art_rank = art.is_empty() ? 0 : (is_square ? (is_steam ? 3 : 2) : 1);
+
+			if (art_rank > launcher_art_ranks[item_index])
+			{
+				launcher_art_ranks[item_index] = art_rank;
+				item.art_pixels = art.pixels.data();
+				item.art_width = art.width;
+				item.art_height = art.height;
+			}
+
+		}
+
+		// Every release there is gets a chip; the ones with no copy are shown
+		// dim, so the panel says what exists as well as what was found.
+		for (std::size_t item_index = 0; item_index < launcher_items.size(); ++item_index)
+		{
+			bstone::sys::LauncherItem& item = launcher_items[item_index];
+			const bool is_ps = item.title == get_game_title(AssetsVersion::ps);
+			const std::span<const KnownRelease> known = is_ps ?
+				std::span<const KnownRelease>{ps_known_releases} :
+				std::span<const KnownRelease>{aog_known_releases};
+
+			for (const KnownRelease& known_release : known)
+			{
+				auto& release = item.releases.emplace_back();
+				release.label = known_release.label;
+				release.qualifier = known_release.qualifier;
+				release.item_index = -1;
+
+				for (int i = 0; i < static_cast<int>(products_to_choose.size()); ++i)
+				{
+					const AssetBundle* const product = products_to_choose[static_cast<std::size_t>(i)];
+
+					if (get_game_title(product->assets_version) != item.title ||
+						std::strcmp(get_release_label(product->assets_version), known_release.label) != 0 ||
+						std::strcmp(get_release_qualifier(product->assets_version), known_release.qualifier) != 0)
+					{
+						continue;
+					}
+
+					// Two copies of one release are one chip: there is nothing
+					// to choose between them, so only where they came from is
+					// added.
+					const char* const source = bstone::get_game_source_label(
+						product->vfs_search_path->path);
+
+					if (release.item_index < 0)
+					{
+						release.item_index = i;
+						release.source = source;
+						release.path = bstone::make_game_source_display_path(
+							product->vfs_search_path->path);
+					}
+					else if (release.source.find(source) == std::string::npos)
+					{
+						release.source += "  ";
+						release.source += source;
+					}
+				}
+			}
 		}
 
 		struct AddSourceContext
@@ -589,10 +728,25 @@ bool find_contents_once()
 				auto& context = *static_cast<AddSourceContext*>(user_data);
 				return add_game_source(*context.logger, *context.vfs, parent_window);
 			};
+		// Only worth offering to someone who has no copy of it.
+		auto has_shareware = false;
+
+		for (const bstone::sys::LauncherItem& item : launcher_items)
+		{
+			for (const bstone::sys::LauncherRelease& release : item.releases)
+			{
+				if (!release.qualifier.empty() && release.item_index >= 0)
+				{
+					has_shareware = true;
+				}
+			}
+		}
+
 		const bstone::sys::LauncherResult launcher_result = bstone::sys::Launcher::run(
 			std::span{launcher_items.data(), launcher_items.size()},
 			bstone::get_game_source_prompt(),
 			bstone::get_game_source_dialog_note(),
+			has_shareware ? nullptr : bstone::get_game_source_shareware_url(),
 			add_source_func,
 			&add_source_context);
 

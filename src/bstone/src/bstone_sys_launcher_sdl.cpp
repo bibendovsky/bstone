@@ -11,6 +11,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_ascii.h"
 #include "bstone_image_decoder.h"
 #include "bstone_launcher_icon.h"
+#include "bstone_process.h"
 #include "bstone_rgb8.h"
 
 #include <cstdint>
@@ -105,12 +106,26 @@ constexpr LauncherColor color_detail{138, 144, 153};
 constexpr LauncherColor color_border{58, 65, 77};
 
 constexpr int window_width = 820;
-constexpr int window_height = 620;
+constexpr int window_height = 720;
 constexpr int pad = 32;
-constexpr float card_height = 76.0F;
-constexpr float card_stride = 90.0F;
+constexpr float tile_height = 256.0F;
+constexpr float tile_gap = 64.0F;
+constexpr float tile_art_size = 190.0F;
+constexpr float tile_pad = 18.0F;
+constexpr float chip_width = 58.0F;
+constexpr float chip_height = 50.0F;
+constexpr float chip_gap = 7.0F;
+constexpr int chips_per_row = 4;
+// A tile is as wide as the row of chips under it, so the two line up.
+constexpr float tile_width = chips_per_row * chip_width + (chips_per_row - 1) * chip_gap;
+constexpr float chip_row_gap = 7.0F;
+constexpr float chip_top_gap = 9.0F;
+constexpr float caption_top_gap = 9.0F;
+constexpr float caption_height = 14.0F;
+constexpr float path_top_gap = 22.0F;
+constexpr float scroll_step = 45.0F;
 constexpr float button_height = 44.0F;
-constexpr float list_top = 150.0F;
+constexpr float list_top = 152.0F;
 // The list ends above the buttons rather than behind them, so a long list is
 // cut off at a place the user can see and scroll from.
 constexpr float list_bottom = window_height - pad - button_height - 16.0F;
@@ -140,6 +155,15 @@ void fill_rect(SDL_Renderer* renderer, float x, float y, float w, float h)
 {
 	const SDL_FRect rect{x, y, w, h};
 	SDL_RenderFillRect(renderer, &rect);
+}
+
+void draw_border(SDL_Renderer* renderer, const SDL_FRect& rect, LauncherColor color)
+{
+	set_color(renderer, color);
+	fill_rect(renderer, rect.x, rect.y, rect.w, 1.0F);
+	fill_rect(renderer, rect.x, rect.y + rect.h - 1.0F, rect.w, 1.0F);
+	fill_rect(renderer, rect.x, rect.y, 1.0F, rect.h);
+	fill_rect(renderer, rect.x + rect.w - 1.0F, rect.y, 1.0F, rect.h);
 }
 
 void draw_text(SDL_Renderer* renderer, float x, float y, float scale, LauncherColor color, const std::string& text)
@@ -261,33 +285,86 @@ std::vector<std::string> wrap_text(const std::string& text, float scale, float m
 	return lines;
 }
 
+// A chip chooses which release of a game to play; a tile plays the one chosen.
+// A game with a single release has no chips, so the tile is the whole control.
+enum class LauncherWidgetKind
+{
+	tile,
+	chip,
+	button,
+};
+
 struct LauncherWidget
 {
 	SDL_FRect rect;
 	SDL_Texture* art;
 	int art_width;
 	int art_height;
+	LauncherWidgetKind kind;
 	LauncherAction action;
-	int item_index;
+	int game_index;
+	int release_index;
 	std::string title;
-	std::string detail;
+	std::string qualifier;
 };
 
 struct LauncherLayout
 {
 	std::vector<LauncherWidget> widgets;
 	int focus_index;
-	// How far the list has been scrolled, and the most it can be. Only the
-	// cards move; the buttons below them stay put.
+	// Which release each game will play, one entry per game.
+	std::vector<int> chosen_releases;
+	// Where the games end, so the path line can sit under all of them.
+	float content_bottom;
+	// How far the games have been scrolled, and the most they can be. The
+	// buttons below them stay put.
 	float scroll;
 	float scroll_max;
 };
 
-// A card's rect is where it sits in the list; on screen it moves with the
-// scroll. The buttons are not part of the list, so they never move.
 bool is_scrollable(const LauncherWidget& widget)
 {
-	return widget.action == LauncherAction::play;
+	return widget.kind != LauncherWidgetKind::button;
+}
+
+// A release with no copy is shown but cannot be picked, so it takes neither
+// the focus nor a click.
+bool is_available(const LauncherItem& item, int release_index)
+{
+	return item.releases[static_cast<std::size_t>(release_index)].item_index >= 0;
+}
+
+bool is_selectable(std::span<const LauncherItem> items, const LauncherWidget& widget)
+{
+	return widget.kind != LauncherWidgetKind::chip ||
+		is_available(items[static_cast<std::size_t>(widget.game_index)], widget.release_index);
+}
+
+// The full releases take a row and the shareware ones another. A game with a
+// single release has no chips at all.
+int count_chip_rows(const LauncherItem& item)
+{
+	if (item.releases.size() <= 1)
+	{
+		return 0;
+	}
+
+	auto has_full = false;
+	auto has_qualified = false;
+
+	for (const LauncherRelease& release : item.releases)
+	{
+		if (release.qualifier.empty())
+		{
+			has_full = true;
+		}
+		else
+		{
+			has_qualified = true;
+		}
+	}
+
+	return (has_full ? 1 : 0) + (has_qualified ? 1 : 0);
 }
 
 SDL_FRect screen_rect(const LauncherWidget& widget, float scroll)
@@ -343,25 +420,93 @@ void scroll_focus_into_view(LauncherLayout& layout)
 	clamp_scroll(layout);
 }
 
-void build_layout(std::span<const LauncherItem> items, LauncherLayout& layout)
+void build_layout(std::span<const LauncherItem> items, const char* shareware_url, LauncherLayout& layout)
 {
 	layout.widgets.clear();
-	float y = list_top;
+	layout.chosen_releases.assign(items.size(), 0);
 
-	for (int i = 0; i < static_cast<int>(items.size()); ++i)
+	for (std::size_t i = 0; i < items.size(); ++i)
 	{
-		auto& widget = layout.widgets.emplace_back();
-		widget.rect = SDL_FRect{pad, y, window_width - 2.0F * pad, card_height};
-		widget.action = LauncherAction::play;
-		widget.item_index = i;
-		widget.title = items[i].title;
-		widget.detail = items[i].detail;
-		y += card_stride;
+		for (std::size_t j = 0; j < items[i].releases.size(); ++j)
+		{
+			if (items[i].releases[j].item_index >= 0)
+			{
+				layout.chosen_releases[i] = static_cast<int>(j);
+				break;
+			}
+		}
 	}
 
-	// The last card needs its own height visible, not the gap that follows it.
-	const float content_height = items.empty() ? 0.0F : (y - card_stride + card_height) - list_top;
-	layout.scroll_max = content_height > (list_bottom - list_top) ? content_height - (list_bottom - list_top) : 0.0F;
+	const auto game_count = static_cast<int>(items.size());
+	const float row_width = game_count * tile_width + (game_count > 0 ? (game_count - 1) * tile_gap : 0.0F);
+	float x = (window_width - row_width) / 2.0F;
+	float content_bottom = list_top;
+
+	for (int i = 0; i < game_count; ++i)
+	{
+		const LauncherItem& item = items[i];
+
+		auto& tile = layout.widgets.emplace_back();
+		tile.rect = SDL_FRect{x, list_top, tile_width, tile_height};
+		tile.kind = LauncherWidgetKind::tile;
+		tile.action = LauncherAction::play;
+		tile.game_index = i;
+		tile.release_index = -1;
+		tile.title = item.title;
+
+		// One release is no choice, so it is left to the tile.
+		const int row_count = count_chip_rows(item);
+		float row_y = list_top + tile_height + chip_top_gap;
+
+		for (int row = 0; row < row_count; ++row)
+		{
+			const bool wants_qualified = (row_count == 2 && row == 1) ||
+				(row_count == 1 && !item.releases.front().qualifier.empty());
+			auto row_size = 0;
+
+			for (const LauncherRelease& release : item.releases)
+			{
+				if (release.qualifier.empty() != wants_qualified)
+				{
+					++row_size;
+				}
+			}
+
+			float chip_x = x + (tile_width - (row_size * chip_width + (row_size - 1) * chip_gap)) / 2.0F;
+
+			for (int j = 0; j < static_cast<int>(item.releases.size()); ++j)
+			{
+				if (item.releases[static_cast<std::size_t>(j)].qualifier.empty() == wants_qualified)
+				{
+					continue;
+				}
+
+				auto& chip = layout.widgets.emplace_back();
+				chip.rect = SDL_FRect{chip_x, row_y, chip_width, chip_height};
+				chip.kind = LauncherWidgetKind::chip;
+				chip.action = LauncherAction::play;
+				chip.game_index = i;
+				chip.release_index = j;
+				chip.title = item.releases[static_cast<std::size_t>(j)].label;
+				chip.qualifier = item.releases[static_cast<std::size_t>(j)].qualifier;
+				chip_x += chip_width + chip_gap;
+			}
+
+			row_y += chip_height + chip_row_gap;
+		}
+
+		const float caption_y = row_count > 0 ?
+			row_y - chip_row_gap + caption_top_gap :
+			list_top + tile_height + chip_top_gap;
+		content_bottom = std::max(content_bottom, caption_y + caption_height);
+
+		x += tile_width + tile_gap;
+	}
+
+	layout.content_bottom = content_bottom;
+	const float content_height = game_count > 0 ? content_bottom - list_top : 0.0F;
+	const float viewport_height = list_bottom - list_top;
+	layout.scroll_max = content_height > viewport_height ? content_height - viewport_height : 0.0F;
 	clamp_scroll(layout);
 
 	const float button_y = window_height - pad - button_height;
@@ -369,16 +514,31 @@ void build_layout(std::span<const LauncherItem> items, LauncherLayout& layout)
 	{
 		auto& widget = layout.widgets.emplace_back();
 		widget.rect = SDL_FRect{pad, button_y, 260.0F, button_height};
+		widget.kind = LauncherWidgetKind::button;
 		widget.action = LauncherAction::add_source;
-		widget.item_index = -1;
+		widget.game_index = -1;
+		widget.release_index = -1;
 		widget.title = "Add game source";
+	}
+
+	if (shareware_url != nullptr)
+	{
+		auto& widget = layout.widgets.emplace_back();
+		widget.rect = SDL_FRect{pad + 272.0F, button_y, 236.0F, button_height};
+		widget.kind = LauncherWidgetKind::button;
+		widget.action = LauncherAction::get_shareware;
+		widget.game_index = -1;
+		widget.release_index = -1;
+		widget.title = "Get shareware";
 	}
 
 	{
 		auto& widget = layout.widgets.emplace_back();
 		widget.rect = SDL_FRect{window_width - pad - 120.0F, button_y, 120.0F, button_height};
+		widget.kind = LauncherWidgetKind::button;
 		widget.action = LauncherAction::quit;
-		widget.item_index = -1;
+		widget.game_index = -1;
+		widget.release_index = -1;
 		widget.title = "Quit";
 	}
 }
@@ -433,7 +593,7 @@ void draw_panel(
 		const bool has_focus = (i == layout.focus_index);
 		const SDL_FRect rect = screen_rect(widget, layout.scroll);
 
-		if (widget.action == LauncherAction::play)
+		if (widget.kind == LauncherWidgetKind::tile)
 		{
 			if (rect.y + rect.h <= list_top || rect.y >= list_bottom)
 			{
@@ -443,62 +603,133 @@ void draw_panel(
 			SDL_SetRenderClipRect(renderer, &list_clip);
 			set_color(renderer, has_focus ? color_card_focus : color_card);
 			fill_rect(renderer, rect.x, rect.y, rect.w, rect.h);
+			draw_border(renderer, rect, has_focus ? color_accent : color_card);
 
-			if (has_focus)
-			{
-				set_color(renderer, color_accent);
-				fill_rect(renderer, rect.x, rect.y, 3.0F, rect.h);
-			}
-
-			const float art_size = rect.h - 20.0F;
-			const bool has_art = (widget.art != nullptr);
-
-			if (has_art)
+			if (widget.art != nullptr)
 			{
 				// An icon is square but a store logo is wide, so fit the art
 				// inside the square left for it and centre what is left over.
 				float art_w = static_cast<float>(widget.art_width);
 				float art_h = static_cast<float>(widget.art_height);
-				const float scale = art_size / (art_w > art_h ? art_w : art_h);
+				const float scale = tile_art_size / (art_w > art_h ? art_w : art_h);
 				art_w *= scale;
 				art_h *= scale;
 				const SDL_FRect art_rect{
-					rect.x + 12.0F + (art_size - art_w) / 2.0F,
-					rect.y + 10.0F + (art_size - art_h) / 2.0F,
+					rect.x + (rect.w - art_w) / 2.0F,
+					rect.y + tile_pad + (tile_art_size - art_h) / 2.0F,
 					art_w,
 					art_h};
 				SDL_RenderTexture(renderer, widget.art, nullptr, &art_rect);
 			}
 
-			const float text_x = rect.x + (has_art ? art_size + 28.0F : 20.0F);
-			const float text_w = rect.w - (text_x - rect.x) - 16.0F - (layout.scroll_max > 0.0F ? scrollbar_width + 8.0F : 0.0F);
+			const float title_w = rect.w - 2.0F * tile_pad;
+			const std::string title = elide_middle(widget.title, 2.0F, title_w);
 			draw_text(
 				renderer,
-				text_x,
-				rect.y + 13.0F,
-				3.0F,
-				color_title,
-				elide_middle(widget.title, 3.0F, text_w));
-			draw_text(
-				renderer,
-				text_x,
-				rect.y + 45.0F,
+				rect.x + (rect.w - measure_text(2.0F, title)) / 2.0F,
+				rect.y + tile_pad + tile_art_size + 16.0F,
 				2.0F,
-				color_detail,
-				elide_middle(widget.detail, 2.0F, text_w));
+				color_title,
+				title);
+
+			const LauncherItem& item = items[static_cast<std::size_t>(widget.game_index)];
+			const int chosen = layout.chosen_releases[static_cast<std::size_t>(widget.game_index)];
+
+			if (!item.releases.empty())
+			{
+				const std::string& source = item.releases[static_cast<std::size_t>(chosen)].source;
+				const int rows = count_chip_rows(item);
+				const float caption_y = rect.y + rect.h + chip_top_gap +
+					(rows > 0 ? rows * chip_height + (rows - 1) * chip_row_gap + caption_top_gap : 0.0F);
+				const std::string caption = elide_middle(source, 1.0F, rect.w);
+				draw_text(
+					renderer,
+					rect.x + (rect.w - measure_text(1.0F, caption)) / 2.0F,
+					caption_y,
+					1.0F,
+					color_detail,
+					caption);
+			}
+
+			SDL_SetRenderClipRect(renderer, nullptr);
+		}
+		else if (widget.kind == LauncherWidgetKind::chip)
+		{
+			if (rect.y + rect.h <= list_top || rect.y >= list_bottom)
+			{
+				continue;
+			}
+
+			const LauncherItem& chip_item = items[static_cast<std::size_t>(widget.game_index)];
+			const bool is_owned = is_available(chip_item, widget.release_index);
+			const bool is_chosen = is_owned &&
+				layout.chosen_releases[static_cast<std::size_t>(widget.game_index)] == widget.release_index;
+
+			SDL_SetRenderClipRect(renderer, &list_clip);
+			set_color(renderer, has_focus || is_chosen ? color_card_focus : color_card);
+			fill_rect(renderer, rect.x, rect.y, rect.w, rect.h);
+			draw_border(renderer, rect, is_chosen || has_focus ? color_accent : color_border);
+
+			const LauncherColor label_color = is_chosen ? color_title : (is_owned ? color_detail : color_border);
+			const bool has_qualifier = !widget.qualifier.empty();
+			const float label_y = rect.y + (has_qualifier ? 10.0F : 16.0F);
+			draw_text(
+				renderer,
+				rect.x + (rect.w - measure_text(2.0F, widget.title)) / 2.0F,
+				label_y,
+				2.0F,
+				label_color,
+				widget.title);
+
+			if (has_qualifier)
+			{
+				draw_text(
+					renderer,
+					rect.x + (rect.w - measure_text(1.0F, widget.qualifier)) / 2.0F,
+					rect.y + 30.0F,
+					1.0F,
+					is_owned ? color_detail : color_border,
+					widget.qualifier);
+			}
+
 			SDL_SetRenderClipRect(renderer, nullptr);
 		}
 		else
 		{
 			set_color(renderer, has_focus ? color_card_focus : color_background);
 			fill_rect(renderer, rect.x, rect.y, rect.w, rect.h);
-			set_color(renderer, has_focus ? color_accent : color_border);
-			fill_rect(renderer, rect.x, rect.y, rect.w, 1.0F);
-			fill_rect(renderer, rect.x, rect.y + rect.h - 1.0F, rect.w, 1.0F);
-			fill_rect(renderer, rect.x, rect.y, 1.0F, rect.h);
-			fill_rect(renderer, rect.x + rect.w - 1.0F, rect.y, 1.0F, rect.h);
+			draw_border(renderer, rect, has_focus ? color_accent : color_border);
 			const float text_x = rect.x + (rect.w - measure_text(2.0F, widget.title)) / 2.0F;
 			draw_text(renderer, text_x, rect.y + 15.0F, 2.0F, color_title, widget.title);
+		}
+	}
+
+	// Where the release under the focus actually sits, spanning both games so
+	// a long path has the width to be read.
+	if (layout.focus_index >= 0 && layout.focus_index < static_cast<int>(layout.widgets.size()))
+	{
+		const LauncherWidget& focused = layout.widgets[static_cast<std::size_t>(layout.focus_index)];
+
+		if (focused.game_index >= 0)
+		{
+			const LauncherItem& item = items[static_cast<std::size_t>(focused.game_index)];
+			const int release_index = focused.kind == LauncherWidgetKind::chip ?
+				focused.release_index :
+				layout.chosen_releases[static_cast<std::size_t>(focused.game_index)];
+			const LauncherRelease& release = item.releases[static_cast<std::size_t>(release_index)];
+
+			if (release.item_index >= 0)
+			{
+				const float path_width = window_width - 2.0F * pad;
+				const std::string path = elide_middle(release.path, 1.0F, path_width);
+				draw_text(
+					renderer,
+					pad + (path_width - measure_text(1.0F, path)) / 2.0F,
+					layout.content_bottom + path_top_gap,
+					1.0F,
+					color_detail,
+					path);
+			}
 		}
 	}
 
@@ -530,7 +761,71 @@ void draw_panel(
 	SDL_RenderPresent(renderer);
 }
 
-int widget_at(const LauncherLayout& layout, float x, float y)
+// A chip chooses a release and leaves the panel up; a tile plays whichever
+// release its game is on. Returns whether the panel is finished with.
+bool activate_widget(
+	std::span<const LauncherItem> items,
+	const char* shareware_url,
+	LauncherLayout& layout,
+	int index,
+	LauncherResult& result)
+{
+	const LauncherWidget& widget = layout.widgets[static_cast<std::size_t>(index)];
+
+	if (widget.kind == LauncherWidgetKind::chip)
+	{
+		if (is_selectable(items, widget))
+		{
+			layout.chosen_releases[static_cast<std::size_t>(widget.game_index)] = widget.release_index;
+		}
+
+		return false;
+	}
+
+	if (widget.kind == LauncherWidgetKind::tile)
+	{
+		const LauncherItem& item = items[static_cast<std::size_t>(widget.game_index)];
+
+		if (item.releases.empty())
+		{
+			return false;
+		}
+
+		const int chosen = layout.chosen_releases[static_cast<std::size_t>(widget.game_index)];
+		result = LauncherResult{LauncherAction::play, item.releases[static_cast<std::size_t>(chosen)].item_index};
+		return true;
+	}
+
+	// The page is opened outside; the panel stays up for the user to come
+	// back to with what they downloaded.
+	if (widget.action == LauncherAction::get_shareware)
+	{
+		process::open_file_or_url(shareware_url);
+		return false;
+	}
+
+	result = LauncherResult{widget.action, -1};
+	return true;
+}
+
+void move_focus(std::span<const LauncherItem> items, LauncherLayout& layout, int step)
+{
+	const auto count = static_cast<int>(layout.widgets.size());
+
+	for (int i = 0; i < count; ++i)
+	{
+		layout.focus_index = (layout.focus_index + step + count) % count;
+
+		if (is_selectable(items, layout.widgets[static_cast<std::size_t>(layout.focus_index)]))
+		{
+			break;
+		}
+	}
+
+	scroll_focus_into_view(layout);
+}
+
+int widget_at(std::span<const LauncherItem> items, const LauncherLayout& layout, float x, float y)
 {
 	for (int i = 0; i < static_cast<int>(layout.widgets.size()); ++i)
 	{
@@ -539,6 +834,11 @@ int widget_at(const LauncherLayout& layout, float x, float y)
 		// A card scrolled out of the list is not there to be clicked, even
 		// though the place it would occupy is.
 		if (is_scrollable(widget) && (y < list_top || y >= list_bottom))
+		{
+			continue;
+		}
+
+		if (!is_selectable(items, widget))
 		{
 			continue;
 		}
@@ -560,6 +860,7 @@ LauncherResult Launcher::run(
 	std::span<const LauncherItem> items,
 	const char* empty_message,
 	const char* add_source_note,
+	const char* shareware_url,
 	LauncherAddSourceFunc add_source_func,
 	void* user_data)
 {
@@ -615,16 +916,16 @@ LauncherResult Launcher::run(
 
 	auto layout = LauncherLayout{};
 	layout.focus_index = 0;
-	build_layout(items, layout);
+	build_layout(items, shareware_url, layout);
 
 	for (LauncherWidget& widget : layout.widgets)
 	{
-		if (widget.item_index < 0)
+		if (widget.kind != LauncherWidgetKind::tile)
 		{
 			continue;
 		}
 
-		const LauncherItem& item = items[static_cast<std::size_t>(widget.item_index)];
+		const LauncherItem& item = items[static_cast<std::size_t>(widget.game_index)];
 
 		if (item.art_pixels == nullptr || item.art_width <= 0 || item.art_height <= 0)
 		{
@@ -676,7 +977,7 @@ LauncherResult Launcher::run(
 
 			case SDL_EVENT_MOUSE_MOTION:
 			{
-				const int index = widget_at(layout, e.motion.x, e.motion.y);
+				const int index = widget_at(items, layout, e.motion.x, e.motion.y);
 
 				if (index >= 0)
 				{
@@ -687,19 +988,17 @@ LauncherResult Launcher::run(
 			}
 
 			case SDL_EVENT_MOUSE_WHEEL:
-				layout.scroll -= e.wheel.y * card_stride / 2.0F;
+				layout.scroll -= e.wheel.y * scroll_step;
 				clamp_scroll(layout);
 				break;
 
 			case SDL_EVENT_MOUSE_BUTTON_DOWN:
 			{
-				const int index = widget_at(layout, e.button.x, e.button.y);
+				const int index = widget_at(items, layout, e.button.x, e.button.y);
 
 				if (index >= 0)
 				{
-					const LauncherWidget& widget = layout.widgets[index];
-
-					if (widget.action == LauncherAction::add_source)
+					if (layout.widgets[index].action == LauncherAction::add_source)
 					{
 						// Keep the panel up: the dialog belongs to this window.
 						if (add_source_func != nullptr && add_source_func(user_data, window))
@@ -710,8 +1009,7 @@ LauncherResult Launcher::run(
 					}
 					else
 					{
-						result = LauncherResult{widget.action, widget.item_index};
-						is_done = true;
+						is_done = activate_widget(items, shareware_url, layout, index, result);
 					}
 				}
 
@@ -722,24 +1020,18 @@ LauncherResult Launcher::run(
 				switch (e.key.key)
 				{
 					case SDLK_UP:
-						layout.focus_index =
-							(layout.focus_index + static_cast<int>(layout.widgets.size()) - 1) %
-							static_cast<int>(layout.widgets.size());
-						scroll_focus_into_view(layout);
+						move_focus(items, layout, -1);
 						break;
 
 					case SDLK_DOWN:
 					case SDLK_TAB:
-						layout.focus_index = (layout.focus_index + 1) % static_cast<int>(layout.widgets.size());
-						scroll_focus_into_view(layout);
+						move_focus(items, layout, 1);
 						break;
 
 					case SDLK_RETURN:
 					case SDLK_KP_ENTER:
 					{
-						const LauncherWidget& widget = layout.widgets[layout.focus_index];
-
-						if (widget.action == LauncherAction::add_source)
+						if (layout.widgets[layout.focus_index].action == LauncherAction::add_source)
 						{
 							if (add_source_func != nullptr && add_source_func(user_data, window))
 							{
@@ -749,8 +1041,7 @@ LauncherResult Launcher::run(
 						}
 						else
 						{
-							result = LauncherResult{widget.action, widget.item_index};
-							is_done = true;
+							is_done = activate_widget(items, shareware_url, layout, layout.focus_index, result);
 						}
 
 						break;

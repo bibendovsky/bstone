@@ -11,18 +11,34 @@ SPDX-License-Identifier: MIT
 
 #include <span>
 #include <string>
+#include <vector>
 
 namespace bstone::sys {
 
-// A game the launcher can offer.
+// One release of a game, and where the copy of it was found. Two copies of the
+// same release are one of these: there is nothing to choose between them.
+struct LauncherRelease
+{
+	// How the release is known - "2.1", or empty for a game that had only one.
+	std::string label;
+	// Marks a release that is not the full game.
+	std::string qualifier;
+	std::string source;
+	// Where the copy that would be played sits.
+	std::string path;
+	// What the caller gets back for this release.
+	int item_index;
+};
+
+// A game the launcher can offer, with every release of it that was found.
 struct LauncherItem
 {
 	std::string title;
-	std::string detail;
 	// Artwork read from the game the user provided; empty when it has none.
 	const void* art_pixels;
 	int art_width;
 	int art_height;
+	std::vector<LauncherRelease> releases;
 };
 
 enum class LauncherAction
@@ -30,6 +46,7 @@ enum class LauncherAction
 	quit,
 	play,
 	add_source,
+	get_shareware,
 };
 
 struct LauncherResult
@@ -47,10 +64,13 @@ struct Launcher
 	// Runs the launcher panel in its own window until the user picks a game,
 	// asks to add a source, or leaves. The panel draws with its own embedded
 	// font, so it works before any game files have been found.
+	// "shareware_url" offers the user a way to get a game when they have none;
+	// pass nullptr once they have one, so the offer goes away.
 	static LauncherResult run(
 		std::span<const LauncherItem> items,
 		const char* empty_message,
 		const char* add_source_note,
+		const char* shareware_url,
 		LauncherAddSourceFunc add_source_func,
 		void* user_data);
 };
