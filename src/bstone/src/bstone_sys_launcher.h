@@ -28,6 +28,9 @@ struct LauncherRelease
 	std::string path;
 	// What the caller gets back for this release.
 	int item_index;
+	// Which release to start on when several were found, lowest first. It
+	// decides the choice, not the order they are shown in.
+	int preference;
 };
 
 // A game the launcher can offer, with every release of it that was found.

@@ -153,6 +153,34 @@ constexpr KnownRelease aog_known_releases[] =
 
 constexpr KnownRelease ps_known_releases[] = {{"", ""}};
 
+// Which release to start a game on when the user has more than one. v2.1 is
+// what digital distribution settled on, so it is the one most people have and
+// the one the port has been exercised against the most; the full game comes
+// before the shareware whatever its version.
+int get_release_preference(const char* label, const char* qualifier)
+{
+	auto version_rank = 4;
+
+	if (std::strcmp(label, "2.1") == 0)
+	{
+		version_rank = 0;
+	}
+	else if (std::strcmp(label, "3.0") == 0)
+	{
+		version_rank = 1;
+	}
+	else if (std::strcmp(label, "2.0") == 0)
+	{
+		version_rank = 2;
+	}
+	else if (std::strcmp(label, "1.0") == 0)
+	{
+		version_rank = 3;
+	}
+
+	return (qualifier[0] != '\0' ? 10 : 0) + version_rank;
+}
+
 const char* get_release_qualifier(AssetsVersion assets_version)
 {
 	switch (assets_version)
@@ -682,6 +710,8 @@ bool find_contents_once()
 				release.label = known_release.label;
 				release.qualifier = known_release.qualifier;
 				release.item_index = -1;
+				release.preference = get_release_preference(
+					known_release.label, known_release.qualifier);
 
 				for (int i = 0; i < static_cast<int>(products_to_choose.size()); ++i)
 				{

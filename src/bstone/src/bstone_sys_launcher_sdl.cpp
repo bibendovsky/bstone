@@ -425,16 +425,27 @@ void build_layout(std::span<const LauncherItem> items, const char* shareware_url
 	layout.widgets.clear();
 	layout.chosen_releases.assign(items.size(), 0);
 
+	// Start on the release preferred among those the user actually has.
 	for (std::size_t i = 0; i < items.size(); ++i)
 	{
+		auto best = -1;
+
 		for (std::size_t j = 0; j < items[i].releases.size(); ++j)
 		{
-			if (items[i].releases[j].item_index >= 0)
+			const LauncherRelease& release = items[i].releases[j];
+
+			if (release.item_index < 0)
 			{
-				layout.chosen_releases[i] = static_cast<int>(j);
-				break;
+				continue;
+			}
+
+			if (best < 0 || release.preference < items[i].releases[static_cast<std::size_t>(best)].preference)
+			{
+				best = static_cast<int>(j);
 			}
 		}
+
+		layout.chosen_releases[i] = best < 0 ? 0 : best;
 	}
 
 	const auto game_count = static_cast<int>(items.size());
