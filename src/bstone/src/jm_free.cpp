@@ -570,7 +570,7 @@ bool find_contents_once()
 			launcher_item.title = AssetBundleMgr::get_bundle_version_string(product_to_choose->assets_version);
 			launcher_item.detail =
 				std::string{bstone::get_game_source_label(game_path)} + "  -  " +
-				bstone::make_display_path(game_path);
+				bstone::make_game_source_display_path(game_path);
 			launcher_item.art_pixels = art.is_empty() ? nullptr : art.pixels.data();
 			launcher_item.art_width = art.width;
 			launcher_item.art_height = art.height;
@@ -635,10 +635,10 @@ bool find_contents_once()
 		for (int i = 0; i < vfs.get_search_path_count(); ++i)
 		{
 			const std::string path = vfs.get_search_path(i).path;
-			const bool is_another_copy = path != chosen_path &&
+			const bool is_another_copy =
 				std::find(game_paths.cbegin(), game_paths.cend(), path) != game_paths.cend();
 
-			if (!is_another_copy && path != chosen_path)
+			if (!is_another_copy)
 			{
 				kept_paths.emplace_back(path);
 			}
@@ -1223,6 +1223,11 @@ void freed_main()
 	in_initialize_cvars(*bstone::globals::cvar_mgr);
 	in_initialize_ccmds(*bstone::globals::ccmd_mgr);
 
+	// Settings first: the search paths are built from them, so reading them
+	// afterwards would be too late for the folders the user added last time.
+	ReadConfig();
+	deserialize_cvars_from_cli(g_args, *bstone::globals::cvar_mgr);
+
 	// Setup for APOGEECD thingie.
 	//
 	InitDestPath();
@@ -1250,8 +1255,6 @@ void freed_main()
 	CheckForEpisodes();
 
 	// BBi
-	ReadConfig();
-	deserialize_cvars_from_cli(g_args, *bstone::globals::cvar_mgr);
 	sd_handle_command_line(g_args);
 
 	initialize_sprites();

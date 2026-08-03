@@ -98,8 +98,13 @@ auto content_dir_cvar = bstone::CVar{
 	std::string_view{}};
 
 // Every folder the user has added, kept as one setting so they are all
-// searched again next time. A path cannot hold a newline, so it separates.
-constexpr char content_dir_separator = '\n';
+// searched again next time.
+//
+// The configuration file gives a line to each setting, so a value cannot hold
+// a newline to separate with; a semicolon is what lists of paths are written
+// with elsewhere, and is not something a folder is normally named with. One
+// that is named with it is left out rather than written down ambiguously.
+constexpr char content_dir_separator = ';';
 
 std::vector<std::string> content_get_dirs()
 {
@@ -128,8 +133,31 @@ std::vector<std::string> content_get_dirs()
 	return dirs;
 }
 
+// A folder name may hold bytes the configuration file cannot: the separator
+// would split one folder into two, and a quote or a control character is
+// refused outright when the file is written. Leaving such a folder out costs
+// the folder; keeping it would cost the whole file.
+bool can_remember_content_dir(const std::string& dir)
+{
+	for (const char ch : dir)
+	{
+		if (static_cast<unsigned char>(ch) < ' ' || ch == '"' || ch == content_dir_separator)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 void content_remember_dir(const std::string& dir)
 {
+	if (!can_remember_content_dir(dir))
+	{
+		bstone::globals::logger->log_warning("Not remembering an unwritable folder name: \"{}\".", dir);
+		return;
+	}
+
 	std::vector<std::string> dirs = content_get_dirs();
 
 	if (std::find(dirs.cbegin(), dirs.cend(), dir) != dirs.cend())
@@ -7772,7 +7800,10 @@ void cfg_escape_argument(std::string_view src_arg, std::string& dst_arg)
 
 	for (const auto& ch : src_arg)
 	{
-		if (ch < ' ')
+		// Compared unsigned: where "char" is signed, every byte of a character
+		// outside ASCII is negative, and a path holding one is not a control
+		// character to refuse.
+		if (static_cast<unsigned char>(ch) < ' ')
 		{
 			BSTONE_THROW_STATIC_SOURCE("Control character not allowed.");
 		}
@@ -10131,7 +10162,9 @@ void InitDestPath()
 	if (!data_dir.empty())
 		search_paths.emplace_back(data_dir.c_str());
 	for (const std::string& content_dir_path : content_dir_paths)
+	{
 		search_paths.emplace_back(content_dir_path.c_str());
+	}
 	if (!mod_dir.empty())
 		search_paths.emplace_back(mod_dir.c_str());
 	const bstone::VfsInitParam vfs_open_param
