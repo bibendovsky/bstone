@@ -84,6 +84,21 @@ inline constexpr void to_upper(TIter chars_begin, TIter chars_end)
 	}
 }
 
+// ==========================================================================
+
+inline constexpr bool starts_with_ignoring_case(const char* string, const char* prefix)
+{
+	for (; *prefix != '\0'; ++string, ++prefix)
+	{
+		if (bstone::ascii::to_upper(*string) != bstone::ascii::to_upper(*prefix))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
 } // namespace ascii
 } // namespace bstone
 

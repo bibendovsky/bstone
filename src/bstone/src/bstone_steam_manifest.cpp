@@ -49,7 +49,7 @@ bool parse_uint(std::string_view string, std::uint64_t& value) noexcept
 
 } // namespace
 
-std::vector<std::string> parse_steam_library_paths(std::string_view vdf_text)
+std::vector<std::string> SteamManifest::parse_library_paths(std::string_view vdf_text)
 {
 	auto library_paths = std::vector<std::string>{};
 	auto root = VdfNode{};
@@ -88,7 +88,7 @@ std::vector<std::string> parse_steam_library_paths(std::string_view vdf_text)
 	return library_paths;
 }
 
-bool parse_steam_install_dir(std::string_view acf_text, std::string& install_dir)
+bool SteamManifest::parse_install_dir(std::string_view acf_text, std::string& install_dir)
 {
 	install_dir.clear();
 	auto root = VdfNode{};

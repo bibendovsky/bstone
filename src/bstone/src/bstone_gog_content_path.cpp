@@ -24,6 +24,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_fs_utils.h"
 #include "bstone_sys_file.h"
+#include "bstone_sys_fs.h"
 #endif // __APPLE__
 
 
@@ -102,12 +103,6 @@ std::string get_galaxy_installation_path(long long product_id)
 	return path;
 }
 
-bool file_exists(const std::string& path)
-{
-	auto file = sys::File{};
-	return file.open(path.c_str(), sys::FileMode::read);
-}
-
 // The bundle is a launcher app wrapping a Boxer app whose gamebox holds
 // the DOS drive with the game's files.
 std::string find_data_in_gog_mac_bundle(const std::string& bundle_path, const GogMacProduct& product)
@@ -117,7 +112,7 @@ std::string find_data_in_gog_mac_bundle(const std::string& bundle_path, const Go
 		bundle_path,
 		"Contents/Resources/game/" + name + ".app/Contents/Resources/" + name + ".boxer/C " + name + ".harddisk");
 
-	if (file_exists(fs_utils::append_path(data_path, product.marker_file_name)))
+	if (sys::is_regular_file_exists(fs_utils::append_path(data_path, product.marker_file_name).c_str()))
 	{
 		return data_path;
 	}
@@ -146,7 +141,7 @@ std::string find_gog_mac_game_path(const GogMacProduct& product)
 	{
 		const std::string bundle_path = fs_utils::append_path("/Applications", bundle_name);
 
-		if (!file_exists(fs_utils::append_path(bundle_path, fs_utils::append_path("Contents/Resources", product.id_file_name))))
+		if (!sys::is_regular_file_exists(fs_utils::append_path(bundle_path, fs_utils::append_path("Contents/Resources", product.id_file_name)).c_str()))
 		{
 			continue;
 		}

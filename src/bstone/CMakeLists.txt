@@ -566,8 +566,6 @@ source_group("bstone/renderer/3d/gl" FILES ${BSTONE_BSTONE_RENDERER_3D_GL_SOURCE
 # ---------------------------------------------------------------------------
 
 set(BSTONE_BSTONE_RENDERER_3D_VK_SOURCES
-	src/bstone_vdf.cpp
-	src/bstone_vdf.h
 	src/bstone_vk_r3r.cpp
 	src/bstone_vk_r3r.h
 	src/bstone_vk_r3r_buffer.cpp
@@ -640,9 +638,6 @@ set(BSTONE_BSTONE_SYS_SOURCES
 	src/bstone_sys_keyboard_key.h
 	src/bstone_sys_logger.cpp
 	src/bstone_sys_logger.h
-	src/bstone_game_art.h
-	src/bstone_launcher_icon.h
-	src/bstone_game_source.h
 	src/bstone_sys_folder_dialog.h
 	src/bstone_sys_launcher.h
 	src/bstone_sys_message_box.h
@@ -688,9 +683,6 @@ set(BSTONE_BSTONE_SYS_SDL_SOURCES
 	src/bstone_sys_gl_symbol_resolver_sdl.cpp
 	src/bstone_sys_gl_symbol_resolver_sdl.h
 	src/bstone_sys_limits_sdl.h
-	src/bstone_game_art.cpp
-	src/bstone_launcher_icon.cpp
-	src/bstone_game_source.cpp
 	src/bstone_sys_folder_dialog_sdl.cpp
 	src/bstone_sys_launcher_sdl.cpp
 	src/bstone_sys_message_box_sdl.cpp
@@ -914,9 +906,15 @@ set(BSTONE_BSTONE_SOURCES
 	src/bstone_extent_2d.h
 	src/bstone_fs_utils.cpp
 	src/bstone_fs_utils.h
+	src/bstone_game_art.cpp
+	src/bstone_game_art.h
+	src/bstone_game_source.cpp
+	src/bstone_game_source.h
 	src/bstone_globals.cpp
 	src/bstone_globals.h
 	src/bstone_gog_content_path.cpp
+	src/bstone_launcher_icon.cpp
+	src/bstone_launcher_icon.h
 	src/bstone_level_extractor.cpp
 	src/bstone_level_extractor.h
 	src/bstone_logger.cpp
@@ -953,6 +951,8 @@ set(BSTONE_BSTONE_SOURCES
 	src/bstone_text_reader.h
 	src/bstone_text_writer.cpp
 	src/bstone_text_writer.h
+	src/bstone_vdf.cpp
+	src/bstone_vdf.h
 	src/bstone_version.cpp
 	src/bstone_version.h
 	src/bstone_vfs.cpp

@@ -26,7 +26,6 @@ bool is_space(char ch) noexcept
 	return ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n';
 }
 
-// A bare token ends at whitespace, a brace or a quote.
 bool is_token_end(char ch) noexcept
 {
 	return is_space(ch) || ch == '{' || ch == '}' || ch == '"';
@@ -122,7 +121,7 @@ private:
 			const char ch = text_[pos_];
 			if (ch == '"')
 			{
-				++pos_; // Closing quote.
+				++pos_;
 				return true;
 			}
 			if (ch == '\\')
@@ -181,7 +180,7 @@ private:
 			}
 			if (peek() == '}')
 			{
-				++pos_; // Closing brace.
+				++pos_;
 				return true;
 			}
 			VdfNode child;

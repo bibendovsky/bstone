@@ -48,7 +48,7 @@ AssetPath make_content_path(
 //
 // The client keeps this beside its own data rather than with the game, so it
 // cannot be found by looking around the game itself.
-std::string make_steam_art_path(const std::string& game_path);
+std::string make_content_art_path(const std::string& game_path);
 
 
 } // bstone

@@ -36,7 +36,7 @@ const char* get_game_source_prompt();
 const char* get_game_source_label(const std::string& path);
 
 // A path short enough to read: cut at the application bundle holding the game.
-std::string make_display_path(const std::string& path);
+std::string make_game_source_display_path(const std::string& path);
 
 // A smaller note for the moment the folder dialog is about to open.
 const char* get_game_source_dialog_note();

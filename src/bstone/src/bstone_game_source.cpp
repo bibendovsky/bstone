@@ -124,22 +124,6 @@ void search(const std::string& path, int depth, SearchState& state)
 	}
 }
 
-bool starts_with_ignoring_case(const char* string, const char* prefix)
-{
-	while (*prefix != '\0')
-	{
-		if (ascii::to_upper(*string) != ascii::to_upper(*prefix))
-		{
-			return false;
-		}
-
-		++string;
-		++prefix;
-	}
-
-	return true;
-}
-
 // GOG's installer leaves an id file beside the game - "goggame-<id>.info",
 // hidden as ".goggame-<id>.info" inside a macOS application.
 bool has_gog_marker_file(const std::string& directory_path)
@@ -151,7 +135,7 @@ bool has_gog_marker_file(const std::string& directory_path)
 		{
 			const char* const name = (file_name[0] == '.') ? file_name + 1 : file_name;
 
-			if (!starts_with_ignoring_case(name, "goggame-"))
+			if (!ascii::starts_with_ignoring_case(name, "goggame-"))
 			{
 				return sys::EnumDirCallbackResult::resume;
 			}
@@ -238,7 +222,7 @@ const char* get_game_source_label(const std::string& path)
 	return "Folder";
 }
 
-std::string make_display_path(const std::string& path)
+std::string make_game_source_display_path(const std::string& path)
 {
 	// Everything below an application bundle is that bundle's business, and
 	// the whole chain is far too long to read.

@@ -19,22 +19,25 @@ SPDX-License-Identifier: MIT
 
 namespace bstone {
 
-// Extracts the library folder paths from `libraryfolders.vdf`.
-//
-// Handles both layouts Steam has used: the current one maps a numbered key to an
-// object carrying "path", the legacy one maps it straight to the path. Neither
-// the Steam root nor any book-keeping key is returned, so the caller adds the
-// root itself.
-//
-// Returns an empty list for text that is not a library folder file.
-std::vector<std::string> parse_steam_library_paths(std::string_view vdf_text);
+struct SteamManifest
+{
+	// Extracts the library folder paths from `libraryfolders.vdf`.
+	//
+	// Handles both layouts Steam has used: the current one maps a numbered key to
+	// an object carrying "path", the legacy one maps it straight to the path.
+	// Neither the Steam root nor any book-keeping key is returned, so the caller
+	// adds the root itself.
+	//
+	// Returns an empty list for text that is not a library folder file.
+	static std::vector<std::string> parse_library_paths(std::string_view vdf_text);
 
-// Extracts the install directory from `appmanifest_<appid>.acf`.
-//
-// Fails unless Steam considers the application installed, and unless the
-// recorded directory is a bare name - anything else is a corrupt or hand-edited
-// manifest trying to point outside the library.
-bool parse_steam_install_dir(std::string_view acf_text, std::string& install_dir);
+	// Extracts the install directory from `appmanifest_<appid>.acf`.
+	//
+	// Fails unless Steam considers the application installed, and unless the
+	// recorded directory is a bare name - anything else is a corrupt or
+	// hand-edited manifest trying to point outside the library.
+	static bool parse_install_dir(std::string_view acf_text, std::string& install_dir);
+};
 
 } // namespace bstone
 

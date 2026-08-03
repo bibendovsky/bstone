@@ -8,6 +8,7 @@ SPDX-License-Identifier: MIT
 
 #include "bstone_sys_launcher.h"
 
+#include "bstone_ascii.h"
 #include "bstone_image_decoder.h"
 #include "bstone_launcher_icon.h"
 #include "bstone_rgb8.h"
@@ -117,10 +118,7 @@ constexpr float scrollbar_width = 6.0F;
 
 const std::uint8_t* find_glyph_rows(char ch)
 {
-	if (ch >= 'a' && ch <= 'z')
-	{
-		ch = static_cast<char>(ch - 'a' + 'A');
-	}
+	ch = ascii::to_upper(ch);
 
 	for (const LauncherGlyph& glyph : launcher_glyphs)
 	{
@@ -504,7 +502,6 @@ void draw_panel(
 		}
 	}
 
-	// A bar showing how much of the list is on screen, and where.
 	if (layout.scroll_max > 0.0F)
 	{
 		const float track_height = list_bottom - list_top;
@@ -567,11 +564,6 @@ LauncherResult Launcher::run(
 	void* user_data)
 {
 	auto result = LauncherResult{LauncherAction::quit, -1};
-
-	if (!SDL_WasInit(SDL_INIT_VIDEO))
-	{
-		return result;
-	}
 
 	SDL_Window* const window = SDL_CreateWindow("BStone", window_width, window_height, 0);
 
@@ -787,10 +779,7 @@ LauncherResult Launcher::run(
 
 	for (LauncherWidget& widget : layout.widgets)
 	{
-		if (widget.art != nullptr)
-		{
-			SDL_DestroyTexture(widget.art);
-		}
+		SDL_DestroyTexture(widget.art);
 	}
 
 	SDL_DestroyRenderer(renderer);

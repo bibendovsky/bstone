@@ -55,13 +55,6 @@ std::string FolderDialog::show(const char* title, const char* default_path, void
 {
 	static_cast<void>(title);
 
-	// The dialog needs the video subsystem, which is up by the time anything
-	// asks for game files, but a headless run has no dialog to show.
-	if (!SDL_WasInit(SDL_INIT_VIDEO))
-	{
-		return std::string{};
-	}
-
 	auto state = FolderDialogState{};
 	SDL_ShowOpenFolderDialog(
 		folder_dialog_callback,

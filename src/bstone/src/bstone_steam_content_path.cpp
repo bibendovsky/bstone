@@ -31,6 +31,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_fs_utils.h"
 #include "bstone_steam_manifest.h"
 #include "bstone_sys_file.h"
+#include "bstone_sys_fs.h"
 #include "bstone_sys_special_path.h"
 
 #ifdef _WIN32
@@ -46,7 +47,6 @@ namespace
 {
 
 
-// Steam application identifiers.
 constexpr auto aog_app_id = "358190";
 constexpr auto ps_app_id = "358310";
 constexpr auto pack_app_id = "238050"; // The Apogee Throwback Pack.
@@ -97,12 +97,6 @@ constexpr const char* pack_ps_sub_dirs[] =
 constexpr const char* aog_marker_files[] = {"AUDIOHED.BS6", "AUDIOHED.BS1"};
 constexpr const char* ps_marker_files[] = {"AUDIOHED.VSI"};
 
-
-bool file_exists(const std::string& path)
-{
-	auto file = sys::File{};
-	return file.open(path.c_str(), sys::FileMode::read);
-}
 
 bool read_text_file(const std::string& path, std::string& text)
 {
@@ -292,7 +286,7 @@ std::vector<std::string> make_library_paths(const std::string& steam_root)
 		return library_paths;
 	}
 
-	for (auto& path : parse_steam_library_paths(text))
+	for (auto& path : SteamManifest::parse_library_paths(text))
 	{
 		add_steam_root(library_paths, std::move(path));
 	}
@@ -323,7 +317,7 @@ bool find_app_install_dir(
 
 		auto install_dir = std::string{};
 
-		if (!parse_steam_install_dir(text, install_dir))
+		if (!SteamManifest::parse_install_dir(text, install_dir))
 		{
 			continue;
 		}
@@ -342,7 +336,7 @@ bool has_marker_file(const std::string& path, const char* const* marker_files, s
 {
 	for (auto i = std::size_t{}; i < marker_file_count; ++i)
 	{
-		if (file_exists(fs_utils::append_path(path, marker_files[i])))
+		if (sys::is_regular_file_exists(fs_utils::append_path(path, marker_files[i]).c_str()))
 		{
 			return true;
 		}
@@ -377,10 +371,9 @@ bool find_game_dir(
 }
 
 
-// True when "path" is the directory "prefix", or something inside it. The two
-// come from different places, so both are spelled with the one separator
-// before being compared - the portable one, since it is also what the boundary
-// between the prefix and the rest is tested against.
+// The two paths come from different places, so both are spelled with the one
+// separator before being compared - the portable one, since that is what the
+// boundary between the prefix and the rest is tested against.
 bool is_within(const std::string& path, const std::string& prefix)
 {
 	if (prefix.empty() || path.size() < prefix.size())
@@ -406,7 +399,7 @@ bool is_within(const std::string& path, const std::string& prefix)
 } // namespace
 
 
-std::string make_steam_art_path(const std::string& game_path)
+std::string make_content_art_path(const std::string& game_path)
 {
 	if (game_path.empty())
 	{
@@ -439,7 +432,7 @@ std::string make_steam_art_path(const std::string& game_path)
 						app_id),
 					"logo.png");
 
-				if (file_exists(art_path))
+				if (sys::is_regular_file_exists(art_path.c_str()))
 				{
 					return art_path;
 				}
