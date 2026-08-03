@@ -9,7 +9,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_game_source.h"
 
 #include <algorithm>
-#include <cstring>
+#include <cstddef>
 
 #include "bstone_ascii.h"
 #include "bstone_fs_utils.h"
@@ -24,6 +24,10 @@ namespace {
 // room to spare for one holding several games.
 constexpr int max_search_depth = 10;
 constexpr int max_visited_directories = 4096;
+
+// Far enough to climb out of a storefront application to the folder holding
+// its id file, and no further.
+constexpr int max_label_probe_levels = 8;
 
 // The file that says a folder holds a game, for each of the two games and the
 // shareware release. Matching one of these is what tells the folders apart.
@@ -120,6 +124,46 @@ void search(const std::string& path, int depth, SearchState& state)
 	}
 }
 
+bool starts_with_ignoring_case(const char* string, const char* prefix)
+{
+	while (*prefix != '\0')
+	{
+		if (ascii::to_upper(*string) != ascii::to_upper(*prefix))
+		{
+			return false;
+		}
+
+		++string;
+		++prefix;
+	}
+
+	return true;
+}
+
+// GOG's installer leaves an id file beside the game - "goggame-<id>.info",
+// hidden as ".goggame-<id>.info" inside a macOS application.
+bool has_gog_marker_file(const std::string& directory_path)
+{
+	bool is_found = false;
+	sys::enumerate_directory(
+		directory_path.c_str(),
+		[](void* user_data, const char*, const char* file_name) -> sys::EnumDirCallbackResult
+		{
+			const char* const name = (file_name[0] == '.') ? file_name + 1 : file_name;
+
+			if (!starts_with_ignoring_case(name, "goggame-"))
+			{
+				return sys::EnumDirCallbackResult::resume;
+			}
+
+			*static_cast<bool*>(user_data) = true;
+			return sys::EnumDirCallbackResult::success;
+		},
+		&is_found);
+
+	return is_found;
+}
+
 } // namespace
 
 GameSourcePaths find_game_sources(const std::string& path)
@@ -136,51 +180,48 @@ GameSourcePaths find_game_sources(const std::string& path)
 
 const char* get_game_source_label(const std::string& path)
 {
-	if (path.find("/steamapps/") != std::string::npos)
+	// Stores lay their folders out differently per platform, and the separator
+	// and casing differ too, so compare against a path where neither varies.
+	std::string search_path = path;
+
+	for (char& ch : search_path)
+	{
+		ch = (ch == '\\') ? '/' : ascii::to_upper(ch);
+	}
+
+	if (search_path.find("/STEAMAPPS/") != std::string::npos)
 	{
 		return "Steam";
 	}
 
-	if (path.find("/GOG Games/") != std::string::npos)
-	{
-		return "GOG";
-	}
-
-	// A GOG application carries the id file its installer dropped; look for it
-	// beside the bundle the game sits in.
+	// A GOG install carries the id file its installer dropped. It sits beside
+	// the game on Windows and Linux, and inside the application on macOS, so
+	// look for it a few levels up as well - but only a few, since every level
+	// costs a directory listing and the file is never far from the game.
 	std::string probe_path = path;
 
-	while (!probe_path.empty())
+	for (int level = 0; level < max_label_probe_levels && !probe_path.empty(); ++level)
 	{
-		const std::size_t app_pos = probe_path.rfind(".app");
-
-		if (app_pos == std::string::npos)
-		{
-			break;
-		}
-
-		probe_path.resize(app_pos + 4);
-		const std::string resources_path = fs_utils::append_path(probe_path, "Contents/Resources");
-		bool is_gog = false;
-		sys::enumerate_directory(
-			resources_path.c_str(),
-			[](void* user_data, const char*, const char* file_name) -> sys::EnumDirCallbackResult
-			{
-				if (std::strncmp(file_name, ".goggame-", 9) == 0)
-				{
-					*static_cast<bool*>(user_data) = true;
-				}
-
-				return sys::EnumDirCallbackResult::resume;
-			},
-			&is_gog);
-
-		if (is_gog)
+		if (has_gog_marker_file(probe_path) ||
+			has_gog_marker_file(fs_utils::append_path(probe_path, "Contents/Resources")))
 		{
 			return "GOG";
 		}
 
-		probe_path.resize(app_pos);
+		const std::size_t separator_pos = probe_path.find_last_of("/\\");
+
+		if (separator_pos == std::string::npos || separator_pos == 0)
+		{
+			break;
+		}
+
+		probe_path.resize(separator_pos);
+	}
+
+	if (search_path.find("/GOG GAMES/") != std::string::npos ||
+		search_path.find("/GOG GALAXY/") != std::string::npos)
+	{
+		return "GOG";
 	}
 
 	return "Folder";
