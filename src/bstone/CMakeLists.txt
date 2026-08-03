@@ -281,6 +281,7 @@ endif ()
 
 target_link_libraries(bstone
 	PRIVATE
+		$<$<BOOL:${APPLE}>:sqlite3>
 		$<$<AND:$<BOOL:${WIN32}>,$<BOOL:${MINGW}>>:-municode>
 		${CMAKE_DL_LIBS}
 		bstone::lib::sdl
@@ -637,6 +638,8 @@ set(BSTONE_BSTONE_SYS_SOURCES
 	src/bstone_sys_keyboard_key.h
 	src/bstone_sys_logger.cpp
 	src/bstone_sys_logger.h
+	src/bstone_sys_folder_dialog.h
+	src/bstone_sys_launcher.h
 	src/bstone_sys_message_box.h
 	src/bstone_sys_mouse.h
 	src/bstone_sys_mouse_mgr.h
@@ -680,6 +683,8 @@ set(BSTONE_BSTONE_SYS_SDL_SOURCES
 	src/bstone_sys_gl_symbol_resolver_sdl.cpp
 	src/bstone_sys_gl_symbol_resolver_sdl.h
 	src/bstone_sys_limits_sdl.h
+	src/bstone_sys_folder_dialog_sdl.cpp
+	src/bstone_sys_launcher_sdl.cpp
 	src/bstone_sys_message_box_sdl.cpp
 	src/bstone_sys_mouse_mgr_sdl.cpp
 	src/bstone_sys_mouse_mgr_sdl.h
@@ -901,9 +906,15 @@ set(BSTONE_BSTONE_SOURCES
 	src/bstone_extent_2d.h
 	src/bstone_fs_utils.cpp
 	src/bstone_fs_utils.h
+	src/bstone_game_art.cpp
+	src/bstone_game_art.h
+	src/bstone_game_source.cpp
+	src/bstone_game_source.h
 	src/bstone_globals.cpp
 	src/bstone_globals.h
 	src/bstone_gog_content_path.cpp
+	src/bstone_launcher_icon.cpp
+	src/bstone_launcher_icon.h
 	src/bstone_level_extractor.cpp
 	src/bstone_level_extractor.h
 	src/bstone_logger.cpp
@@ -928,6 +939,8 @@ set(BSTONE_BSTONE_SOURCES
 	src/bstone_saved_game.cpp
 	src/bstone_saved_game.h
 	src/bstone_steam_content_path.cpp
+	src/bstone_steam_manifest.cpp
+	src/bstone_steam_manifest.h
 	src/bstone_string_builder.cpp
 	src/bstone_string_builder.h
 	src/bstone_string_helper.cpp
@@ -938,6 +951,8 @@ set(BSTONE_BSTONE_SOURCES
 	src/bstone_text_reader.h
 	src/bstone_text_writer.cpp
 	src/bstone_text_writer.h
+	src/bstone_vdf.cpp
+	src/bstone_vdf.h
 	src/bstone_version.cpp
 	src/bstone_version.h
 	src/bstone_vfs.cpp

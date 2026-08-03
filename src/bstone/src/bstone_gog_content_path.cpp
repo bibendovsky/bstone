@@ -17,9 +17,148 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_win32_registry_key.h"
 #endif // _WIN32
 
+#ifdef __APPLE__
+#include <string>
+
+#include <sqlite3.h>
+
+#include "bstone_fs_utils.h"
+#include "bstone_sys_file.h"
+#include "bstone_sys_fs.h"
+#endif // __APPLE__
+
 
 namespace bstone
 {
+
+#ifdef __APPLE__
+namespace
+{
+
+struct GogMacProduct
+{
+	long long product_id;
+	// The outer bundle's name drifted between releases; the id file inside
+	// stays put and carries the product id the Windows registry uses.
+	const char* bundle_names[2];
+	const char* id_file_name;
+	const char* game_name;
+	const char* marker_file_name;
+};
+
+constexpr GogMacProduct gog_mac_products[2] =
+{
+	GogMacProduct{
+		1207658728,
+		{"Blake Stone - Aliens of Gold.app", "Blake Stone Aliens of Gold.app"},
+		".goggame-1207658728.info",
+		"Blake Stone Aliens of Gold",
+		"AUDIOHED.BS6"},
+	GogMacProduct{
+		1207658729,
+		{"Blake Stone Planet Strike.app", "Blake Stone - Planet Strike.app"},
+		".goggame-1207658729.info",
+		"Blake Stone Planet Strike",
+		"AUDIOHED.VSI"},
+};
+
+// The client keeps the machine-wide install registry here, the way the
+// Windows client keeps it under HKLM.
+constexpr const char* galaxy_db_path = "/Users/Shared/GOG.com/Galaxy/Storage/galaxy-2.0.db";
+
+std::string get_galaxy_installation_path(long long product_id)
+{
+	std::string path{};
+	sqlite3* db = nullptr;
+
+	if (sqlite3_open_v2(galaxy_db_path, &db, SQLITE_OPEN_READONLY, nullptr) == SQLITE_OK)
+	{
+		sqlite3_stmt* statement = nullptr;
+
+		if (sqlite3_prepare_v2(
+			db,
+			"SELECT installationPath FROM InstalledBaseProducts WHERE productId = ?;",
+			-1,
+			&statement,
+			nullptr) == SQLITE_OK)
+		{
+			sqlite3_bind_int64(statement, 1, product_id);
+
+			if (sqlite3_step(statement) == SQLITE_ROW)
+			{
+				const unsigned char* text = sqlite3_column_text(statement, 0);
+
+				if (text != nullptr)
+				{
+					path = reinterpret_cast<const char*>(text);
+				}
+			}
+
+			sqlite3_finalize(statement);
+		}
+
+		sqlite3_close(db);
+	}
+
+	return path;
+}
+
+// The bundle is a launcher app wrapping a Boxer app whose gamebox holds
+// the DOS drive with the game's files.
+std::string find_data_in_gog_mac_bundle(const std::string& bundle_path, const GogMacProduct& product)
+{
+	const std::string name = product.game_name;
+	const std::string data_path = fs_utils::append_path(
+		bundle_path,
+		"Contents/Resources/game/" + name + ".app/Contents/Resources/" + name + ".boxer/C " + name + ".harddisk");
+
+	if (sys::is_regular_file_exists(fs_utils::append_path(data_path, product.marker_file_name).c_str()))
+	{
+		return data_path;
+	}
+
+	return std::string{};
+}
+
+std::string find_gog_mac_game_path(const GogMacProduct& product)
+{
+	// The Galaxy client records where it installed the product.
+	const std::string galaxy_bundle_path = get_galaxy_installation_path(product.product_id);
+
+	if (!galaxy_bundle_path.empty())
+	{
+		const std::string data_path = find_data_in_gog_mac_bundle(galaxy_bundle_path, product);
+
+		if (!data_path.empty())
+		{
+			return data_path;
+		}
+	}
+
+	// Without the client - the offline installer - the bundle sits in
+	// "/Applications", identified by the id file its installer drops.
+	for (const char* bundle_name : product.bundle_names)
+	{
+		const std::string bundle_path = fs_utils::append_path("/Applications", bundle_name);
+
+		if (!sys::is_regular_file_exists(fs_utils::append_path(bundle_path, fs_utils::append_path("Contents/Resources", product.id_file_name)).c_str()))
+		{
+			continue;
+		}
+
+		const std::string data_path = find_data_in_gog_mac_bundle(bundle_path, product);
+
+		if (!data_path.empty())
+		{
+			return data_path;
+		}
+	}
+
+	return std::string{};
+}
+
+} // namespace
+#endif // __APPLE__
 
 
 AssetPath make_gog_content_path()
@@ -107,6 +246,11 @@ AssetPath make_gog_content_path()
 		}
 	}
 #endif // _WIN32
+
+#ifdef __APPLE__
+	result.aog = find_gog_mac_game_path(gog_mac_products[0]);
+	result.ps = find_gog_mac_game_path(gog_mac_products[1]);
+#endif // __APPLE__
 
 	return result;
 }

@@ -42,6 +42,14 @@ void test_nsfv4l40huk27d6y()
 	tester.check(value == 0xAABBCCDDU);
 }
 
+// read_u32_be
+void test_x6mzq04rt8plw35e()
+{
+	const std::uint8_t bytes[4] = {0xAA, 0xBB, 0xCC, 0xDD};
+	const std::uint32_t value = bstone::endian::read_u32_be(bytes);
+	tester.check(value == 0xAABBCCDDU);
+}
+
 // ==========================================================================
 
 // write_s16_le
@@ -94,6 +102,7 @@ private:
 		tester.register_test("read_u16_le#vkz11uacbewtg48l", test_vkz11uacbewtg48l);
 		tester.register_test("read_s32_le#yn51fend8zckr13t", test_yn51fend8zckr13t);
 		tester.register_test("read_u32_le#nsfv4l40huk27d6y", test_nsfv4l40huk27d6y);
+		tester.register_test("read_u32_be#x6mzq04rt8plw35e", test_x6mzq04rt8plw35e);
 	}
 
 	void register_write()

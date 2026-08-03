@@ -19,6 +19,8 @@ std::uint16_t read_u16_le(const void* buffer);
 std::int32_t read_s32_le(const void* buffer);
 std::uint32_t read_u32_le(const void* buffer);
 
+std::uint32_t read_u32_be(const void* buffer);
+
 float read_f32_le(const void* buffer);
 
 void write_s16_le(std::int16_t value, void* buffer);

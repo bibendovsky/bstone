@@ -1,0 +1,77 @@
+/*
+BStone: Unofficial source port of Blake Stone: Aliens of Gold and Blake Stone: Planet Strike
+Copyright (c) 2013-2026 Boris I. Bendovsky (bibendovsky@hotmail.com) and Contributors
+SPDX-License-Identifier: MIT
+*/
+
+// Folder dialog (SDL)
+
+#include "bstone_sys_folder_dialog.h"
+
+#include "bstone_sdl.h"
+#include "SDL3/SDL_dialog.h"
+#include "SDL3/SDL_events.h"
+#include "SDL3/SDL_init.h"
+#include "SDL3/SDL_video.h"
+#include "SDL3/SDL_timer.h"
+
+namespace bstone::sys {
+
+namespace {
+
+struct FolderDialogState
+{
+	bool is_done;
+	std::string path;
+};
+
+void SDLCALL folder_dialog_callback(void* userdata, const char* const* file_list, int)
+{
+	auto& state = *static_cast<FolderDialogState*>(userdata);
+
+	// A null list is an error, an empty one is a cancellation; neither yields a path.
+	if (file_list != nullptr && file_list[0] != nullptr)
+	{
+		state.path = file_list[0];
+	}
+
+	state.is_done = true;
+}
+
+} // namespace
+
+const char* FolderDialog::get_default_location()
+{
+#if defined(__APPLE__)
+	// Where both storefronts put the game, and the folder to pick: the
+	// applications themselves cannot be opened from a folder dialog.
+	return "/Applications";
+#else
+	return nullptr;
+#endif
+}
+
+std::string FolderDialog::show(const char* title, const char* default_path, void* parent_window)
+{
+	static_cast<void>(title);
+
+	auto state = FolderDialogState{};
+	SDL_ShowOpenFolderDialog(
+		folder_dialog_callback,
+		&state,
+		static_cast<SDL_Window*>(parent_window),
+		default_path != nullptr ? default_path : get_default_location(),
+		false);
+
+	// The dialog is asynchronous everywhere; it reports back through the event
+	// loop, so pump it until the callback has run.
+	while (!state.is_done)
+	{
+		SDL_PumpEvents();
+		SDL_Delay(10);
+	}
+
+	return state.path;
+}
+
+} // namespace bstone::sys

@@ -15,6 +15,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 
 #include <cmath>
+#include <cstring>
 
 #include <algorithm>
 #include <iostream>
@@ -39,6 +40,12 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_sha1.h"
 #include "bstone_sys_message_box.h"
 #include "bstone_vfs.h"
+#include "bstone_game_art.h"
+#include "bstone_game_source.h"
+#include "bstone_sys_folder_dialog.h"
+#include "bstone_sys_launcher.h"
+
+void content_remember_dir(const std::string& dir);
 
 
 extern SpanStart spanstart;
@@ -100,6 +107,92 @@ const std::string& get_message_box_title()
 
 namespace {
 
+// The launcher shows a game once, so the shareware releases belong with the
+// full ones rather than under a game of their own.
+const char* get_game_title(AssetsVersion assets_version)
+{
+	switch (assets_version)
+	{
+		case AssetsVersion::ps: return "Planet Strike";
+		default: return "Aliens of Gold";
+	}
+}
+
+// What tells one release from another, taken from the files themselves rather
+// than from anything a store says. Planet Strike had only the one.
+const char* get_release_label(AssetsVersion assets_version)
+{
+	switch (assets_version)
+	{
+		case AssetsVersion::aog_sw_v1_0:
+		case AssetsVersion::aog_full_v1_0: return "1.0";
+		case AssetsVersion::aog_sw_v2_0:
+		case AssetsVersion::aog_full_v2_0: return "2.0";
+		case AssetsVersion::aog_sw_v2_1:
+		case AssetsVersion::aog_full_v2_1: return "2.1";
+		case AssetsVersion::aog_sw_v3_0:
+		case AssetsVersion::aog_full_v3_0: return "3.0";
+		default: return "";
+	}
+}
+
+struct KnownRelease
+{
+	const char* label;
+	const char* qualifier;
+};
+
+// Every release of a game there is, shown whether or not the user has it, so
+// the panel says what exists and not only what was found. The full ones come
+// first: they are laid out in this order, a row to a kind.
+constexpr KnownRelease aog_known_releases[] =
+{
+	{"1.0", ""}, {"2.0", ""}, {"2.1", ""}, {"3.0", ""},
+	{"1.0", "SW"}, {"2.0", "SW"}, {"2.1", "SW"}, {"3.0", "SW"},
+};
+
+constexpr KnownRelease ps_known_releases[] = {{"", ""}};
+
+// Which release to start a game on when the user has more than one. v2.1 is
+// what digital distribution settled on, so it is the one most people have and
+// the one the port has been exercised against the most; the full game comes
+// before the shareware whatever its version.
+int get_release_preference(const char* label, const char* qualifier)
+{
+	auto version_rank = 4;
+
+	if (std::strcmp(label, "2.1") == 0)
+	{
+		version_rank = 0;
+	}
+	else if (std::strcmp(label, "3.0") == 0)
+	{
+		version_rank = 1;
+	}
+	else if (std::strcmp(label, "2.0") == 0)
+	{
+		version_rank = 2;
+	}
+	else if (std::strcmp(label, "1.0") == 0)
+	{
+		version_rank = 3;
+	}
+
+	return (qualifier[0] != '\0' ? 10 : 0) + version_rank;
+}
+
+const char* get_release_qualifier(AssetsVersion assets_version)
+{
+	switch (assets_version)
+	{
+		case AssetsVersion::aog_sw_v1_0:
+		case AssetsVersion::aog_sw_v2_0:
+		case AssetsVersion::aog_sw_v2_1:
+		case AssetsVersion::aog_sw_v3_0: return "SW";
+		default: return "";
+	}
+}
+
 struct AssetBundle
 {
 	const bstone::VfsSearchPath* vfs_search_path;
@@ -143,6 +236,11 @@ public:
 		return ps_asset_bundle_;
 	}
 
+	const std::vector<AssetBundle>& get_found_asset_bundles() const
+	{
+		return found_asset_bundles_;
+	}
+
 	static const char* get_bundle_version_string(AssetsVersion bundle_version)
 	{
 		switch (bundle_version)
@@ -182,6 +280,9 @@ private:
 	AssetBundle aog_sw_asset_bundle_{};
 	AssetBundle aog_asset_bundle_{};
 	AssetBundle ps_asset_bundle_{};
+	// Every copy found. Two stores can each hold the same game, at different
+	// versions, and both are the user's to choose from.
+	std::vector<AssetBundle> found_asset_bundles_{};
 
 	void initialize_versions()
 	{
@@ -355,6 +456,7 @@ private:
 		if (aog_sw_found_bundle.vfs_search_path != nullptr && aog_sw_found_bundle.assets_version != AssetsVersion::none)
 		{
 			logger_.log_information("Found {}.", get_bundle_version_string(aog_sw_found_bundle.assets_version));
+			found_asset_bundles_.emplace_back(aog_sw_found_bundle);
 			if (aog_sw_found_bundle.assets_version > aog_sw_asset_bundle_.assets_version)
 				aog_sw_asset_bundle_ = aog_sw_found_bundle;
 			if (aog_sw_found_bundle.assets_version == AssetsVersion::aog_sw_v2_1)
@@ -375,6 +477,7 @@ private:
 		if (aog_found_bundle.vfs_search_path != nullptr && aog_found_bundle.assets_version != AssetsVersion::none)
 		{
 			logger_.log_information("Found {}.", get_bundle_version_string(aog_found_bundle.assets_version));
+			found_asset_bundles_.emplace_back(aog_found_bundle);
 			if (aog_found_bundle.assets_version > aog_asset_bundle_.assets_version)
 				aog_asset_bundle_ = aog_found_bundle;
 			if (aog_found_bundle.assets_version == AssetsVersion::aog_full_v2_1)
@@ -395,6 +498,7 @@ private:
 		if (ps_found_bundle.vfs_search_path != nullptr && ps_found_bundle.assets_version != AssetsVersion::none)
 		{
 			logger_.log_information("Found {}.", get_bundle_version_string(ps_found_bundle.assets_version));
+			found_asset_bundles_.emplace_back(ps_found_bundle);
 			if (ps_found_bundle.assets_version > ps_asset_bundle_.assets_version)
 				ps_asset_bundle_ = ps_found_bundle;
 		}
@@ -421,7 +525,75 @@ private:
 	}
 };
 
-void find_contents()
+
+// The virtual file system keeps the pointers it is given, so the strings behind
+// them have to outlive every reopening.
+std::vector<std::string> extra_search_paths{};
+
+bool add_game_source(bstone::Logger& logger, bstone::Vfs& vfs, void* parent_window)
+{
+	const std::string picked_path = bstone::sys::FolderDialog::show(
+		"Choose a folder holding Blake Stone",
+		nullptr,
+		parent_window);
+	logger.log_information("Game source dialog returned \"{}\".", picked_path);
+
+	if (picked_path.empty())
+	{
+		return false;
+	}
+
+	const bstone::GameSourcePaths found_paths = bstone::find_game_sources(picked_path);
+	logger.log_information("Found {} game folder(s) under {}.", static_cast<int>(found_paths.size()), picked_path);
+
+	if (found_paths.empty())
+	{
+		bstone::sys::MessageBox::show_simple(
+			get_message_box_title().c_str(),
+			"No game was found under that folder.",
+			bstone::sys::MessageBoxType::warning);
+		return false;
+	}
+
+	content_remember_dir(picked_path);
+
+	// The file system points into the very list being grown here, so take a
+	// copy of what it has before touching that list.
+	std::vector<std::string> current_paths{};
+	current_paths.reserve(static_cast<std::size_t>(vfs.get_search_path_count()));
+
+	for (int i = 0; i < vfs.get_search_path_count(); ++i)
+	{
+		current_paths.emplace_back(vfs.get_search_path(i).path);
+	}
+
+	current_paths.insert(current_paths.end(), found_paths.cbegin(), found_paths.cend());
+	extra_search_paths.clear();
+
+	for (const std::string& path : current_paths)
+	{
+		if (std::find(extra_search_paths.cbegin(), extra_search_paths.cend(), path) == extra_search_paths.cend())
+		{
+			extra_search_paths.emplace_back(path);
+		}
+	}
+
+	std::vector<const char*> search_path_ptrs{};
+	search_path_ptrs.reserve(extra_search_paths.size());
+
+	for (const std::string& search_path : extra_search_paths)
+	{
+		search_path_ptrs.emplace_back(search_path.c_str());
+	}
+
+	const bstone::VfsInitParam vfs_init_param{
+		.logger = &logger,
+		.search_paths = std::span{search_path_ptrs.data(), search_path_ptrs.size()}};
+
+	return vfs.initialize(vfs_init_param);
+}
+
+bool find_contents_once()
 {
 	bstone::Logger& logger = *bstone::globals::logger;
 	bstone::Vfs& vfs = *bstone::globals::vfs;
@@ -447,82 +619,235 @@ void find_contents()
 	}
 	else
 	{
-		if (!aog_asset_bundle.is_empty())
-			products_to_choose.emplace_back(&aog_asset_bundle);
-		if (!ps_asset_bundle.is_empty())
-			products_to_choose.emplace_back(&ps_asset_bundle);
-		if (!aog_sw_asset_bundle.is_empty())
-			products_to_choose.emplace_back(&aog_sw_asset_bundle);
+		for (const AssetBundle& found_bundle : asset_bundle_mgr.get_found_asset_bundles())
+		{
+			products_to_choose.emplace_back(&found_bundle);
+		}
 	}
-	if (products_to_choose.empty())
-		BSTONE_THROW_STATIC_SOURCE("Compatible product not found.");
 	const AssetBundle* choosen_bundle = nullptr;
-	if (products_to_choose.size() > 1)
+
+	if (force_aog_sw || force_aog || force_ps)
 	{
-		logger.log_information("Bundles to choose:");
-		std::vector<bstone::sys::MessageBoxButton> message_box_buttons{};
-		message_box_buttons.reserve(products_to_choose.size() + 1);
-		int button_id = 0;
-		for (const AssetBundle* const product_to_choose : products_to_choose)
+		if (products_to_choose.empty())
 		{
-			const char* button_title;
-			switch (product_to_choose->assets_version)
-			{
-				case AssetsVersion::aog_sw_v1_0:
-				case AssetsVersion::aog_sw_v2_0:
-				case AssetsVersion::aog_sw_v2_1:
-				case AssetsVersion::aog_sw_v3_0:
-					button_title = "AoG (shareware)";
-					break;
-				case AssetsVersion::aog_full_v1_0:
-				case AssetsVersion::aog_full_v2_0:
-				case AssetsVersion::aog_full_v2_1:
-				case AssetsVersion::aog_full_v3_0:
-					button_title = "AoG";
-					break;
-				case AssetsVersion::ps:
-					button_title = "PS";
-					break;
-				default:
-					button_title = "???";
-					break;
-			}
-			bstone::sys::MessageBoxButtonFlags flags = bstone::sys::MessageBoxButtonFlags::none;
-			if (button_id == 0)
-				flags = bstone::sys::MessageBoxButtonFlags::default_for_return_key;
-			message_box_buttons.emplace_back(bstone::sys::MessageBoxButton{
-				.id = button_id,
-				.flags = flags,
-				.text = button_title});
-			++button_id;
-			const char* const version_string = AssetBundleMgr::get_bundle_version_string(product_to_choose->assets_version);
-			logger.log_information("{}) {} at {}", button_id, version_string, product_to_choose->vfs_search_path->path);
+			BSTONE_THROW_STATIC_SOURCE("Compatible product not found.");
 		}
-		message_box_buttons.emplace_back(bstone::sys::MessageBoxButton{
-			.id = button_id,
-			.flags = bstone::sys::MessageBoxButtonFlags::default_for_escape_key,
-			.text = "Cancel"});
-		const bstone::sys::MessageBoxInitParam message_box_init_param{
-			.title = get_message_box_title().c_str(),
-			.message = "Choose a product.",
-			.type = bstone::sys::MessageBoxType::information,
-			.buttons = std::span{message_box_buttons.data(), message_box_buttons.size()}};
-		const int clicked_button_id = bstone::sys::MessageBox::show(message_box_init_param);
-		if (clicked_button_id == products_to_choose.size())
-		{
-			bstone::globals::logger->log_information("Cancelled by user.");
-			Quit();
-		}
-		choosen_bundle = products_to_choose[clicked_button_id];
-		const char* const version_string = AssetBundleMgr::get_bundle_version_string(choosen_bundle->assets_version);
-		logger.log_information("User chose {}.", version_string);
-	}
-	else
-	{
+
 		choosen_bundle = products_to_choose.front();
 		const char* const version_string = AssetBundleMgr::get_bundle_version_string(choosen_bundle->assets_version);
 		logger.log_information("Chose {} at {}.", version_string, choosen_bundle->vfs_search_path->path);
 	}
+	else
+	{
+		// The artwork belongs to the copy of the game it was read from, and
+		// lives only as long as the launcher shows it. It is drawn large, so
+		// ask for it at twice that and let the rest be a gentle shrink.
+		constexpr int launcher_art_size = 300;
+		std::vector<bstone::GameArt> launcher_arts{};
+		launcher_arts.reserve(products_to_choose.size());
+		std::vector<bstone::sys::LauncherItem> launcher_items{};
+		// How good a picture of the game each tile has so far, so a later copy
+		// only replaces it with a better one.
+		std::vector<int> launcher_art_ranks{};
+
+		for (int i = 0; i < static_cast<int>(products_to_choose.size()); ++i)
+		{
+			const AssetBundle* const product = products_to_choose[static_cast<std::size_t>(i)];
+			const std::string game_path = product->vfs_search_path->path;
+			const bstone::GameArt& art = launcher_arts.emplace_back(
+				bstone::find_game_art(game_path, launcher_art_size));
+			const char* const game_title = get_game_title(product->assets_version);
+			const char* const source = bstone::get_game_source_label(game_path);
+
+			auto item_index = std::size_t{};
+
+			for (; item_index < launcher_items.size(); ++item_index)
+			{
+				if (launcher_items[item_index].title == game_title)
+				{
+					break;
+				}
+			}
+
+			if (item_index == launcher_items.size())
+			{
+				launcher_items.emplace_back().title = game_title;
+				launcher_art_ranks.emplace_back(0);
+			}
+
+			bstone::sys::LauncherItem& item = launcher_items[item_index];
+
+			// A wide logo is a poor fit for the square kept for it, and GOG's
+			// icon is a disc on a transparent field where Steam's fills its
+			// frame - so of two square icons, Steam's is the better picture.
+			const bool is_square = art.width == art.height;
+			const bool is_steam = std::strcmp(source, "Steam") == 0;
+			const int art_rank = art.is_empty() ? 0 : (is_square ? (is_steam ? 3 : 2) : 1);
+
+			if (art_rank > launcher_art_ranks[item_index])
+			{
+				launcher_art_ranks[item_index] = art_rank;
+				item.art_pixels = art.pixels.data();
+				item.art_width = art.width;
+				item.art_height = art.height;
+			}
+
+		}
+
+		// Every release there is gets a chip; the ones with no copy are shown
+		// dim, so the panel says what exists as well as what was found.
+		for (std::size_t item_index = 0; item_index < launcher_items.size(); ++item_index)
+		{
+			bstone::sys::LauncherItem& item = launcher_items[item_index];
+			const bool is_ps = item.title == get_game_title(AssetsVersion::ps);
+			const std::span<const KnownRelease> known = is_ps ?
+				std::span<const KnownRelease>{ps_known_releases} :
+				std::span<const KnownRelease>{aog_known_releases};
+
+			for (const KnownRelease& known_release : known)
+			{
+				auto& release = item.releases.emplace_back();
+				release.label = known_release.label;
+				release.qualifier = known_release.qualifier;
+				release.item_index = -1;
+				release.preference = get_release_preference(
+					known_release.label, known_release.qualifier);
+
+				for (int i = 0; i < static_cast<int>(products_to_choose.size()); ++i)
+				{
+					const AssetBundle* const product = products_to_choose[static_cast<std::size_t>(i)];
+
+					if (get_game_title(product->assets_version) != item.title ||
+						std::strcmp(get_release_label(product->assets_version), known_release.label) != 0 ||
+						std::strcmp(get_release_qualifier(product->assets_version), known_release.qualifier) != 0)
+					{
+						continue;
+					}
+
+					// Two copies of one release are one chip: there is nothing
+					// to choose between them, so only where they came from is
+					// added.
+					const char* const source = bstone::get_game_source_label(
+						product->vfs_search_path->path);
+
+					if (release.item_index < 0)
+					{
+						release.item_index = i;
+						release.source = source;
+						release.path = bstone::make_game_source_display_path(
+							product->vfs_search_path->path);
+					}
+					else if (release.source.find(source) == std::string::npos)
+					{
+						release.source += "  ";
+						release.source += source;
+					}
+				}
+			}
+		}
+
+		struct AddSourceContext
+		{
+			bstone::Logger* logger;
+			bstone::Vfs* vfs;
+		};
+
+		auto add_source_context = AddSourceContext{&logger, &vfs};
+		const bstone::sys::LauncherAddSourceFunc add_source_func =
+			[](void* user_data, void* parent_window) -> bool
+			{
+				auto& context = *static_cast<AddSourceContext*>(user_data);
+				return add_game_source(*context.logger, *context.vfs, parent_window);
+			};
+		// Only worth offering to someone who has no copy of it.
+		auto has_shareware = false;
+
+		for (const bstone::sys::LauncherItem& item : launcher_items)
+		{
+			for (const bstone::sys::LauncherRelease& release : item.releases)
+			{
+				if (!release.qualifier.empty() && release.item_index >= 0)
+				{
+					has_shareware = true;
+				}
+			}
+		}
+
+		const bstone::sys::LauncherResult launcher_result = bstone::sys::Launcher::run(
+			std::span{launcher_items.data(), launcher_items.size()},
+			bstone::get_game_source_prompt(),
+			bstone::get_game_source_dialog_note(),
+			has_shareware ? nullptr : bstone::get_game_source_shareware_url(),
+			add_source_func,
+			&add_source_context);
+
+		switch (launcher_result.action)
+		{
+			case bstone::sys::LauncherAction::play:
+				choosen_bundle = products_to_choose[launcher_result.item_index];
+				logger.log_information(
+					"User chose {}.",
+					AssetBundleMgr::get_bundle_version_string(choosen_bundle->assets_version));
+				break;
+
+			case bstone::sys::LauncherAction::add_source:
+				// The launcher already added it; probe again with the new paths.
+				return false;
+
+			default:
+				logger.log_information("Cancelled by user.");
+				Quit();
+				return true;
+		}
+	}
+
+	// Two copies of the same game hold the same file names, and the file
+	// system answers from the last path that has one. Drop the copies that
+	// were not chosen, so only the chosen one can answer for them.
+	{
+		std::vector<std::string> game_paths{};
+
+		for (const AssetBundle& found_bundle : asset_bundle_mgr.get_found_asset_bundles())
+		{
+			game_paths.emplace_back(found_bundle.vfs_search_path->path);
+		}
+
+		const std::string chosen_path = choosen_bundle->vfs_search_path->path;
+		std::vector<std::string> kept_paths{};
+		kept_paths.reserve(static_cast<std::size_t>(vfs.get_search_path_count()));
+		kept_paths.emplace_back(chosen_path);
+
+		for (int i = 0; i < vfs.get_search_path_count(); ++i)
+		{
+			const std::string path = vfs.get_search_path(i).path;
+			const bool is_another_copy =
+				std::find(game_paths.cbegin(), game_paths.cend(), path) != game_paths.cend();
+
+			if (!is_another_copy)
+			{
+				kept_paths.emplace_back(path);
+			}
+		}
+
+		extra_search_paths = std::move(kept_paths);
+		std::vector<const char*> search_path_ptrs{};
+		search_path_ptrs.reserve(extra_search_paths.size());
+
+		for (const std::string& path : extra_search_paths)
+		{
+			search_path_ptrs.emplace_back(path.c_str());
+		}
+
+		const bstone::VfsInitParam vfs_init_param{
+			.logger = &logger,
+			.search_paths = std::span{search_path_ptrs.data(), search_path_ptrs.size()}};
+
+		if (!vfs.initialize(vfs_init_param))
+		{
+			BSTONE_THROW_STATIC_SOURCE("Failed to reopen the virtual file system.");
+		}
+	}
+
 	AssetsInfo& assets_info = get_assets_info();
 	switch (choosen_bundle->assets_version)
 	{
@@ -557,6 +882,17 @@ void find_contents()
 			BSTONE_THROW_STATIC_SOURCE("Unknown version of the asset bundle.");
 	}
 	assets_info.set_version(choosen_bundle->assets_version);
+	return true;
+}
+
+
+void find_contents()
+{
+	// Adding a source reopens the file system and asks again, so keep going
+	// until a game is chosen or the user leaves.
+	while (!find_contents_once())
+	{
+	}
 }
 
 } // namespace
@@ -1072,6 +1408,11 @@ void freed_main()
 	in_initialize_cvars(*bstone::globals::cvar_mgr);
 	in_initialize_ccmds(*bstone::globals::ccmd_mgr);
 
+	// Settings first: the search paths are built from them, so reading them
+	// afterwards would be too late for the folders the user added last time.
+	ReadConfig();
+	deserialize_cvars_from_cli(g_args, *bstone::globals::cvar_mgr);
+
 	// Setup for APOGEECD thingie.
 	//
 	InitDestPath();
@@ -1099,8 +1440,6 @@ void freed_main()
 	CheckForEpisodes();
 
 	// BBi
-	ReadConfig();
-	deserialize_cvars_from_cli(g_args, *bstone::globals::cvar_mgr);
 	sd_handle_command_line(g_args);
 
 	initialize_sprites();

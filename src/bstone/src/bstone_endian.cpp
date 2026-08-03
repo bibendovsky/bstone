@@ -44,6 +44,16 @@ std::uint32_t read_u32_le(const void* buffer)
 		(static_cast<std::uint_fast32_t>(bytes[3]) << 24);
 }
 
+std::uint32_t read_u32_be(const void* buffer)
+{
+	const std::uint8_t* const bytes = static_cast<const std::uint8_t*>(buffer);
+	return static_cast<std::uint32_t>(
+		(static_cast<std::uint_fast32_t>(bytes[0]) << 24) |
+		(static_cast<std::uint_fast32_t>(bytes[1]) << 16) |
+		(static_cast<std::uint_fast32_t>(bytes[2]) <<  8) |
+		 static_cast<std::uint_fast32_t>(bytes[3])       );
+}
+
 float read_f32_le(const void* buffer)
 {
 	return std::bit_cast<float>(read_u32_le(buffer));

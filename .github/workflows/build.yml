@@ -55,8 +55,13 @@ jobs:
 
       # No --target, so this builds every target: the game, the tools, the
       # bundled libraries and the test suite.
+      #
+      # --parallel needs a number. Without one it hands the build tool its own
+      # default, which for Make is a bare -j - every job at once, all several
+      # hundred of them. A runner with enough memory survives it; one without
+      # spends the build swapping.
       - name: Build all targets
-        run: cmake --build build --config ${{ matrix.build_type }} --parallel
+        run: cmake --build build --config ${{ matrix.build_type }} --parallel 4
 
       # Run in both configurations on purpose. A Release build defines NDEBUG,
       # which compiles BSTONE_ASSERT away, so the Debug run is what exercises

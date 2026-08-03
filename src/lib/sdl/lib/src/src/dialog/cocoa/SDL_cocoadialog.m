@@ -103,6 +103,9 @@ void SDL_SYS_ShowFileDialogWithProperties(SDL_FileDialogType type, SDL_DialogFil
         dialog_as_open = [NSOpenPanel openPanel];
         [dialog_as_open setCanChooseFiles:NO];
         [dialog_as_open setCanChooseDirectories:YES];
+        // Without this an application bundle is an unselectable file, so a
+        // folder inside one cannot be reached from a folder dialog at all.
+        [dialog_as_open setTreatsFilePackagesAsDirectories:YES];
         [dialog_as_open setAllowsMultipleSelection:((allow_many == true) ? YES : NO)];
         dialog = dialog_as_open;
         break;

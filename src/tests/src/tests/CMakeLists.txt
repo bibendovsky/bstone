@@ -89,6 +89,10 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_win32_wstring.h
 		../../../bstone/src/bstone_sys_file.h
 		../../../bstone/src/bstone_sys_file_sdl.cpp
+		../../../bstone/src/bstone_steam_manifest.cpp
+		../../../bstone/src/bstone_steam_manifest.h
+		../../../bstone/src/bstone_vdf.cpp
+		../../../bstone/src/bstone_vdf.h
 	PRIVATE
 		src/bstone_tests_ascii.cpp
 		src/bstone_tests_char_conv.cpp
@@ -110,6 +114,8 @@ target_sources(bstone_tests
 		src/bstone_tests_crc32.cpp
 		src/bstone_tests_win32_registry_key.cpp
 		src/bstone_tests_four_cc.cpp
+		src/bstone_tests_steam_manifest.cpp
+		src/bstone_tests_vdf.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h

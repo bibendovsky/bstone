@@ -43,4 +43,32 @@ int SpecialPath::get_user_specific_data_path(
 	return static_cast<int>(path_size);
 }
 
+int SpecialPath::get_home_path(char* buffer, int buffer_size) noexcept
+{
+	if (buffer == nullptr || buffer_size <= 0)
+	{
+		return 0;
+	}
+	// Owned by SDL, unlike SDL_GetPrefPath's result, so it must not be freed.
+	const char* const sdl_path = SDL_GetUserFolder(SDL_FOLDER_HOME);
+	if (sdl_path == nullptr)
+	{
+		return 0;
+	}
+	std::size_t path_size = std::string::traits_type::length(sdl_path);
+	// SDL guarantees a trailing separator; drop it so the result composes with
+	// the path helpers the same way every other path in the code base does.
+	while (path_size > 0 && (sdl_path[path_size - 1] == '/' || sdl_path[path_size - 1] == '\\'))
+	{
+		path_size -= 1;
+	}
+	if (path_size == 0 || path_size >= static_cast<std::size_t>(buffer_size))
+	{
+		return 0;
+	}
+	std::copy_n(sdl_path, path_size, buffer);
+	buffer[path_size] = '\0';
+	return static_cast<int>(path_size);
+}
+
 } // namespace bstone::sys

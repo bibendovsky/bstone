@@ -42,6 +42,14 @@ struct AssetPath
 AssetPath make_content_path(
 	ContentPathProvider type);
 
+// Path to the artwork Steam already downloaded for the game installed at
+// "game_path", or an empty string when the game is not a Steam one or the
+// client has no artwork cached for it.
+//
+// The client keeps this beside its own data rather than with the game, so it
+// cannot be found by looking around the game itself.
+std::string make_content_art_path(const std::string& game_path);
+
 
 } // bstone
 

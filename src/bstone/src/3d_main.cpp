@@ -55,6 +55,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_text_writer.h"
 #include "bstone_version.h"
 #include "bstone_vfs.h"
+#include "bstone_game_source.h"
 
 
 namespace {
@@ -87,6 +88,98 @@ void VL_LatchToScreen(
 	int y);
 
 const std::string& get_default_data_dir();
+
+constexpr auto content_dir_cvar_name = std::string_view{"content_dir"};
+
+auto content_dir_cvar = bstone::CVar{
+	bstone::CVarStringTag{},
+	content_dir_cvar_name,
+	bstone::CVarFlags::archive,
+	std::string_view{}};
+
+// Every folder the user has added, kept as one setting so they are all
+// searched again next time.
+//
+// The configuration file gives a line to each setting, so a value cannot hold
+// a newline to separate with; a semicolon is what lists of paths are written
+// with elsewhere, and is not something a folder is normally named with. One
+// that is named with it is left out rather than written down ambiguously.
+constexpr char content_dir_separator = ';';
+
+std::vector<std::string> content_get_dirs()
+{
+	std::vector<std::string> dirs{};
+	const std::string_view value = content_dir_cvar.get_string();
+	std::size_t offset = 0;
+
+	while (offset < value.size())
+	{
+		const std::size_t end = value.find(content_dir_separator, offset);
+		const std::size_t count = (end == std::string_view::npos ? value.size() : end) - offset;
+
+		if (count > 0)
+		{
+			dirs.emplace_back(value.substr(offset, count));
+		}
+
+		if (end == std::string_view::npos)
+		{
+			break;
+		}
+
+		offset = end + 1;
+	}
+
+	return dirs;
+}
+
+// A folder name may hold bytes the configuration file cannot: the separator
+// would split one folder into two, and a quote or a control character is
+// refused outright when the file is written. Leaving such a folder out costs
+// the folder; keeping it would cost the whole file.
+bool can_remember_content_dir(const std::string& dir)
+{
+	for (const char ch : dir)
+	{
+		if (static_cast<unsigned char>(ch) < ' ' || ch == '"' || ch == content_dir_separator)
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+
+void content_remember_dir(const std::string& dir)
+{
+	if (!can_remember_content_dir(dir))
+	{
+		bstone::globals::logger->log_warning("Not remembering an unwritable folder name: \"{}\".", dir);
+		return;
+	}
+
+	std::vector<std::string> dirs = content_get_dirs();
+
+	if (std::find(dirs.cbegin(), dirs.cend(), dir) != dirs.cend())
+	{
+		return;
+	}
+
+	dirs.emplace_back(dir);
+	std::string value{};
+
+	for (const std::string& item : dirs)
+	{
+		if (!value.empty())
+		{
+			value += content_dir_separator;
+		}
+
+		value += item;
+	}
+
+	content_dir_cvar.set_string(std::string_view{value});
+}
 
 void ClearPaletteShifts();
 const std::string& get_message_box_title();
@@ -7707,7 +7800,10 @@ void cfg_escape_argument(std::string_view src_arg, std::string& dst_arg)
 
 	for (const auto& ch : src_arg)
 	{
-		if (ch < ' ')
+		// Compared unsigned: where "char" is signed, every byte of a character
+		// outside ASCII is negative, and a path holding one is not a control
+		// character to refuse.
+		if (static_cast<unsigned char>(ch) < ' ')
 		{
 			BSTONE_THROW_STATIC_SOURCE("Control character not allowed.");
 		}
@@ -10033,6 +10129,16 @@ void InitDestPath()
 	if (data_dir.empty())
 		data_dir = get_default_data_dir();
 	data_dir = bstone::fs_utils::normalize_path(bstone::fs_utils::append_path_separator(data_dir));
+	// content_dir
+	// The folder the game-source dialog remembered; whatever games sit under
+	// it join the search.
+	bstone::GameSourcePaths content_dir_paths{};
+
+	for (const std::string& content_dir : content_get_dirs())
+	{
+		const bstone::GameSourcePaths found = bstone::find_game_sources(content_dir);
+		content_dir_paths.insert(content_dir_paths.end(), found.cbegin(), found.cend());
+	}
 	// mod_dir
 	constexpr std::string_view mod_dir_option_name{"mod_dir"};
 	std::string mod_dir{};
@@ -10055,6 +10161,10 @@ void InitDestPath()
 		search_paths.emplace_back(profile_pathname.c_str());
 	if (!data_dir.empty())
 		search_paths.emplace_back(data_dir.c_str());
+	for (const std::string& content_dir_path : content_dir_paths)
+	{
+		search_paths.emplace_back(content_dir_path.c_str());
+	}
 	if (!mod_dir.empty())
 		search_paths.emplace_back(mod_dir.c_str());
 	const bstone::VfsInitParam vfs_open_param
@@ -10984,6 +11094,7 @@ void gp_initialize_cvars(bstone::CVarMgr& cvar_mgr)
 	cvar_mgr.add(gp_hide_attacker_info_cvar);
 	cvar_mgr.add(gp_is_always_run_cvar);
 	cvar_mgr.add(gp_no_wall_hit_sfx_cvar);
+	cvar_mgr.add(content_dir_cvar);
 	cvar_mgr.add(gp_use_heart_beat_sfx_cvar);
 	cvar_mgr.add(gp_quit_on_escape_cvar);
 	cvar_mgr.add(gp_no_intro_outro_cvar);
