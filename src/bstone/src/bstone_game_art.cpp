@@ -15,6 +15,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "bstone_ascii.h"
 #include "bstone_content_path.h"
+#include "bstone_endian.h"
 #include "bstone_fs_utils.h"
 #include "bstone_image_decoder.h"
 #include "bstone_sys_file.h"
@@ -61,15 +62,6 @@ bool read_file(const std::string& path, Bytes& bytes)
 	return file.read_exactly(bytes.data(), static_cast<int>(size));
 }
 
-std::uint32_t read_u32_be(const unsigned char* bytes)
-{
-	return
-		(static_cast<std::uint32_t>(bytes[0]) << 24) |
-		(static_cast<std::uint32_t>(bytes[1]) << 16) |
-		(static_cast<std::uint32_t>(bytes[2]) << 8) |
-		static_cast<std::uint32_t>(bytes[3]);
-}
-
 bool is_png(const unsigned char* bytes, std::size_t size)
 {
 	static constexpr unsigned char png_signature[] = {0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A};
@@ -87,8 +79,8 @@ bool read_png_size(const unsigned char* bytes, std::size_t size, int& width, int
 		return false;
 	}
 
-	width = static_cast<int>(read_u32_be(&bytes[ihdr_offset]));
-	height = static_cast<int>(read_u32_be(&bytes[ihdr_offset + 4]));
+	width = static_cast<int>(endian::read_u32_be(&bytes[ihdr_offset]));
+	height = static_cast<int>(endian::read_u32_be(&bytes[ihdr_offset + 4]));
 	return width > 0 && height > 0;
 }
 
@@ -122,7 +114,7 @@ bool extract_png_from_icns(const Bytes& icns, int desired_size, Bytes& png)
 
 	while (offset + chunk_header_size <= icns.size())
 	{
-		const std::uint32_t chunk_size = read_u32_be(&icns[offset + 4]);
+		const std::uint32_t chunk_size = endian::read_u32_be(&icns[offset + 4]);
 
 		if (chunk_size < chunk_header_size || offset + chunk_size > icns.size())
 		{
@@ -156,21 +148,6 @@ bool extract_png_from_icns(const Bytes& icns, int desired_size, Bytes& png)
 	return true;
 }
 
-std::uint16_t read_u16_le(const unsigned char* bytes)
-{
-	return static_cast<std::uint16_t>(
-		static_cast<unsigned>(bytes[0]) | (static_cast<unsigned>(bytes[1]) << 8));
-}
-
-std::uint32_t read_u32_le(const unsigned char* bytes)
-{
-	return
-		static_cast<std::uint32_t>(bytes[0]) |
-		(static_cast<std::uint32_t>(bytes[1]) << 8) |
-		(static_cast<std::uint32_t>(bytes[2]) << 16) |
-		(static_cast<std::uint32_t>(bytes[3]) << 24);
-}
-
 // An icon file is a directory of images, held at the same range of sizes as an
 // icns and chosen between the same way. An entry may also be a bitmap rather
 // than a PNG, which is not read: the icons this looks for are PNG throughout.
@@ -181,13 +158,13 @@ bool extract_png_from_ico(const Bytes& ico, int desired_size, Bytes& png)
 	constexpr std::uint16_t icon_type = 1;
 
 	if (ico.size() < header_size ||
-		read_u16_le(&ico[0]) != 0 ||
-		read_u16_le(&ico[2]) != icon_type)
+		endian::read_u16_le(&ico[0]) != 0 ||
+		endian::read_u16_le(&ico[2]) != icon_type)
 	{
 		return false;
 	}
 
-	const std::size_t count = read_u16_le(&ico[4]);
+	const std::size_t count = endian::read_u16_le(&ico[4]);
 	std::size_t best_offset = 0;
 	std::size_t best_size = 0;
 	int best_width = 0;
@@ -202,8 +179,8 @@ bool extract_png_from_ico(const Bytes& ico, int desired_size, Bytes& png)
 		}
 
 		const unsigned char* const entry = &ico[entry_offset];
-		const std::size_t data_size = read_u32_le(&entry[8]);
-		const std::size_t data_offset = read_u32_le(&entry[12]);
+		const std::size_t data_size = endian::read_u32_le(&entry[8]);
+		const std::size_t data_offset = endian::read_u32_le(&entry[12]);
 
 		if (data_size == 0 || data_offset > ico.size() || data_size > ico.size() - data_offset)
 		{
@@ -259,20 +236,17 @@ bool find_gog_icon_path(const std::string& directory_path, std::string& icon_pat
 			constexpr std::size_t suffix_size = 4;
 
 			// Something has to stand between the two for there to be an id.
-			if (name.size() <= prefix_size + suffix_size ||
-				name.compare(0, prefix_size, prefix) != 0)
+			if (name.size() <= prefix_size + suffix_size)
 			{
 				return sys::EnumDirCallbackResult::resume;
 			}
 
 			const char* const extension = name.c_str() + name.size() - suffix_size;
 
-			for (std::size_t i = 0; i < suffix_size; ++i)
+			if (!ascii::starts_with_ignoring_case(name.c_str(), prefix) ||
+				!ascii::starts_with_ignoring_case(extension, suffix))
 			{
-				if (ascii::to_lower(extension[i]) != suffix[i])
-				{
-					return sys::EnumDirCallbackResult::resume;
-				}
+				return sys::EnumDirCallbackResult::resume;
 			}
 
 			*state.icon_path = fs_utils::append_path(*state.directory_path, name);
@@ -341,7 +315,7 @@ bool find_art_bytes(const std::string& game_path, int desired_size, Bytes& png)
 	// Nothing beside the game. An application holding one carries an icon, but
 	// a plain install has none, so fall back to what Steam downloaded and kept
 	// with its own data - the only artwork such an installation has.
-	const std::string steam_art_path = make_steam_art_path(game_path);
+	const std::string steam_art_path = make_content_art_path(game_path);
 
 	if (!steam_art_path.empty() && read_file(steam_art_path, png) &&
 		is_png(png.data(), png.size()))
@@ -424,11 +398,6 @@ GameArt find_game_art(const std::string& game_path, int desired_size)
 	}
 
 	const ImageDecoderUPtr image_decoder = make_image_decoder(ImageDecoderType::png);
-
-	if (image_decoder == nullptr)
-	{
-		return art;
-	}
 
 	try
 	{

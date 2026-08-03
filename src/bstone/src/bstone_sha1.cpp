@@ -8,6 +8,8 @@ SPDX-License-Identifier: MIT
 // https://www.ietf.org/rfc/rfc3174.txt
 
 #include "bstone_sha1.h"
+
+#include "bstone_endian.h"
 #include <algorithm>
 #include "bstone_exception.h"
 
@@ -110,11 +112,7 @@ void Sha1::process_block()
 	// Initialize the first 16 words in the array W.
 	for (int i = 0; i < 16; ++i)
 	{
-		w[i] =
-			(static_cast<std::uint32_t>(block_[i * 4 + 0]) << 24) |
-			(static_cast<std::uint32_t>(block_[i * 4 + 1]) << 16) |
-			(static_cast<std::uint32_t>(block_[i * 4 + 2]) <<  8) |
-			                            block_[i * 4 + 3];
+		w[i] = endian::read_u32_be(&block_[i * 4]);
 	}
 	for (int i = 16; i < 80; ++i)
 	{
