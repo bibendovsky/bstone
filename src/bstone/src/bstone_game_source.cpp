@@ -164,6 +164,16 @@ bool has_gog_marker_file(const std::string& directory_path)
 	return is_found;
 }
 
+// The Linux installer leaves no id file, only the pair of things its layout is
+// built around: a one-line description of the game, and the folder holding the
+// icon and the menu entry. Either alone is too ordinary a name to go on.
+bool has_gog_linux_layout(const std::string& directory_path)
+{
+	return
+		sys::is_regular_file_exists(fs_utils::append_path(directory_path, "gameinfo").c_str()) &&
+		sys::is_regular_file_exists(fs_utils::append_path(directory_path, "support/icon.png").c_str());
+}
+
 } // namespace
 
 GameSourcePaths find_game_sources(const std::string& path)
@@ -203,7 +213,8 @@ const char* get_game_source_label(const std::string& path)
 	for (int level = 0; level < max_label_probe_levels && !probe_path.empty(); ++level)
 	{
 		if (has_gog_marker_file(probe_path) ||
-			has_gog_marker_file(fs_utils::append_path(probe_path, "Contents/Resources")))
+			has_gog_marker_file(fs_utils::append_path(probe_path, "Contents/Resources")) ||
+			has_gog_linux_layout(probe_path))
 		{
 			return "GOG";
 		}
