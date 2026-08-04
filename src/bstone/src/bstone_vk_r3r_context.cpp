@@ -17,6 +17,7 @@ namespace bstone {
 
 const char* const VkR3rContext::vk_layer_khronos_validation_extension_name = "VK_LAYER_KHRONOS_validation";
 const char* const VkR3rContext::vk_ext_debug_utils_extension_name = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
+const char* const VkR3rContext::vk_khr_portability_subset_extension_name = "VK_KHR_portability_subset";
 
 // --------------------------------------
 

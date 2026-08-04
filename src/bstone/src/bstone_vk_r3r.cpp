@@ -50,7 +50,6 @@ namespace {
 
 // Spelled out rather than taken from <vulkan/vulkan_beta.h>, which the build does
 // not include because it carries provisional extensions the port has no use for.
-constexpr const char* vk_khr_portability_subset_extension_name = "VK_KHR_portability_subset";
 
 class VkR3rImpl final : public R3r
 {
@@ -1548,10 +1547,10 @@ void VkR3rImpl::initialize_enabled_device_extensions()
 		context_.vkEnumerateDeviceExtensionProperties, context_.physical_device, nullptr);
 	for (const VkExtensionProperties& extension : device_extensions)
 	{
-		if (std::strcmp(extension.extensionName, vk_khr_portability_subset_extension_name) == 0)
+		if (std::strcmp(extension.extensionName, VkR3rContext::vk_khr_portability_subset_extension_name) == 0)
 		{
 			context_.has_khr_portability_subset = true;
-			context_.enabled_device_extensions.emplace_back(vk_khr_portability_subset_extension_name);
+			context_.enabled_device_extensions.emplace_back(VkR3rContext::vk_khr_portability_subset_extension_name);
 			break;
 		}
 	}
