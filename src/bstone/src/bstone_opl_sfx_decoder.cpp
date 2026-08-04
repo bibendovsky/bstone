@@ -34,6 +34,7 @@ public:
 
 private:
 	inline static constexpr int header_size = 23; // Original size of AdLibSound structure.
+	inline static constexpr int sfx_length_size = 4; // Size of the leading length field.
 	inline static constexpr int tick_rate = 140;
 
 	bool is_initialized_{};
@@ -96,7 +97,9 @@ bool OplSfxDecoder::initialize(const AudioDecoderInitParam& param)
 		set_error_message("Invalid command count.");
 		return false;
 	}
-	if (!reader_.can_read_n(header_size + sfx_length))
+	// The length comes from the chunk, so summing it with the header size would
+	// overflow the check into passing. Compare against what is left instead.
+	if (sfx_length > reader_.get_size() - sfx_length_size - header_size)
 	{
 		set_error_message("Command count mismatch.");
 		return false;

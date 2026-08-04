@@ -30,12 +30,14 @@ target_compile_options(bstone_tests
 target_include_directories(bstone_tests
 	PRIVATE
 		${PROJECT_SOURCE_DIR}/../../../bstone/src
+		${PROJECT_SOURCE_DIR}/../../../bstone/src/dosbox
 )
 
 target_link_libraries(bstone_tests
 	PRIVATE
 		${CMAKE_DL_LIBS}
 		bstone::lib::dr_flac
+			bstone::lib::nuked_opl3
 		bstone::lib::sdl
 		bstone::lib::stb_vorbis
 		bstone::lib::zlib
@@ -50,7 +52,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_endian.cpp
 		../../../bstone/src/bstone_endian.h
 		../../../bstone/src/bstone_scope_exit.h
-		../../../bstone/src/bstone_char_conv.cpp
 		../../../bstone/src/bstone_char_conv.cpp
 		../../../bstone/src/bstone_unique_resource.h
 		../../../bstone/src/bstone_cgm_vec.h
@@ -107,6 +108,25 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_zip_archive_file.h
 		../../../bstone/src/bstone_zip_archive_file_crc_32.cpp
 		../../../bstone/src/bstone_zip_archive_file_crc_32.h
+		../../../bstone/src/bstone_audio_decoder.h
+		../../../bstone/src/bstone_audio_sample_converter.cpp
+		../../../bstone/src/bstone_audio_sample_converter.h
+		../../../bstone/src/bstone_opl_emulator.cpp
+		../../../bstone/src/bstone_opl_emulator.h
+		../../../bstone/src/bstone_opl_utility.cpp
+		../../../bstone/src/bstone_opl_utility.h
+		../../../bstone/src/bstone_dbopl_emulator.cpp
+		../../../bstone/src/bstone_dbopl_emulator.h
+		../../../bstone/src/bstone_nuked_opl3_emulator.cpp
+		../../../bstone/src/bstone_nuked_opl3_emulator.h
+		../../../bstone/src/dosbox/dbopl.cpp
+		../../../bstone/src/dosbox/dbopl.h
+		../../../bstone/src/dosbox/mixer.cpp
+		../../../bstone/src/dosbox/mixer.h
+		../../../bstone/src/bstone_pc_speaker_audio_decoder.cpp
+		../../../bstone/src/bstone_pc_speaker_audio_decoder.h
+		../../../bstone/src/bstone_opl_sfx_decoder.cpp
+		../../../bstone/src/bstone_opl_sfx_decoder.h
 	PRIVATE
 		src/bstone_tests_ascii.cpp
 		src/bstone_tests_char_conv.cpp
@@ -131,6 +151,9 @@ target_sources(bstone_tests
 		src/bstone_tests_steam_manifest.cpp
 		src/bstone_tests_vdf.cpp
 		src/bstone_tests_zip_archive_file.cpp
+		src/bstone_tests_memory_binary_reader.cpp
+		src/bstone_tests_pc_speaker_audio_decoder.cpp
+		src/bstone_tests_opl_sfx_decoder.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h

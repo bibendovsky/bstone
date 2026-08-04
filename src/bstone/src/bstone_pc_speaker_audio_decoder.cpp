@@ -74,7 +74,14 @@ bool PcSpeakerAudioDecoder::initialize(const AudioDecoderInitParam& param)
 		set_error_message("Sample rate too small.");
 		return false;
 	}
+	// The command count is stored inside the chunk, so it can not be trusted to
+	// describe the bytes the chunk actually holds.
 	const int data_size = static_cast<int>(endian::read_u32_le(param.src_raw_data));
+	if (data_size < 0 || data_size > param.src_raw_size - min_src_size)
+	{
+		set_error_message("Command count out of range.");
+		return false;
+	}
 	dst_sample_rate_ = param.dst_rate;
 	commands_ = static_cast<const std::uint8_t*>(param.src_raw_data) + min_src_size;
 	commands_size_ = data_size;
@@ -163,7 +170,15 @@ int PcSpeakerAudioDecoder::decode_frames(float* samples, int max_frames)
 bool PcSpeakerAudioDecoder::rewind()
 {
 	BSTONE_ASSERT(is_initialized());
+	// The command counter and the PIT state carry the phase of the playback, so
+	// they have to go back to their initial values too for the sound to start
+	// over exactly as it did the first time.
 	command_offset_ = 0;
+	last_command_ = 0;
+	pit_signal_level_ = 0;
+	pit_counter_step_ = 0;
+	pit_counter_ = 0;
+	command_counter_ = dst_sample_rate_;
 	is_finished_ = false;
 	return true;
 }
