@@ -1872,10 +1872,6 @@ void OalAudioMixer::mix_r3s_sfx(Voice& voice)
 
 void OalAudioMixer::r3s_update_oal_source()
 {
-	if (!r3s_sound_.is_initialized || !r3s_oal_source_.is_open())
-	{
-		return;
-	}
 	r3s_oal_source_.mix();
 }
 
