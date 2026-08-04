@@ -127,6 +127,8 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_pc_speaker_audio_decoder.h
 		../../../bstone/src/bstone_opl_sfx_decoder.cpp
 		../../../bstone/src/bstone_opl_sfx_decoder.h
+		../../../bstone/src/bstone_opl_music_decoder.cpp
+		../../../bstone/src/bstone_opl_music_decoder.h
 	PRIVATE
 		src/bstone_tests_ascii.cpp
 		src/bstone_tests_char_conv.cpp
@@ -154,6 +156,7 @@ target_sources(bstone_tests
 		src/bstone_tests_memory_binary_reader.cpp
 		src/bstone_tests_pc_speaker_audio_decoder.cpp
 		src/bstone_tests_opl_sfx_decoder.cpp
+		src/bstone_tests_opl_music_decoder.cpp
 	PRIVATE
 		src/bstone_tester.cpp
 		src/bstone_tester.h

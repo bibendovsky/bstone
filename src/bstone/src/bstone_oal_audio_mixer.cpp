@@ -895,16 +895,15 @@ int OalAudioMixer::get_max_voice_count()
 	using OalSourceResources = std::array<OalSourceResource, voices_limit>;
 	OalSourceResources oal_source_resources{};
 	int voice_count = 0;
-	try
+	for (OalSourceResource& oal_source_resource : oal_source_resources)
 	{
-		for (auto& oal_source_resource : oal_source_resources)
+		oal_source_resource = make_oal_source();
+		if (oal_source_resource.is_empty())
 		{
-			oal_source_resource = make_oal_source();
-			++voice_count;
+			break;
 		}
+		++voice_count;
 	}
-	catch (...)
-	{}
 	return voice_count;
 }
 
@@ -1787,18 +1786,25 @@ void OalAudioMixer::mix_r3s_music(Voice& voice)
 	const float gain = r3s_sound_.pre_gain * voice.r3s_gain;
 	float* const src_samples = samples_f32_.data();
 	int frame_offset = 0;
+	// A decoder with no decodable content - an empty OPL command block, an
+	// external file with no sample data - keeps returning no frames while
+	// happily rewinding. Stop the voice once a rewind fails to make progress
+	// instead of retrying it forever on the mixer thread.
+	bool is_rewound = false;
 	while (frame_offset < mix_frame_count_)
 	{
 		const int decoded_count = audio_decoder->decode_frames(src_samples, mix_frame_count_ - frame_offset);
 		if (decoded_count == 0)
 		{
-			if (!voice.is_looping || !audio_decoder->rewind())
+			if (!voice.is_looping || is_rewound || !audio_decoder->rewind())
 			{
 				voice.is_active = false;
 				break;
 			}
+			is_rewound = true;
 			continue;
 		}
+		is_rewound = false;
 		float* const dst_samples = &r3s_samples_f32_mix_[frame_offset * 2];
 		if (channel_count == 1)
 		{
@@ -1866,13 +1872,17 @@ void OalAudioMixer::mix_r3s_sfx(Voice& voice)
 
 void OalAudioMixer::r3s_update_oal_source()
 {
-	if (!r3s_sound_.is_initialized || !r3s_oal_source_.is_open())
-		return;
 	r3s_oal_source_.mix();
 }
 
 void OalAudioMixer::mix_r3s()
 {
+	// The mixing buffer is allocated only when the source is ready for it, so
+	// without a source there is nothing to mix into.
+	if (!r3s_sound_.is_initialized || !r3s_oal_source_.is_open())
+	{
+		return;
+	}
 	const int max_frames = mix_frame_count_ * oal_source_max_streaming_buffers;
 	while (r3s_sound_.queue_size < oal_source_max_streaming_buffers)
 	{

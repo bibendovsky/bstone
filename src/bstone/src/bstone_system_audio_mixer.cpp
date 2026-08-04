@@ -38,7 +38,7 @@ class SystemAudioMixer final : public AudioMixer
 {
 public:
 	SystemAudioMixer(const AudioMixerInitParam& param);
-	~SystemAudioMixer() override = default;
+	~SystemAudioMixer() override;
 
 	OplEmulatorType get_opl_emulator_type() const override;
 	int get_rate() const override;
@@ -458,6 +458,14 @@ try
 	audio_device->pause(false);
 	sys_audio_device_.swap(audio_device);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+SystemAudioMixer::~SystemAudioMixer()
+{
+	// Closing the device waits for an in-flight callback, and that callback
+	// reads and writes most of the other members. Do it before any of them is
+	// destroyed rather than relying on the declaration order.
+	sys_audio_device_ = nullptr;
+}
 
 OplEmulatorType SystemAudioMixer::get_opl_emulator_type() const
 {
@@ -1107,7 +1115,9 @@ void SystemAudioMixer::handle_play_sound_command(const Command& command)
 		});
 	CacheItem* const cache_item = initialize_cache_item(play_sound_param);
 	if (cache_item == nullptr)
+	{
 		return;
+	}
 	for (Voice& i_voice : voices_)
 	{
 		if (!i_voice.is_active)
@@ -1146,6 +1156,10 @@ auto SystemAudioMixer::initialize_cache_item(const PlaySoundCommandParam& comman
 			return cache_item;
 	}
 	cache_item = get_cache_item(command_param.sound_type, command_param.sound_index);
+	if (cache_item == nullptr)
+	{
+		return nullptr;
+	}
 	const bool is_opl_music = (command_param.sound_type == SoundType::opl_music);
 	if (cache_item->is_active)
 	{
@@ -1185,6 +1199,10 @@ auto SystemAudioMixer::initialize_cache_item(const PlaySoundCommandParam& comman
 auto SystemAudioMixer::initialize_ext_cache_item(const PlaySoundCommandParam& command_param) -> CacheItem*
 {
 	CacheItem* const cache_item = get_ext_cache_item(command_param.sound_type, command_param.sound_index);
+	if (cache_item == nullptr)
+	{
+		return nullptr;
+	}
 	const bool is_opl_music = (command_param.sound_type == SoundType::opl_music);
 	if (cache_item->is_active)
 	{
@@ -1219,6 +1237,11 @@ void SystemAudioMixer::cache_music(const Voice& voice)
 	CacheItem& cache_item = *voice.cache;
 	const int channel_count = cache_item.decoder->get_channel_count();
 	cache_item.frame_count = 0;
+	// A decoder with no decodable content - an empty OPL command block, an
+	// external file with no sample data - keeps returning no frames while
+	// happily rewinding. Give up once a rewind fails to make progress instead
+	// of retrying it forever on the audio thread.
+	bool is_rewound = false;
 	while (cache_item.frame_count < mix_frame_count_)
 	{
 		const int decoded_frame_count = cache_item.decoder->decode_frames(
@@ -1227,14 +1250,16 @@ void SystemAudioMixer::cache_music(const Voice& voice)
 		cache_item.frame_count += decoded_frame_count;
 		if (decoded_frame_count == 0)
 		{
-			if (voice.is_looping)
+			if (voice.is_looping && !is_rewound)
 			{
 				if (!cache_item.decoder->rewind())
 					break;
+				is_rewound = true;
 				continue;
 			}
 			break;
 		}
+		is_rewound = false;
 	}
 }
 
@@ -1258,7 +1283,9 @@ bool SystemAudioMixer::decode_voice(const Voice& voice)
 {
 	CacheItem* const cache_item = voice.cache;
 	if (cache_item == nullptr)
+	{
 		return false;
+	}
 	if (!cache_item->is_active)
 		return false;
 	if (cache_item->is_invalid)
