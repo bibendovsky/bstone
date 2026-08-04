@@ -76,6 +76,11 @@ bool ArchiveFileInflateStream::rewind()
 		return false;
 	if (::inflateReset2(&zlib_stream_, -15) != Z_OK)
 		return false;
+	// The reset leaves the input side to the caller, so any bytes still buffered from
+	// before the rewind would be handed to the fresh inflate state as if they were the
+	// beginning of the stream.
+	zlib_stream_.next_in = zlib_in_cache_;
+	zlib_stream_.avail_in = 0;
 	compressed_position_ = compressed_begin_position_;
 	uncompressed_position_ = 0;
 	zlib_out_cache_offset_ = 0;
@@ -96,6 +101,7 @@ int ArchiveFileInflateStream::read(void* buffer, int count)
 	BSTONE_ASSERT(count >= 0);
 	count = std::min(count, uncompressed_size_ - uncompressed_position_);
 	::Bytef* dst_bytes = static_cast<::Bytef*>(buffer);
+	bool is_stream_end = false;
 	while (count > 0)
 	{
 		if (zlib_out_cache_offset_ < zlib_stream_.total_out)
@@ -112,6 +118,13 @@ int ArchiveFileInflateStream::read(void* buffer, int count)
 		}
 		else
 		{
+			// The cache is drained. Once inflate is done it keeps reporting the end of the
+			// stream without producing anything, so an entry that decodes to less than its
+			// declared uncompressed size would spin here forever.
+			if (is_stream_end)
+			{
+				break;
+			}
 			zlib_out_cache_offset_ = 0;
 			zlib_stream_.next_out = zlib_out_cache_;
 			zlib_stream_.avail_out = zlib_out_cache_max_capacity;
@@ -138,7 +151,9 @@ int ArchiveFileInflateStream::read(void* buffer, int count)
 		switch (zlib_result)
 		{
 			case Z_OK:
+				break;
 			case Z_STREAM_END:
+				is_stream_end = true;
 				break;
 			case Z_NEED_DICT:
 			case Z_ERRNO:
@@ -233,7 +248,7 @@ ArchiveFileEntryStreamUPtr make_archive_file_inflate_entry_stream(
 	BSTONE_ASSERT(archive_file_entry.compression_method == ArchiveFileCompressionMethod::deflate);
 	BSTONE_ASSERT(archive_file_entry.is_compressed);
 	BSTONE_ASSERT(archive_file_entry.compressed_size > 0);
-	BSTONE_ASSERT(archive_file_entry.uncompressed_size > 0);
+	BSTONE_ASSERT(archive_file_entry.uncompressed_size >= 0);
 	return std::make_unique<ArchiveFileInflateStream>(std::move(input_stream_uptr), archive_file_entry);
 }
 

@@ -174,9 +174,9 @@ private:
 	bool deserialize_central_file_header(MemoryBinaryReader& binary_reader, CentralFileHeader& header);
 	bool validate_central_file_header(const CentralFileHeader& header) const;
 	bool is_central_file_supported(const CentralFileHeader& header) const;
-	void initialize_entry_name(const CentralFileHeader& header, ArchiveFileEntry& entry);
+	bool initialize_entry_name(const CentralFileHeader& header, ArchiveFileEntry& entry);
 	void reserve_entries(int capacity);
-	void add_entry(const CentralFileHeader& header);
+	bool add_entry(const CentralFileHeader& header);
 	void reserve_names(int capacity);
 	bool read_central_dir(const EndOfCentralDirRecord& eocdr);
 	bool prepare_input_stream_for_entry(ArchiveFileInputStream& input_stream, const ArchiveFileEntry& entry) const;
@@ -278,26 +278,19 @@ void ZipArchiveFile::deserialize_local_file_header(MemoryBinaryReader& binary_re
 bool ZipArchiveFile::validate_local_file_header(const LocalFileHeader& header, const ArchiveFileEntry& entry)
 {
 	if (header.signature != 0x04034B50U)
-	{
-		BSTONE_ASSERT(false && "Invalid signature.");
 		return false;
-	}
 	if (((header.flags & file_encrypted_flag) != 0) ||
 		((header.flags & patched_data_flag) != 0) ||
 		((header.flags & strong_encryption_flag) != 0) ||
 		((header.flags & dir_encrypted_flag) != 0))
 	{
-		BSTONE_ASSERT(false && "Encryption/Patched data.");
 		return false;
 	}
 	const bool is_utf8 = (header.flags & language_flag) != 0;
 	const ArchiveFileLanguageEncoding language_encoding =
 		is_utf8 ? ArchiveFileLanguageEncoding::utf8 : ArchiveFileLanguageEncoding::cp437;
 	if (language_encoding != entry.language_encoding)
-	{
-		BSTONE_ASSERT(false && "Name encoding mismatch.");
 		return false;
-	}
 	ArchiveFileCompressionMethod compression_method;
 	switch (header.compression_method)
 	{
@@ -312,34 +305,19 @@ bool ZipArchiveFile::validate_local_file_header(const LocalFileHeader& header, c
 			break;
 	}
 	if (compression_method != entry.compression_method)
-	{
-		BSTONE_ASSERT(false && "Compression method mismatch.");
 		return false;
-	}
 	const bool has_data_descriptor = (header.flags & data_descriptor_flag) != 0;
 	if (!has_data_descriptor)
 	{
 		if (header.crc_32 != entry.crc_32)
-		{
-			BSTONE_ASSERT(false && "CRC-32 mismatch.");
 			return false;
-		}
 		if (header.compressed_size != static_cast<unsigned int>(entry.compressed_size))
-		{
-			BSTONE_ASSERT(false && "Compressed size mismatch.");
 			return false;
-		}
 		if (header.uncompressed_size != static_cast<unsigned int>(entry.uncompressed_size))
-		{
-			BSTONE_ASSERT(false && "Uncompressed size mismatch.");
 			return false;
-		}
 	}
 	if (header.file_name_length != entry.name_length)
-	{
-		BSTONE_ASSERT(false && "Filename length mismatch.");
 		return false;
-	}
 	return true;
 }
 
@@ -373,46 +351,31 @@ void ZipArchiveFile::deserialize_end_of_central_dir_record(MemoryBinaryReader& b
 
 bool ZipArchiveFile::validate_end_of_central_dir_record(const EndOfCentralDirRecord& record) const
 {
+	// A ZIP64 archive, a multi-disk one and a self-contradicting one are all simply
+	// unsupported input, so they are refused the same way an unreadable file would be.
 	if (record.this_disk_number != 0)
-	{
-		BSTONE_ASSERT(false && "Expected zero number of this disk.");
 		return false;
-	}
 	if (record.dir_disk_number != 0)
-	{
-		BSTONE_ASSERT(false && "Expected zero number of disk with the start of central directory.");
 		return false;
-	}
 	if (record.this_total_entries == zip64_marker_16)
-	{
-		BSTONE_ASSERT(false && "ZIP64 not supported.");
 		return false;
-	}
 	if (record.dir_total_entries == zip64_marker_16)
-	{
-		BSTONE_ASSERT(false && "ZIP64 not supported.");
 		return false;
-	}
 	if (record.this_total_entries != record.dir_total_entries)
-	{
-		BSTONE_ASSERT(false && "Total entries mismatch.");
 		return false;
-	}
 	if (record.dir_size == zip64_marker_32)
-	{
-		BSTONE_ASSERT(false && "ZIP64 not supported.");
 		return false;
-	}
 	if (record.dir_size > max_central_dir_size)
+		return false;
+	// The entry name arena is sized by subtracting the fixed part of every promised header
+	// from the directory size. Nothing else ties the two fields together, so a directory
+	// too small to hold the entries it promises would undersize the arena.
+	if (record.dir_size < static_cast<unsigned int>(central_file_header_size * record.dir_total_entries))
 	{
-		BSTONE_ASSERT(false && "Central directory too big.");
 		return false;
 	}
 	if (record.dir_offset == zip64_marker_32)
-	{
-		BSTONE_ASSERT(false && "ZIP64 not supported.");
 		return false;
-	}
 	return true;
 }
 
@@ -420,15 +383,9 @@ bool ZipArchiveFile::read_end_of_central_dir_record(EndOfCentralDirRecord& recor
 {
 	const long long archive_size = input_stream_->get_size();
 	if (archive_size < 0)
-	{
-		BSTONE_ASSERT(false && "Failed to get the archive size.");
 		return false;
-	}
 	if (archive_size < end_of_central_dir_record_size)
-	{
-		BSTONE_ASSERT(false && "End of central directory record too small.");
 		return false;
-	}
 	constexpr int max_comment_length = 0xFFFF;
 	constexpr int history_size = end_of_central_dir_record_size - 1;
 	constexpr long long max_scan_size = end_of_central_dir_record_size + max_comment_length;
@@ -476,10 +433,7 @@ bool ZipArchiveFile::read_end_of_central_dir_record(EndOfCentralDirRecord& recor
 bool ZipArchiveFile::deserialize_central_file_header(MemoryBinaryReader& binary_reader, CentralFileHeader& header)
 {
 	if (!binary_reader.can_read_n(central_file_header_size))
-	{
-		BSTONE_ASSERT(false && "Central file header too small.");
 		return false;
-	}
 	// central file header signature   4 bytes  (0x02014B50)
 	header.signature                = binary_reader.read_u32_le();
 	// version made by                 2 bytes
@@ -516,26 +470,23 @@ bool ZipArchiveFile::deserialize_central_file_header(MemoryBinaryReader& binary_
 	header.local_header_offset      = binary_reader.read_u32_le();
 	// file name (variable size)
 	if (!binary_reader.can_read_n(header.file_name_length))
-	{
-		BSTONE_ASSERT(false && "Truncated file name.");
 		return false;
-	}
 	header.file_name = static_cast<const char*>(binary_reader.get_current_data());
 	binary_reader.skip(header.file_name_length);
 	// extra field (variable size)
 	if (!binary_reader.can_read_n(header.extra_field_length))
-	{
-		BSTONE_ASSERT(false && "Truncated extra field.");
 		return false;
-	}
 	// Look up for language-related extra fields.
 	header.has_extended_language_encoding_data = false;
 	header.has_info_zip_unicode_path_extra_field = false;
+	// Bound every record by the extra field it lives in, not merely by the directory buffer.
+	// A record allowed to run past the field would leave the reader parked somewhere inside
+	// a later header and desynchronize the whole directory walk.
 	for (int extra_field_offset = 0; extra_field_offset < header.extra_field_length; )
 	{
-		if (!binary_reader.can_read_n(4))
+		const int extra_field_left = header.extra_field_length - extra_field_offset;
+		if (extra_field_left < 4)
 		{
-			BSTONE_ASSERT(false && "Truncated extra record.");
 			return false;
 		}
 		const int extra_header_id = binary_reader.read_u16_le();
@@ -549,9 +500,8 @@ bool ZipArchiveFile::deserialize_central_file_header(MemoryBinaryReader& binary_
 				header.has_info_zip_unicode_path_extra_field = true;
 				break;
 		}
-		if (!binary_reader.can_read_n(extra_header_size))
+		if (extra_header_size > extra_field_left - 4)
 		{
-			BSTONE_ASSERT(false && "Extra record underflow.");
 			return false;
 		}
 		binary_reader.skip(extra_header_size);
@@ -559,10 +509,7 @@ bool ZipArchiveFile::deserialize_central_file_header(MemoryBinaryReader& binary_
 	}
 	// file comment (variable size)
 	if (!binary_reader.can_read_n(header.file_comment_length))
-	{
-		BSTONE_ASSERT(false && "Truncated file comment.");
 		return false;
-	}
 	binary_reader.skip(header.file_comment_length);
 	//
 	return true;
@@ -571,15 +518,9 @@ bool ZipArchiveFile::deserialize_central_file_header(MemoryBinaryReader& binary_
 bool ZipArchiveFile::validate_central_file_header(const CentralFileHeader& header) const
 {
 	if (header.signature != 0x02014B50U)
-	{
-		BSTONE_ASSERT(false && "Invalid signature of central file header.");
 		return false;
-	}
 	if (header.disk_number_start != 0)
-	{
-		BSTONE_ASSERT(false && "Expected zero disk number start of central file header.");
 		return false;
-	}
 	return true;
 }
 
@@ -608,6 +549,22 @@ bool ZipArchiveFile::is_central_file_supported(const CentralFileHeader& header) 
 	{
 		return false;
 	}
+	// A stored entry occupies exactly as many bytes as it yields. The entry stream takes
+	// its extent from the uncompressed size alone, so a header claiming a bigger one would
+	// hand out whatever follows the entry in the archive.
+	if (header.compression_method == compression_method_store &&
+		header.compressed_size != header.uncompressed_size)
+	{
+		return false;
+	}
+	// A deflate stream is never empty - even zero bytes of input deflate into a
+	// two-byte stream, which is how zipfile and friends store an empty member -
+	// so only an entry with nothing to decode is malformed.
+	if (header.compression_method == compression_method_deflate &&
+		header.compressed_size == 0)
+	{
+		return false;
+	}
 	if (header.file_name_length == 0)
 		return false;
 	if (header.local_header_offset == zip64_marker_32)
@@ -617,24 +574,28 @@ bool ZipArchiveFile::is_central_file_supported(const CentralFileHeader& header) 
 	return true;
 }
 
-void ZipArchiveFile::initialize_entry_name(const CentralFileHeader& header, ArchiveFileEntry& entry)
+bool ZipArchiveFile::initialize_entry_name(const CentralFileHeader& header, ArchiveFileEntry& entry)
 {
 	BSTONE_ASSERT(header.file_name_length > 0);
 	BSTONE_ASSERT(header.file_name != nullptr);
 	const int aligned_size = align_16(header.file_name_length + 1);
-	BSTONE_ASSERT(names_capacity_ - names_size_ >= aligned_size);
+	if (names_capacity_ - names_size_ < aligned_size)
+	{
+		return false;
+	}
 	char* const entry_name = names_.get() + names_size_;
 	names_size_ += aligned_size;
 	entry.name = entry_name;
 	std::copy_n(header.file_name, header.file_name_length, entry_name);
 	entry_name[header.file_name_length] = '\0';
 	entry.name = entry_name;
+	return true;
 }
 
 void ZipArchiveFile::reserve_entries(int capacity)
 {
 	BSTONE_ASSERT(capacity >= 0);
-	BSTONE_ASSERT(capacity <= INT_MAX / sizeof(ArchiveFileEntry));
+	BSTONE_ASSERT(capacity <= static_cast<int>(INT_MAX / sizeof(ArchiveFileEntry)));
 	if (entries_capacity_ >= capacity)
 		return;
 	const int storage_size = capacity * sizeof(ArchiveFileEntry);
@@ -643,9 +604,14 @@ void ZipArchiveFile::reserve_entries(int capacity)
 	entries_capacity_ = capacity;
 }
 
-void ZipArchiveFile::add_entry(const CentralFileHeader& header)
+bool ZipArchiveFile::add_entry(const CentralFileHeader& header)
 {
-	BSTONE_ASSERT(entries_size_ < entries_capacity_);
+	// The directory promises no more entries than were reserved, but the promise is the
+	// archive's, so keep the bound where it holds in a release build too.
+	if (entries_size_ >= entries_capacity_)
+	{
+		return false;
+	}
 	ArchiveFileEntry& entry = entries_[entries_size_];
 	// Index.
 	entry.index = entries_size_++;
@@ -670,7 +636,10 @@ void ZipArchiveFile::add_entry(const CentralFileHeader& header)
 	// Name length.
 	entry.name_length = header.file_name_length;
 	// Name.
-	initialize_entry_name(header, entry);
+	if (!initialize_entry_name(header, entry))
+	{
+		return false;
+	}
 	// Compressed size.
 	entry.compressed_size = static_cast<int>(header.compressed_size);
 	// Uncompressed size.
@@ -680,6 +649,7 @@ void ZipArchiveFile::add_entry(const CentralFileHeader& header)
 	// CRC-32 type.
 	entry.crc_32_type = ArchiveFileCrc32Type::zip;
 	entry.crc_32 = header.crc_32;
+	return true;
 }
 
 void ZipArchiveFile::reserve_names(int capacity)
@@ -697,16 +667,10 @@ bool ZipArchiveFile::read_central_dir(const EndOfCentralDirRecord& eocdr)
 	BufferUPtr dir_buffer{::operator new(std::size_t{eocdr.dir_size})};
 	reserve_entries(eocdr.dir_total_entries);
 	if (!input_stream_->set_position(eocdr.dir_offset))
-	{
-		BSTONE_ASSERT(false && "Failed to position at the beginning of the central directory.");
 		return false;
-	}
 	MemoryBinaryReader dir_binary_reader{dir_buffer.get(), static_cast<int>(eocdr.dir_size)};
 	if (!input_stream_->read_exactly(dir_buffer.get(), static_cast<int>(eocdr.dir_size)))
-	{
-		BSTONE_ASSERT(false && "Failed to read the central directory.");
 		return false;
-	}
 	const int names_capacity = static_cast<int>(eocdr.dir_size) -
 		((central_file_header_size - 16 /* (alignment-1)+NULL */) * eocdr.dir_total_entries);
 	reserve_names(names_capacity);
@@ -717,8 +681,10 @@ bool ZipArchiveFile::read_central_dir(const EndOfCentralDirRecord& eocdr)
 			return false;
 		if (!validate_central_file_header(file_header))
 			return false;
-		if (is_central_file_supported(file_header))
-			add_entry(file_header);
+		if (is_central_file_supported(file_header) && !add_entry(file_header))
+		{
+			return false;
+		}
 	}
 	return true;
 }
