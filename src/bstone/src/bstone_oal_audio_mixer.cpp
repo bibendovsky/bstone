@@ -1057,7 +1057,9 @@ void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 		}
 	}
 	else
+	{
 		oal_library_string.append(oal_library.data(), oal_library.size());
+	}
 	if (oal_loader_ == nullptr)
 	{
 		oal_loader_ = make_oal_loader(oal_library_string.c_str());
