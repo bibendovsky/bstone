@@ -118,8 +118,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_memory_binary_reader.h
 		../../../bstone/src/bstone_opl_emulator.cpp
 		../../../bstone/src/bstone_opl_emulator.h
-		../../../bstone/src/bstone_opl_music_decoder.cpp
-		../../../bstone/src/bstone_opl_music_decoder.h
 		../../../bstone/src/bstone_opl_utility.cpp
 		../../../bstone/src/bstone_opl_utility.h
 		../../../bstone/src/bstone_dbopl_emulator.cpp
@@ -134,6 +132,8 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_pc_speaker_audio_decoder.h
 		../../../bstone/src/bstone_opl_sfx_decoder.cpp
 		../../../bstone/src/bstone_opl_sfx_decoder.h
+		../../../bstone/src/bstone_opl_music_decoder.cpp
+		../../../bstone/src/bstone_opl_music_decoder.h
 	PRIVATE
 		src/bstone_tests_ascii.cpp
 		src/bstone_tests_char_conv.cpp
