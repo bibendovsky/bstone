@@ -307,7 +307,9 @@ VfsInputStreamUPtr VfsImpl::open_any_file(std::span<std::string_view> vfs_pathna
 	{
 		if (VfsInputStreamUPtr stream = open_any_file(*search_path, vfs_pathnames);
 			stream != nullptr)
+		{
 			return stream;
+		}
 	}
 	return nullptr;
 }
