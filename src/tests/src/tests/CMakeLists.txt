@@ -37,10 +37,10 @@ target_link_libraries(bstone_tests
 	PRIVATE
 		${CMAKE_DL_LIBS}
 		bstone::lib::dr_flac
+			bstone::lib::nuked_opl3
 		bstone::lib::sdl
 		bstone::lib::stb_vorbis
 		bstone::lib::zlib
-		bstone::lib::nuked_opl3
 )
 
 target_sources(bstone_tests
@@ -52,7 +52,6 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_endian.cpp
 		../../../bstone/src/bstone_endian.h
 		../../../bstone/src/bstone_scope_exit.h
-		../../../bstone/src/bstone_char_conv.cpp
 		../../../bstone/src/bstone_char_conv.cpp
 		../../../bstone/src/bstone_unique_resource.h
 		../../../bstone/src/bstone_cgm_vec.h
@@ -110,12 +109,8 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_zip_archive_file_crc_32.cpp
 		../../../bstone/src/bstone_zip_archive_file_crc_32.h
 		../../../bstone/src/bstone_audio_decoder.h
-		../../../bstone/src/bstone_pc_speaker_audio_decoder.cpp
-		../../../bstone/src/bstone_pc_speaker_audio_decoder.h
 		../../../bstone/src/bstone_audio_sample_converter.cpp
 		../../../bstone/src/bstone_audio_sample_converter.h
-		../../../bstone/src/bstone_opl_sfx_decoder.cpp
-		../../../bstone/src/bstone_opl_sfx_decoder.h
 		../../../bstone/src/bstone_opl_emulator.cpp
 		../../../bstone/src/bstone_opl_emulator.h
 		../../../bstone/src/bstone_opl_utility.cpp
@@ -128,6 +123,10 @@ target_sources(bstone_tests
 		../../../bstone/src/dosbox/dbopl.h
 		../../../bstone/src/dosbox/mixer.cpp
 		../../../bstone/src/dosbox/mixer.h
+		../../../bstone/src/bstone_pc_speaker_audio_decoder.cpp
+		../../../bstone/src/bstone_pc_speaker_audio_decoder.h
+		../../../bstone/src/bstone_opl_sfx_decoder.cpp
+		../../../bstone/src/bstone_opl_sfx_decoder.h
 	PRIVATE
 		src/bstone_tests_ascii.cpp
 		src/bstone_tests_char_conv.cpp
