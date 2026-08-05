@@ -38,11 +38,7 @@ public:
 
 	virtual void clear_vga_buffer() = 0;
 
-	virtual void take_screenshot(
-		int width,
-		int height,
-		int stride_rgb_888,
-		ScreenshotBuffer&& src_pixels_rgb_888) = 0;
+	virtual void take_screenshot() = 0;
 
 	virtual void vsync_present() = 0;
 	virtual void present() = 0;

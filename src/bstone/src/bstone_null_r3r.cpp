@@ -41,6 +41,7 @@ public:
 
 	sys::Window& get_window() const override;
 	void handle_resize(sys::WindowSize new_size) override;
+	sys::WindowSize get_screen_size() const override;
 
 	bool get_vsync() const override;
 	void enable_vsync(bool is_enabled) override;
@@ -48,8 +49,7 @@ public:
 	void set_anti_aliasing(R3rAaType aa_type, int aa_value) override;
 
 	void read_pixels(
-		sys::PixelFormat pixel_format,
-		void* buffer,
+		const R3rReadPixelsParam& param,
 		bool& is_flipped_vertically) override;
 
 	void present() override;
@@ -130,6 +130,11 @@ sys::Window& NullR3rImpl::get_window() const
 void NullR3rImpl::handle_resize([[maybe_unused]] sys::WindowSize new_size)
 {}
 
+sys::WindowSize NullR3rImpl::get_screen_size() const
+{
+	return sys::WindowSize{};
+}
+
 bool NullR3rImpl::get_vsync() const
 {
 	return false;
@@ -142,8 +147,7 @@ void NullR3rImpl::set_anti_aliasing([[maybe_unused]] R3rAaType aa_type, [[maybe_
 {}
 
 void NullR3rImpl::read_pixels(
-	[[maybe_unused]] sys::PixelFormat pixel_format,
-	[[maybe_unused]] void* buffer,
+	[[maybe_unused]] const R3rReadPixelsParam& param,
 	[[maybe_unused]] bool& is_flipped_vertically)
 {}
 

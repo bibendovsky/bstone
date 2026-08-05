@@ -57,12 +57,13 @@ public:
 	~RendererSdl() override;
 
 	const char* get_name() const override;
+	RendererOutputSize get_output_size() const override;
 	void set_viewport() override;
 	void clear() override;
 	void set_draw_color(Color color) override;
 	void fill(std::span<const FRect> rects) override;
 	void present() override;
-	void read_pixels(PixelFormat pixel_format, void* pixels, int pitch) override;
+	void read_pixels(PixelFormat pixel_format, int width, int height, void* pixels) override;
 	TextureUPtr make_texture(const TextureInitParam& param) override;
 
 private:
@@ -118,6 +119,17 @@ const char* RendererSdl::get_name() const
 	return SDL_GetStringProperty(sdl_properties_id, SDL_PROP_RENDERER_NAME_STRING, "");
 }
 
+RendererOutputSize RendererSdl::get_output_size() const
+{
+	int width;
+	int height;
+	if (!SDL_GetCurrentRenderOutputSize(sdl_renderer_, &width, &height))
+	{
+		sdl::fail("SDL_GetCurrentRenderOutputSize");
+	}
+	return RendererOutputSize{width, height};
+}
+
 void RendererSdl::set_viewport()
 {
 	if (!SDL_SetRenderViewport(sdl_renderer_, nullptr))
@@ -165,11 +177,15 @@ void RendererSdl::present()
 	}
 }
 
-void RendererSdl::read_pixels(PixelFormat pixel_format, void* pixels, int pitch)
+void RendererSdl::read_pixels(PixelFormat pixel_format, int width, int height, void* pixels)
 {
 	if (pixel_format != PixelFormat::r8g8b8)
 	{
 		BSTONE_THROW_STATIC_SOURCE("Unsupported destination pixel format.");
+	}
+	if (pixels == nullptr)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Null destination buffer.");
 	}
 	SDL_Surface* sdl_surface = SDL_RenderReadPixels(sdl_renderer_, nullptr);
 	if (sdl_surface == nullptr)
@@ -181,6 +197,12 @@ void RendererSdl::read_pixels(PixelFormat pixel_format, void* pixels, int pitch)
 		{
 			SDL_DestroySurface(sdl_surface);
 		});
+	// The whole target is converted in one go, so anything but an exact match
+	// would run past the end of the destination.
+	if (sdl_surface->w != width || sdl_surface->h != height)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Destination size mismatch.");
+	}
 	if (SDL_MUSTLOCK(sdl_surface))
 	{
 		if (!SDL_LockSurface(sdl_surface))
@@ -196,7 +218,7 @@ void RendererSdl::read_pixels(PixelFormat pixel_format, void* pixels, int pitch)
 		sdl_surface->pitch,
 		SDL_PIXELFORMAT_RGB24,
 		pixels,
-		pitch))
+		3 * width))
 	{
 		sdl::fail("SDL_ConvertPixels");
 	}

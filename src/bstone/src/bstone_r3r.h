@@ -13,6 +13,8 @@ SPDX-License-Identifier: MIT
 #include <span>
 #include <string_view>
 
+#include "bstone_exception.h"
+
 #include "bstone_sys_pixel_format.h"
 #include "bstone_sys_window.h"
 
@@ -58,6 +60,45 @@ struct R3rDrawIndexedParam
 	int index_offset;
 };
 
+struct R3rReadPixelsParam
+{
+	// Pixel format of the destination.
+	sys::PixelFormat pixel_format;
+
+	// Width of the destination in pixels.
+	int width;
+
+	// Height of the destination in pixels.
+	int height;
+
+	// Destination buffer with tightly packed rows.
+	void* buffer;
+};
+
+// Throws unless the destination describes an image of exactly the specified
+// size. A renderer packs the rows on its own, so it can neither crop nor
+// re-pack them to fit a destination of some other size.
+inline void r3r_validate_read_pixels_param(
+	const R3rReadPixelsParam& param,
+	int width,
+	int height)
+{
+	if (param.pixel_format != sys::PixelFormat::r8g8b8)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Unsupported pixel format.");
+	}
+
+	if (param.buffer == nullptr)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Null destination buffer.");
+	}
+
+	if (param.width != width || param.height != height)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Destination size mismatch.");
+	}
+}
+
 // ==========================================================================
 
 class R3r
@@ -78,14 +119,16 @@ public:
 	virtual sys::Window& get_window() const = 0;
 	virtual void handle_resize(sys::WindowSize new_size) = 0;
 
+	// Size of the rendered image in pixels.
+	virtual sys::WindowSize get_screen_size() const = 0;
+
 	virtual bool get_vsync() const = 0;
 	virtual void enable_vsync(bool is_enabled) = 0;
 
 	virtual void set_anti_aliasing(R3rAaType aa_type, int aa_value) = 0;
 
 	virtual void read_pixels(
-		sys::PixelFormat pixel_format,
-		void* buffer,
+		const R3rReadPixelsParam& param,
 		bool& is_flipped_vertically) = 0;
 
 	virtual void present() = 0;

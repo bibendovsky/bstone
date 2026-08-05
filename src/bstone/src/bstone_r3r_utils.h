@@ -28,8 +28,6 @@ public:
 
 	R3rAaType aa_type;
 	int aa_value;
-
-	bool is_default_depth_buffer_disabled;
 };
 
 struct R3rUtilsSetWindowModeParam

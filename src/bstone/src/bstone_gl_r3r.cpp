@@ -58,6 +58,7 @@ public:
 
 	sys::Window& get_window() const override;
 	void handle_resize(sys::WindowSize new_size) override;
+	sys::WindowSize get_screen_size() const override;
 
 	bool get_vsync() const override;
 	void enable_vsync(bool is_enabled) override;
@@ -65,8 +66,7 @@ public:
 	void set_anti_aliasing(R3rAaType aa_type, int aa_value) override;
 
 	void read_pixels(
-		sys::PixelFormat pixel_format,
-		void* buffer,
+		const R3rReadPixelsParam& param,
 		bool& is_flipped_vertically) override;
 
 	void present() override;
@@ -275,7 +275,6 @@ try
 			{
 				window_param.aa_type = R3rAaType::none;
 				window_param.aa_value = 0;
-				window_param.is_default_depth_buffer_disabled = true;
 			}
 		}
 		else
@@ -429,6 +428,11 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
+sys::WindowSize GlR3rImpl::get_screen_size() const
+{
+	return sys::WindowSize{screen_width_, screen_height_};
+}
+
 bool GlR3rImpl::get_vsync() const
 {
 	if (!device_features_.is_vsync_available)
@@ -495,27 +499,32 @@ try {
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void GlR3rImpl::read_pixels(
-	sys::PixelFormat pixel_format,
-	void* buffer,
+	const R3rReadPixelsParam& param,
 	bool& is_flipped_vertically)
 try {
-	BSTONE_ASSERT(buffer != nullptr);
-
-	switch (pixel_format)
-	{
-		case sys::PixelFormat::r8g8b8:
-			break;
-
-		default: BSTONE_THROW_STATIC_SOURCE("Unsupported pixel format.");
-	}
+	r3r_validate_read_pixels_param(param, screen_width_, screen_height_);
 
 	is_flipped_vertically = true;
 	bind_framebuffers_for_read_pixels();
 
-	glReadBuffer(GL_BACK);
+	// OpenGL ES gained glReadBuffer only in 3.0, so on the ES 2.0 path the
+	// symbol may well be missing. Nothing is lost: the back buffer is the
+	// default read buffer of the default framebuffer anyway.
+	if (glReadBuffer != nullptr)
+	{
+		glReadBuffer(GL_BACK);
+		GlR3rError::ensure_no_errors();
+	}
+
+	// The destination rows are tightly packed, unlike the four byte row
+	// alignment OpenGL packs into by default.
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	GlR3rError::ensure_no_errors();
-  
-	glReadPixels(0, 0, screen_width_, screen_height_, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+
+	glReadPixels(0, 0, screen_width_, screen_height_, GL_RGB, GL_UNSIGNED_BYTE, param.buffer);
+	GlR3rError::ensure_no_errors();
+
+	glPixelStorei(GL_PACK_ALIGNMENT, 4);
 	GlR3rError::ensure_no_errors();
 
 	bind_framebuffers();
@@ -1005,6 +1014,12 @@ try {
 	{
 		return;
 	}
+
+	// The frame that was just submitted is still sitting in the MSAA
+	// framebuffer. Resolving it here rather than waiting for the presentation
+	// keeps the screenshot from picking up whatever the default framebuffer
+	// was left with by the previous buffer swap.
+	blit_framebuffers();
 
 	bind_framebuffer(GL_FRAMEBUFFER, 0);
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED

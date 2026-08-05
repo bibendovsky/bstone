@@ -641,10 +641,7 @@ try {
 	gl_attributes.green_bit_count = 8;
 	gl_attributes.blue_bit_count = 8;
 
-	if (!param.is_default_depth_buffer_disabled)
-	{
-		gl_attributes.depth_bit_count = 16;
-	}
+	gl_attributes.depth_bit_count = 16;
 
 	switch (param.renderer_type)
 	{

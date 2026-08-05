@@ -54,11 +54,7 @@ public:
 	std::string_view get_renderer_name() override;
 	void clear_vga_buffer() override;
 
-	void take_screenshot(
-		int width,
-		int height,
-		int stride_rgb_888,
-		ScreenshotBuffer&& src_pixels_rgb_888) override;
+	void take_screenshot() override;
 
 	void vsync_present() override;
 	void present() override;
@@ -1521,23 +1517,32 @@ void HwVideo::clear_vga_buffer()
 {
 }
 
-void HwVideo::take_screenshot(
-	int width,
-	int height,
-	int stride_rgb_888,
-	ScreenshotBuffer&& src_pixels_rgb_888)
+void HwVideo::take_screenshot()
 try {
+	// The renderer knows how big the rendered image really is; the video mode
+	// cvars do not, because the window manager is free to hand out a drawable
+	// of some other size.
+	const sys::WindowSize screen_size = renderer_->get_screen_size();
+	const auto width = screen_size.width;
+	const auto height = screen_size.height;
+
+	auto src_pixels_rgb_888 = std::make_unique<std::uint8_t[]>(
+		static_cast<std::size_t>(3) * width * height);
+
 	auto is_flipped_vertically = false;
 
 	renderer_->read_pixels(
-		sys::PixelFormat::r8g8b8,
-		src_pixels_rgb_888.get(),
+		R3rReadPixelsParam{
+			.pixel_format = sys::PixelFormat::r8g8b8,
+			.width = width,
+			.height = height,
+			.buffer = src_pixels_rgb_888.get(),
+		},
 		is_flipped_vertically);
 
 	vid_schedule_save_screenshot_task(
 		width,
 		height,
-		stride_rgb_888,
 		std::move(src_pixels_rgb_888),
 		is_flipped_vertically
 	);
