@@ -53,6 +53,7 @@ public:
 
 	void apply_widescreen() override;
 	void apply_window_mode() override;
+	void handle_window_size_changed(int width, int height) override;
 	void apply_filler_color_index() override;
 
 	void fade_out(int start, int end, int red, int green, int blue, int steps) override;
@@ -128,6 +129,7 @@ private:
 	void initialize_textures();
 	void initialize_palette();
 	void calculate_dimensions(int window_width, int window_height);
+	void apply_window_size(sys::WindowSize window_size);
 	void uninitialize_vga_buffer();
 	static std::uint32_t convert_vga_color_to_u32(const VgaColor& vga_color);
 	void update_should_adjust_color();
@@ -481,14 +483,27 @@ try {
 		},
 	};
 	sys::Window& window = *window_;
-	R3rUtils::set_window_mode(window, param);
-	const sys::WindowSize window_size = window.get_size_in_pixels();
+	const sys::WindowSize window_size = R3rUtils::set_window_mode(window, param);
+	apply_window_size(window_size);
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+void SwVideo::apply_window_size(sys::WindowSize window_size)
+try {
 	calculate_dimensions(window_size.width, window_size.height);
 	vid_initialize_vanilla_raycaster();
 	vid_initialize_common();
 	uninitialize_textures();
 	initialize_textures();
 	initialize_vga_buffer();
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
+void SwVideo::handle_window_size_changed(int width, int height)
+try {
+	if (width == vid_layout_.window_width && height == vid_layout_.window_height)
+	{
+		return;
+	}
+	apply_window_size(sys::WindowSize{.width = width, .height = height});
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
 void SwVideo::apply_filler_color_index()

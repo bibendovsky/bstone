@@ -77,6 +77,11 @@ public:
 
 	virtual void apply_window_mode() = 0;
 
+	// Re-derives the layout from the window's actual pixel size. SDL3 applies
+	// mode changes asynchronously, so this can arrive well after
+	// apply_window_mode - notably right after the startup window is shown.
+	virtual void handle_window_size_changed(int width, int height) = 0;
+
 	virtual void apply_filler_color_index() = 0;
 
 	virtual void apply_brightness() = 0;

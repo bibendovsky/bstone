@@ -43,8 +43,9 @@ public:
 	void set_rounded_corner_type(WindowRoundedCornerType value) override;
 	WindowFullscreenType get_fullscreen_mode() override;
 	void set_windowed_mode(WindowSize window_size) override;
-	void set_exclusive_fullscreen_mode(DisplayMode display_mode) override;
+	DisplayMode set_exclusive_fullscreen_mode(DisplayMode display_mode) override;
 	void set_fake_fullscreen_mode() override;
+	void sync() override;
 	GlContextUPtr gl_make_context() override;
 	WindowSize get_size_in_pixels() override;
 	void gl_swap_buffers() override;
@@ -257,7 +258,7 @@ void WindowSdl::set_windowed_mode(WindowSize window_size)
 	}
 }
 
-void WindowSdl::set_exclusive_fullscreen_mode(DisplayMode display_mode)
+DisplayMode WindowSdl::set_exclusive_fullscreen_mode(DisplayMode display_mode)
 {
 	const SDL_DisplayID sdl_display_id = SDL_GetDisplayForWindow(sdl_window_);
 	if (sdl_display_id == 0)
@@ -283,6 +284,11 @@ void WindowSdl::set_exclusive_fullscreen_mode(DisplayMode display_mode)
 	{
 		sdl::fail("SDL_SetWindowFullscreen");
 	}
+	return DisplayMode{
+		.width = sdl_display_mode.w,
+		.height = sdl_display_mode.h,
+		.refresh_rate = sdl_display_mode.refresh_rate,
+	};
 }
 
 void WindowSdl::set_fake_fullscreen_mode()
@@ -295,6 +301,18 @@ void WindowSdl::set_fake_fullscreen_mode()
 	{
 		sdl::fail("SDL_SetWindowFullscreen");
 	}
+}
+
+void WindowSdl::sync()
+{
+	// A hidden window keeps size/mode requests deferred until it is shown;
+	// waiting on it would only burn SDL_SyncWindow's timeout.
+	if ((SDL_GetWindowFlags(sdl_window_) & SDL_WINDOW_HIDDEN) != 0)
+	{
+		return;
+	}
+	// Best effort: false only means some request is still pending.
+	SDL_SyncWindow(sdl_window_);
 }
 
 GlContextUPtr WindowSdl::gl_make_context()

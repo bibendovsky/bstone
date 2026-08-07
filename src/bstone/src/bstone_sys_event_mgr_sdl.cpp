@@ -442,6 +442,13 @@ bool EventMgrSdl::handle_event(const SDL_WindowEvent& sdl_e, WindowEvent& e)
 		case SDL_EVENT_WINDOW_FOCUS_LOST:
 			e.event_type = WindowEventType::keyboard_focus_lost;
 			break;
+		case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+			// SDL3 mode changes land asynchronously (deferred past show() for
+			// windows created hidden), so the real size arrives here.
+			e.event_type = WindowEventType::pixel_size_changed;
+			e.width = static_cast<int>(sdl_e.data1);
+			e.height = static_cast<int>(sdl_e.data2);
+			break;
 		default:
 			is_handled = false;
 			break;
@@ -471,6 +478,12 @@ bool EventMgrSdl::handle_event(const SDL_Event& sdl_e, Event& e)
 		case SDL_EVENT_WINDOW_FOCUS_GAINED:
 		case SDL_EVENT_WINDOW_FOCUS_LOST:
 			return handle_event(sdl_e.window, e.window);
+		case SDL_EVENT_QUIT:
+			// Closing the last window, quitting from the dock or the application
+			// menu, and a termination request from the system all arrive as this.
+			e.common.type = EventType::quit;
+			e.common.timestamp = static_cast<unsigned long long>(sdl_e.quit.timestamp);
+			return true;
 		default:
 			return false;
 	}
