@@ -492,8 +492,18 @@ void sd_startup()
 
 		if (user_driver_type == AudioDriverType::auto_detect)
 		{
+#if defined(__APPLE__)
+			// Apple's OpenAL framework initializes cleanly and reports every
+			// source as playing, yet renders silence for some of them on modern
+			// macOS, so a successful OpenAL start-up proves nothing here and
+			// auto-detection goes straight to the system mixer. OpenAL remains
+			// available by explicit choice, which prefers openal-soft when that
+			// is installed.
+			driver_types.emplace_back(AudioDriverType::system);
+#else
 			driver_types.emplace_back(AudioDriverType::openal);
 			driver_types.emplace_back(AudioDriverType::system);
+#endif
 		}
 		else
 		{
