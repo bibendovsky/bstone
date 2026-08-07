@@ -9,9 +9,11 @@ SPDX-License-Identifier: MIT
 #include "bstone_vk_r3r.h"
 #include "bstone_assert.h"
 #include "bstone_exception.h"
+#include "bstone_exception_utils.h"
 #include "bstone_scope_exit.h"
 #include "bstone_r3r_cmd_buffer.h"
 #include "bstone_r3r_limits.h"
+#include "bstone_r3r_sample_count.h"
 #include "bstone_string_builder.h"
 #include "bstone_sys_logger.h"
 #include "bstone_vk_r3r_array_extractor.h"
@@ -45,6 +47,9 @@ SPDX-License-Identifier: MIT
 namespace bstone {
 
 namespace {
+
+// Spelled out rather than taken from <vulkan/vulkan_beta.h>, which the build does
+// not include because it carries provisional extensions the port has no use for.
 
 class VkR3rImpl final : public R3r
 {
@@ -112,6 +117,8 @@ private:
 	R3rDeviceInfo device_info_{};
 	sys::WindowUPtr window_{};
 	VkR3rContext context_{};
+	// Set once the logical device exists, so the resolver can prefer it.
+	VkDevice symbol_device_{};
 	VkR3rPipelineMgrUPtr pipeline_mgr_{};
 	FrameState frame_state_{};
 
@@ -122,6 +129,23 @@ private:
 	void resolve_symbol(VkInstance instance, const char* name, T& symbol)
 	{
 		BSTONE_ASSERT(context_.vkGetInstanceProcAddr != nullptr);
+		// Once there is a device, ask it first. A device-level command obtained this
+		// way skips the loader's dispatch and so must be paired with the handles that
+		// same path produces; mixing the two hands a command a handle it cannot
+		// dispatch on. Anything that is not device-level answers null here and falls
+		// through to the instance, which is how the two lists stay separated without
+		// naming every command twice.
+		if (symbol_device_ != VK_NULL_HANDLE && context_.vkGetDeviceProcAddr != nullptr)
+		{
+			PFN_vkVoidFunction const device_symbol_void = context_.vkGetDeviceProcAddr(
+				/* device */ symbol_device_,
+				/* pName */  name);
+			if (device_symbol_void != nullptr)
+			{
+				symbol = reinterpret_cast<T>(device_symbol_void);
+				return;
+			}
+		}
 		PFN_vkVoidFunction const symbol_void = context_.vkGetInstanceProcAddr(
 			/* instance */ instance,
 			/* pName */    name);
@@ -171,6 +195,7 @@ private:
 	void initialize_enabled_global_extensions();
 	void initialize_instance();
 	void initialize_instance_symbols();
+	void initialize_device_symbols();
 	void initialize_debug_utils_messenger();
 	void initialize_surface();
 	void update_surface_capabilities();
@@ -262,7 +287,19 @@ private:
 
 VkR3rImpl::~VkR3rImpl()
 {
-	impl_wait_for_device();
+	// A lost device makes the wait fail, and a destructor may not throw. Report the
+	// failure and carry on with the teardown.
+	try
+	{
+		impl_wait_for_device();
+	}
+	catch (...)
+	{
+		for (const std::string& message : extract_exception_messages())
+		{
+			logger_.log_error(message.c_str());
+		}
+	}
 }
 
 VkR3rImpl::VkR3rImpl(sys::VideoMgr& video_mgr, sys::WindowMgr& window_mgr, const R3rInitParam& param)
@@ -302,7 +339,6 @@ try
 	initialize_transient_command_pool();
 	initialize_command_pool();
 	initialize_command_buffer();
-	initialize_swapchain_sync_objects();
 	initialize_sync_objects();
 	initialize_descriptor_pool();
 	initialize_pipeline_mgr();
@@ -360,6 +396,7 @@ try
 	context_.vk_offscreen_height = static_cast<std::uint32_t>(new_size.height);
 	if (context_.vk_offscreen_width != old_width || context_.vk_offscreen_height != old_height)
 	{
+		impl_wait_for_device();
 		terminate_offscreen_framebuffer();
 		initialize_offscreen_framebuffer();
 		context_.draw_state_update_scissor();
@@ -839,15 +876,7 @@ void VkR3rImpl::ensure_vk_result(VkResult vk_result, const char* vk_name)
 
 int VkR3rImpl::get_max_sample_count() const
 {
-	for (int i_bit = 6; i_bit >= 0; --i_bit)
-	{
-		const unsigned int sample_count = 1U << i_bit;
-		if ((context_.sample_count_bitmask & sample_count) != 0)
-		{
-			return static_cast<int>(sample_count);
-		}
-	}
-	return 1;
+	return R3rSampleCount::get_max(context_.sample_count_bitmask);
 }
 
 int VkR3rImpl::choose_sample_count(R3rAaType aa_type, int aa_degree) const
@@ -860,17 +889,7 @@ int VkR3rImpl::choose_sample_count(R3rAaType aa_type, int aa_degree) const
 		default:
 			return 1;
 	}
-	const unsigned int max_sample_count = static_cast<unsigned int>(std::min(aa_degree, get_max_sample_count()));
-	for (int i_bit = 6; i_bit >= 0; --i_bit)
-	{
-		const unsigned int sample_count = 1U << i_bit;
-		if ((context_.sample_count_bitmask & sample_count) != 0 &&
-			sample_count <= max_sample_count)
-		{
-			return static_cast<int>(sample_count);
-		}
-	}
-	return 1;
+	return R3rSampleCount::choose(context_.sample_count_bitmask, aa_degree);
 }
 
 VkPresentModeKHR VkR3rImpl::choose_present_mode(bool enable_vsync) const
@@ -1103,6 +1122,10 @@ void VkR3rImpl::initialize_global_extensions()
 		{
 			context_.has_ext_debug_utils = true;
 		}
+		if (std::strcmp(extension.extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME) == 0)
+		{
+			context_.has_khr_portability_enumeration = true;
+		}
 	}
 }
 
@@ -1127,6 +1150,17 @@ void VkR3rImpl::initialize_enabled_global_extensions()
 		context_.enabled_extensions.emplace_back(context_.vk_ext_debug_utils_extension_name);
 	}
 #endif // NDEBUG
+	// A driver that implements Vulkan on top of another API - MoltenVK, on macOS -
+	// is hidden from an application that does not ask to see it, and creating an
+	// instance fails outright where such a driver is the only one installed.
+	if (context_.has_khr_portability_enumeration)
+	{
+		context_.enabled_extensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+		// The device half of portability depends on this one, and the device is
+		// created from this instance, so it has to be asked for here too.
+		context_.enabled_extensions.emplace_back(
+			VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+	}
 	std::span<const char* const> sys_required_extensions = video_mgr_.get_vulkan_mgr().get_required_extensions(*window_);
 	context_.enabled_extensions.reserve(
 		context_.enabled_extensions.size() + sys_required_extensions.size());
@@ -1180,6 +1214,10 @@ void VkR3rImpl::initialize_instance()
 		vk_instance_create_info.pNext = &vk_debug_utils_messenger_create_info;
 	}
 #endif // NDEBUG
+	if (context_.has_khr_portability_enumeration)
+	{
+		vk_instance_create_info.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+	}
 	vk_instance_create_info.pApplicationInfo = &vk_application_info;
 	vk_instance_create_info.enabledLayerCount = static_cast<std::uint32_t>(context_.enabled_layers.size());
 	vk_instance_create_info.ppEnabledLayerNames = context_.enabled_layers.data();
@@ -1197,6 +1235,26 @@ void VkR3rImpl::initialize_instance()
 
 void VkR3rImpl::initialize_instance_symbols()
 {
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCreateDevice));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkDestroySurfaceKHR));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkEnumerateDeviceExtensionProperties));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkEnumeratePhysicalDevices));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetDeviceProcAddr));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceFeatures));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceMemoryProperties));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceFormatProperties));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceProperties));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceQueueFamilyProperties));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceSurfaceCapabilitiesKHR));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceSurfaceFormatsKHR));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceSurfacePresentModesKHR));
+	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceSurfaceSupportKHR));
+}
+
+void VkR3rImpl::initialize_device_symbols()
+{
+	// Resolved through the device, so these dispatch on the handles the device
+	// itself produces rather than going back through the instance.
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkAcquireNextImageKHR));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkAllocateCommandBuffers));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkAllocateDescriptorSets));
@@ -1225,7 +1283,6 @@ void VkR3rImpl::initialize_instance_symbols()
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCreateCommandPool));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCreateDescriptorPool));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCreateDescriptorSetLayout));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCreateDevice));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCreateFence));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCreateFramebuffer));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkCreateGraphicsPipelines));
@@ -1252,27 +1309,15 @@ void VkR3rImpl::initialize_instance_symbols()
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkDestroySampler));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkDestroySemaphore));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkDestroyShaderModule));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkDestroySurfaceKHR));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkDestroySwapchainKHR));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkDeviceWaitIdle));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkEndCommandBuffer));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkEnumerateDeviceExtensionProperties));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkEnumeratePhysicalDevices));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkFreeCommandBuffers));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkFreeDescriptorSets));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkFreeMemory));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetBufferMemoryRequirements));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetDeviceQueue));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetImageMemoryRequirements));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceFeatures));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceMemoryProperties));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceFormatProperties));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceProperties));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceQueueFamilyProperties));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceSurfaceCapabilitiesKHR));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceSurfaceFormatsKHR));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceSurfacePresentModesKHR));
-	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetPhysicalDeviceSurfaceSupportKHR));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkGetSwapchainImagesKHR));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkMapMemory));
 	resolve_symbol(context_.instance.get(), BSTONE_STRCTX(vkQueuePresentKHR));
@@ -1496,6 +1541,19 @@ void VkR3rImpl::initialize_enabled_device_extensions()
 	context_.enabled_device_extensions.clear();
 	context_.enabled_device_extensions.reserve(4);
 	context_.enabled_device_extensions.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+	// A device that implements only a subset of the specification must say so, and
+	// the specification requires an application that uses one to enable this.
+	const auto device_extensions = vk_r3r_extract_array(
+		context_.vkEnumerateDeviceExtensionProperties, context_.physical_device, nullptr);
+	for (const VkExtensionProperties& extension : device_extensions)
+	{
+		if (std::strcmp(extension.extensionName, VkR3rContext::vk_khr_portability_subset_extension_name) == 0)
+		{
+			context_.has_khr_portability_subset = true;
+			context_.enabled_device_extensions.emplace_back(VkR3rContext::vk_khr_portability_subset_extension_name);
+			break;
+		}
+	}
 }
 
 void VkR3rImpl::initialize_logical_device()
@@ -1517,8 +1575,10 @@ void VkR3rImpl::initialize_logical_device()
 		.flags = VkDeviceCreateFlags{},
 		.queueCreateInfoCount = 1,
 		.pQueueCreateInfos = &vk_device_queue_create_info,
-		.enabledLayerCount = static_cast<std::uint32_t>(context_.enabled_layers.size()),
-		.ppEnabledLayerNames = context_.enabled_layers.data(),
+		// Device-level layers were removed from the specification; a device now
+		// inherits the instance's, and passing any here is invalid.
+		.enabledLayerCount = 0,
+		.ppEnabledLayerNames = nullptr,
 		.enabledExtensionCount = static_cast<std::uint32_t>(context_.enabled_device_extensions.size()),
 		.ppEnabledExtensionNames = context_.enabled_device_extensions.data(),
 		.pEnabledFeatures = &vk_physical_device_features};
@@ -1530,6 +1590,12 @@ void VkR3rImpl::initialize_logical_device()
 		/* pDevice */        &vk_device);
 	ensure_vk_result(vk_result, "vkCreateDevice");
 	context_.device = VkR3rDeviceResource{vk_device, VkR3rDeviceDeleter{context_}};
+	// Take the device-level commands from the device now that there is one. This has
+	// to happen before the queue is fetched: a command obtained from the device
+	// dispatches on the handles that path produces, so the queue and the calls that
+	// later submit to it must both come from it.
+	symbol_device_ = vk_device;
+	initialize_device_symbols();
 	context_.vkGetDeviceQueue(
 		/* device */           vk_device,
 		/* queueFamilyIndex */ context_.queue_family_index,
@@ -2217,10 +2283,11 @@ void VkR3rImpl::initialize_post_pipelines()
 
 void VkR3rImpl::initialize_post()
 {
-	if (!context_.has_swapchain())
-	{
-		return;
-	}
+	// Everything but the framebuffers and the pipelines is independent of the swapchain,
+	// and those two skip themselves while there is none. So create the rest right away:
+	// a renderer born without a swapchain still has to have a mapped uniform buffer and a
+	// descriptor set to write to, and the swapchain recreation expects the render pass and
+	// the shader modules to be around.
 	initialize_post_sampler();
 	initialize_post_uniform_buffer();
 	initialize_post_descriptor_set_layout();
@@ -2464,7 +2531,7 @@ void VkR3rImpl::initialize_sample_count(const R3rInitParam& r3r_init_param)
 	// Ensure at least one sample count.
 	context_.sample_count_bitmask |= VK_SAMPLE_COUNT_1_BIT;
 	// Apply the limit.
-	context_.sample_count_bitmask &= R3rLimits::max_aa - 1;
+	context_.sample_count_bitmask = R3rSampleCount::clamp_bitmask(context_.sample_count_bitmask);
 	BSTONE_ASSERT(context_.sample_count_bitmask != 0);
 	context_.sample_count = choose_sample_count(r3r_init_param.aa_type, r3r_init_param.aa_value);
 }
@@ -2526,16 +2593,20 @@ void VkR3rImpl::wait_for_previous_frame()
 
 void VkR3rImpl::swapchain_acquire_next_image()
 {
-	if (!context_.has_swapchain())
+	// A zero-sized surface has no swapchain to acquire an image from, and recreating it
+	// will not produce one until the surface has an area again. Bail out in that case,
+	// leaving the image index unset - the frame will be dropped.
+	constexpr int max_attempt_count = 4;
+	for (int i_attempt = 0; i_attempt < max_attempt_count; ++i_attempt)
 	{
-		recreate_swapchain();
 		if (!context_.has_swapchain())
 		{
-			return;
+			recreate_swapchain();
+			if (!context_.has_swapchain())
+			{
+				return;
+			}
 		}
-	}
-	for (;;)
-	{
 		const VkResult vk_result = context_.vkAcquireNextImageKHR(
 			/* device */      context_.device.get(),
 			/* swapchain */   context_.swapchain.get(),
@@ -2555,6 +2626,9 @@ void VkR3rImpl::swapchain_acquire_next_image()
 				return;
 		}
 	}
+	// A freshly recreated swapchain that is out of date again means the surface never
+	// settles. Report it instead of spinning here forever.
+	BSTONE_THROW_STATIC_SOURCE("Out of date swapchain.");
 }
 
 void VkR3rImpl::recreate_swapchain()

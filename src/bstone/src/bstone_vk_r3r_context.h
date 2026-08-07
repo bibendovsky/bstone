@@ -26,6 +26,7 @@ class VkR3rContext
 public:
 	static const char* const vk_layer_khronos_validation_extension_name;
 	static const char* const vk_ext_debug_utils_extension_name;
+	static const char* const vk_khr_portability_subset_extension_name;
 	static constexpr std::uint32_t total_attachments = 2;
 	static constexpr std::uint32_t color_attachment_index = 0;
 	static constexpr std::uint32_t depth_attachment_index = 1;
@@ -75,6 +76,7 @@ public:
 	};
 
 	PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr{};
+	PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr{};
 	PFN_vkCreateInstance vkCreateInstance{};
 	PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties{};
 	PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties{};
@@ -171,6 +173,8 @@ public:
 
 	bool has_vk_layer_khronos_validation{};
 	bool has_ext_debug_utils{};
+	bool has_khr_portability_enumeration{};
+	bool has_khr_portability_subset{};
 	bool has_vk_present_mode_immediate_khr{};
 	bool has_vk_present_mode_fifo_khr{};
 

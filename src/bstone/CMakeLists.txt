@@ -485,6 +485,7 @@ set(BSTONE_BSTONE_RENDERER_3D_SOURCES
 	src/bstone_r3r_mgr.cpp
 	src/bstone_r3r_mgr.h
 	src/bstone_r3r_r2_texture.h
+	src/bstone_r3r_sample_count.h
 	src/bstone_r3r_sampler.h
 	src/bstone_r3r_shader.h
 	src/bstone_r3r_shader_stage.h
