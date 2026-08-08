@@ -90,7 +90,7 @@ public:
 
 private:
 	wchar_t stack_storage_[TStackCapacity];
-	wchar_t* storage_;
+	wchar_t* storage_{};
 	int size_{};
 
 	void deallocate()

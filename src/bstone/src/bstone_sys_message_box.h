@@ -57,6 +57,9 @@ struct MessageBoxInitParam
 struct MessageBox
 {
 	static void show_simple(const char* title, const char* message, MessageBoxType type);
+
+	// Returns the id of the clicked button or a negative value if the message
+	// box was dismissed without clicking one.
 	static int show(const MessageBoxInitParam& param);
 };
 

@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT
 
 namespace bstone::sys {
 
-// The number of non-leap nanoseconds that have elapsed since 00:00:00 UTC on 1 January 1970.
+// A number of nanoseconds.
 using TimeNs = long long;
 
 enum DateTimeKind
@@ -34,7 +34,14 @@ struct DateTime
 	int utc_offset_s; // UTC offset in seconds.
 };
 
+// The number of non-leap nanoseconds that have elapsed since 00:00:00 UTC on 1 January 1970.
+// The system clock can be stepped at any moment, so do not measure durations with it.
 TimeNs get_current_time_ns();
+
+// The number of nanoseconds that have elapsed since an unspecified moment in the past.
+// Never goes backwards, hence the source to measure durations with.
+TimeNs get_elapsed_time_ns();
+
 DateTime time_ns_to_date_time(TimeNs time_ns, DateTimeKind date_time_kind);
 
 } // namespace bstone::sys

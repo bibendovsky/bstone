@@ -86,7 +86,9 @@ int MessageBox::show(const MessageBoxInitParam& param)
 		.buttons = sdl_buttons,
 		.colorScheme = nullptr,
 	};
-	int sdl_button_id = 0;
+	// Not every backend reports a dismissed dialog, so start out with the same
+	// value the ones that do report use.
+	int sdl_button_id = -1;
 	if (!SDL_ShowMessageBox(&sdl_message_box, &sdl_button_id))
 	{
 		sdl::fail("SDL_ShowMessageBox");

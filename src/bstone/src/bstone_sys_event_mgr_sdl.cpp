@@ -12,6 +12,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_sys_event_mgr_null.h"
 #include "bstone_sys_logger.h"
 #include "bstone_sys_sdl_subsystem.h"
+#include <cmath>
 #include <exception>
 #include "SDL3/SDL_events.h"
 
@@ -33,6 +34,8 @@ public:
 private:
 	Logger& logger_;
 	SdlSubsystem sdl_subsystem_{};
+	float mouse_delta_x_remainder_{};
+	float mouse_delta_y_remainder_{};
 
 	static void log_sdl_error(StringBuilder& formatter);
 	static void log_keyboards(StringBuilder& formatter);
@@ -43,13 +46,14 @@ private:
 	static unsigned int map_mouse_buttons_mask(Uint32 sdl_buttons_mask);
 	static int map_mouse_button(int sdl_button);
 	static MouseWheelDirection map_mouse_wheel_direction(SDL_MouseWheelDirection sdl_direction);
+	static int take_whole_delta(float sdl_delta, float& remainder);
 
 	static bool handle_event(const SDL_KeyboardEvent& sdl_e, KeyboardEvent& e);
-	static bool handle_event(const SDL_MouseMotionEvent& sdl_e, MouseMotionEvent& e);
+	bool handle_event(const SDL_MouseMotionEvent& sdl_e, MouseMotionEvent& e);
 	static bool handle_event(const SDL_MouseButtonEvent& sdl_e, MouseButtonEvent& e);
 	static bool handle_event(const SDL_MouseWheelEvent& sdl_e, MouseWheelEvent& e);
 	static bool handle_event(const SDL_WindowEvent& sdl_e, WindowEvent& e);
-	static bool handle_event(const SDL_Event& sdl_e, Event& e);
+	bool handle_event(const SDL_Event& sdl_e, Event& e);
 };
 
 // --------------------------------------
@@ -359,6 +363,17 @@ MouseWheelDirection EventMgrSdl::map_mouse_wheel_direction(SDL_MouseWheelDirecti
 	}
 }
 
+// Relative mouse motion is reported as a floating-point amount. Truncating it
+// would throw away everything below one unit, so carry the fraction over to
+// the next event instead of losing it.
+int EventMgrSdl::take_whole_delta(float sdl_delta, float& remainder)
+{
+	const float delta = sdl_delta + remainder;
+	const float whole_delta = std::trunc(delta);
+	remainder = delta - whole_delta;
+	return static_cast<int>(whole_delta);
+}
+
 bool EventMgrSdl::handle_event(const SDL_KeyboardEvent& sdl_e, KeyboardEvent& e)
 {
 	const KeyboardKey virtual_key = map_key_code(sdl_e.key);
@@ -382,8 +397,8 @@ bool EventMgrSdl::handle_event(const SDL_MouseMotionEvent& sdl_e, MouseMotionEve
 	}
 	e.x = static_cast<int>(sdl_e.x);
 	e.y = static_cast<int>(sdl_e.y);
-	e.delta_x = static_cast<int>(sdl_e.xrel);
-	e.delta_y = static_cast<int>(sdl_e.yrel);
+	e.delta_x = take_whole_delta(sdl_e.xrel, mouse_delta_x_remainder_);
+	e.delta_y = take_whole_delta(sdl_e.yrel, mouse_delta_y_remainder_);
 	e.button_mask = map_mouse_buttons_mask(sdl_e.state);
 	e.window_id = sdl_e.windowID;
 	e.type = EventType::mouse_motion;
@@ -422,8 +437,10 @@ bool EventMgrSdl::handle_event(const SDL_MouseWheelEvent& sdl_e, MouseWheelEvent
 	{
 		return false;
 	}
-	e.x = static_cast<int>(sdl_e.x);
-	e.y = static_cast<int>(sdl_e.y);
+	// The floating-point amounts lose everything below one tick when truncated,
+	// which on a trackpad or a high-resolution wheel is every single event.
+	e.x = sdl_e.integer_x;
+	e.y = sdl_e.integer_y;
 	e.direction = direction;
 	e.window_id = sdl_e.windowID;
 	e.type = EventType::mouse_wheel;

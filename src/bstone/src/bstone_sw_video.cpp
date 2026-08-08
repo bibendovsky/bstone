@@ -730,6 +730,7 @@ try {
 
 	create_window();
 	initialize_renderer();
+	apply_window_mode();
 	initialize_textures();
 	initialize_palette();
 	initialize_vga_buffer();

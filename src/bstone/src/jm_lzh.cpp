@@ -899,7 +899,9 @@ try {
 
 			const std::int16_t j = c - 255 + THRESHOLD;
 
-			for (std::int16_t k = 0; k < j; ++k)
+			// A match emits up to F bytes at once, so the outer bound is not
+			// enough to keep the last token inside the caller's buffer.
+			for (std::int16_t k = 0; k < j && count < textsize; ++k)
 			{
 				c = text_buf[(i + k) & (N - 1)];
 

@@ -278,7 +278,9 @@ void ZipArchiveFile::deserialize_local_file_header(MemoryBinaryReader& binary_re
 bool ZipArchiveFile::validate_local_file_header(const LocalFileHeader& header, const ArchiveFileEntry& entry)
 {
 	if (header.signature != 0x04034B50U)
+	{
 		return false;
+	}
 	if (((header.flags & file_encrypted_flag) != 0) ||
 		((header.flags & patched_data_flag) != 0) ||
 		((header.flags & strong_encryption_flag) != 0) ||
@@ -290,7 +292,9 @@ bool ZipArchiveFile::validate_local_file_header(const LocalFileHeader& header, c
 	const ArchiveFileLanguageEncoding language_encoding =
 		is_utf8 ? ArchiveFileLanguageEncoding::utf8 : ArchiveFileLanguageEncoding::cp437;
 	if (language_encoding != entry.language_encoding)
+	{
 		return false;
+	}
 	ArchiveFileCompressionMethod compression_method;
 	switch (header.compression_method)
 	{
@@ -305,19 +309,29 @@ bool ZipArchiveFile::validate_local_file_header(const LocalFileHeader& header, c
 			break;
 	}
 	if (compression_method != entry.compression_method)
+	{
 		return false;
+	}
 	const bool has_data_descriptor = (header.flags & data_descriptor_flag) != 0;
 	if (!has_data_descriptor)
 	{
 		if (header.crc_32 != entry.crc_32)
+		{
 			return false;
+		}
 		if (header.compressed_size != static_cast<unsigned int>(entry.compressed_size))
+		{
 			return false;
+		}
 		if (header.uncompressed_size != static_cast<unsigned int>(entry.uncompressed_size))
+		{
 			return false;
+		}
 	}
 	if (header.file_name_length != entry.name_length)
+	{
 		return false;
+	}
 	return true;
 }
 
@@ -354,19 +368,33 @@ bool ZipArchiveFile::validate_end_of_central_dir_record(const EndOfCentralDirRec
 	// A ZIP64 archive, a multi-disk one and a self-contradicting one are all simply
 	// unsupported input, so they are refused the same way an unreadable file would be.
 	if (record.this_disk_number != 0)
+	{
 		return false;
+	}
 	if (record.dir_disk_number != 0)
+	{
 		return false;
+	}
 	if (record.this_total_entries == zip64_marker_16)
+	{
 		return false;
+	}
 	if (record.dir_total_entries == zip64_marker_16)
+	{
 		return false;
+	}
 	if (record.this_total_entries != record.dir_total_entries)
+	{
 		return false;
+	}
 	if (record.dir_size == zip64_marker_32)
+	{
 		return false;
+	}
 	if (record.dir_size > max_central_dir_size)
+	{
 		return false;
+	}
 	// The entry name arena is sized by subtracting the fixed part of every promised header
 	// from the directory size. Nothing else ties the two fields together, so a directory
 	// too small to hold the entries it promises would undersize the arena.
@@ -375,7 +403,9 @@ bool ZipArchiveFile::validate_end_of_central_dir_record(const EndOfCentralDirRec
 		return false;
 	}
 	if (record.dir_offset == zip64_marker_32)
+	{
 		return false;
+	}
 	return true;
 }
 
@@ -383,9 +413,13 @@ bool ZipArchiveFile::read_end_of_central_dir_record(EndOfCentralDirRecord& recor
 {
 	const long long archive_size = input_stream_->get_size();
 	if (archive_size < 0)
+	{
 		return false;
+	}
 	if (archive_size < end_of_central_dir_record_size)
+	{
 		return false;
+	}
 	constexpr int max_comment_length = 0xFFFF;
 	constexpr int history_size = end_of_central_dir_record_size - 1;
 	constexpr long long max_scan_size = end_of_central_dir_record_size + max_comment_length;
@@ -433,7 +467,9 @@ bool ZipArchiveFile::read_end_of_central_dir_record(EndOfCentralDirRecord& recor
 bool ZipArchiveFile::deserialize_central_file_header(MemoryBinaryReader& binary_reader, CentralFileHeader& header)
 {
 	if (!binary_reader.can_read_n(central_file_header_size))
+	{
 		return false;
+	}
 	// central file header signature   4 bytes  (0x02014B50)
 	header.signature                = binary_reader.read_u32_le();
 	// version made by                 2 bytes
@@ -470,12 +506,16 @@ bool ZipArchiveFile::deserialize_central_file_header(MemoryBinaryReader& binary_
 	header.local_header_offset      = binary_reader.read_u32_le();
 	// file name (variable size)
 	if (!binary_reader.can_read_n(header.file_name_length))
+	{
 		return false;
+	}
 	header.file_name = static_cast<const char*>(binary_reader.get_current_data());
 	binary_reader.skip(header.file_name_length);
 	// extra field (variable size)
 	if (!binary_reader.can_read_n(header.extra_field_length))
+	{
 		return false;
+	}
 	// Look up for language-related extra fields.
 	header.has_extended_language_encoding_data = false;
 	header.has_info_zip_unicode_path_extra_field = false;
@@ -509,7 +549,9 @@ bool ZipArchiveFile::deserialize_central_file_header(MemoryBinaryReader& binary_
 	}
 	// file comment (variable size)
 	if (!binary_reader.can_read_n(header.file_comment_length))
+	{
 		return false;
+	}
 	binary_reader.skip(header.file_comment_length);
 	//
 	return true;
@@ -518,9 +560,13 @@ bool ZipArchiveFile::deserialize_central_file_header(MemoryBinaryReader& binary_
 bool ZipArchiveFile::validate_central_file_header(const CentralFileHeader& header) const
 {
 	if (header.signature != 0x02014B50U)
+	{
 		return false;
+	}
 	if (header.disk_number_start != 0)
+	{
 		return false;
+	}
 	return true;
 }
 
@@ -667,10 +713,14 @@ bool ZipArchiveFile::read_central_dir(const EndOfCentralDirRecord& eocdr)
 	BufferUPtr dir_buffer{::operator new(std::size_t{eocdr.dir_size})};
 	reserve_entries(eocdr.dir_total_entries);
 	if (!input_stream_->set_position(eocdr.dir_offset))
+	{
 		return false;
+	}
 	MemoryBinaryReader dir_binary_reader{dir_buffer.get(), static_cast<int>(eocdr.dir_size)};
 	if (!input_stream_->read_exactly(dir_buffer.get(), static_cast<int>(eocdr.dir_size)))
+	{
 		return false;
+	}
 	const int names_capacity = static_cast<int>(eocdr.dir_size) -
 		((central_file_header_size - 16 /* (alignment-1)+NULL */) * eocdr.dir_total_entries);
 	reserve_names(names_capacity);
