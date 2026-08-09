@@ -23,6 +23,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_r3r_cmd_buffer.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_r3r_tests.h"
+#include "bstone_r3r_utils.h"
 
 #include "bstone_gl_r3r.h"
 #include "bstone_gl_r3r_buffer.h"
@@ -502,7 +503,7 @@ void GlR3rImpl::read_pixels(
 	const R3rReadPixelsParam& param,
 	bool& is_flipped_vertically)
 try {
-	r3r_validate_read_pixels_param(param, screen_width_, screen_height_);
+	R3rUtils::validate_read_pixels_param(param, screen_width_, screen_height_);
 
 	is_flipped_vertically = true;
 	bind_framebuffers_for_read_pixels();

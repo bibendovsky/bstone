@@ -79,6 +79,11 @@ public:
 
 	static void validate_initialize_param(const R3rInitParam& param);
 
+	// Throws unless the destination describes an image of exactly the specified
+	// size. A renderer packs the rows on its own, so it can neither crop nor
+	// re-pack them to fit a destination of some other size.
+	static void validate_read_pixels_param(const R3rReadPixelsParam& param, int width, int height);
+
 	static void validate_buffer_update_param(const R3rUpdateBufferParam& param);
 	static void validate_buffer_create_param(const R3rBufferInitParam& param);
 

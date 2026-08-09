@@ -1,6 +1,7 @@
 #include <cstdint>
 
 #include "bstone_r3r.h"
+#include "bstone_r3r_utils.h"
 #include "bstone_tester.h"
 
 namespace {
@@ -11,7 +12,7 @@ std::uint8_t buffer[3 * 4 * 2];
 
 // ==========================================================================
 
-// void r3r_validate_read_pixels_param(const R3rReadPixelsParam&, int, int)
+// void R3rUtils::validate_read_pixels_param(const R3rReadPixelsParam&, int, int)
 void test_togn86jyn8b42a2p()
 {
 	const auto param = bstone::R3rReadPixelsParam{
@@ -24,7 +25,7 @@ void test_togn86jyn8b42a2p()
 
 	try
 	{
-		bstone::r3r_validate_read_pixels_param(param, 4, 2);
+		bstone::R3rUtils::validate_read_pixels_param(param, 4, 2);
 	}
 	catch (...)
 	{
@@ -34,7 +35,7 @@ void test_togn86jyn8b42a2p()
 	tester.check(!is_failed);
 }
 
-// void r3r_validate_read_pixels_param(const R3rReadPixelsParam&, int, int)
+// void R3rUtils::validate_read_pixels_param(const R3rReadPixelsParam&, int, int)
 // Unsupported pixel format.
 void test_2xzgqvr59z3omnta()
 {
@@ -48,7 +49,7 @@ void test_2xzgqvr59z3omnta()
 
 	try
 	{
-		bstone::r3r_validate_read_pixels_param(param, 4, 2);
+		bstone::R3rUtils::validate_read_pixels_param(param, 4, 2);
 	}
 	catch (...)
 	{
@@ -58,7 +59,7 @@ void test_2xzgqvr59z3omnta()
 	tester.check(is_failed);
 }
 
-// void r3r_validate_read_pixels_param(const R3rReadPixelsParam&, int, int)
+// void R3rUtils::validate_read_pixels_param(const R3rReadPixelsParam&, int, int)
 // Null buffer.
 void test_63kn34qkp1o6p160()
 {
@@ -72,7 +73,7 @@ void test_63kn34qkp1o6p160()
 
 	try
 	{
-		bstone::r3r_validate_read_pixels_param(param, 4, 2);
+		bstone::R3rUtils::validate_read_pixels_param(param, 4, 2);
 	}
 	catch (...)
 	{
@@ -82,7 +83,7 @@ void test_63kn34qkp1o6p160()
 	tester.check(is_failed);
 }
 
-// void r3r_validate_read_pixels_param(const R3rReadPixelsParam&, int, int)
+// void R3rUtils::validate_read_pixels_param(const R3rReadPixelsParam&, int, int)
 // Destination narrower than the image.
 void test_0w65hpbd2w0u877t()
 {
@@ -96,7 +97,7 @@ void test_0w65hpbd2w0u877t()
 
 	try
 	{
-		bstone::r3r_validate_read_pixels_param(param, 8, 2);
+		bstone::R3rUtils::validate_read_pixels_param(param, 8, 2);
 	}
 	catch (...)
 	{
@@ -106,7 +107,7 @@ void test_0w65hpbd2w0u877t()
 	tester.check(is_failed);
 }
 
-// void r3r_validate_read_pixels_param(const R3rReadPixelsParam&, int, int)
+// void R3rUtils::validate_read_pixels_param(const R3rReadPixelsParam&, int, int)
 // Destination wider than the image.
 void test_6036ue7dgnn36t8z()
 {
@@ -120,7 +121,7 @@ void test_6036ue7dgnn36t8z()
 
 	try
 	{
-		bstone::r3r_validate_read_pixels_param(param, 2, 2);
+		bstone::R3rUtils::validate_read_pixels_param(param, 2, 2);
 	}
 	catch (...)
 	{
@@ -130,7 +131,7 @@ void test_6036ue7dgnn36t8z()
 	tester.check(is_failed);
 }
 
-// void r3r_validate_read_pixels_param(const R3rReadPixelsParam&, int, int)
+// void R3rUtils::validate_read_pixels_param(const R3rReadPixelsParam&, int, int)
 // Destination shorter than the image.
 void test_xjkwh00fug8d2tih()
 {
@@ -144,7 +145,7 @@ void test_xjkwh00fug8d2tih()
 
 	try
 	{
-		bstone::r3r_validate_read_pixels_param(param, 4, 4);
+		bstone::R3rUtils::validate_read_pixels_param(param, 4, 4);
 	}
 	catch (...)
 	{

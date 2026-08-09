@@ -75,30 +75,6 @@ struct R3rReadPixelsParam
 	void* buffer;
 };
 
-// Throws unless the destination describes an image of exactly the specified
-// size. A renderer packs the rows on its own, so it can neither crop nor
-// re-pack them to fit a destination of some other size.
-inline void r3r_validate_read_pixels_param(
-	const R3rReadPixelsParam& param,
-	int width,
-	int height)
-{
-	if (param.pixel_format != sys::PixelFormat::r8g8b8)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Unsupported pixel format.");
-	}
-
-	if (param.buffer == nullptr)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Null destination buffer.");
-	}
-
-	if (param.width != width || param.height != height)
-	{
-		BSTONE_THROW_STATIC_SOURCE("Destination size mismatch.");
-	}
-}
-
 // ==========================================================================
 
 class R3r
