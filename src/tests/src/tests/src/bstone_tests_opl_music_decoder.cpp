@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "bstone_audio_decoder.h"
+#include "bstone_endian.h"
 #include "bstone_opl_music_decoder.h"
 #include "bstone_tester.h"
 
@@ -22,9 +23,8 @@ using Chunk = std::vector<std::uint8_t>;
 
 Chunk make_chunk(int command_block_size, std::initializer_list<std::uint8_t> commands)
 {
-	auto chunk = Chunk{};
-	chunk.push_back(static_cast<std::uint8_t>(command_block_size & 0xFF));
-	chunk.push_back(static_cast<std::uint8_t>((command_block_size >> 8) & 0xFF));
+	auto chunk = Chunk(2);
+	bstone::endian::write_u16_le(static_cast<std::uint16_t>(command_block_size), chunk.data());
 	chunk.insert(chunk.end(), commands);
 	return chunk;
 }
