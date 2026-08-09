@@ -29,6 +29,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
 #include "bstone_oal_loader.h"
 #include "bstone_oal_resource.h"
 #include "bstone_scope_exit.h"
+#include "bstone_sys_fs.h"
 #include "bstone_vorbis_audio_decoder.h"
 #include "bstone_wav_audio_decoder.h"
 #include <cfloat>
@@ -362,6 +363,7 @@ private:
 	void log_oal_al_extensions();
 
 	static const char* get_oal_default_library_file_name();
+	static const char* get_oal_preferred_library_file_name();
 
 	void initialize_oal(const AudioMixerInitParam& param);
 	void initialize_distance_model();
@@ -1016,6 +1018,27 @@ const char* OalAudioMixer::get_oal_default_library_file_name()
 	;
 }
 
+const char* OalAudioMixer::get_oal_preferred_library_file_name()
+{
+#if defined(__APPLE__)
+	// Apple's own framework is deprecated and renders silence for some sources on
+	// modern macOS, so an installed openal-soft gets first refusal over the default.
+	static constexpr const char* file_names[] =
+	{
+		"/opt/homebrew/opt/openal-soft/lib/libopenal.dylib", // Homebrew, Apple Silicon.
+		"/usr/local/opt/openal-soft/lib/libopenal.dylib", // Homebrew, Intel.
+	};
+	for (const char* file_name : file_names)
+	{
+		if (sys::is_regular_file_exists(file_name))
+		{
+			return file_name;
+		}
+	}
+#endif // __APPLE__
+	return nullptr;
+}
+
 void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 {
 	ALCint al_context_attributes[] = {0, 0, 0};
@@ -1030,40 +1053,16 @@ void OalAudioMixer::initialize_oal(const AudioMixerInitParam& param)
 	const std::string_view oal_library = sd_get_oal_library();
 	if (oal_library.empty())
 	{
-#if defined(__APPLE__)
-		// Apple's own framework is deprecated and renders silence for some
-		// sources on modern macOS, so an installed openal-soft gets first
-		// refusal before falling back to it.
-		static constexpr const char* candidate_library_file_names[] = {
-			"/opt/homebrew/opt/openal-soft/lib/libopenal.dylib", // Homebrew, Apple Silicon.
-			"/usr/local/opt/openal-soft/lib/libopenal.dylib", // Homebrew, Intel.
-		};
-		for (const char* candidate_library_file_name : candidate_library_file_names)
-		{
-			try
-			{
-				oal_loader_ = make_oal_loader(candidate_library_file_name);
-				oal_library_string = candidate_library_file_name;
-				break;
-			}
-			catch (...)
-			{
-			}
-		}
-#endif // __APPLE__
-		if (oal_loader_ == nullptr)
-		{
-			oal_library_string = get_oal_default_library_file_name();
-		}
+		const char* const preferred_file_name = get_oal_preferred_library_file_name();
+		oal_library_string = preferred_file_name != nullptr
+			? preferred_file_name
+			: get_oal_default_library_file_name();
 	}
 	else
 	{
 		oal_library_string.append(oal_library.data(), oal_library.size());
 	}
-	if (oal_loader_ == nullptr)
-	{
-		oal_loader_ = make_oal_loader(oal_library_string.c_str());
-	}
+	oal_loader_ = make_oal_loader(oal_library_string.c_str());
 	log(std::string{"Using library: \""} + oal_library_string + '\"');
 	oal_loader_->load_alc_symbols();
 	detect_alc_extensions();
