@@ -4,6 +4,7 @@
 #include <limits>
 #include <vector>
 
+#include "bstone_endian.h"
 #include "bstone_opl_sfx_decoder.h"
 #include "bstone_tester.h"
 
@@ -24,10 +25,7 @@ using Chunk = std::vector<std::uint8_t>;
 Chunk make_chunk(std::uint32_t sfx_length, int command_count)
 {
 	auto chunk = Chunk(static_cast<std::size_t>(min_chunk_size + command_count));
-	chunk[0] = static_cast<std::uint8_t>(sfx_length);
-	chunk[1] = static_cast<std::uint8_t>(sfx_length >> 8);
-	chunk[2] = static_cast<std::uint8_t>(sfx_length >> 16);
-	chunk[3] = static_cast<std::uint8_t>(sfx_length >> 24);
+	bstone::endian::write_u32_le(sfx_length, chunk.data());
 	chunk[12] = 0x0F; // Modulator sustain.
 	chunk[13] = 0x0F; // Carrier sustain.
 	chunk[22] = 0x02; // Block.

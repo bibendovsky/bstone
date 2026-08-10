@@ -14,6 +14,7 @@ SPDX-License-Identifier: MIT
 #include "bstone_r3r_cmd_buffer.h"
 #include "bstone_r3r_limits.h"
 #include "bstone_r3r_sample_count.h"
+#include "bstone_r3r_utils.h"
 #include "bstone_string_builder.h"
 #include "bstone_sys_logger.h"
 #include "bstone_vk_r3r_array_extractor.h"
@@ -450,7 +451,7 @@ void VkR3rImpl::read_pixels(
 	const R3rReadPixelsParam& param,
 	bool& is_flipped_vertically)
 {
-	r3r_validate_read_pixels_param(
+	R3rUtils::validate_read_pixels_param(
 		param,
 		static_cast<int>(context_.vk_offscreen_width),
 		static_cast<int>(context_.vk_offscreen_height));

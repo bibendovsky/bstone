@@ -234,7 +234,7 @@ bool Movie::get_frame()
 	// the reader advances afterwards. An oversized one hands out a payload that runs
 	// past the end of the file, and a negative one rewinds the reader onto the very
 	// same frame, so the movie would never end.
-	if (anim_frame_recsize_ < 0 || !binary_reader_.can_read_n(anim_frame_recsize_))
+	if (!binary_reader_.can_read_n(anim_frame_recsize_))
 	{
 		BSTONE_THROW_STATIC_SOURCE("Frame size out of range.");
 	}

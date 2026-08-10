@@ -216,6 +216,24 @@ try {
 	}
 } BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
 
+void R3rUtils::validate_read_pixels_param(const R3rReadPixelsParam& param, int width, int height)
+try {
+	if (param.pixel_format != sys::PixelFormat::r8g8b8)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Unsupported pixel format.");
+	}
+
+	if (param.buffer == nullptr)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Null destination buffer.");
+	}
+
+	if (param.width != width || param.height != height)
+	{
+		BSTONE_THROW_STATIC_SOURCE("Destination size mismatch.");
+	}
+} BSTONE_END_FUNC_CATCH_ALL_THROW_NESTED
+
 void R3rUtils::validate_buffer_update_param(const R3rUpdateBufferParam& param)
 try {
 	if (param.offset < 0)

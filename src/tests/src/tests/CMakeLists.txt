@@ -132,6 +132,22 @@ target_sources(bstone_tests
 		../../../bstone/src/bstone_opl_music_decoder.cpp
 		../../../bstone/src/bstone_opl_music_decoder.h
 		../../../bstone/src/bstone_r3r.h
+		../../../bstone/src/bstone_r3r_utils.cpp
+		../../../bstone/src/bstone_r3r_utils.h
+		../../../bstone/src/bstone_cvar.cpp
+		../../../bstone/src/bstone_cvar.h
+		../../../bstone/src/bstone_rgb8.cpp
+		../../../bstone/src/bstone_rgb8.h
+		../../../bstone/src/bstone_sprite.cpp
+		../../../bstone/src/bstone_sprite.h
+		../../../bstone/src/bstone_sys_window.cpp
+		../../../bstone/src/bstone_sys_window.h
+		../../../bstone/src/bstone_video_cvars.cpp
+		../../../bstone/src/bstone_video_cvars.h
+		../../../bstone/src/bstone_cvalidator.cpp
+		../../../bstone/src/bstone_cvalidator.h
+		../../../bstone/src/bstone_cvar_string.cpp
+		../../../bstone/src/bstone_cvar_string.h
 		../../../bstone/src/jm_lzh.cpp
 		../../../bstone/src/jm_lzh.h
 	PRIVATE
